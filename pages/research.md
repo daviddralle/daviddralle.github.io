@@ -1,5 +1,5 @@
 --- 
-layout: default.html
+layout: my_default
 --- 
 
 [home](/index.html) | [research](/pages/research.html) | 
