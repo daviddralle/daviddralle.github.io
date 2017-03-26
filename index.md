@@ -1,6 +1,6 @@
 ---
 title: home
-layout: default
+layout: my_default
 ---
 
 - [Research](pages/research.html)
