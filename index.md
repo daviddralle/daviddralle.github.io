@@ -3,8 +3,7 @@ layout: page
 ---
 
 <p align="center">
-  <b>Navigate:</b><br>
-  <a href="">Research</a> |
+  <a href="#research">Research</a> |
   <a href="https://www.dropbox.com/s/nvjg9o230v6sgqh/dralleCV.pdf?dl=0">Download CV</a> |
   <a href="https://scholar.google.com/citations?user=aTBY7vAAAAAJ&hl=en">Publications on Google Scholar</a>
   <br><br>
