@@ -3,7 +3,7 @@ layout: page
 ---
 
 <p align="center">
-  <a href="#research">Research</a> |
+  <!-- <a href="#research">Research</a> | -->
   <a href="https://www.dropbox.com/s/nvjg9o230v6sgqh/dralleCV.pdf?dl=0">Download CV</a> |
   <a href="https://scholar.google.com/citations?user=aTBY7vAAAAAJ&hl=en">Publications on Google Scholar</a>
   <br><br>
@@ -17,6 +17,9 @@ I'm a postdoctoral researcher with Professor [Bill Dietrich](http://vcresearch.b
 
 ---
 
-## Research
+I'm ferrying material from my old website to GitHub pages, and hope to have some research and teaching highlights here before too long. Till then, here I am ferrying Jesse across Dry Creek. 
+
+![](../assets/ferry.jpg "Dry Creek")
+<sub>Friendly ferry across [Dry Creek](https://goo.gl/maps/kyV2hX9eAQ32), Coast Ranges of California, Winter 2017.</sub>
 
 
