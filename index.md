@@ -4,7 +4,7 @@ layout: page
 
 <p align="center">
   <!-- <a href="#research">Research</a> | -->
-  <a href="https://www.dropbox.com/s/nvjg9o230v6sgqh/dralleCV.pdf?dl=1" target="_blank">Download CV</a> |
+  <a href="../assets/dralleCV.pdf" target="_blank">Download CV</a> |
   <a href="https://scholar.google.com/citations?user=aTBY7vAAAAAJ&hl=en" target="_blank">Publications on Google Scholar</a>
   <br><br>
 </p>
