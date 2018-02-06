@@ -22,8 +22,8 @@
 		position:absolute;
 		top:0;
 		left:0;
-		min-height:100%;
-		min-width:100%;
+		width:100%;
+		height:100%;
 	}
 
 	.content {
@@ -60,6 +60,7 @@
 </style>
 
 
+<body>
 
 <div class='background-wrap'>
 	<video id="video-bg-elem" autoplay='true' loop='loop'>
@@ -90,6 +91,7 @@
 	<sub>Friendly ferry across [Dry Creek](https://goo.gl/maps/kyV2hX9eAQ32){:target="_blank"}, Coast Ranges of California, Winter 2017.</sub> -->
 
 </div>
+</body>
 
 
 
