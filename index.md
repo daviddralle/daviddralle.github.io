@@ -45,16 +45,15 @@
 		text-align: center;
 		font: cal
 		font-size: 20px;
-		color: #aaa;
+		color: #fff;
 		font-weight: 300;
 	}
 
 	.content h1 {
 		text-align: center;
-		font-size: 50px;
+		font-size: 30px;
 		text-transform: uppercase;
 		font-weight: 600;
-		font-size: 40px;
 		color: #fff;
 		font-weight: 100;
 	}
