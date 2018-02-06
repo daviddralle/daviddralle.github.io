@@ -32,8 +32,29 @@ layout: page
 		width:100%;
 		min-height:100%;
 		z-index: 1000;
+		padding-top: 15%;
+		padding-right: 20%;
+		padding-left: 20%;
 		top:0;
 		left:0;
+		margin-bottom: 10px;
+	}
+
+	.content p {
+		text-align: center;
+		font-size: 30px;
+		color: #aaa;
+		font-weight: 100;
+	}
+
+	.content h1 {
+		text-align: center;
+		font-size: 50px;
+		text-transform: uppercase;
+		font-weight: 300;
+		font-size: 30px;
+		color: #fff;
+		font-weight: 100;
 	}
 
 </style>
@@ -47,24 +68,26 @@ layout: page
 </div>
 
 <div class='content'>
-	<p align="center">
+	<h1>
 	  <!-- <a href="#research">Research</a> | -->
 	  <a href="../assets/dralleCV.pdf" target="_blank">Download CV</a> |
 	  <a href="https://scholar.google.com/citations?user=aTBY7vAAAAAJ&hl=en" target="_blank">Publications on Google Scholar</a>
 	  <br><br>
-	</p>
+	</h1>
 
-	I'm a postdoctoral researcher with Professor [Bill Dietrich](http://vcresearch.berkeley.edu/faculty/william-e-dietrich){:target="_blank"} at UC Berkeley's [Eel River Critical Zone Observatory](http://criticalzone.org/eel/){:target="_blank"}. My research aims to improve understanding of how Earth’s porous, near surface layer – the critical zone – governs the ecohydrology of seasonally dry landscapes. 
+	<p>
+		I'm a postdoctoral researcher with Professor [Bill Dietrich](http://vcresearch.berkeley.edu/faculty/william-e-dietrich){:target="_blank"} at UC Berkeley's [Eel River Critical Zone Observatory](http://criticalzone.org/eel/){:target="_blank"}. My research aims to improve understanding of how Earth’s porous, near surface layer – the critical zone – governs the ecohydrology of seasonally dry landscapes.
+	</p> 
 
-	![](../assets/coast.JPG "Freshwater Creek")
+<!-- 	![](../assets/coast.JPG "Freshwater Creek")
 	<sub>[Freshwater Creek](https://goo.gl/maps/WHKbuRm5bNJ2){:target="_blank"}, Coast Ranges of California, a few days after a large storm that triggered numerous landslides in February 2017.</sub>
 
-	---
+
 
 	I'm ferrying material from my old website to GitHub pages, and hope to have some research and teaching highlights here before too long. Till then, here I am ferrying Jesse across Dry Creek. 
 
 	![](../assets/ferry.jpg "Dry Creek")
-	<sub>Friendly ferry across [Dry Creek](https://goo.gl/maps/kyV2hX9eAQ32){:target="_blank"}, Coast Ranges of California, Winter 2017.</sub>
+	<sub>Friendly ferry across [Dry Creek](https://goo.gl/maps/kyV2hX9eAQ32){:target="_blank"}, Coast Ranges of California, Winter 2017.</sub> -->
 
 </div>
 
