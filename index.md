@@ -28,10 +28,12 @@ layout: page
 
 	.content {
 		position:absolute;
+		text-align: center;
 		width:100%;
 		min-height:100%;
 		z-index: 1000;
-		background-color: rgba(0,0,0,0.5);
+		top:0;
+		left:0;
 	}
 
 </style>
