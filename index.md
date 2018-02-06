@@ -1,5 +1,5 @@
 ---
-layout: page
+
 ---
 
 <style type="text/css">
