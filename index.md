@@ -1,6 +1,3 @@
----
-
----
 
 <style type="text/css">
 
@@ -26,6 +23,10 @@
 		height:100%;
 	}
 
+	body {
+		font-family: Calibri, sans-serif;
+	}
+
 	.content {
 		position:absolute;
 		text-align: center;
@@ -42,17 +43,18 @@
 
 	.content p {
 		text-align: center;
-		font-size: 30px;
+		font: cal
+		font-size: 20px;
 		color: #aaa;
-		font-weight: 100;
+		font-weight: 300;
 	}
 
 	.content h1 {
 		text-align: center;
 		font-size: 50px;
 		text-transform: uppercase;
-		font-weight: 300;
-		font-size: 30px;
+		font-weight: 600;
+		font-size: 40px;
 		color: #fff;
 		font-weight: 100;
 	}

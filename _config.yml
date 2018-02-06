@@ -8,11 +8,11 @@ highlighter: rouge
 # Themes are encouraged to use these universal variables
 # so be sure to set them if your theme uses them.
 #
-title : David Dralle - Postdoctoral Scholar - Earth and Planetary Science, UC Berkeley 
-author :
-  name : David Dralle
-  email : daviddralle@gmail.com
-  github : daviddralle
+# title : David Dralle - Postdoctoral Scholar - Earth and Planetary Science, UC Berkeley 
+# author :
+#   name : David Dralle
+#   email : daviddralle@gmail.com
+#   github : daviddralle
 
 production_url : http://daviddralle.github.io
 
