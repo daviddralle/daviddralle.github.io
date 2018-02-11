@@ -1,103 +1,57 @@
-<!DOCTYPE html>
 <html>
-
-
-<style type="text/css">
-
-	.row {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 4px;
+<head>
+<style>
+div.gallery {
+    margin: 5px;
+    border: 1px solid #ccc;
+    float: left;
+    width: 180px;
 }
 
-/* Create four equal columns that sits next to each other */
-.column {
-  flex: 25%;
-  max-width: 25%;
-  padding: 0 4px;
+div.gallery:hover {
+    border: 1px solid #777;
 }
 
-.column img {
-  margin-top: 8px;
-  vertical-align: middle;
+div.gallery img {
+    width: 100%;
+    height: auto;
 }
 
-/* Responsive layout - makes a two column-layout instead of four columns */
-@media (max-width: 800px) {
-  .column {
-    flex: 50%;
-    max-width: 50%;
-  }
+div.desc {
+    padding: 15px;
+    text-align: center;
 }
-
-/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-@media (max-width: 600px) {
-  .column {
-    flex: 100%;
-    max-width: 100%;
-  }
-}
-
 </style>
-
+</head>
 <body>
 
-<div class="row"> 
-  <div class="column">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-  </div>
-  <div class="column">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-  </div> 
-  <div class="column">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-  </div>
-  <div class="column">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-    <img src="plots/test.png">
-  </div>
+<div class="gallery">
+  <a target="_blank" href="plots/test.png">
+    <img src="plots/test.png" alt="Fjords" width="300" height="200">
+  </a>
+  <div class="desc">Add a description of the image here</div>
 </div>
 
+<div class="gallery">
+  <a target="_blank" href="plots/test.png">
+    <img src="plots/test.png" alt="Forest" width="300" height="200">
+  </a>
+  <div class="desc">Add a description of the image here</div>
+</div>
+
+<div class="gallery">
+  <a target="_blank" href="plots/test.png">
+    <img src="plots/test.png" alt="Northern Lights" width="300" height="200">
+  </a>
+  <div class="desc">Add a description of the image here</div>
+</div>
+
+<div class="gallery">
+  <a target="_blank" href="plots/test.png">
+    <img src="plots/test.png" alt="Mountains" width="300" height="200">
+  </a>
+  <div class="desc">Add a description of the image here</div>
+</div>
 
 </body>
 </html>
-
-
-
-
-
-<!-- 	![](../assets/coast.JPG "Freshwater Creek")
-	<sub>[Freshwater Creek](https://goo.gl/maps/WHKbuRm5bNJ2){:target="_blank"}, Coast Ranges of California, a few days after a large storm that triggered numerous landslides in February 2017.</sub>
-
-
-
-	I'm ferrying material from my old website to GitHub pages, and hope to have some research and teaching highlights here before too long. Till then, here I am ferrying Jesse across Dry Creek. 
-
-	![](../assets/ferry.jpg "Dry Creek")
-	<sub>Friendly ferry across [Dry Creek](https://goo.gl/maps/kyV2hX9eAQ32){:target="_blank"}, Coast Ranges of California, Winter 2017.</sub> -->
-
-
-
-
-
