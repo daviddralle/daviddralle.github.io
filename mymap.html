@@ -25,7 +25,7 @@ window.onload = function () {
 	    subdomains:['mt0','mt1','mt2','mt3']});
 
 	var basemap = googleSat
-
+  var basemaps = {"Google satellite":googleSat, "Google terrain":googleTerrain}
     $.getJSON("./mymap.geojson", function(data) {
 
     var geojson = L.geoJson(data, {
@@ -37,8 +37,12 @@ window.onload = function () {
 
     var map = L.map('my-map').fitBounds(geojson.getBounds());
 
-    basemap.addTo(map);
+    
+    // googleTerrain.addTo(map);
+    // googleSat.addTo(map);
     geojson.addTo(map);
+    L.control.layers(basemaps).addTo(map);
+    googleSat.addTo(map);
   });
 
 };
