@@ -1,82 +1,47 @@
 <!DOCTYPE html>
-<html>
+<head>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-<style type="text/css">
 
-	img {
- 
-    height: 30;
-    width: 50%;
-	}
-
-	/* unvisited link */
-	a:link {
-	    color: black;
-	}
-
-	/* visited link */
-	a:visited {
-	    color: black;
-	}
-
-	/* mouse over link */
-	a:hover {
-	    color: gray;
-	}
-
-	/* selected link */
-	a:active {
-	    color: gray;
-	}
-
-	* {
-    margin:10px;
-	}
-
-	body {
-		font-family: Calibri, sans-serif;
-	}
+<style>
+#my-map {height: calc(100% - 44px); width: calc(100% - 44px); position: absolute}
 </style>
-
+</head>
 
 <body>
-	<h2>
-	  <a href="../assets/dralleCV.pdf" target="_blank">Download CV</a> |
-	  <a href="https://scholar.google.com/citations?user=aTBY7vAAAAAJ&hl=en" target="_blank">Publications on Google Scholar</a>
-	  <br>
-	</h2>
+	<div id="my-map"></div>
+<script>
+window.onload = function () {
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+	    maxZoom: 20,
+	    subdomains:['mt0','mt1','mt2','mt3']});
 
-<!-- 	<div class='column'>
-	 <img src="./assets/coast.JPG" />
-	</div>
-	<div class='column'> -->
-		
-	<div class='row'>
-			I'm a postdoctoral researcher with Professor<a href="http://vcresearch.berkeley.edu/faculty/william-e-dietrich" target="_blank">Bill Dietrich</a>at UC Berkeley's Eel River Critical Zone Observatory. My research combines modeling, remote-sensing, and field-based approaches to understand how the structure of the critical zone affects ecohydrological processes.
-	</div>
 
-</div>
+	var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+	    maxZoom: 20,
+	    subdomains:['mt0','mt1','mt2','mt3']});
+
+	var basemap = googleSat
+
+    $.getJSON("mymap.geojson", function(data) {
+
+    var geojson = L.geoJson(data, {
+      onEachFeature: function (feature, layer) {
+        layer.bindPopup(feature.properties.image, {maxWidth: "auto"});
+      }
+    });
+
+
+    var map = L.map('my-map').fitBounds(geojson.getBounds());
+
+    basemap.addTo(map);
+    geojson.addTo(map);
+  });
+
+};
+
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-<!-- 	![](../assets/coast.JPG "Freshwater Creek")
-	<sub>[Freshwater Creek](https://goo.gl/maps/WHKbuRm5bNJ2){:target="_blank"}, Coast Ranges of California, a few days after a large storm that triggered numerous landslides in February 2017.</sub>
-
-
-
-	I'm ferrying material from my old website to GitHub pages, and hope to have some research and teaching highlights here before too long. Till then, here I am ferrying Jesse across Dry Creek. 
-
-	![](../assets/ferry.jpg "Dry Creek")
-	<sub>Friendly ferry across [Dry Creek](https://goo.gl/maps/kyV2hX9eAQ32){:target="_blank"}, Coast Ranges of California, Winter 2017.</sub>
-
-
-
-
-
- -->
