@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<head>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+
+<style>
+#my-map {height: calc(100% - 44px); width: calc(100% - 44px); position: absolute}
+</style>
+</head>
+
+<body>
+	<div id="my-map"></div>
+<script>
+window.onload = function () {
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+	    maxZoom: 20,
+	    subdomains:['mt0','mt1','mt2','mt3']});
+
+
+	var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+	    maxZoom: 20,
+	    subdomains:['mt0','mt1','mt2','mt3']});
+
+	var basemap = googleSat
+
+    $.getJSON("mymap.geojson", function(data) {
+
+    var geojson = L.geoJson(data, {
+      onEachFeature: function (feature, layer) {
+        layer.bindPopup(feature.properties.image, {maxWidth: "auto"});
+      }
+    });
+
+
+    var map = L.map('my-map').fitBounds(geojson.getBounds());
+
+    basemap.addTo(map);
+    geojson.addTo(map);
+  });
+
+};
+
+</script>
+</body>
+</html>
