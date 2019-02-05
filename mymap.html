@@ -25,7 +25,7 @@ window.onload = function () {
 
 	var basemap = googleSat
 
-    $.getJSON("mymap.geojson", function(data) {
+    $.getJSON("./mymap.geojson", function(data) {
 
     var geojson = L.geoJson(data, {
       onEachFeature: function (feature, layer) {
