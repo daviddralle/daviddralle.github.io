@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <head>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@0.7.7/dist/leaflet.css" />
-
 <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
@@ -12,38 +11,64 @@
 </head>
 
 <body>
-	<div id="my-map"></div>
+  <div id="my-map"></div>
 <script>
 window.onload = function () {
     var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
-	    maxZoom: 20,
-	    subdomains:['mt0','mt1','mt2','mt3']});
+      maxZoom: 20,
+      subdomains:['mt0','mt1','mt2','mt3']});
 
 
-	var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
-	    maxZoom: 20,
-	    subdomains:['mt0','mt1','mt2','mt3']});
+  var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+      maxZoom: 20,
+      subdomains:['mt0','mt1','mt2','mt3']});
 
-	var basemap = googleSat
   var basemaps = {"Google satellite":googleSat, "Google terrain":googleTerrain}
 
 
-  $.getJSON("./mymap.geojson", function(data) {
-      var geojson = L.geoJson(data, {
+  $.getJSON("mymap.geojson", function(data) {
+      
+      var categories = {},
+        Type;
+
+      var allPoints = L.geoJson(data, {
         onEachFeature: function (feature, layer) {
           layer.bindPopup(feature.properties.image, {maxWidth: "auto"});
-
+          Type = feature.properties.marker_category;
+          if (typeof categories[Type] === "undefined") {
+            categories[Type] = [];
+          }
+          categories[Type].push(layer);
         }, 
         pointToLayer: function (feature, latlng) { 
-          return L.circleMarker(latlng, {radius: 8, opacity:1, fillOpacity:1, color:'black', fillColor: feature.properties.marker_color});},
+          return L.circleMarker(latlng, {radius: 8, opacity:1, fillOpacity:1, color:'black', fillColor: feature.properties.marker_color});
+        },
       });
+      var map = L.map('my-map').fitBounds(allPoints.getBounds());
 
+      var overlaysObj = {},
+        TypeName,
+        TypeArray,
+        TypeLG;
 
-    var map = L.map('my-map').fitBounds(geojson.getBounds());
-    
+      for (TypeName in categories) {
+        TypeArray = categories[TypeName];
+        TypeLG = L.layerGroup(TypeArray).addTo(map);
+        TypeLG.TypeName = TypeName;
+        overlaysObj[TypeName] = TypeLG;
+      }
 
-    geojson.addTo(map);
-    L.control.layers(basemaps).addTo(map);
+      var control = L.control.layers(basemaps, overlaysObj, {
+        collapsed: false
+      }).addTo(map);
+     
+      // var map = L.map('my-map').fitBounds(geojson.getBounds());
+      // piezos.addTo(map);
+      // wells.addTo(map);
+    // geojson.addTo(map);
+    // var groups = {"Piezometers":piezos, "Wells":wells}
+    // L.control.layers(groups).addTo(map);
+    // L.control.layers(basemaps).addTo(map);
     googleSat.addTo(map);
   });
 
