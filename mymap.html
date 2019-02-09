@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <head>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@0.7.7/dist/leaflet.css" />
+
 <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
 
 
 <style>
@@ -26,26 +26,29 @@ window.onload = function () {
 
 	var basemap = googleSat
   var basemaps = {"Google satellite":googleSat, "Google terrain":googleTerrain}
-    $.getJSON("./mymap.geojson", function(data) {
 
-    var geojson = L.geoJson(data, {
-      onEachFeature: function (feature, layer) {
-        layer.bindPopup(feature.properties.image, {maxWidth: "auto"});
-      }
-    });
+
+  $.getJSON("./mymap.geojson", function(data) {
+      var geojson = L.geoJson(data, {
+        onEachFeature: function (feature, layer) {
+          layer.bindPopup(feature.properties.image, {maxWidth: "auto"});
+
+        }, 
+        pointToLayer: function (feature, latlng) { 
+          return L.circleMarker(latlng, {radius: 8, opacity:1, fillOpacity:1, color:'black', fillColor: feature.properties.marker_color});},
+      });
 
 
     var map = L.map('my-map').fitBounds(geojson.getBounds());
-
     
-    // googleTerrain.addTo(map);
-    // googleSat.addTo(map);
+
     geojson.addTo(map);
     L.control.layers(basemaps).addTo(map);
     googleSat.addTo(map);
   });
 
 };
+
 
 </script>
 </body>
