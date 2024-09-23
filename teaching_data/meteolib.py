@@ -301,7 +301,7 @@ def es_calc(airtemp= np.array([])):
     # airtemp = _arraytest(airtemp)
 
     # Determine length of array
-    n = scipy.size(airtemp)
+    n = np.size(airtemp)
     # Check if we have a single (array) value or an array
     if n < 2:
         # Calculate saturated vapour pressures, distinguish between water/ice
@@ -323,7 +323,7 @@ def es_calc(airtemp= np.array([])):
             es = math.pow(10, log_pw)
     else:   # Dealing with an array     
         # Initiate the output array
-        es = scipy.zeros(n)
+        es = np.zeros(n)
         # Calculate saturated vapour pressures, distinguish between water/ice
         for i in range(0, n):              
             if airtemp[i] < 0:
@@ -565,18 +565,18 @@ def sun_NR(doy=np.array([]),\
     # Convert latitude [degrees] to radians
     latrad = lat * math.pi / 180.0
     # calculate solar declination dt [radians]
-    dt = 0.409 * scipy.sin(2 * math.pi / 365 * doy - 1.39)
+    dt = 0.409 * np.sin(2 * math.pi / 365 * doy - 1.39)
     # calculate sunset hour angle [radians]
-    ws = scipy.arccos(-scipy.tan(latrad) * scipy.tan(dt))
+    ws = np.arccos(-np.tan(latrad) * np.tan(dt))
     # Calculate sunshine duration N [h]
     N = 24 / math.pi * ws
     # Calculate day angle j [radians]
     j = 2 * math.pi / 365.25 * doy
     # Calculate relative distance to sun
-    dr = 1.0 + 0.03344 * scipy.cos(j - 0.048869)
+    dr = 1.0 + 0.03344 * np.cos(j - 0.048869)
     # Calculate Rext
-    Rext = S * 86400 / math.pi * dr * (ws * scipy.sin(latrad) * scipy.sin(dt)\
-           + scipy.sin(ws) * scipy.cos(latrad) * scipy.cos(dt))
+    Rext = S * 86400 / math.pi * dr * (ws * np.sin(latrad) * np.sin(dt)\
+           + np.sin(ws) * np.cos(latrad) * np.cos(dt))
     return N, Rext
 
 def vpd_calc(airtemp= np.array([]),\
@@ -672,7 +672,7 @@ def windvec(u= np.array([]),\
     vn = - vn / len(u) # determine average north speed component
     uv = math.sqrt(ve * ve + vn * vn) # calculate wind speed vector magnitude
     # Calculate wind speed vector direction
-    vdir = scipy.arctan2(ve, vn)
+    vdir = np.arctan2(ve, vn)
     vdir = vdir * 180.0 / math.pi # Convert radians to degrees
     if vdir < 180:
         Dv = vdir + 180.0
