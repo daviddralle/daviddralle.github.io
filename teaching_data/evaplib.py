@@ -126,7 +126,7 @@ def ra(z=float,\
     # u = meteolib._arraytest(u)
 
     # Calculate ra
-    ra= (scipy.log((z-d)/z0))**2/(0.16*u)
+    ra= (np.log((z-d)/z0))**2/(0.16*u)
     return ra # aerodynamic resistanc in s/m
 
 
@@ -213,7 +213,7 @@ def E0(airtemp = np.array([]),\
     Rns = (1.0-alpha)*Rs # Shortwave component [J/m2/d]
     Rs0 = (0.75+2E-5*Z)*Rext # Calculate clear sky radiation Rs0 
     f = 1.35*Rs/Rs0-0.35
-    epsilom = 0.34-0.14*scipy.sqrt(ea/1000)
+    epsilom = 0.34-0.14*np.sqrt(ea/1000)
     Rnl = f*epsilom*sigma*(airtemp+273.15)**4 # Longwave component [J/m2/d]
     Rnet = Rns-Rnl # Net radiation [J/m2/d]
     Ea = (1+0.536*u)*(es/1000-ea/1000)
@@ -289,7 +289,7 @@ def ET0pm(airtemp = np.array([]),\
     # Calculate clear sky radiation Rs0 
     Rs0 = (0.75+2E-5*Z)*Rext # Clear sky radiation [J/m2/d]
     f = 1.35*Rs/Rs0-0.35
-    epsilom = 0.34-0.14*scipy.sqrt(ea/1000)
+    epsilom = 0.34-0.14*np.sqrt(ea/1000)
     Rnl = f*epsilom*sigma*(airtemp+273.15)**4 # Longwave component [J/m2/d]
     Rnet = Rns-Rnl # Net radiation [J/m2/d]
     ET0pm = (DELTA/1000.*Rnet/Lambda+900./(airtemp+273.16)*u*(es-ea)/1000\
@@ -582,16 +582,16 @@ def tvardry(rho = np.array([]),\
     # L= Obhukov-length [m]
     
     #Free Convection Limit
-    H = rho * cp * scipy.sqrt((sigma_t/C1)**3 * k * g * (z-d) / (T+273.15) * C2)
+    H = rho * cp * np.sqrt((sigma_t/C1)**3 * k * g * (z-d) / (T+273.15) * C2)
     #else:
     # including stability correction
     #zoverL = z/L
-    #tvardry = rho * cp * scipy.sqrt((sigma_t/C1)**3 * k*g*(z-d) / (T+273.15) *\
+    #tvardry = rho * cp * np.sqrt((sigma_t/C1)**3 * k*g*(z-d) / (T+273.15) *\
     #          (1-C2*z/L)/(-1*z/L))
     
     #Check if we get complex numbers (square root of negative value) and remove 
     #I = find(zoL >= 0 | H.imag != 0);
-    #H(I) = scipy.ones(size(I))*NaN;
+    #H(I) = np.ones(size(I))*NaN;
         
     return H # sensible heat flux
 
@@ -641,12 +641,12 @@ def gash79(Pg=np.array([]),
     # Pg = meteolib._arraytest(Pg)
 
     # Determine length of array Pg
-    l = scipy.size(Pg)
+    l = np.size(Pg)
     # Check if we have a single precipitation value or an array
     if l < 2:   # Dealing with single value...
         
         #PGsat calculation (for the saturation of the canopy)
-        PGsat = -(1/ER*S)* scipy.log((1-(ER/(1-p-pt))))
+        PGsat = -(1/ER*S)* np.log((1-(ER/(1-p-pt))))
 
         #Set initial values to zero
         Ecan= 0.
@@ -671,11 +671,11 @@ def gash79(Pg=np.array([]),
         
     else:
         #Define variables and constants
-        n = scipy.size(Pg)
-        TF = scipy.zeros(n)
-        SF = scipy.zeros(n)
-        Ei = scipy.zeros(n)
-        Etrunk = scipy.zeros(n)
+        n = np.size(Pg)
+        TF = np.zeros(n)
+        SF = np.zeros(n)
+        Ei = np.zeros(n)
+        Etrunk = np.zeros(n)
 
         #Set results to zero if rainfall Pg is zero
         TF[Pg==0]=0.
@@ -684,7 +684,7 @@ def gash79(Pg=np.array([]),
         Etrunk[Pg==0]=0.
 
         #PGsat calc (for the saturation of the canopy)
-        PGsat = -(1/ER*S)* scipy.log((1-(ER/(1-p-pt))))
+        PGsat = -(1/ER*S)* np.log((1-(ER/(1-p-pt))))
 
         #Process rainfall series
         for i in range (0,n):
