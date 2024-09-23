@@ -84,7 +84,7 @@ def meteolib():
 # Load relevant python functions
 import math     # import math library
 import scipy    # import scientific python functions
-
+import numpy as np
 
 def _arraytest(*args):
     '''
@@ -118,7 +118,7 @@ def _arraytest(*args):
     rargs=[]
     for a in args:
         if isinstance(a, (list, tuple)):
-            rargs.append(scipy.array(a))
+            rargs.append(np.array(a))
         else:
             rargs.append(a)
     if len(rargs) == 1:
@@ -127,9 +127,9 @@ def _arraytest(*args):
         return rargs
 
 
-def cp_calc(airtemp= scipy.array([]),\
-            rh= scipy.array([]),\
-            airpress= scipy.array([])):
+def cp_calc(airtemp= np.array([]),\
+            rh= np.array([]),\
+            airpress= np.array([])):
     '''
     Function to calculate the specific heat of air:
     
@@ -170,7 +170,7 @@ def cp_calc(airtemp= scipy.array([]),\
     '''
     
     # Test input array/value
-    airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
+    # airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
     
     # calculate vapour pressures
     eact = ea_calc(airtemp, rh)
@@ -179,7 +179,7 @@ def cp_calc(airtemp= scipy.array([]),\
     return cp # in J/kg/K
 
 
-def Delta_calc(airtemp= scipy.array([])):
+def Delta_calc(airtemp= np.array([])):
     '''
     Function to calculate the slope of the temperature - vapour pressure curve
     (Delta) from air temperature T:
@@ -212,7 +212,7 @@ def Delta_calc(airtemp= scipy.array([])):
     '''
     
     # Test input array/value
-    airtemp = _arraytest(airtemp)
+    # airtemp = _arraytest(airtemp)
    
     # calculate saturation vapour pressure at temperature
     es = es_calc(airtemp) # in Pa
@@ -223,8 +223,8 @@ def Delta_calc(airtemp= scipy.array([])):
     return Delta # in Pa/K
 
 
-def ea_calc(airtemp= scipy.array([]),\
-            rh= scipy.array([])):
+def ea_calc(airtemp= np.array([]),\
+            rh= np.array([])):
     '''
     Function to calculate actual vapour pressure from relative humidity:
     
@@ -249,7 +249,7 @@ def ea_calc(airtemp= scipy.array([]),\
     '''
     
     # Test input array/value
-    airtemp,rh = _arraytest(airtemp, rh)
+    # airtemp,rh = _arraytest(airtemp, rh)
 
     # Calculate saturation vapour pressures
     es = es_calc(airtemp)
@@ -258,7 +258,7 @@ def ea_calc(airtemp= scipy.array([]),\
     return eact # in Pa
 
 
-def es_calc(airtemp= scipy.array([])):
+def es_calc(airtemp= np.array([])):
     '''
     Function to calculate saturated vapour pressure from temperature.
 
@@ -298,7 +298,7 @@ def es_calc(airtemp= scipy.array([])):
     '''
 
     # Test input array/value
-    airtemp = _arraytest(airtemp)
+    # airtemp = _arraytest(airtemp)
 
     # Determine length of array
     n = scipy.size(airtemp)
@@ -347,9 +347,9 @@ def es_calc(airtemp= scipy.array([])):
     return es # in Pa
 
 
-def gamma_calc(airtemp= scipy.array([]),\
-               rh= scipy.array([]),\
-               airpress=scipy.array([])):
+def gamma_calc(airtemp= np.array([]),\
+               rh= np.array([]),\
+               airpress=np.array([])):
     '''
     Function to calculate the psychrometric constant gamma.
 
@@ -386,7 +386,7 @@ def gamma_calc(airtemp= scipy.array([]),\
     '''
 
     # Test input array/value 
-    airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
+    # airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
     
     # Calculate cp and Lambda values
     cp = cp_calc(airtemp, rh, airpress)
@@ -396,7 +396,7 @@ def gamma_calc(airtemp= scipy.array([]),\
     return gamma # in Pa\K
 
 
-def L_calc(airtemp= scipy.array([])):
+def L_calc(airtemp= np.array([])):
     '''
     Function to calculate the latent heat of vapourisation from air temperature.
     
@@ -424,16 +424,16 @@ def L_calc(airtemp= scipy.array([])):
     '''
     
     # Test input array/value
-    airtemp = _arraytest(airtemp)
+    # airtemp = _arraytest(airtemp)
 
     # Calculate lambda
     L = 4185.5 * (751.78 - 0.5655 * (airtemp + 273.15))
     return L # in J/kg 
 
 
-def pottemp(airtemp= scipy.array([]),\
-            rh=scipy.array([]),\
-            airpress=scipy.array([])):
+def pottemp(airtemp= np.array([]),\
+            rh=np.array([]),\
+            airpress=np.array([])):
     '''
     Function to calculate the potential temperature air, theta, from air
     temperatures, relative humidity and air pressure. Reference pressure
@@ -460,7 +460,7 @@ def pottemp(airtemp= scipy.array([]),\
         
     '''
     # Test input array/value
-    airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
+    # airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
 
     # Determine cp
     cp = cp_calc(airtemp, rh, airpress)
@@ -471,9 +471,9 @@ def pottemp(airtemp= scipy.array([]),\
 
 
 
-def rho_calc(airtemp= scipy.array([]),\
-             rh= scipy.array([]),\
-             airpress= scipy.array([])):
+def rho_calc(airtemp= np.array([]),\
+             rh= np.array([]),\
+             airpress= np.array([])):
     '''
     Function to calculate the density of air, rho, from air
     temperatures, relative humidity and air pressure.
@@ -503,7 +503,7 @@ def rho_calc(airtemp= scipy.array([]),\
     '''
 
     # Test input array/value    
-    airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
+    # airtemp,rh,airpress = _arraytest(airtemp,rh,airpress)
     
     # Calculate actual vapour pressure
     eact = ea_calc(airtemp, rh)
@@ -513,7 +513,7 @@ def rho_calc(airtemp= scipy.array([]),\
     return rho # in kg/m3
 
 
-def sun_NR(doy=scipy.array([]),\
+def sun_NR(doy=np.array([]),\
            lat=float):
     '''
     Function to calculate the maximum sunshine duration [h] and incoming
@@ -555,7 +555,7 @@ def sun_NR(doy=scipy.array([]),\
     '''
     
     # Test input array/value
-    doy,lat = _arraytest(doy,lat)
+    # doy,lat = _arraytest(doy,lat)
     
     # Set solar constant [W/m2]
     S = 1367.0 # [W/m2]
@@ -579,8 +579,8 @@ def sun_NR(doy=scipy.array([]),\
            + scipy.sin(ws) * scipy.cos(latrad) * scipy.cos(dt))
     return N, Rext
 
-def vpd_calc(airtemp= scipy.array([]),\
-             rh= scipy.array([])):
+def vpd_calc(airtemp= np.array([]),\
+             rh= np.array([])):
     '''
     Function to calculate vapour pressure deficit.
 
@@ -604,7 +604,7 @@ def vpd_calc(airtemp= scipy.array([]),\
     '''
     
     # Test input array/value
-    airtemp,rh = _arraytest(airtemp, rh)
+    # airtemp,rh = _arraytest(airtemp, rh)
     
     # Calculate saturation vapour pressures
     es = es_calc(airtemp)
@@ -630,8 +630,8 @@ def airpress_calc(elevation):
     airpress = 101325.0*( (293.0 - 0.0065*elevation)/293.0)**5.26
     return airpress
 
-def windvec(u= scipy.array([]),\
-            D=scipy.array([])):
+def windvec(u= np.array([]),\
+            D=np.array([])):
     '''
     Function to calculate the wind vector from time series of wind
     speed and direction.
@@ -647,8 +647,8 @@ def windvec(u= scipy.array([]),\
     Examples
     --------
     
-        >>> u = scipy.array([[ 3.],[7.5],[2.1]])
-        >>> D = scipy.array([[340],[356],[2]])
+        >>> u = np.array([[ 3.],[7.5],[2.1]])
+        >>> D = np.array([[340],[356],[2]])
         >>> windvec(u,D)
         (4.162354202836905, array([ 353.2118882]))
         >>> uv, Dv = windvec(u,D)
@@ -660,7 +660,7 @@ def windvec(u= scipy.array([]),\
     '''
     
     # Test input array/value    
-    u,D = _arraytest(u,D)
+    # u,D = _arraytest(u,D)
 
     ve = 0.0 # define east component of wind speed
     vn = 0.0 # define north component of wind speed

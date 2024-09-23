@@ -79,11 +79,12 @@ def evaplib():
 # Load meteolib and scientific python modules
 import meteolib
 import scipy
+import numpy as np
 
 def ra(z=float,\
        z0=float,\
        d=float,\
-       u = scipy.array([])):
+       u = np.array([])):
            
     '''
     Function to calculate aerodynamic resistance from windspeed:
@@ -122,19 +123,19 @@ def ra(z=float,\
     '''
 
     # Test input array/value
-    u = meteolib._arraytest(u)
+    # u = meteolib._arraytest(u)
 
     # Calculate ra
     ra= (scipy.log((z-d)/z0))**2/(0.16*u)
     return ra # aerodynamic resistanc in s/m
 
 
-def E0(airtemp = scipy.array([]),\
-       rh = scipy.array([]),\
-       airpress = scipy.array([]),\
-       Rs = scipy.array([]),\
-       Rext = scipy.array([]),\
-       u = scipy.array([]),\
+def E0(airtemp = np.array([]),\
+       rh = np.array([]),\
+       airpress = np.array([]),\
+       Rs = np.array([]),\
+       Rext = np.array([]),\
+       u = np.array([]),\
        alpha = 0.08,\
        Z = 0.0):
            
@@ -194,7 +195,7 @@ def E0(airtemp = scipy.array([]),\
     '''
 
     # Test input array/value
-    airtemp,rh,airpress,Rs,Rext,u = meteolib._arraytest(airtemp,rh,airpress,Rs,Rext,u)
+    # airtemp,rh,airpress,Rs,Rext,u = meteolib._arraytest(airtemp,rh,airpress,Rs,Rext,u)
     
     # Set constants
     sigma = 4.903E-3 # Stefan Boltzmann constant J/m2/K4/d
@@ -221,12 +222,12 @@ def E0(airtemp = scipy.array([]),\
     return E0
 
 
-def ET0pm(airtemp = scipy.array([]),\
-          rh = scipy.array([]),\
-          airpress = scipy.array([]), \
-          Rs = scipy.array([]),\
-          Rext = scipy.array([]),\
-          u = scipy.array([]), \
+def ET0pm(airtemp = np.array([]),\
+          rh = np.array([]),\
+          airpress = np.array([]), \
+          Rs = np.array([]),\
+          Rext = np.array([]),\
+          u = np.array([]), \
           Z=0.0):
               
     '''
@@ -269,7 +270,7 @@ def ET0pm(airtemp = scipy.array([]),\
     '''
 
     # Test input array/value
-    airtemp,rh,airpress,Rs,Rext,u = meteolib._arraytest(airtemp,rh,airpress,Rs,Rext,u)
+    # airtemp,rh,airpress,Rs,Rext,u = meteolib._arraytest(airtemp,rh,airpress,Rs,Rext,u)
     
     # Set constants
     albedo = 0.23 # short grass albedo
@@ -296,10 +297,10 @@ def ET0pm(airtemp = scipy.array([]),\
     return ET0pm # FAO reference evaporation [mm/day]
 
 
-def Em(airtemp = scipy.array([]),\
-       rh = scipy.array([]),\
-       airpress = scipy.array([]),\
-       Rs = scipy.array([])):
+def Em(airtemp = np.array([]),\
+       rh = np.array([]),\
+       airpress = np.array([]),\
+       Rs = np.array([])):
            
     '''
     Function to calculate Makkink evaporation (in mm/day):
@@ -345,7 +346,7 @@ def Em(airtemp = scipy.array([]),\
     '''
 
     # Test input array/value
-    airtemp,rh,airpress,Rs = meteolib._arraytest(airtemp,rh,airpress,Rs)
+    # airtemp,rh,airpress,Rs = meteolib._arraytest(airtemp,rh,airpress,Rs)
 
     # Calculate Delta and gamma constants
     DELTA = meteolib.Delta_calc(airtemp)
@@ -385,11 +386,11 @@ def hargreaves(tmin, tmax, tmean, et_rad):
     return 0.0023 * (tmean + 17.8) * (tmax - tmin) ** 0.5 * 0.408 * et_rad
 
 
-def Ept(airtemp = scipy.array([]),\
-        rh = scipy.array([]),\
-        airpress = scipy.array([]),\
-        Rn = scipy.array([]),\
-        G = scipy.array([])):
+def Ept(airtemp = np.array([]),\
+        rh = np.array([]),\
+        airpress = np.array([]),\
+        Rn = np.array([]),\
+        G = np.array([])):
             
     '''
     Function to calculate daily Priestley - Taylor evaporation:
@@ -430,7 +431,7 @@ def Ept(airtemp = scipy.array([]),\
     '''
 
     # Test input array/value
-    airtemp,rh,airpress,Rn,G = meteolib._arraytest(airtemp,rh,airpress,Rn,G)
+    # airtemp,rh,airpress,Rn,G = meteolib._arraytest(airtemp,rh,airpress,Rn,G)
     
     # Calculate Delta and gamma constants
     DELTA = meteolib.Delta_calc(airtemp)
@@ -441,13 +442,13 @@ def Ept(airtemp = scipy.array([]),\
     return Ept
 
 
-def Epm(airtemp = scipy.array([]),\
-        rh = scipy.array([]),\
-        airpress = scipy.array([]),\
-        Rn = scipy.array([]),\
-        G = scipy.array([]),\
-        ra = scipy.array([]),\
-        rs = scipy.array([])):
+def Epm(airtemp = np.array([]),\
+        rh = np.array([]),\
+        airpress = np.array([]),\
+        Rn = np.array([]),\
+        G = np.array([]),\
+        ra = np.array([]),\
+        rs = np.array([])):
     
     '''
     Function to calculate the Penman Monteith evaporation.
@@ -489,7 +490,7 @@ def Epm(airtemp = scipy.array([]),\
     '''
 
     # Test input array/value
-    airtemp,rh,airpress,Rn,G,ra,rs = meteolib._arraytest(airtemp,rh,airpress,Rn,G,ra,rs)
+    # airtemp,rh,airpress,Rn,G,ra,rs = meteolib._arraytest(airtemp,rh,airpress,Rn,G,ra,rs)
 
     # Calculate Delta, gamma and lambda
     DELTA = meteolib.Delta_calc(airtemp)/100. # [hPa/K]
@@ -506,10 +507,10 @@ def Epm(airtemp = scipy.array([]),\
     return Epm # actual ET in mm
     
     
-def tvardry(rho = scipy.array([]),\
-    cp = scipy.array([]),\
-    T = scipy.array([]),\
-    sigma_t = scipy.array([]),\
+def tvardry(rho = np.array([]),\
+    cp = np.array([]),\
+    T = np.array([]),\
+    sigma_t = np.array([]),\
     z= float(),\
     d= 0.0,
     C1= 2.9,
@@ -571,7 +572,7 @@ def tvardry(rho = scipy.array([]),\
     '''
     
     # Test input array/value
-    rho,cp,T,sigma_t = meteolib._arraytest(rho,cp,T,sigma_t)
+    # rho,cp,T,sigma_t = meteolib._arraytest(rho,cp,T,sigma_t)
 
     # Define constants
     k = 0.40 # von Karman constant
@@ -595,7 +596,7 @@ def tvardry(rho = scipy.array([]),\
     return H # sensible heat flux
 
 
-def gash79(Pg=scipy.array([]),
+def gash79(Pg=np.array([]),
             ER=float,
             S=float,
             St=float,
@@ -637,7 +638,7 @@ def gash79(Pg=scipy.array([]),
         
     '''
     # Test input array/value
-    Pg = meteolib._arraytest(Pg)
+    # Pg = meteolib._arraytest(Pg)
 
     # Determine length of array Pg
     l = scipy.size(Pg)
