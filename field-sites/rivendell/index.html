@@ -859,16 +859,21 @@ function drawMapFurniture() {
 function drawDischargeSymbol(record, viewMode) {
   const runoff = RUNOFF_BY_DATE.get(record[0]);
   const x = cssWidth / 2;
-  const maximumRadius = 26;
-  let y = cssHeight - (viewMode === "section" ? 57 : 48);
+  const maximumRadius = 32;
+  let y = cssHeight - (viewMode === "section" ? 122 : 60);
   if (viewMode === "plan") {
     const well15 = screenWells.find(item => item.well.id === "well-15");
     if (well15) {
       const minimumSeparation = maximumRadius + 13;
       const horizontalDistance = Math.abs(x - well15.x);
       const requiredVerticalDistance = Math.sqrt(Math.max(0, minimumSeparation ** 2 - horizontalDistance ** 2));
-      y = Math.max(y, well15.y + requiredVerticalDistance);
-      y = Math.min(y, cssHeight - maximumRadius - 4);
+      if (Math.abs(y - well15.y) < requiredVerticalDistance) {
+        const belowWell = well15.y + requiredVerticalDistance;
+        const lowestCenter = cssHeight - maximumRadius - 28;
+        y = belowWell <= lowestCenter
+          ? belowWell
+          : Math.max(maximumRadius + 56, well15.y - requiredVerticalDistance);
+      }
     }
   }
   ctx.save();
@@ -876,9 +881,9 @@ function drawDischargeSymbol(record, viewMode) {
   ctx.font = "650 13px ui-sans-serif, system-ui, sans-serif";
   ctx.lineWidth = 4.5;
   ctx.strokeStyle = "rgba(255,255,255,0.92)";
-  ctx.strokeText("Elder Q", x, y - 35);
+  ctx.strokeText("Elder Q", x, y - 42);
   ctx.fillStyle = "rgba(17,48,61,0.9)";
-  ctx.fillText("Elder Q", x, y - 35);
+  ctx.fillText("Elder Q", x, y - 42);
 
   if (runoff != null && Number.isFinite(runoff) && runoff > 0) {
     const fraction = clamp(
@@ -887,7 +892,7 @@ function drawDischargeSymbol(record, viewMode) {
       0,
       1
     );
-    const radius = 6 + fraction * (maximumRadius - 6);
+    const radius = 8 + fraction * (maximumRadius - 8);
     ctx.shadowColor = "rgba(7,48,69,0.16)";
     ctx.shadowBlur = 6;
     ctx.beginPath();
@@ -901,11 +906,12 @@ function drawDischargeSymbol(record, viewMode) {
 
     const value = runoff < 1 ? runoff.toFixed(2) : runoff < 10 ? runoff.toFixed(1) : runoff.toFixed(0);
     ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
+    const valueY = y + maximumRadius + 17;
     ctx.lineWidth = 4;
     ctx.strokeStyle = "rgba(255,255,255,0.92)";
-    ctx.strokeText(`${value} mm/d`, x, y + 4);
+    ctx.strokeText(`${value} mm/d`, x, valueY);
     ctx.fillStyle = "rgba(17,48,61,0.9)";
-    ctx.fillText(`${value} mm/d`, x, y + 4);
+    ctx.fillText(`${value} mm/d`, x, valueY);
   } else {
     ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
     ctx.lineWidth = 4;
