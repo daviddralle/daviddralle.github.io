@@ -206,7 +206,7 @@
             <div class="key-row"><span class="key-line topo"></span><span id="topo-key-label">Topographic contour</span></div>
           </div>
           <div class="vms-legend" id="vms-legend" hidden>
-            <div class="vms-legend-label"><strong>VMS relative moisture θ*</strong><span id="vms-current-range"></span></div>
+            <div class="vms-legend-label"><strong>VMS within-WY moisture θ*</strong><span id="vms-current-range"></span></div>
             <div class="vms-colorbar" id="vms-colorbar" aria-hidden="true" style="background:linear-gradient(90deg,#8e0152,#e72945,#ffad00,#fff05f,#26caaa,#0078da,#2c009c)"></div>
             <div class="vms-colorbar-ticks"><span>0 · dry</span><span>1 · wet</span></div>
           </div>
@@ -295,7 +295,7 @@
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
           <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
-          <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth is normalized independently between its fixed 5th and 95th percentiles from daily means during 8 November 2015–16 February 2023, with values outside those bounds clipped to 0 or 1. Colors are therefore comparable through time within a depth but are not equal millimetres of storage across depths. Blank hatched blocks indicate dates without VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
+          <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Rain history layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>The bottom-center Elder Q circle in both spatial views shows the selected day's watershed-normalized discharge. Circle radius is logarithmic over a fixed 0.05–50 mm/day range; rarer flows above the range use the maximum radius.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
@@ -322,14 +322,44 @@ const VMS_PERCENTILE_BOUNDS = [
 ];
 const FRESH_BEDROCK_DEPTH_M = [9.50, 12.20, 14.40, 25.30, 19.90, 19.80, 27.40, 7.21, 33.22];
 DATA.wells.forEach((well, index) => { well.freshBedrockDepth = FRESH_BEDROCK_DEPTH_M[index]; });
-for (const record of DATA.vms.records) {
-  record[1] = record[1].map((value, index) => {
-    if (value == null) return null;
-    const [oldMinimum, oldMaximum] = EMBEDDED_VMS_MIN_MAX[index];
-    const [p05, p95] = VMS_PERCENTILE_BOUNDS[index];
+function linearPercentile(values, fraction) {
+  const ordered = [...values].sort((left, right) => left - right);
+  const rank = (ordered.length - 1) * fraction;
+  const lower = Math.floor(rank);
+  const upper = Math.min(lower + 1, ordered.length - 1);
+  return ordered[lower] + (ordered[upper] - ordered[lower]) * (rank - lower);
+}
+
+for (let channelIndex = 0; channelIndex < EMBEDDED_VMS_MIN_MAX.length; channelIndex++) {
+  const groups = new Map();
+  for (const record of DATA.vms.records) {
+    const value = record[1][channelIndex];
+    if (value == null) continue;
+    const year = Number(record[0].slice(0, 4)) + (Number(record[0].slice(5, 7)) >= 10 ? 1 : 0);
+    const [oldMinimum, oldMaximum] = EMBEDDED_VMS_MIN_MAX[channelIndex];
     const sourceValue = oldMinimum + value * (oldMaximum - oldMinimum);
-    return Math.round(clamp((sourceValue - p05) / (p95 - p05), 0, 1) * 10000) / 10000;
-  });
+    if (!groups.has(year)) groups.set(year, []);
+    groups.get(year).push({ record, sourceValue });
+  }
+  let previousBounds = null;
+  for (const [year, rows] of [...groups.entries()].sort((left, right) => left[0] - right[0])) {
+    const spanDays = Math.round(
+      (Date.parse(`${rows[rows.length - 1].record[0]}T00:00:00Z`) - Date.parse(`${rows[0].record[0]}T00:00:00Z`)) / 86400000
+    ) + 1;
+    let bounds;
+    if (rows.length >= 120 && spanDays >= 180) {
+      const values = rows.map(row => row.sourceValue);
+      bounds = [linearPercentile(values, 0.05), linearPercentile(values, 0.95)];
+      previousBounds = bounds;
+    } else {
+      bounds = previousBounds || VMS_PERCENTILE_BOUNDS[channelIndex];
+    }
+    for (const row of rows) {
+      row.record[1][channelIndex] = Math.round(
+        clamp((row.sourceValue - bounds[0]) / (bounds[1] - bounds[0]), 0, 1) * 10000
+      ) / 10000;
+    }
+  }
 }
 
 function rebuildWaterYears() {
@@ -1088,9 +1118,9 @@ function drawVmsStrip(record, x, y) {
   ctx.textBaseline = "bottom";
   ctx.lineWidth = 3;
   ctx.strokeStyle = "rgba(255,255,255,0.96)";
-  ctx.strokeText("VMS θ*", centerX, topY - 4);
+  ctx.strokeText("VMS θ* · WY", centerX, topY - 4);
   ctx.fillStyle = "rgba(21,39,47,0.94)";
-  ctx.fillText("VMS θ*", centerX, topY - 4);
+  ctx.fillText("VMS θ* · WY", centerX, topY - 4);
 }
 
 function drawCrossSection(record, headScale, colorMode, colorScale, section) {
@@ -1949,7 +1979,7 @@ canvas.addEventListener("pointermove", event => {
   if (vmsLayer) {
     const detail = vmsLayer.value == null
       ? "No VMS observation on this date"
-      : `Relative moisture θ* ${vmsLayer.value.toFixed(3)}<br>Daily value · fixed 5th–95th percentile normalization`;
+      : `Relative moisture θ* ${vmsLayer.value.toFixed(3)}<br>Daily value · water-year 5th–95th percentile normalization`;
     tooltip.innerHTML = `<strong>VMS ${vmsLayer.channel}</strong><br>${vmsLayer.depth.toFixed(1)} m sensor center<br>${detail}`;
     tooltip.style.left = `${clamp(x, 6, cssWidth - 190)}px`;
     tooltip.style.top = `${clamp(y, 38, cssHeight - 38)}px`;
