@@ -261,7 +261,7 @@
           <label class="mesh-toggle"><input id="loop" type="checkbox"> Loop</label>
           <label class="mesh-toggle"><input id="mesh" type="checkbox"> Mesh</label>
           <label class="mesh-toggle"><input id="all-time" type="checkbox"> All time</label>
-          <label class="mesh-toggle"><input id="rain-history" type="checkbox"> Rain history</label>
+          <label class="mesh-toggle"><input id="rain-history" type="checkbox"> Tetris™ rain</label>
         </div>
       </section>
 
@@ -296,7 +296,7 @@
           <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
-          <p>The optional Rain history layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
+          <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>The bottom-center Elder Q circle in both spatial views shows the selected day's watershed-normalized discharge. Circle radius is logarithmic over a fixed 0.05–50 mm/day range; rarer flows above the range use the maximum radius.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
           <p>Precipitation uses Angelo Meadow observations with PRISM filling incomplete days. Runoff is USGS 11475560 discharge normalized by watershed area.</p>
