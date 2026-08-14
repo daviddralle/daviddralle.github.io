@@ -294,10 +294,10 @@
           <p><strong>Color shows calculated head or head-gradient magnitude.</strong> Head varies continuously; with linear interpolation, |∇h| is constant within each Delaunay triangle.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
           <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth.</p>
-          <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range.</p>
+          <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth is normalized independently between its fixed 5th and 95th percentiles from daily means during 8 November 2015–16 February 2023, with values outside those bounds clipped to 0 or 1. Colors are therefore comparable through time within a depth but are not equal millimetres of storage across depths. Blank hatched blocks indicate dates without VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Rain history layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
-          <p>The Elder Q circle in plan view shows the selected day's watershed-normalized discharge. Circle radius is logarithmic over a fixed 0.05–50 mm/day range; rarer flows above the range use the maximum radius.</p>
+          <p>The bottom-center Elder Q circle in both spatial views shows the selected day's watershed-normalized discharge. Circle radius is logarithmic over a fixed 0.05–50 mm/day range; rarer flows above the range use the maximum radius.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
           <p>Precipitation uses Angelo Meadow observations with PRISM filling incomplete days. Runoff is USGS 11475560 discharge normalized by watershed area.</p>
           <p>Daily means; dates with fewer than three wells are omitted. LiDAR was shifted <span id="datum-offset"></span> m to the surveyed well reference for display.</p>
@@ -320,6 +320,8 @@ const VMS_PERCENTILE_BOUNDS = [
   [25.554431, 59.531100], [41.552695, 59.361652],
   [40.613343, 63.372113]
 ];
+const FRESH_BEDROCK_DEPTH_M = [9.50, 12.20, 14.40, 25.30, 19.90, 19.80, 27.40, 7.21, 33.22];
+DATA.wells.forEach((well, index) => { well.freshBedrockDepth = FRESH_BEDROCK_DEPTH_M[index]; });
 for (const record of DATA.vms.records) {
   record[1] = record[1].map((value, index) => {
     if (value == null) return null;
@@ -364,6 +366,11 @@ function mergeWaterYearBundle(bundle) {
     values: bundle.records.map(record => record[6]),
     precipitation: bundle.records.map(record => record[4])
   };
+  if (bundle.dimensions?.fresh_bedrock_depth_m) {
+    bundle.dimensions.fresh_bedrock_depth_m.forEach((depth, index) => {
+      if (DATA.wells[index]) DATA.wells[index].freshBedrockDepth = depth;
+    });
+  }
   rebuildWaterYears();
 }
 
@@ -849,19 +856,29 @@ function drawMapFurniture() {
   ctx.restore();
 }
 
-function drawDischargeSymbol(record) {
+function drawDischargeSymbol(record, viewMode) {
   const runoff = RUNOFF_BY_DATE.get(record[0]);
-  const x = cssWidth - 45;
-  const y = cssHeight - 54;
-  const maximumRadius = 19;
+  const x = cssWidth / 2;
+  const maximumRadius = 26;
+  let y = cssHeight - (viewMode === "section" ? 57 : 48);
+  if (viewMode === "plan") {
+    const well15 = screenWells.find(item => item.well.id === "well-15");
+    if (well15) {
+      const minimumSeparation = maximumRadius + 13;
+      const horizontalDistance = Math.abs(x - well15.x);
+      const requiredVerticalDistance = Math.sqrt(Math.max(0, minimumSeparation ** 2 - horizontalDistance ** 2));
+      y = Math.max(y, well15.y + requiredVerticalDistance);
+      y = Math.min(y, cssHeight - maximumRadius - 4);
+    }
+  }
   ctx.save();
   ctx.textAlign = "center";
-  ctx.font = "600 10px ui-sans-serif, system-ui, sans-serif";
-  ctx.lineWidth = 3.5;
+  ctx.font = "650 13px ui-sans-serif, system-ui, sans-serif";
+  ctx.lineWidth = 4.5;
   ctx.strokeStyle = "rgba(255,255,255,0.92)";
-  ctx.strokeText("Elder Q", x, y - 27);
+  ctx.strokeText("Elder Q", x, y - 35);
   ctx.fillStyle = "rgba(17,48,61,0.9)";
-  ctx.fillText("Elder Q", x, y - 27);
+  ctx.fillText("Elder Q", x, y - 35);
 
   if (runoff != null && Number.isFinite(runoff) && runoff > 0) {
     const fraction = clamp(
@@ -870,7 +887,7 @@ function drawDischargeSymbol(record) {
       0,
       1
     );
-    const radius = 4 + fraction * (maximumRadius - 4);
+    const radius = 6 + fraction * (maximumRadius - 6);
     ctx.shadowColor = "rgba(7,48,69,0.16)";
     ctx.shadowBlur = 6;
     ctx.beginPath();
@@ -879,19 +896,19 @@ function drawDischargeSymbol(record) {
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.strokeStyle = "rgba(10,70,96,0.88)";
-    ctx.lineWidth = 1.35;
+    ctx.lineWidth = 1.6;
     ctx.stroke();
 
     const value = runoff < 1 ? runoff.toFixed(2) : runoff < 10 ? runoff.toFixed(1) : runoff.toFixed(0);
-    ctx.font = "10px ui-sans-serif, system-ui, sans-serif";
-    ctx.lineWidth = 3.5;
+    ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
+    ctx.lineWidth = 4;
     ctx.strokeStyle = "rgba(255,255,255,0.92)";
-    ctx.strokeText(`${value} mm/d`, x, y + 32);
+    ctx.strokeText(`${value} mm/d`, x, y + 4);
     ctx.fillStyle = "rgba(17,48,61,0.9)";
-    ctx.fillText(`${value} mm/d`, x, y + 32);
+    ctx.fillText(`${value} mm/d`, x, y + 4);
   } else {
-    ctx.font = "10px ui-sans-serif, system-ui, sans-serif";
-    ctx.lineWidth = 3.5;
+    ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
+    ctx.lineWidth = 4;
     ctx.strokeStyle = "rgba(255,255,255,0.92)";
     ctx.strokeText("unavailable", x, y + 4);
     ctx.fillStyle = "rgba(72,86,93,0.9)";
@@ -935,11 +952,19 @@ function crossSectionFrame(record) {
       labels: active.map(item => item.well.id.replace("well-", "W"))
     };
   }).filter(Boolean);
+  const bedrockGroups = clusters.map(cluster => ({
+    x: cluster.reduce((sum, item) => sum + item.well.sectionDistance, 0) / cluster.length,
+    elevation: cluster.reduce(
+      (sum, item) => sum + item.well.z - item.well.freshBedrockDepth,
+      0
+    ) / cluster.length,
+    labels: cluster.map(item => item.well.id.replace("well-", "W"))
+  }));
   const gradients = [];
   for (let index = 0; index < groups.length - 1; index++) {
     gradients.push(Math.abs(groups[index + 1].head - groups[index].head) / Math.max(groups[index + 1].x - groups[index].x, 0.01));
   }
-  return { individuals, groups, gradients };
+  return { individuals, groups, bedrockGroups, gradients };
 }
 
 function profileElevationAt(distance) {
@@ -970,6 +995,18 @@ function hatchRectangle(x0, y0, width, height) {
     ctx.stroke();
   }
   ctx.restore();
+}
+
+function traceSmoothProfile(points) {
+  if (!points.length) return;
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let index = 1; index < points.length - 1; index++) {
+    const point = points[index];
+    const next = points[index + 1];
+    ctx.quadraticCurveTo(point.x, point.y, (point.x + next.x) / 2, (point.y + next.y) / 2);
+  }
+  const last = points[points.length - 1];
+  ctx.quadraticCurveTo(last.x, last.y, last.x, last.y);
 }
 
 function drawVmsStrip(record, x, y) {
@@ -1064,6 +1101,7 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     elevations.push(item.well.z);
     if (item.active) elevations.push(item.head);
   }
+  elevations.push(...section.bedrockGroups.map(group => group.elevation));
   const yMin = Math.floor((Math.min(...elevations) - 3) / 5) * 5;
   const yMax = Math.ceil((Math.max(...elevations) + 3) / 5) * 5;
   const x = distance => left + distance / xMax * plotWidth;
@@ -1126,6 +1164,41 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     ctx.closePath();
     ctx.fillStyle = "rgba(20,129,168,0.10)";
     ctx.fill();
+    ctx.restore();
+  }
+
+  const bedrockPoints = section.bedrockGroups.map(group => ({
+    x: x(group.x),
+    y: y(group.elevation),
+    labels: group.labels
+  }));
+  if (bedrockPoints.length >= 2) {
+    ctx.save();
+    ctx.beginPath();
+    traceSmoothProfile(bedrockPoints);
+    ctx.lineTo(bedrockPoints[bedrockPoints.length - 1].x, cssHeight - bottom);
+    ctx.lineTo(bedrockPoints[0].x, cssHeight - bottom);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(103,130,145,0.62)";
+    ctx.fill();
+
+    ctx.beginPath();
+    traceSmoothProfile(bedrockPoints);
+    ctx.strokeStyle = "rgba(54,82,98,0.92)";
+    ctx.lineWidth = 2.2;
+    ctx.lineJoin = "round";
+    ctx.stroke();
+
+    const labelPoint = bedrockPoints[Math.min(bedrockPoints.length - 1, Math.floor(bedrockPoints.length * 0.72))];
+    const labelY = Math.min(cssHeight - bottom - 8, labelPoint.y + 18);
+    ctx.font = "650 10.5px ui-sans-serif, system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = "rgba(245,248,249,0.9)";
+    ctx.strokeText("Fresh bedrock · Zb", labelPoint.x, labelY);
+    ctx.fillStyle = "rgba(35,61,76,0.96)";
+    ctx.fillText("Fresh bedrock · Zb", labelPoint.x, labelY);
     ctx.restore();
   }
 
@@ -1714,9 +1787,11 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
   updateLegend(colorMode, colorScale, viewMode);
   updateWaterBudget(record, rain);
   const colorDescription = colorMode === "head" ? "hydraulic head" : "hydraulic-head gradient magnitude";
-  const spatialDescription = viewMode === "section" ? "averaged downslope cross-section" : "plan-view field";
+  const spatialDescription = viewMode === "section"
+    ? "averaged downslope cross-section with fresh-bedrock boundary"
+    : "plan-view field";
   const runoff = RUNOFF_BY_DATE.get(record[0]);
-  const runoffDescription = viewMode === "plan" && runoff != null
+  const runoffDescription = runoff != null
     ? `, Elder Creek runoff ${runoff.toFixed(3)} millimetres per day`
     : "";
   canvas.setAttribute("aria-label", `Rivendell ${colorDescription} ${spatialDescription} on ${label}, using ${active} active wells${runoffDescription}`);
@@ -1749,8 +1824,8 @@ function draw() {
     drawGradientField(triangles);
     drawWells(record, headScale, colorMode);
     drawMapFurniture();
-    drawDischargeSymbol(record);
   }
+  drawDischargeSymbol(record, viewMode);
   drawTimeseries(record);
   drawCumulativePlot(record);
   updateText(record, colorMode, colorScale, viewMode, section, rain);
