@@ -280,7 +280,7 @@
           <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each channel uses one fixed full-record 0–1 normalization, so colors are comparable through time within a depth but are not equal millimetres of storage across depths. Blank hatched blocks indicate dates without VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
-          <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record. A subtle map rain curtain scales with the selected window's mean rainfall rate.</p>
+          <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
           <p>Precipitation uses Angelo Meadow observations with PRISM filling incomplete days. Runoff is USGS 11475560 discharge normalized by watershed area.</p>
           <p>Daily means; dates with fewer than three wells are omitted. LiDAR was shifted <span id="datum-offset"></span> m to the surveyed well reference for display.</p>
         </div>
@@ -1191,30 +1191,6 @@ function precipitationWindow(record) {
   return { amount: summary.total, observations: summary.count, days, currentDay };
 }
 
-function drawRainCurtain(rain, top, bottom) {
-  if (!rain || rain.amount <= 0 || bottom <= top) return;
-  const meanRate = rain.amount / Math.max(rain.days, 1);
-  const intensity = clamp(Math.sqrt(meanRate / 35), 0.08, 1);
-  const streakCount = Math.round(7 + intensity * 58);
-  const travel = bottom - top;
-  const hash = (rain.currentDay * 2654435761 + Math.round(rain.amount * 100)) >>> 0;
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.lineWidth = 0.75 + intensity * 0.7;
-  ctx.strokeStyle = `rgba(8,126,184,${(0.08 + intensity * 0.16).toFixed(3)})`;
-  for (let index = 0; index < streakCount; index++) {
-    const x = 8 + ((hash + index * 97) % Math.max(1, Math.floor(cssWidth - 16)));
-    const baseY = ((hash * 0.001 + index * 53 + rain.currentDay * 11) % Math.max(1, travel));
-    const y = top + baseY;
-    const length = 6 + ((hash + index * 31) % 10) + intensity * 11;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x - 1.5 - intensity * 1.5, Math.min(bottom, y + length));
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
 function updateWaterBudget(record, rain) {
   const meanRate = rain.amount / Math.max(rain.days, 1);
   document.getElementById("rain-window").textContent = `Sampled P · prior ${rain.days} d = ${rain.amount.toFixed(1)} mm · ${meanRate.toFixed(1)} mm/d`;
@@ -1606,7 +1582,6 @@ function draw() {
     const triangles = triangleData(record);
     colorScale = colorMode === "head" ? headScale : gradientScaleForTriangles(triangles);
     renderField(triangles, colorMode, colorScale);
-    drawRainCurtain(rain, 58, cssHeight - 42);
     if (colorMode === "gradient") drawGradientZones(triangles);
     drawHeadContours(triangles, headScale, colorMode);
     drawMesh(triangles);
