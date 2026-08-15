@@ -2001,6 +2001,119 @@ function drawGifDate(targetContext, record, scale) {
   targetContext.restore();
 }
 
+function gifOverlayRect(element, scale) {
+  const shellRect = shell.getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
+  return {
+    x: (rect.left - shellRect.left) * scale,
+    y: (rect.top - shellRect.top) * scale,
+    width: rect.width * scale,
+    height: rect.height * scale
+  };
+}
+
+function drawGifLegendText(targetContext, element, scale) {
+  if (!element || !element.textContent) return;
+  const rect = gifOverlayRect(element, scale);
+  const style = window.getComputedStyle(element);
+  const fontSize = Number.parseFloat(style.fontSize) || 10;
+  const lineHeight = Number.parseFloat(style.lineHeight) || fontSize * 1.2;
+  targetContext.save();
+  targetContext.font = `${style.fontStyle} ${style.fontWeight} ${fontSize * scale}px ${style.fontFamily}`;
+  targetContext.textAlign = "left";
+  targetContext.textBaseline = "top";
+  targetContext.fillStyle = style.color;
+  targetContext.fillText(element.textContent, rect.x, rect.y + Math.max(0, (lineHeight - fontSize) * 0.5 * scale));
+  targetContext.restore();
+}
+
+function drawGifPaletteBar(targetContext, element, palette, squareRootScale, scale) {
+  const rect = gifOverlayRect(element, scale);
+  const style = window.getComputedStyle(element);
+  const gradient = targetContext.createLinearGradient(rect.x, rect.y, rect.x + rect.width, rect.y);
+  palette.forEach((color, index) => {
+    const fraction = index / (palette.length - 1);
+    gradient.addColorStop(squareRootScale ? fraction * fraction : fraction, `rgb(${color.join(",")})`);
+  });
+  targetContext.save();
+  targetContext.fillStyle = gradient;
+  targetContext.fillRect(rect.x, rect.y, rect.width, rect.height);
+  const borderWidth = Number.parseFloat(style.borderTopWidth) || 0;
+  if (borderWidth > 0) {
+    targetContext.strokeStyle = style.borderTopColor;
+    targetContext.lineWidth = Math.max(1, borderWidth * scale);
+    targetContext.strokeRect(rect.x, rect.y, rect.width, rect.height);
+  }
+  targetContext.restore();
+}
+
+function drawGifLegend(targetContext, scale) {
+  const legend = document.querySelector(".map-legend");
+  const legendRect = gifOverlayRect(legend, scale);
+  const legendStyle = window.getComputedStyle(legend);
+  const radius = (Number.parseFloat(legendStyle.borderRadius) || 0) * scale;
+  targetContext.save();
+  targetContext.beginPath();
+  targetContext.roundRect(legendRect.x, legendRect.y, legendRect.width, legendRect.height, radius);
+  targetContext.shadowColor = "rgba(25,35,40,0.11)";
+  targetContext.shadowBlur = 8 * scale;
+  targetContext.shadowOffsetY = 2 * scale;
+  targetContext.fillStyle = legendStyle.backgroundColor;
+  targetContext.fill();
+  targetContext.shadowColor = "transparent";
+  targetContext.strokeStyle = legendStyle.borderTopColor;
+  targetContext.lineWidth = Math.max(1, (Number.parseFloat(legendStyle.borderTopWidth) || 1) * scale);
+  targetContext.stroke();
+  targetContext.restore();
+
+  drawGifLegendText(targetContext, document.getElementById("legend-heading"), scale);
+  drawGifLegendText(targetContext, document.getElementById("legend-subtitle"), scale);
+  const gradientMode = colorModeSelect.value === "gradient";
+  drawGifPaletteBar(targetContext, document.querySelector(".colorbar"), gradientMode ? gradientPalette : headPalette, gradientMode, scale);
+  document.querySelectorAll(".colorbar-ticks span").forEach(element => drawGifLegendText(targetContext, element, scale));
+
+  const fieldSwatch = document.getElementById("field-key-swatch");
+  drawGifPaletteBar(targetContext, fieldSwatch, gradientMode ? gradientPalette : headPalette, gradientMode, scale);
+  drawGifLegendText(targetContext, document.querySelector(".key-arrow"), scale);
+  const well = document.querySelector(".key-well");
+  const wellRect = gifOverlayRect(well, scale);
+  targetContext.save();
+  targetContext.beginPath();
+  targetContext.arc(wellRect.x + wellRect.width / 2, wellRect.y + wellRect.height / 2, wellRect.width / 2, 0, Math.PI * 2);
+  targetContext.fillStyle = "#fff";
+  targetContext.fill();
+  targetContext.strokeStyle = "#15242b";
+  targetContext.lineWidth = 1.5 * scale;
+  targetContext.stroke();
+  const topo = document.querySelector(".key-line.topo");
+  const topoRect = gifOverlayRect(topo, scale);
+  targetContext.beginPath();
+  targetContext.moveTo(topoRect.x, topoRect.y + topoRect.height / 2);
+  targetContext.lineTo(topoRect.x + topoRect.width, topoRect.y + topoRect.height / 2);
+  targetContext.strokeStyle = "#70787e";
+  targetContext.lineWidth = Math.max(1, scale);
+  targetContext.stroke();
+  targetContext.restore();
+  document.querySelectorAll(".key-row > span:last-child").forEach(element => drawGifLegendText(targetContext, element, scale));
+
+  const vmsLegend = document.getElementById("vms-legend");
+  if (!vmsLegend.hidden) {
+    const vmsRect = gifOverlayRect(vmsLegend, scale);
+    targetContext.save();
+    targetContext.beginPath();
+    targetContext.moveTo(vmsRect.x, vmsRect.y);
+    targetContext.lineTo(vmsRect.x + vmsRect.width, vmsRect.y);
+    targetContext.strokeStyle = "rgba(23,32,38,0.13)";
+    targetContext.lineWidth = Math.max(1, scale);
+    targetContext.stroke();
+    targetContext.restore();
+    drawGifLegendText(targetContext, document.querySelector(".vms-legend-label strong"), scale);
+    drawGifLegendText(targetContext, document.getElementById("vms-current-range"), scale);
+    drawGifPaletteBar(targetContext, document.getElementById("vms-colorbar"), vmsPalette, false, scale);
+    document.querySelectorAll(".vms-colorbar-ticks span").forEach(element => drawGifLegendText(targetContext, element, scale));
+  }
+}
+
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -2051,6 +2164,7 @@ async function exportGif() {
       exportContext.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
       exportContext.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
       drawGifDate(exportContext, DATA.records[currentIndex], cssToExportScale);
+      drawGifLegend(exportContext, cssToExportScale);
       const image = exportContext.getImageData(0, 0, exportCanvas.width, exportCanvas.height);
       const palette = quantize(image.data, 256);
       const indexed = applyPalette(image.data, palette);
