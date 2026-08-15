@@ -155,6 +155,7 @@
     .vms-colorbar-ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.58rem; }
     .key-arrow { flex: 0 0 22px; width: 22px; color: #172026; font-size: 1rem; line-height: 1; }
     .key-well { flex: 0 0 8px; width: 8px; height: 8px; margin: 0 7px; border: 1.5px solid #15242b; border-radius: 50%; background: #fff; }
+    .key-well.imputed-key { outline: 1px dashed #0a4660; outline-offset: 2px; }
     dialog { width: min(680px, calc(100% - 28px)); max-height: min(78vh, 720px); overflow: auto; padding: 0; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--ink); box-shadow: 0 20px 70px rgba(19,32,40,0.25); }
     dialog::backdrop { background: rgba(19,32,40,0.32); backdrop-filter: blur(2px); }
     .dialog-header { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.96); }
@@ -204,7 +205,7 @@
           <div class="key">
             <div class="key-row"><span class="key-line head-color" id="field-key-swatch"></span><span id="field-key-label">Head contour</span></div>
             <div class="key-row"><span class="key-arrow">→</span><span id="direction-key-label">Direction of −∇h</span></div>
-            <div class="key-row"><span class="key-well"></span><span>Active well</span></div>
+            <div class="key-row"><span class="key-well"></span><span id="well-key-label">Active well</span></div>
             <div class="key-row"><span class="key-line topo"></span><span id="topo-key-label">Topographic contour</span></div>
           </div>
           <div class="vms-legend" id="vms-legend" hidden>
@@ -265,6 +266,7 @@
           <label class="mesh-toggle"><input id="loop" type="checkbox"> Loop</label>
           <label class="mesh-toggle"><input id="mesh" type="checkbox"> Mesh</label>
           <label class="mesh-toggle"><input id="all-time" type="checkbox"> All time</label>
+          <label class="mesh-toggle"><input id="impute" type="checkbox"> Impute</label>
           <label class="mesh-toggle"><input id="rain-history" type="checkbox"> Tetris™ rain</label>
         </div>
       </section>
@@ -298,6 +300,7 @@
           <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. Head varies continuously; with linear interpolation, |∇h| is constant within each Delaunay triangle.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
           <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
+          <p>The optional Impute display fills only approved gaps with independently trained gradient-boosted-tree reconstructions from observed donor wells, precipitation, runoff, and season. It refuses dates with 50% or more donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. Dashed time-series segments and ringed well symbols mark predictions.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
@@ -436,6 +439,30 @@ function mergeVmsExtension(extension) {
   DATA.vms.source = "Dendra live-data pipeline";
 }
 
+function mergeImputationBundle(bundle) {
+  const localWells = bundle.dimensions?.wells || [];
+  const records = new Map();
+  for (const sourceRecord of bundle.records || []) {
+    const depths = Array(DATA.wells.length).fill(null);
+    let imputedMask = 0;
+    localWells.forEach((wellId, localIndex) => {
+      const dashboardIndex = DATA.wells.findIndex(well => well.id === `well-${String(wellId).replace(/^W/i, "")}`);
+      const value = sourceRecord[3]?.[localIndex];
+      if (dashboardIndex < 0 || value == null || !Number.isFinite(value)) return;
+      depths[dashboardIndex] = value;
+      imputedMask |= 1 << dashboardIndex;
+    });
+    if (imputedMask) records.set(sourceRecord[0], { depths, imputedMask });
+  }
+  DATA.imputation = {
+    modelVersion: bundle.model_version,
+    generatedAt: bundle.generated_at,
+    guardrails: bundle.guardrails,
+    records
+  };
+  if (bundle.triangulations) Object.assign(DATA.triangulations, bundle.triangulations);
+}
+
 async function loadPublishedData() {
   const dataRoot = new URL("data/", window.location.href);
   const indexResponse = await fetch(new URL("latest.json", dataRoot), { cache: "no-store" });
@@ -445,9 +472,12 @@ async function loadPublishedData() {
   const bundlePaths = [...new Set(
     (index.bundles || [{ path: index.current_bundle }]).map(item => item.path)
   )];
-  const [bundleResponses, vmsResponse] = await Promise.all([
+  const [bundleResponses, vmsResponse, imputationResponse] = await Promise.all([
     Promise.all(bundlePaths.map(path => fetch(`${new URL(path, dataRoot)}?v=${version}`, { cache: "no-store" }))),
-    fetch(`${new URL(index.vms_extension, dataRoot)}?v=${version}`, { cache: "no-store" })
+    fetch(`${new URL(index.vms_extension, dataRoot)}?v=${version}`, { cache: "no-store" }),
+    index.imputation_bundle
+      ? fetch(`${new URL(index.imputation_bundle, dataRoot)}?v=${version}`, { cache: "no-store" }).catch(() => null)
+      : Promise.resolve(null)
   ]);
   if (bundleResponses.some(response => !response.ok) || !vmsResponse.ok) {
     throw new Error("published data files are incomplete");
@@ -456,6 +486,8 @@ async function loadPublishedData() {
   bundles.sort((left, right) => Number(left.water_year) - Number(right.water_year));
   bundles.forEach(mergeWaterYearBundle);
   mergeVmsExtension(await vmsResponse.json());
+  if (imputationResponse?.ok) mergeImputationBundle(await imputationResponse.json());
+  else console.warn("Published imputation bundle is unavailable; observed display remains active");
   return `Through ${index.latest_complete_day}`;
 }
 
@@ -483,10 +515,15 @@ const viewModeSelect = document.getElementById("view-mode");
 const loopInput = document.getElementById("loop");
 const meshInput = document.getElementById("mesh");
 const allTimeInput = document.getElementById("all-time");
+const imputeInput = document.getElementById("impute");
 const rainHistoryInput = document.getElementById("rain-history");
 const tooltip = document.getElementById("tooltip");
 const timeseriesSvg = document.getElementById("timeseries");
 const cumulativeSvg = document.getElementById("cumulative");
+imputeInput.disabled = !(DATA.imputation?.records?.size);
+imputeInput.title = imputeInput.disabled
+  ? "No validated imputation bundle is available"
+  : "Show guardrail-approved GBT reconstructions for missing well observations";
 const topoImage = new Image();
 const offscreen = document.createElement("canvas");
 const offctx = offscreen.getContext("2d");
@@ -525,6 +562,26 @@ const Q_SYMBOL_MIN_MM_DAY = 0.05;
 const Q_SYMBOL_MAX_MM_DAY = 50;
 const GIF_EXPORT_MIN_WIDTH = 900;
 const GIF_EXPORT_MAX_FRAMES = 400;
+
+function displayRecord(sourceRecord) {
+  if (!imputeInput.checked) return sourceRecord;
+  const imputation = DATA.imputation?.records?.get(sourceRecord[0]);
+  if (!imputation) return sourceRecord;
+  const depths = sourceRecord[2].slice();
+  let imputedMask = 0;
+  imputation.depths.forEach((value, index) => {
+    if (depths[index] != null || value == null || !Number.isFinite(value)) return;
+    depths[index] = value;
+    imputedMask |= 1 << index;
+  });
+  return imputedMask
+    ? [sourceRecord[0], sourceRecord[1] | imputedMask, depths, sourceRecord[3], imputedMask]
+    : sourceRecord;
+}
+
+function recordValueIsImputed(record, wellIndex) {
+  return Boolean((record[4] || 0) & (1 << wellIndex));
+}
 
 const headPalette = [
   [75, 29, 155],
@@ -890,8 +947,9 @@ function drawWells(record, headScale, colorMode, colorScale) {
     const y = sy(well.y);
     const depth = depths[index];
     const active = depth != null;
+    const imputed = recordValueIsImputed(record, index);
     const head = active ? well.z + depth : null;
-    screenWells.push({ x, y, well, active, head, depth });
+    screenWells.push({ x, y, well, active, imputed, head, depth });
 
     ctx.beginPath();
     ctx.arc(x, y, active ? 4.6 : 3.8, 0, Math.PI * 2);
@@ -909,6 +967,15 @@ function drawWells(record, headScale, colorMode, colorScale) {
       ctx.strokeStyle = "rgba(10, 25, 31, 0.96)";
       ctx.lineWidth = 1.8;
       ctx.stroke();
+      if (imputed) {
+        ctx.beginPath();
+        ctx.arc(x, y, 7.2, 0, Math.PI * 2);
+        ctx.setLineDash([2.2, 2.2]);
+        ctx.strokeStyle = "rgba(10, 70, 96, 0.9)";
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
     } else {
       ctx.fillStyle = "rgba(242,244,243,0.88)";
       ctx.fill();
@@ -1062,6 +1129,7 @@ function crossSectionFrame(record) {
       ...item,
       depth,
       active: depth != null,
+      imputed: recordValueIsImputed(record, item.index),
       head: depth == null ? null : item.well.z + depth
     };
   });
@@ -1436,8 +1504,17 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     ctx.strokeStyle = item.active ? "rgba(11,27,34,0.96)" : "rgba(83,94,101,0.72)";
     ctx.lineWidth = item.active ? 1.7 : 1.1;
     ctx.stroke();
+    if (item.imputed) {
+      ctx.beginPath();
+      ctx.arc(xx, markerY, 7, 0, Math.PI * 2);
+      ctx.setLineDash([2.2, 2.2]);
+      ctx.strokeStyle = "rgba(10,70,96,0.9)";
+      ctx.lineWidth = 1.35;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
     labels.push({ x: xx, desiredY: groundY - 8, y: groundY - 8, label: item.well.id.replace("well-", "W"), active: item.active });
-    screenWells.push({ x: xx, y: markerY, well: item.well, active: item.active, head: item.head, depth: item.depth });
+    screenWells.push({ x: xx, y: markerY, well: item.well, active: item.active, imputed: item.imputed, head: item.head, depth: item.depth });
   }
   labels.sort((a, b) => a.x - b.x);
   for (let index = 1; index < labels.length; index++) {
@@ -1580,7 +1657,8 @@ function drawTimeseries(record) {
   const allTime = Boolean(selectedWaterYear.allTime);
   const rangeStart = allTime ? selectedWaterYear.start : flowSeries.start;
   const rangeEnd = allTime ? selectedWaterYear.end : flowSeries.end;
-  const rangeRecords = yearIndices.map(index => DATA.records[index]);
+  const rangeSourceRecords = yearIndices.map(index => DATA.records[index]);
+  const rangeRecords = rangeSourceRecords.map(displayRecord);
 
   timeseriesSvg.replaceChildren();
   timeseriesSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
@@ -1660,8 +1738,35 @@ function drawTimeseries(record) {
       lastPoint = point;
     }
     if (!path) return;
-    const line = svgNode("path", { d: path.trim(), fill: "none", stroke: color, "stroke-width": 1.05, "stroke-opacity": 0.62, "stroke-linejoin": "round" });
+    const line = svgNode("path", {
+      d: path.trim(),
+      fill: "none",
+      stroke: color,
+      "stroke-width": imputeInput.checked ? 1.25 : 1.05,
+      "stroke-opacity": imputeInput.checked ? 0.52 : 0.62,
+      "stroke-dasharray": imputeInput.checked ? "4 3" : "none",
+      "stroke-linejoin": "round"
+    });
     timeseriesSvg.appendChild(line);
+    if (imputeInput.checked) {
+      let observedPath = "";
+      let previousObservedDay = null;
+      for (const sourceRecord of rangeSourceRecords) {
+        const observedDepth = sourceRecord[2][wellIndex];
+        if (observedDepth == null) { previousObservedDay = null; continue; }
+        const day = utcDayOffset(rangeStart, sourceRecord[0]);
+        const point = [x(day), yDepth(Math.max(0, -observedDepth))];
+        const command = previousObservedDay != null && day - previousObservedDay <= 1 ? "L" : "M";
+        observedPath += `${command}${point[0].toFixed(2)},${point[1].toFixed(2)} `;
+        previousObservedDay = day;
+      }
+      if (observedPath) {
+        timeseriesSvg.appendChild(svgNode("path", {
+          d: observedPath.trim(), fill: "none", stroke: color, "stroke-width": 1.05,
+          "stroke-opacity": 0.72, "stroke-linejoin": "round"
+        }));
+      }
+    }
     const hit = svgNode("path", { d: path.trim(), fill: "none", stroke: "transparent", "stroke-width": 10, "pointer-events": "stroke" });
     hit.addEventListener("pointerenter", () => {
       document.getElementById("timeseries-current").textContent = `${well.label} · groundwater depth`;
@@ -1713,8 +1818,16 @@ function drawTimeseries(record) {
   record[2].forEach((depth, wellIndex) => {
     if (depth == null) return;
     const color = wellPalette[wellIndex % wellPalette.length];
-    const point = svgNode("circle", { cx: currentX, cy: yDepth(Math.max(0, -depth)), r: 2.5, fill: color, stroke: "#fff", "stroke-width": 0.9 });
-    point.appendChild(svgNode("title", {}, `${DATA.wells[wellIndex].label}: ${(-depth).toFixed(2)} m below ground`));
+    const imputed = recordValueIsImputed(record, wellIndex);
+    const point = svgNode("circle", {
+      cx: currentX,
+      cy: yDepth(Math.max(0, -depth)),
+      r: imputed ? 3.2 : 2.5,
+      fill: imputed ? "#fff" : color,
+      stroke: imputed ? color : "#fff",
+      "stroke-width": imputed ? 1.5 : 0.9
+    });
+    point.appendChild(svgNode("title", {}, `${DATA.wells[wellIndex].label}: ${(-depth).toFixed(2)} m below ground${imputed ? " (imputed)" : ""}`));
     timeseriesSvg.appendChild(point);
   });
 
@@ -1758,9 +1871,11 @@ function drawTimeseries(record) {
   }
 
   const active = record[2].filter(value => value != null).length;
+  const imputed = record[4] ? record[2].filter((value, index) => value != null && recordValueIsImputed(record, index)).length : 0;
+  const wellSummary = imputed ? `${active} wells · ${imputed} imputed` : `${active} wells`;
   const summary = currentFlow == null
-    ? `${record[0]} · Q unavailable · ${active} wells`
-    : `${record[0]} · Q ${currentFlow.toFixed(2)} mm/day · ${active} wells`;
+    ? `${record[0]} · Q unavailable · ${wellSummary}`
+    : `${record[0]} · Q ${currentFlow.toFixed(2)} mm/day · ${wellSummary}`;
   timeseriesSvg.dataset.summary = summary;
   document.getElementById("timeseries-current").textContent = summary;
   const scopeLabel = allTime ? "the full record" : `water year ${waterYear}`;
@@ -1938,6 +2053,9 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
   const date = new Date(`${record[0]}T12:00:00`);
   const label = date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
   const active = record[2].filter(value => value != null).length;
+  const imputed = record[4]
+    ? record[2].filter((value, index) => value != null && recordValueIsImputed(record, index)).length
+    : 0;
   const vmsValues = VMS_BY_DATE.get(record[0]);
   const vmsValid = vmsValues?.filter(value => value != null && Number.isFinite(value)) || [];
   const vmsCount = vmsValid.length;
@@ -1946,6 +2064,10 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
     : " · unavailable";
   document.getElementById("date-label").textContent = label;
   meshInput.disabled = viewMode === "section";
+  document.getElementById("well-key-label").textContent = imputeInput.checked
+    ? "Well · GBT ring"
+    : "Active well";
+  document.querySelector(".key-well").classList.toggle("imputed-key", imputeInput.checked);
   updateLegend(colorMode, colorScale, viewMode);
   updateWaterBudget(record, rain);
   const colorDescription = colorMode === "head"
@@ -1960,11 +2082,12 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
   const runoffDescription = runoff != null
     ? `, Elder Creek runoff ${runoff.toFixed(3)} millimetres per day`
     : "";
-  canvas.setAttribute("aria-label", `Rivendell ${colorDescription} ${spatialDescription} on ${label}, using ${active} active wells${runoffDescription}`);
+  const imputedDescription = imputed ? `, including ${imputed} imputed wells` : "";
+  canvas.setAttribute("aria-label", `Rivendell ${colorDescription} ${spatialDescription} on ${label}, using ${active} active wells${imputedDescription}${runoffDescription}`);
 }
 
 function draw() {
-  const record = DATA.records[currentIndex];
+  const record = displayRecord(DATA.records[currentIndex]);
   if (!record || !cssWidth || !topoImage.complete) return;
   ctx.clearRect(0, 0, cssWidth, cssHeight);
   screenVmsLayers = [];
@@ -2198,6 +2321,21 @@ function drawGifLegend(targetContext, scale) {
   targetContext.strokeStyle = "#15242b";
   targetContext.lineWidth = 1.5 * scale;
   targetContext.stroke();
+  if (imputeInput.checked) {
+    targetContext.beginPath();
+    targetContext.arc(
+      wellRect.x + wellRect.width / 2,
+      wellRect.y + wellRect.height / 2,
+      wellRect.width / 2 + 3 * scale,
+      0,
+      Math.PI * 2
+    );
+    targetContext.setLineDash([2 * scale, 2 * scale]);
+    targetContext.strokeStyle = "#0a4660";
+    targetContext.lineWidth = Math.max(1, scale);
+    targetContext.stroke();
+    targetContext.setLineDash([]);
+  }
   const topo = document.querySelector(".key-line.topo");
   const topoRect = gifOverlayRect(topo, scale);
   targetContext.beginPath();
@@ -2345,6 +2483,7 @@ colorModeSelect.addEventListener("change", draw);
 viewModeSelect.addEventListener("change", () => { tooltip.hidden = true; draw(); });
 meshInput.addEventListener("change", draw);
 rainHistoryInput.addEventListener("change", draw);
+imputeInput.addEventListener("change", () => { tooltip.hidden = true; draw(); });
 window.addEventListener("keydown", event => {
   if (exportInProgress) return;
   if (event.key === "ArrowLeft") { stopPlayback(); setYearPosition(currentYearPosition - 1); }
@@ -2379,7 +2518,7 @@ canvas.addEventListener("pointermove", event => {
     return;
   }
   const detail = nearest.active
-    ? `Hydraulic head ${nearest.head.toFixed(2)} m<br>Depth ${(-nearest.depth).toFixed(2)} m below ground`
+    ? `Hydraulic head ${nearest.head.toFixed(2)} m<br>Depth ${(-nearest.depth).toFixed(2)} m below ground${nearest.imputed ? "<br><em>GBT reconstruction</em>" : ""}`
     : "No observation on this date";
   tooltip.innerHTML = `<strong>${nearest.well.label}</strong><br>${detail}`;
   tooltip.style.left = `${clamp(x, 6, cssWidth - 190)}px`;
