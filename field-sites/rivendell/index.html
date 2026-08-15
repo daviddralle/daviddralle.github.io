@@ -442,12 +442,19 @@ async function loadPublishedData() {
   if (!indexResponse.ok) throw new Error(`latest index returned ${indexResponse.status}`);
   const index = await indexResponse.json();
   const version = encodeURIComponent(index.generated_at);
-  const [bundleResponse, vmsResponse] = await Promise.all([
-    fetch(`${new URL(index.current_bundle, dataRoot)}?v=${version}`, { cache: "no-store" }),
+  const bundlePaths = [...new Set(
+    (index.bundles || [{ path: index.current_bundle }]).map(item => item.path)
+  )];
+  const [bundleResponses, vmsResponse] = await Promise.all([
+    Promise.all(bundlePaths.map(path => fetch(`${new URL(path, dataRoot)}?v=${version}`, { cache: "no-store" }))),
     fetch(`${new URL(index.vms_extension, dataRoot)}?v=${version}`, { cache: "no-store" })
   ]);
-  if (!bundleResponse.ok || !vmsResponse.ok) throw new Error("published data files are incomplete");
-  mergeWaterYearBundle(await bundleResponse.json());
+  if (bundleResponses.some(response => !response.ok) || !vmsResponse.ok) {
+    throw new Error("published data files are incomplete");
+  }
+  const bundles = await Promise.all(bundleResponses.map(response => response.json()));
+  bundles.sort((left, right) => Number(left.water_year) - Number(right.water_year));
+  bundles.forEach(mergeWaterYearBundle);
   mergeVmsExtension(await vmsResponse.json());
   return `Through ${index.latest_complete_day}`;
 }
