@@ -259,7 +259,7 @@
         <div class="action-row">
           <button id="play" type="button" aria-pressed="false">Play</button>
           <button id="reset" class="secondary-button" type="button">Reset</button>
-          <button id="export-gif" class="secondary-button" type="button" title="Export the selected range as a 900 px animated GIF">Export GIF</button>
+          <button id="export-gif" class="secondary-button" type="button" title="Export the selected range exactly as displayed">Export GIF</button>
           <label class="mesh-toggle"><input id="loop" type="checkbox"> Loop</label>
           <label class="mesh-toggle"><input id="mesh" type="checkbox"> Mesh</label>
           <label class="mesh-toggle"><input id="all-time" type="checkbox"> All time</label>
@@ -300,7 +300,7 @@
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>The bottom-center Elder Q circle in both spatial views shows the selected day's watershed-normalized discharge. Circle radius is logarithmic over a fixed 0.05–50 mm/day range; rarer flows above the range use the maximum radius.</p>
-          <p>GIF export captures the complete selected water-year or all-time range at the chosen timestep and speed. It uses the current spatial view and display options, renders at 900 px wide, burns in the date, and loops continuously.</p>
+          <p>GIF export captures the complete selected water-year or all-time range at the chosen timestep and speed. It preserves the current spatial layout and display options exactly, uses the canvas's native high-DPI rendering with a minimum 900 px output width, burns in the on-screen date badge, and loops continuously.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
           <p>Precipitation uses Angelo Meadow observations with PRISM filling incomplete days. Runoff is USGS 11475560 discharge normalized by watershed area.</p>
           <p>Daily means; dates with fewer than three wells are omitted. LiDAR was shifted <span id="datum-offset"></span> m to the surveyed well reference for display.</p>
@@ -498,7 +498,7 @@ const RAIN_HISTORY_DAYS = 30;
 const RAIN_FULL_WIDTH_MM_DAY = 120;
 const Q_SYMBOL_MIN_MM_DAY = 0.05;
 const Q_SYMBOL_MAX_MM_DAY = 50;
-const GIF_EXPORT_WIDTH = 900;
+const GIF_EXPORT_MIN_WIDTH = 900;
 const GIF_EXPORT_MAX_FRAMES = 400;
 
 const headPalette = [
@@ -1957,43 +1957,47 @@ function selectWaterYear(value) {
   setYearPosition(currentYearPosition);
 }
 
-function drawGifDate(record) {
+function drawGifDate(targetContext, record, scale) {
   const label = new Date(`${record[0]}T12:00:00`).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric"
   });
-  const x = 14;
-  const y = 14;
-  const paddingX = 12;
-  const paddingY = 8;
-  const radius = 8;
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.font = "650 21px ui-sans-serif, system-ui, sans-serif";
-  ctx.textAlign = "left";
-  ctx.textBaseline = "top";
-  const width = Math.ceil(ctx.measureText(label).width) + paddingX * 2;
-  const height = 21 + paddingY * 2;
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(23,32,38,0.2)";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.fillStyle = "#172026";
-  ctx.fillText(label, x + paddingX, y + paddingY);
-  ctx.restore();
+  const badge = document.querySelector(".map-date");
+  const badgeStyle = window.getComputedStyle(badge);
+  const labelStyle = window.getComputedStyle(document.getElementById("date-label"));
+  const px = value => Number.parseFloat(value) || 0;
+  const x = px(badgeStyle.left) * scale;
+  const y = px(badgeStyle.top) * scale;
+  const paddingLeft = px(badgeStyle.paddingLeft) * scale;
+  const paddingTop = px(badgeStyle.paddingTop) * scale;
+  const radius = px(badgeStyle.borderRadius) * scale;
+  const width = badge.getBoundingClientRect().width * scale;
+  const height = badge.getBoundingClientRect().height * scale;
+  targetContext.save();
+  targetContext.font = `${labelStyle.fontWeight} ${px(labelStyle.fontSize) * scale}px ${labelStyle.fontFamily}`;
+  targetContext.textAlign = "left";
+  targetContext.textBaseline = "top";
+  targetContext.beginPath();
+  targetContext.moveTo(x + radius, y);
+  targetContext.lineTo(x + width - radius, y);
+  targetContext.quadraticCurveTo(x + width, y, x + width, y + radius);
+  targetContext.lineTo(x + width, y + height - radius);
+  targetContext.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  targetContext.lineTo(x + radius, y + height);
+  targetContext.quadraticCurveTo(x, y + height, x, y + height - radius);
+  targetContext.lineTo(x, y + radius);
+  targetContext.quadraticCurveTo(x, y, x + radius, y);
+  targetContext.closePath();
+  targetContext.shadowColor = "rgba(25,35,40,0.14)";
+  targetContext.shadowBlur = 8 * scale;
+  targetContext.shadowOffsetY = 2 * scale;
+  targetContext.fillStyle = "rgba(255,255,255,0.88)";
+  targetContext.fill();
+  targetContext.shadowColor = "transparent";
+  targetContext.fillStyle = labelStyle.color;
+  targetContext.fillText(label, x + paddingLeft, y + paddingTop);
+  targetContext.restore();
 }
 
 function downloadBlob(blob, filename) {
@@ -2023,11 +2027,6 @@ async function exportGif() {
   const wasPlaying = Boolean(timer);
   const savedPosition = currentYearPosition;
   const savedIndex = currentIndex;
-  const savedCssWidth = cssWidth;
-  const savedCssHeight = cssHeight;
-  const savedCanvasWidth = canvas.width;
-  const savedCanvasHeight = canvas.height;
-  const savedScale = savedCanvasWidth / savedCssWidth;
   const controls = Array.from(document.querySelectorAll(".controls button, .controls select, .controls input"));
   const disabledStates = controls.map(control => control.disabled);
   exportInProgress = true;
@@ -2035,11 +2034,12 @@ async function exportGif() {
   controls.forEach(control => { control.disabled = true; });
 
   try {
-    cssWidth = GIF_EXPORT_WIDTH;
-    cssHeight = Math.round(GIF_EXPORT_WIDTH * savedCssHeight / savedCssWidth);
-    canvas.width = cssWidth;
-    canvas.height = cssHeight;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const outputScale = Math.max(1, GIF_EXPORT_MIN_WIDTH / canvas.width);
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = Math.round(canvas.width * outputScale);
+    exportCanvas.height = Math.round(canvas.height * outputScale);
+    const exportContext = exportCanvas.getContext("2d", { willReadFrequently: true });
+    const cssToExportScale = exportCanvas.width / cssWidth;
     const gif = GIFEncoder();
     const delay = Math.max(20, Math.round(1000 / Math.max(1, Number(speedSelect.value))));
 
@@ -2047,11 +2047,13 @@ async function exportGif() {
       currentYearPosition = framePositions[frame];
       currentIndex = yearIndices[currentYearPosition];
       draw();
-      drawGifDate(DATA.records[currentIndex]);
-      const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      exportContext.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
+      exportContext.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
+      drawGifDate(exportContext, DATA.records[currentIndex], cssToExportScale);
+      const image = exportContext.getImageData(0, 0, exportCanvas.width, exportCanvas.height);
       const palette = quantize(image.data, 256);
       const indexed = applyPalette(image.data, palette);
-      gif.writeFrame(indexed, canvas.width, canvas.height, { palette, delay, repeat: 0 });
+      gif.writeFrame(indexed, exportCanvas.width, exportCanvas.height, { palette, delay, repeat: 0 });
       exportGifButton.textContent = `GIF ${frame + 1}/${framePositions.length}`;
       await new Promise(resolve => window.setTimeout(resolve, 0));
     }
@@ -2070,11 +2072,6 @@ async function exportGif() {
     currentYearPosition = savedPosition;
     currentIndex = savedIndex;
     timeInput.value = String(savedPosition);
-    cssWidth = savedCssWidth;
-    cssHeight = savedCssHeight;
-    canvas.width = savedCanvasWidth;
-    canvas.height = savedCanvasHeight;
-    ctx.setTransform(savedScale, 0, 0, savedScale, 0, 0);
     disabledStates.forEach((disabled, index) => { controls[index].disabled = disabled; });
     exportGifButton.textContent = "Export GIF";
     exportInProgress = false;
