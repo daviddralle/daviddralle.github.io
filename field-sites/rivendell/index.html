@@ -39,8 +39,8 @@
       border-radius: 9px;
     }
     .control-grid { display: grid; grid-template-columns: 1fr 0.72fr 0.72fr 1fr; gap: 4px; }
-    .action-row { display: flex; flex-wrap: wrap; gap: 3px 7px; align-items: center; }
-    .action-row button { flex: 0 0 auto; min-width: 54px; white-space: nowrap; }
+    .action-row { display: flex; flex-wrap: nowrap; gap: 3px 6px; align-items: center; }
+    .action-row button { flex: 0 0 auto; white-space: nowrap; }
     .wy-range { color: var(--muted); font-size: 0.67rem; }
     .timeline-heading, .compact-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
     .compact-meta { color: var(--muted); font-size: 0.64rem; line-height: 1.2; }
@@ -63,8 +63,8 @@
     .range-wrap label, .select-wrap label { display: block; margin-bottom: 2px; color: var(--muted); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.02em; }
     input[type="range"] { width: 100%; accent-color: var(--accent); }
     select { width: 100%; border: 1px solid var(--line); border-radius: 7px; padding: 4px 18px 4px 6px; background: #fff; color: var(--ink); font-size: 0.76rem; }
-    .controls button { min-width: 54px; padding: 4px 8px; border-radius: 7px; font-size: 0.72rem; line-height: 1.2; }
-    .mesh-toggle { display: flex; gap: 4px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.69rem; }
+    .controls button { min-width: 0; padding: 4px 7px; border-radius: 7px; font-size: 0.69rem; line-height: 1.2; }
+    .mesh-toggle { display: flex; gap: 3px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.67rem; }
     .mesh-toggle input { accent-color: var(--accent); }
     .layout { display: grid; grid-template-columns: minmax(360px, 700px) minmax(300px, 1fr); gap: 18px; align-items: start; }
     .map-column { min-width: 0; }
@@ -171,6 +171,7 @@
     @media (max-width: 430px) {
       button { width: 100%; }
       .control-grid { grid-template-columns: 1fr 1fr; }
+      .action-row { flex-wrap: wrap; }
       .action-row button { width: auto; }
     }
   </style>
@@ -259,7 +260,7 @@
         <div class="action-row">
           <button id="play" type="button" aria-pressed="false">Play</button>
           <button id="reset" class="secondary-button" type="button">Reset</button>
-          <button id="export-gif" class="secondary-button" type="button" title="Export the selected range exactly as displayed">Export GIF</button>
+          <button id="export-gif" class="secondary-button" type="button" aria-label="Export GIF" title="Export the selected range exactly as displayed">GIF</button>
           <label class="mesh-toggle"><input id="loop" type="checkbox"> Loop</label>
           <label class="mesh-toggle"><input id="mesh" type="checkbox"> Mesh</label>
           <label class="mesh-toggle"><input id="all-time" type="checkbox"> All time</label>
@@ -2054,7 +2055,8 @@ async function exportGif() {
       const palette = quantize(image.data, 256);
       const indexed = applyPalette(image.data, palette);
       gif.writeFrame(indexed, exportCanvas.width, exportCanvas.height, { palette, delay, repeat: 0 });
-      exportGifButton.textContent = `GIF ${frame + 1}/${framePositions.length}`;
+      exportGifButton.textContent = "GIF…";
+      exportGifButton.setAttribute("aria-label", `Exporting GIF frame ${frame + 1} of ${framePositions.length}`);
       await new Promise(resolve => window.setTimeout(resolve, 0));
     }
 
@@ -2073,7 +2075,8 @@ async function exportGif() {
     currentIndex = savedIndex;
     timeInput.value = String(savedPosition);
     disabledStates.forEach((disabled, index) => { controls[index].disabled = disabled; });
-    exportGifButton.textContent = "Export GIF";
+    exportGifButton.textContent = "GIF";
+    exportGifButton.setAttribute("aria-label", "Export GIF");
     exportInProgress = false;
     draw();
     if (wasPlaying) startPlayback();
