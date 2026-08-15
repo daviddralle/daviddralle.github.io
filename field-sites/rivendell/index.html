@@ -300,7 +300,7 @@
           <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. Head varies continuously; with linear interpolation, |∇h| is constant within each Delaunay triangle.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
           <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
-          <p>The optional Impute display fills only approved gaps with independently trained gradient-boosted-tree reconstructions from observed donor wells, precipitation, runoff, and season. It refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. Dotted time-series segments and ringed well symbols mark predictions.</p>
+          <p>The optional Impute display fills only approved gaps with independently trained gradient-boosted-tree reconstructions from observed donor wells, precipitation, runoff, and season. It refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
@@ -1728,10 +1728,11 @@ function drawTimeseries(record) {
     let imputedPath = "";
     let hitPath = "";
     let previousPoint = null;
+    let previousSegmentSource = null;
     let lastPoint = null;
     for (const rangeRecord of rangeRecords) {
       const depth = rangeRecord[2][wellIndex];
-      if (depth == null) { previousPoint = null; continue; }
+      if (depth == null) { previousPoint = null; previousSegmentSource = null; continue; }
       const day = utcDayOffset(rangeStart, rangeRecord[0]);
       const point = {
         day,
@@ -1742,10 +1743,15 @@ function drawTimeseries(record) {
       const pointText = `${point.x.toFixed(2)},${point.y.toFixed(2)}`;
       const connected = previousPoint && day - previousPoint.day <= 1;
       hitPath += `${connected ? "L" : "M"}${pointText} `;
+      if (!connected) previousSegmentSource = null;
       if (connected) {
-        const segment = `M${previousPoint.x.toFixed(2)},${previousPoint.y.toFixed(2)} L${pointText} `;
-        if (previousPoint.imputed || point.imputed) imputedPath += segment;
+        const segmentSource = previousPoint.imputed || point.imputed ? "imputed" : "observed";
+        const segment = previousSegmentSource === segmentSource
+          ? `L${pointText} `
+          : `M${previousPoint.x.toFixed(2)},${previousPoint.y.toFixed(2)} L${pointText} `;
+        if (segmentSource === "imputed") imputedPath += segment;
         else observedPath += segment;
+        previousSegmentSource = segmentSource;
       }
       previousPoint = point;
       lastPoint = point;
