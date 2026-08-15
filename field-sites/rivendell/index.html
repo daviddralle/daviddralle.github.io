@@ -32,18 +32,18 @@
     .header-methods:hover { background: var(--accent-soft); color: var(--accent); }
     .controls {
       display: grid;
-      gap: 6px;
-      padding: 9px;
+      gap: 4px;
+      padding: 7px;
       border: 1px solid var(--line);
       background: var(--panel);
       border-radius: 9px;
     }
-    .control-grid { display: grid; grid-template-columns: 1fr 0.72fr 0.72fr 1fr; gap: 6px; }
-    .action-row { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: center; }
-    .action-row button { flex: 1 1 62px; }
+    .control-grid { display: grid; grid-template-columns: 1fr 0.72fr 0.72fr 1fr; gap: 4px; }
+    .action-row { display: flex; flex-wrap: wrap; gap: 3px 7px; align-items: center; }
+    .action-row button { flex: 0 0 auto; min-width: 54px; white-space: nowrap; }
     .wy-range { color: var(--muted); font-size: 0.67rem; }
     .timeline-heading, .compact-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
-    .compact-meta { color: var(--muted); font-size: 0.66rem; }
+    .compact-meta { color: var(--muted); font-size: 0.64rem; line-height: 1.2; }
     .rain-window { color: var(--muted); }
     button, select, input { font: inherit; }
     button {
@@ -63,8 +63,8 @@
     .range-wrap label, .select-wrap label { display: block; margin-bottom: 2px; color: var(--muted); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.02em; }
     input[type="range"] { width: 100%; accent-color: var(--accent); }
     select { width: 100%; border: 1px solid var(--line); border-radius: 7px; padding: 4px 18px 4px 6px; background: #fff; color: var(--ink); font-size: 0.76rem; }
-    .controls button { min-width: 62px; padding: 5px 8px; border-radius: 7px; font-size: 0.76rem; }
-    .mesh-toggle { display: flex; gap: 5px; align-items: center; min-height: 30px; white-space: nowrap; color: var(--muted); font-size: 0.72rem; }
+    .controls button { min-width: 54px; padding: 4px 8px; border-radius: 7px; font-size: 0.72rem; line-height: 1.2; }
+    .mesh-toggle { display: flex; gap: 4px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.69rem; }
     .mesh-toggle input { accent-color: var(--accent); }
     .layout { display: grid; grid-template-columns: minmax(360px, 700px) minmax(300px, 1fr); gap: 18px; align-items: start; }
     .map-column { min-width: 0; }
@@ -171,7 +171,7 @@
     @media (max-width: 430px) {
       button { width: 100%; }
       .control-grid { grid-template-columns: 1fr 1fr; }
-      .action-row { grid-template-columns: 1fr 1fr; }
+      .action-row button { width: auto; }
     }
   </style>
 </head>
@@ -431,7 +431,7 @@ async function loadPublishedData() {
   if (!bundleResponse.ok || !vmsResponse.ok) throw new Error("published data files are incomplete");
   mergeWaterYearBundle(await bundleResponse.json());
   mergeVmsExtension(await vmsResponse.json());
-  return `Data through ${index.latest_complete_day}`;
+  return `Through ${index.latest_complete_day}`;
 }
 
 let publishedDataStatus;
@@ -1471,7 +1471,7 @@ function drawRainfallHistory(record, top, bottom) {
 
 function updateWaterBudget(record, rain) {
   const meanRate = rain.amount / Math.max(rain.days, 1);
-  document.getElementById("rain-window").textContent = `Sampled P · prior ${rain.days} d = ${rain.amount.toFixed(1)} mm · ${meanRate.toFixed(1)} mm/d`;
+  document.getElementById("rain-window").textContent = `P (${rain.days} d) ${rain.amount.toFixed(1)} mm · ${meanRate.toFixed(1)} mm/d`;
 }
 
 function drawTimeseries(record) {
