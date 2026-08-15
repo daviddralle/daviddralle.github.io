@@ -245,6 +245,7 @@
             <label for="color-mode">Color by</label>
             <select id="color-mode">
               <option value="head" selected>Head level</option>
+              <option value="depth">Depth to water</option>
               <option value="gradient">Gradient</option>
             </select>
           </div>
@@ -294,9 +295,9 @@
     <button class="dialog-close" id="methods-close" type="button" aria-label="Close methods">×</button>
   </div>
   <div class="method-body">
-          <p><strong>Color shows calculated head or head-gradient magnitude.</strong> Head varies continuously; with linear interpolation, |∇h| is constant within each Delaunay triangle.</p>
+          <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. Head varies continuously; with linear interpolation, |∇h| is constant within each Delaunay triangle.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
-          <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth.</p>
+          <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
@@ -392,6 +393,27 @@ function rebuildWaterYears() {
 
 function mergeWaterYearBundle(bundle) {
   const year = Number(bundle.water_year);
+  const dimensions = bundle.dimensions || {};
+  (dimensions.wells || []).forEach((wellId, index) => {
+    const id = `well-${String(wellId).replace(/^W/i, "")}`;
+    let well = DATA.wells.find(item => item.id === id);
+    if (!well) {
+      const x = dimensions.well_easting_m?.[index];
+      const y = dimensions.well_northing_m?.[index];
+      const z = dimensions.surveyed_ground_elevation_m?.[index];
+      const sectionDistance = dimensions.well_section_distance_m?.[index];
+      if (![x, y, z, sectionDistance].every(Number.isFinite)) return;
+      well = { id, label: `Well ${String(wellId).replace(/^W/i, "")}`, x, y, z, sectionDistance };
+      DATA.wells.push(well);
+    }
+    if (Number.isFinite(dimensions.surveyed_ground_elevation_m?.[index])) {
+      well.z = dimensions.surveyed_ground_elevation_m[index];
+    }
+    if (Number.isFinite(dimensions.fresh_bedrock_depth_m?.[index])) {
+      well.freshBedrockDepth = dimensions.fresh_bedrock_depth_m[index];
+    }
+  });
+  if (bundle.triangulations) Object.assign(DATA.triangulations, bundle.triangulations);
   DATA.records = DATA.records.filter(record => Number(record[3]) !== year);
   for (const record of bundle.records) {
     DATA.records.push([record[0], record[1], record[2], year]);
@@ -402,11 +424,6 @@ function mergeWaterYearBundle(bundle) {
     values: bundle.records.map(record => record[6]),
     precipitation: bundle.records.map(record => record[4])
   };
-  if (bundle.dimensions?.fresh_bedrock_depth_m) {
-    bundle.dimensions.fresh_bedrock_depth_m.forEach((depth, index) => {
-      if (DATA.wells[index]) DATA.wells[index].freshBedrockDepth = depth;
-    });
-  }
   rebuildWaterYears();
 }
 
@@ -511,6 +528,13 @@ const headPalette = [
   [255, 107, 53],
   [197, 27, 125]
 ];
+const depthPalette = [
+  [232, 247, 251],
+  [166, 218, 235],
+  [103, 169, 207],
+  [33, 113, 181],
+  [8, 48, 107]
+];
 const gradientPalette = [
   [45, 10, 108],
   [76, 2, 161],
@@ -558,6 +582,10 @@ function colorForHead(value, scale, alphaOverride = null) {
   return colorForValue(value, scale, headPalette, alphaOverride);
 }
 
+function colorForDepth(value, scale, alphaOverride = null) {
+  return colorForValue(value, scale, depthPalette, alphaOverride);
+}
+
 function colorForGradient(value, scale, alphaOverride = null) {
   return colorForValue(value, scale, gradientPalette, alphaOverride, Math.sqrt);
 }
@@ -583,6 +611,14 @@ function headScaleForRecord(record) {
   let max = Math.ceil(Math.max(...heads) / DATA.contourInterval) * DATA.contourInterval;
   if (max <= min) max = min + DATA.contourInterval;
   return { min, max };
+}
+
+function depthScale() {
+  const deepest = Math.max(
+    30,
+    ...DATA.wells.map(well => well.freshBedrockDepth).filter(Number.isFinite)
+  );
+  return { min: 0, max: Math.ceil(deepest / 5) * 5 };
 }
 
 function gradientScaleForValues(inputValues) {
@@ -620,6 +656,7 @@ function triangleData(record) {
       x: DATA.wells[index].x,
       y: DATA.wells[index].y,
       h: heads[index],
+      d: -depths[index],
       px: sx(DATA.wells[index].x),
       py: sy(DATA.wells[index].y)
     }));
@@ -667,10 +704,14 @@ function renderField(triangles, colorMode, colorScale) {
         if (!weights) continue;
         const value = colorMode === "head"
           ? weights[0] * points[0].h + weights[1] * points[1].h + weights[2] * points[2].h
-          : Math.hypot(triangle.gx, triangle.gy);
+          : colorMode === "depth"
+            ? weights[0] * points[0].d + weights[1] * points[1].d + weights[2] * points[2].d
+            : Math.hypot(triangle.gx, triangle.gy);
         const color = colorMode === "head"
           ? colorForHead(value, colorScale)
-          : colorForGradient(value, colorScale);
+          : colorMode === "depth"
+            ? colorForDepth(value, colorScale)
+            : colorForGradient(value, colorScale);
         const offset = (py * width + px) * 4;
         pixels[offset] = color[0];
         pixels[offset + 1] = color[1];
@@ -703,13 +744,21 @@ function contourIntersections(points, level, valueKey = "h") {
 
 function drawHeadContours(triangles, headScale, colorMode) {
   ctx.save();
+  const placedLabels = [];
   for (let level = headScale.min; level <= headScale.max + 0.01; level += DATA.contourInterval) {
     const path = new Path2D();
+    const candidates = [];
     for (const triangle of triangles) {
       const points = contourIntersections(triangle.points, level, "h");
       if (points.length >= 2) {
         path.moveTo(points[0].x, points[0].y);
         path.lineTo(points[1].x, points[1].y);
+        const length = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
+        const x = (points[0].x + points[1].x) / 2;
+        const y = (points[0].y + points[1].y) / 2;
+        if (length > 10 && x > 28 && x < cssWidth - 28 && y > 22 && y < cssHeight - 24) {
+          candidates.push({ x, y, length });
+        }
       }
     }
     ctx.strokeStyle = "rgba(255,255,255,0.76)";
@@ -721,6 +770,24 @@ function drawHeadContours(triangles, headScale, colorMode) {
       : "rgba(17,44,54,0.92)";
     ctx.lineWidth = 1.65;
     ctx.stroke(path);
+
+    const label = candidates
+      .sort((a, b) => b.length - a.length)
+      .find(candidate => placedLabels.every(other => Math.hypot(other.x - candidate.x, other.y - candidate.y) > 34));
+    if (label) {
+      placedLabels.push(label);
+      ctx.font = "650 8.5px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.strokeText(String(Math.round(level)), label.x, label.y);
+      ctx.fillStyle = colorMode === "head"
+        ? `rgb(${color[0]}, ${color[1]}, ${color[2]})`
+        : "rgba(17,44,54,0.96)";
+      ctx.fillText(String(Math.round(level)), label.x, label.y);
+    }
   }
   ctx.restore();
 }
@@ -804,7 +871,7 @@ function drawMesh(triangles) {
   ctx.restore();
 }
 
-function drawWells(record, headScale, colorMode) {
+function drawWells(record, headScale, colorMode, colorScale) {
   screenWells = [];
   const depths = record[2];
   ctx.save();
@@ -824,6 +891,9 @@ function drawWells(record, headScale, colorMode) {
     if (active) {
       if (colorMode === "head") {
         const color = colorForHead(head, headScale, 255);
+        ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+      } else if (colorMode === "depth") {
+        const color = colorForDepth(-depth, colorScale, 255);
         ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
       } else {
         ctx.fillStyle = "rgba(255,255,255,0.96)";
@@ -896,6 +966,24 @@ function drawMapFurniture() {
   ctx.restore();
 }
 
+function drawTextPill(text, x, y, font, color) {
+  ctx.save();
+  ctx.font = font;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const metrics = ctx.measureText(text);
+  const fontSize = Number.parseFloat(font.match(/[\d.]+px/)?.[0]) || 12;
+  const width = metrics.width + 9;
+  const height = fontSize + 6;
+  ctx.beginPath();
+  ctx.roundRect(x - width / 2, y - height / 2, width, height, height / 2);
+  ctx.fillStyle = "rgba(255,255,255,0.82)";
+  ctx.fill();
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y + 0.25);
+  ctx.restore();
+}
+
 function drawDischargeSymbol(record, viewMode) {
   const runoff = RUNOFF_BY_DATE.get(record[0]);
   const x = cssWidth / 2;
@@ -917,13 +1005,7 @@ function drawDischargeSymbol(record, viewMode) {
     }
   }
   ctx.save();
-  ctx.textAlign = "center";
-  ctx.font = "650 13px ui-sans-serif, system-ui, sans-serif";
-  ctx.lineWidth = 4.5;
-  ctx.strokeStyle = "rgba(255,255,255,0.92)";
-  ctx.strokeText("Elder Q", x, y - 42);
-  ctx.fillStyle = "rgba(17,48,61,0.9)";
-  ctx.fillText("Elder Q", x, y - 42);
+  drawTextPill("Elder Q", x, y - 42, "650 13px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
 
   if (runoff != null && Number.isFinite(runoff) && runoff > 0) {
     const fraction = clamp(
@@ -945,20 +1027,10 @@ function drawDischargeSymbol(record, viewMode) {
     ctx.stroke();
 
     const value = runoff < 1 ? runoff.toFixed(2) : runoff < 10 ? runoff.toFixed(1) : runoff.toFixed(0);
-    ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
     const valueY = y + maximumRadius + 17;
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "rgba(255,255,255,0.92)";
-    ctx.strokeText(`${value} mm/d`, x, valueY);
-    ctx.fillStyle = "rgba(17,48,61,0.9)";
-    ctx.fillText(`${value} mm/d`, x, valueY);
+    drawTextPill(`${value} mm/d`, x, valueY, "600 12px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
   } else {
-    ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "rgba(255,255,255,0.92)";
-    ctx.strokeText("unavailable", x, y + 4);
-    ctx.fillStyle = "rgba(72,86,93,0.9)";
-    ctx.fillText("unavailable", x, y + 4);
+    drawTextPill("unavailable", x, y + 4, "600 12px ui-sans-serif, system-ui, sans-serif", "rgba(72,86,93,0.9)");
   }
   ctx.restore();
 }
@@ -994,6 +1066,7 @@ function crossSectionFrame(record) {
     return {
       x: cluster.reduce((sum, item) => sum + item.well.sectionDistance, 0) / cluster.length,
       head: active.reduce((sum, item) => sum + item.head, 0) / active.length,
+      depth: active.reduce((sum, item) => sum - item.depth, 0) / active.length,
       count: active.length,
       labels: active.map(item => item.well.id.replace("well-", "W"))
     };
@@ -1301,6 +1374,12 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
       stroke = ctx.createLinearGradient(ax, ay, bx, by);
       stroke.addColorStop(0, `rgb(${aColor[0]},${aColor[1]},${aColor[2]})`);
       stroke.addColorStop(1, `rgb(${bColor[0]},${bColor[1]},${bColor[2]})`);
+    } else if (colorMode === "depth") {
+      const aColor = colorForDepth(a.depth, colorScale, 255);
+      const bColor = colorForDepth(b.depth, colorScale, 255);
+      stroke = ctx.createLinearGradient(ax, ay, bx, by);
+      stroke.addColorStop(0, `rgb(${aColor[0]},${aColor[1]},${aColor[2]})`);
+      stroke.addColorStop(1, `rgb(${bColor[0]},${bColor[1]},${bColor[2]})`);
     } else {
       const color = colorForGradient(section.gradients[index], colorScale, 255);
       stroke = `rgb(${color[0]},${color[1]},${color[2]})`;
@@ -1338,8 +1417,10 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     ctx.stroke();
     ctx.beginPath();
     ctx.arc(xx, markerY, item.active ? 4.2 : 3.2, 0, Math.PI * 2);
-    if (item.active && colorMode === "head") {
-      const color = colorForHead(item.head, headScale, 255);
+    if (item.active && (colorMode === "head" || colorMode === "depth")) {
+      const color = colorMode === "head"
+        ? colorForHead(item.head, headScale, 255)
+        : colorForDepth(-item.depth, colorScale, 255);
       ctx.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
     } else {
       ctx.fillStyle = item.active ? "#fff" : "rgba(230,233,231,0.95)";
@@ -1819,6 +1900,17 @@ function updateLegend(colorMode, colorScale, viewMode) {
     document.getElementById("legend-max").textContent = colorScale.max.toFixed(0);
     colorbar.style.background = paletteGradient(headPalette);
     swatch.style.background = paletteGradient(headPalette);
+  } else if (colorMode === "depth") {
+    document.getElementById("legend-heading").textContent = "Depth to water";
+    document.getElementById("legend-subtitle").textContent = "Positive depth below ground (m)";
+    document.getElementById("field-key-label").textContent = isSection
+      ? "Water-table depth color"
+      : "Depth field + head contours";
+    document.getElementById("legend-min").textContent = colorScale.min.toFixed(0);
+    document.getElementById("legend-mid").textContent = ((colorScale.min + colorScale.max) / 2).toFixed(1);
+    document.getElementById("legend-max").textContent = colorScale.max.toFixed(0);
+    colorbar.style.background = paletteGradient(depthPalette);
+    swatch.style.background = paletteGradient(depthPalette);
   } else {
     document.getElementById("legend-heading").textContent = "Hydraulic-head gradient";
     document.getElementById("legend-subtitle").textContent = isSection
@@ -1849,7 +1941,11 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
   meshInput.disabled = viewMode === "section";
   updateLegend(colorMode, colorScale, viewMode);
   updateWaterBudget(record, rain);
-  const colorDescription = colorMode === "head" ? "hydraulic head" : "hydraulic-head gradient magnitude";
+  const colorDescription = colorMode === "head"
+    ? "hydraulic head"
+    : colorMode === "depth"
+      ? "depth to water below ground"
+      : "hydraulic-head gradient magnitude";
   const spatialDescription = viewMode === "section"
     ? "averaged downslope cross-section with fresh-bedrock boundary"
     : "plan-view field";
@@ -1873,19 +1969,27 @@ function draw() {
   let section = null;
   if (viewMode === "section") {
     section = crossSectionFrame(record);
-    colorScale = colorMode === "head" ? headScale : gradientScaleForValues(section.gradients);
+    colorScale = colorMode === "head"
+      ? headScale
+      : colorMode === "depth"
+        ? depthScale()
+        : gradientScaleForValues(section.gradients);
     drawCrossSection(record, headScale, colorMode, colorScale, section);
   } else {
     ctx.drawImage(topoImage, 0, 0, cssWidth, cssHeight);
     const triangles = triangleData(record);
-    colorScale = colorMode === "head" ? headScale : gradientScaleForTriangles(triangles);
+    colorScale = colorMode === "head"
+      ? headScale
+      : colorMode === "depth"
+        ? depthScale()
+        : gradientScaleForTriangles(triangles);
     renderField(triangles, colorMode, colorScale);
     if (rainHistoryInput.checked) drawRainfallHistory(record, 58, cssHeight - 42);
     if (colorMode === "gradient") drawGradientZones(triangles);
     drawHeadContours(triangles, headScale, colorMode);
     drawMesh(triangles);
     drawGradientField(triangles);
-    drawWells(record, headScale, colorMode);
+    drawWells(record, headScale, colorMode, colorScale);
     drawMapFurniture();
   }
   drawDischargeSymbol(record, viewMode);
@@ -2068,12 +2172,14 @@ function drawGifLegend(targetContext, scale) {
 
   drawGifLegendText(targetContext, document.getElementById("legend-heading"), scale);
   drawGifLegendText(targetContext, document.getElementById("legend-subtitle"), scale);
-  const gradientMode = colorModeSelect.value === "gradient";
-  drawGifPaletteBar(targetContext, document.querySelector(".colorbar"), gradientMode ? gradientPalette : headPalette, gradientMode, scale);
+  const colorMode = colorModeSelect.value;
+  const gradientMode = colorMode === "gradient";
+  const palette = gradientMode ? gradientPalette : colorMode === "depth" ? depthPalette : headPalette;
+  drawGifPaletteBar(targetContext, document.querySelector(".colorbar"), palette, gradientMode, scale);
   document.querySelectorAll(".colorbar-ticks span").forEach(element => drawGifLegendText(targetContext, element, scale));
 
   const fieldSwatch = document.getElementById("field-key-swatch");
-  drawGifPaletteBar(targetContext, fieldSwatch, gradientMode ? gradientPalette : headPalette, gradientMode, scale);
+  drawGifPaletteBar(targetContext, fieldSwatch, palette, gradientMode, scale);
   drawGifLegendText(targetContext, document.querySelector(".key-arrow"), scale);
   const well = document.querySelector(".key-well");
   const wellRect = gifOverlayRect(well, scale);
