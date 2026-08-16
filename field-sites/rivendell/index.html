@@ -368,7 +368,7 @@
           <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. Head varies continuously; with linear interpolation, |∇h| is constant within each Delaunay triangle.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
           <p>Arrows show −∇h. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
-          <p>The optional Impute display fills only approved gaps with independently trained gradient-boosted-tree reconstructions from observed donor wells, precipitation, runoff, and season. It refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands and prediction opacity use each well's held-out-water-year 80th-percentile absolute error; these are empirical error guides, not formal probabilistic intervals. Hovering reports the calibration and same-day donor support.</p>
+          <p>The optional Impute display fills only approved gaps with gradient-boosted-tree hydrographs from observed donor wells, precipitation, runoff, and season, then uses a Kalman smoother to correct slowly varying bias against observations around each gap. Open gaps at the newest edge use past data only and are marked provisional. The model refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands retain conservative held-out-water-year empirical error guides, not formal probabilistic intervals.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
@@ -519,17 +519,21 @@ function mergeVmsExtension(extension) {
 function mergeImputationBundle(bundle) {
   const localWells = bundle.dimensions?.wells || [];
   const records = new Map();
+  const provisionalByDate = new Map(bundle.provisional_records || []);
   for (const sourceRecord of bundle.records || []) {
     const depths = Array(DATA.wells.length).fill(null);
     let imputedMask = 0;
+    let provisionalMask = 0;
+    const localProvisionalMask = provisionalByDate.get(sourceRecord[0]) || 0;
     localWells.forEach((wellId, localIndex) => {
       const dashboardIndex = DATA.wells.findIndex(well => well.id === `well-${String(wellId).replace(/^W/i, "")}`);
       const value = sourceRecord[3]?.[localIndex];
       if (dashboardIndex < 0 || value == null || !Number.isFinite(value)) return;
       depths[dashboardIndex] = value;
       imputedMask |= 1 << dashboardIndex;
+      if (localProvisionalMask & (1 << localIndex)) provisionalMask |= 1 << dashboardIndex;
     });
-    if (imputedMask) records.set(sourceRecord[0], { depths, imputedMask });
+    if (imputedMask) records.set(sourceRecord[0], { depths, imputedMask, provisionalMask });
   }
   DATA.imputation = {
     modelVersion: bundle.model_version,
@@ -608,7 +612,7 @@ const stormsPopover = document.getElementById("storms-popover");
 imputeInput.disabled = !(DATA.imputation?.records?.size);
 imputeInput.title = imputeInput.disabled
   ? "No validated imputation bundle is available"
-  : "Show guardrail-approved GBT reconstructions for missing well observations";
+  : "Show guardrail-approved GBT–Kalman reconstructions for missing well observations";
 const topoImage = new Image();
 const offscreen = document.createElement("canvas");
 const offctx = offscreen.getContext("2d");
@@ -705,7 +709,8 @@ function imputationContext(date, wellIndex) {
     targetId,
     observedGateCount: observedGateDonors.length,
     gateCount: gateDonors.length,
-    observedPredictors
+    observedPredictors,
+    provisional: Boolean(DATA.imputation?.records?.get(date)?.provisionalMask & (1 << wellIndex))
   };
 }
 
@@ -2302,7 +2307,7 @@ function drawTimeseries(record) {
     }));
     const hit = svgNode("path", { d: hitPath.trim(), fill: "none", stroke: "transparent", "stroke-width": 10, "pointer-events": "stroke" });
     hit.addEventListener("pointerenter", () => {
-      const uncertainty = calibration?.p80 ? ` · GBT ±${calibration.p80.toFixed(2)} m (80% empirical)` : "";
+      const uncertainty = calibration?.p80 ? ` · GBT–Kalman ±${calibration.p80.toFixed(2)} m (80% empirical)` : "";
       document.getElementById("timeseries-current").textContent = `${well.label} · groundwater depth${uncertainty}`;
     });
     hit.addEventListener("pointerleave", () => {
@@ -2364,7 +2369,7 @@ function drawTimeseries(record) {
       "stroke-width": imputed ? 1.5 : 0.9
     });
     const imputationDetail = imputed
-      ? `; GBT reconstruction${calibration?.p80 ? ` ±${calibration.p80.toFixed(2)} m (80% empirical error)` : ""}${context ? `; ${context.observedGateCount}/${context.gateCount} gate donors observed` : ""}`
+      ? `; GBT–Kalman reconstruction${context?.provisional ? " (provisional)" : ""}${calibration?.p80 ? ` ±${calibration.p80.toFixed(2)} m (80% empirical error)` : ""}${context ? `; ${context.observedGateCount}/${context.gateCount} gate donors observed` : ""}`
       : "";
     point.appendChild(svgNode("title", {}, `${DATA.wells[wellIndex].label}: ${(-depth).toFixed(2)} m below ground${imputationDetail}`));
     timeseriesSvg.appendChild(point);
@@ -2604,7 +2609,7 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
   document.getElementById("date-label").textContent = label;
   meshInput.disabled = viewMode === "section";
   document.getElementById("well-key-label").textContent = imputeInput.checked
-    ? "Well · GBT dots/ring"
+    ? "Well · imputed dots/ring"
     : "Active well";
   document.querySelector(".key-well").classList.toggle("imputed-key", imputeInput.checked);
   updateLegend(colorMode, colorScale, viewMode);
@@ -3076,7 +3081,7 @@ canvas.addEventListener("pointermove", event => {
     const donors = context
       ? `<br>${context.observedGateCount}/${context.gateCount} gate donors · predictors ${context.observedPredictors.join(", ") || "none"}`
       : "";
-    reconstructionDetail = `<br><em>GBT reconstruction${uncertainty}</em>${donors}`;
+    reconstructionDetail = `<br><em>GBT–Kalman reconstruction${context?.provisional ? " (provisional)" : ""}${uncertainty}</em>${donors}`;
   }
   const detail = nearest.active
     ? `Hydraulic head ${nearest.head.toFixed(2)} m<br>Depth ${(-nearest.depth).toFixed(2)} m below ground${reconstructionDetail}`
