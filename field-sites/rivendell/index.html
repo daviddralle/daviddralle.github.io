@@ -83,9 +83,10 @@
     .controls button { min-width: 0; padding: 4px 7px; border-radius: 7px; font-size: 0.69rem; line-height: 1.2; }
     .mesh-toggle { display: flex; gap: 3px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.67rem; }
     .mesh-toggle input { accent-color: var(--accent); }
-    .layout { display: grid; grid-template-columns: minmax(500px, 700px) 166px minmax(410px, 1fr); gap: 14px; align-items: start; }
+    .layout { display: grid; grid-template-columns: minmax(500px, 660px) 150px minmax(460px, 1fr); gap: 9px; align-items: start; }
     .map-column { min-width: 0; }
     .controls-column { align-self: start; }
+    .controls-column .control-grid { grid-template-columns: 1fr; }
     .controls-column .timeline-heading, .controls-column .compact-meta { display: grid; gap: 2px; }
     .controls-column .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
     .controls-column .action-row button { width: 100%; }
@@ -192,7 +193,7 @@
       .layout { grid-template-columns: minmax(360px, 1.35fr) minmax(320px, 1fr); gap: 18px; }
       .map-column { grid-row: 1 / span 2; }
       .controls-column, .plot-column { grid-column: 2; }
-      .control-grid { grid-template-columns: 1fr 0.72fr 0.72fr 1fr; }
+      .controls-column .control-grid { grid-template-columns: 1fr 0.72fr 0.72fr 1fr; }
       .controls-column .timeline-heading, .controls-column .compact-meta { display: flex; }
       .controls-column .action-row { display: flex; }
       .controls-column .action-row button { width: auto; }
@@ -204,7 +205,7 @@
       .layout { grid-template-columns: 1fr; }
       .map-column { grid-row: auto; }
       .controls-column, .plot-column { grid-column: 1; }
-      .control-grid { grid-template-columns: 1fr 1fr; }
+      .controls-column .control-grid { grid-template-columns: 1fr 1fr; }
       .controls-column .timeline-heading, .controls-column .compact-meta { display: flex; }
       .controls-column .action-row { display: flex; }
       .plot-column { grid-template-columns: 1fr; }
@@ -246,7 +247,7 @@
           <button class="secondary-button" id="storm-next" type="button">Next →</button>
         </div>
         <dl class="lag-list" id="storm-lags"></dl>
-        <p class="storm-rule">Pulse events only: centered 3-day P ≥175 mm, isolated by 21 d, with one dominant Elder Q peak ≥10 mm/d. The window closes before the next ≥50 mm three-day pulse.</p>
+        <p class="storm-rule">Clean events: ≥25 mm in 3 d, ≥65% concentrated within a 9 d window, no competing rain before one resolved Elder Q peak. Size is descriptive, not a filter.</p>
       </section>
     </div>
   </header>
@@ -368,7 +369,7 @@
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
-          <p>Storm mode selects isolated, centered three-day rain pulses of at least 175 mm—approximately the extreme upper tail of this record—then requires one dominant Elder Creek response of at least 10 mm/day in the following 21 days. Candidate pulses within 21 days compete and only the larger survives; periods with a secondary rain pulse above 55% of the primary or a secondary runoff response above 65% of the primary rise are excluded. The response window closes before a later local three-day rain pulse reaches 50 mm. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
+          <p>Storm mode selects clean pulses rather than only large storms. A candidate must contain at least 25 mm over a centered three-day window, hold at least 65% of the surrounding nine-day rain, and be the strongest candidate within seven days. The Elder response must peak within seven days, rise clearly above its seven-day baseline, and have no secondary peak above 55% of the primary rise. Rain after the pulse but before that peak is tightly limited, and the response window closes before the next material rain pulse. Events are labeled small (&lt;75 mm), medium (75–175 mm), or large (≥175 mm); size does not otherwise affect selection. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
           <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, timestep, speed, and optional display layers into the URL.</p>
           <p>The bottom-center Elder Q circle in both spatial views shows the selected day's watershed-normalized discharge. Circle radius is logarithmic over a fixed 0.05–50 mm/day range; rarer flows above the range use the maximum radius.</p>
           <p>GIF export captures the complete selected water-year or all-time range at the chosen timestep and speed. It preserves the current spatial layout and display options exactly, uses the canvas's native high-DPI rendering with a minimum 900 px output width, burns in the on-screen date badge, and loops continuously.</p>
@@ -648,14 +649,14 @@ const Q_SYMBOL_MIN_MM_DAY = 0.05;
 const Q_SYMBOL_MAX_MM_DAY = 50;
 const GIF_EXPORT_MIN_WIDTH = 900;
 const GIF_EXPORT_MAX_FRAMES = 400;
-const STORM_MIN_PULSE_3DAY_MM = 175;
-const STORM_LOCAL_MAX_WINDOW_DAYS = 10;
-const STORM_MIN_SEPARATION_DAYS = 21;
+const STORM_MIN_PULSE_3DAY_MM = 25;
+const STORM_MIN_CONCENTRATION = 0.65;
+const STORM_LOCAL_MAX_WINDOW_DAYS = 5;
+const STORM_MIN_SEPARATION_DAYS = 7;
 const STORM_PRE_DAYS = 7;
-const STORM_RESPONSE_DAYS = 21;
-const STORM_MIN_Q_PEAK_MM_DAY = 10;
-const STORM_MAX_SECONDARY_Q_RESPONSE = 0.65;
-const STORM_MAX_SECONDARY_RAIN_PULSE = 0.55;
+const STORM_RESPONSE_DAYS = 14;
+const STORM_MAX_Q_LAG_DAYS = 7;
+const STORM_MAX_SECONDARY_Q_RESPONSE = 0.55;
 const IMPUTATION_GATE_EXCLUDED = new Set(DATA.imputation?.guardrails?.donor_wells_excluded_from_loss_gate || []);
 const WELL_FIRST_OBSERVATION = DATA.wells.map((well, wellIndex) => {
   const first = DATA.records.find(record => record[2][wellIndex] != null);
@@ -756,19 +757,23 @@ function detectStormEvents() {
 
   const events = [];
   for (const pulseIndex of isolatedCandidates) {
+    const surroundingRain = centeredSum(precipitation, pulseIndex, 4);
+    const concentration = precipitation3Day[pulseIndex] / Math.max(surroundingRain, 1e-9);
+    if (concentration < STORM_MIN_CONCENTRATION) continue;
     const rainIndices = [pulseIndex - 1, pulseIndex, pulseIndex + 1]
       .filter(index => index >= 0 && index < dates.length);
     const rainPeakIndex = rainIndices.reduce((largest, index) =>
       precipitation[index] > precipitation[largest] ? index : largest, rainIndices[0]);
     const baselineValues = runoff3Day.slice(Math.max(0, rainPeakIndex - 7), rainPeakIndex)
       .filter(value => value != null && Number.isFinite(value));
-    if (!baselineValues.length) continue;
+    if (baselineValues.length < 4) continue;
     const runoffBaseline = linearPercentile(baselineValues, 0.5);
     let responseDays = STORM_RESPONSE_DAYS;
+    const competingPulseThreshold = Math.max(15, 0.35 * precipitation3Day[pulseIndex]);
     for (let offset = 4; offset <= STORM_RESPONSE_DAYS; offset++) {
       const index = rainPeakIndex + offset;
       if (index >= precipitation3Day.length - 1) break;
-      const isNewPulse = precipitation3Day[index] >= 50
+      const isNewPulse = precipitation3Day[index] >= competingPulseThreshold
         && precipitation3Day[index] >= precipitation3Day[index - 1]
         && precipitation3Day[index] >= precipitation3Day[index + 1];
       if (isNewPulse) {
@@ -785,9 +790,9 @@ function detectStormEvents() {
     const runoffPeakIndex = responseIndices.reduce((largest, index) =>
       runoff3Day[index] > runoff3Day[largest] ? index : largest, responseIndices[0]);
     if (runoffPeakIndex >= responseEnd - 1) continue;
-    if (runoff3Day[runoffPeakIndex] < STORM_MIN_Q_PEAK_MM_DAY) continue;
+    if (runoffPeakIndex - rainPeakIndex > STORM_MAX_Q_LAG_DAYS) continue;
     const runoffRise = runoff3Day[runoffPeakIndex] - runoffBaseline;
-    if (runoffRise <= Math.max(0.15, runoffBaseline * 0.5)) continue;
+    if (runoffRise <= Math.max(0.1, runoffBaseline * 0.4)) continue;
 
     const localRunoffPeaks = responseIndices.filter(index => {
       const previous = runoff3Day[index - 1];
@@ -801,15 +806,20 @@ function detectStormEvents() {
       .filter(index => Math.abs(index - runoffPeakIndex) > 3)
       .map(index => runoff3Day[index] - runoffBaseline));
     if (secondaryRise / runoffRise > STORM_MAX_SECONDARY_Q_RESPONSE) continue;
-    const secondaryRain = Math.max(0, ...precipitation3Day.slice(
-      Math.min(dates.length, pulseIndex + 4),
-      Math.min(dates.length, runoffPeakIndex + 4)
-    ));
-    if (secondaryRain > STORM_MAX_SECONDARY_RAIN_PULSE * precipitation3Day[pulseIndex]) continue;
+    let postPulseRain = 0;
+    for (let index = pulseIndex + 2; index <= runoffPeakIndex; index++) {
+      if (precipitation[index] != null && Number.isFinite(precipitation[index])) {
+        postPulseRain += precipitation[index];
+      }
+    }
+    if (postPulseRain > Math.max(5, 0.15 * precipitation3Day[pulseIndex])) continue;
 
     const start = dates[Math.max(0, pulseIndex - 1)];
     const end = dates[Math.min(dates.length - 1, pulseIndex + 1)];
     const peakDate = dates[rainPeakIndex];
+    const size = precipitation3Day[pulseIndex] < 75
+      ? "small"
+      : precipitation3Day[pulseIndex] < 175 ? "medium" : "large";
     events.push({
       start,
       end,
@@ -821,6 +831,8 @@ function detectStormEvents() {
       runoffBaseline,
       runoffLag: runoffPeakIndex - rainPeakIndex,
       responseDays,
+      concentration,
+      size,
       waterYear: waterYearForDate(peakDate),
       windowStart: addUtcDays(start, -STORM_PRE_DAYS),
       windowEnd: addUtcDays(peakDate, responseDays)
@@ -945,15 +957,16 @@ function stormLagSummary(event) {
 function updateStormPopover() {
   if (!STORM_EVENTS.length) {
     document.getElementById("storm-count").textContent = "none detected";
-    document.getElementById("storm-meta").textContent = "No event meets the fixed major-storm threshold.";
+    document.getElementById("storm-meta").textContent = "No event meets the clean pulse-response criteria.";
     document.getElementById("storm-lags").replaceChildren();
     return;
   }
   if (activeStormIndex == null) activeStormIndex = nearestStormIndex(DATA.records[currentIndex]?.[0] || DATA.dateEnd);
   const event = STORM_EVENTS[activeStormIndex];
   const lags = stormLagSummary(event);
+  const sizeLabel = `${event.size[0].toUpperCase()}${event.size.slice(1)}`;
   document.getElementById("storm-count").textContent = `${activeStormIndex + 1} / ${STORM_EVENTS.length}`;
-  document.getElementById("storm-meta").innerHTML = `<strong>${formatShortDate(event.start)} – ${formatShortDate(event.end)}</strong><br>P₃ ${event.total.toFixed(0)} mm · ${event.peak.toFixed(1)} mm/d rain peak on ${formatShortDate(event.peakDate)}`;
+  document.getElementById("storm-meta").innerHTML = `<strong>${sizeLabel} clean pulse</strong> · ${formatShortDate(event.start)} – ${formatShortDate(event.end)}<br>P₃ ${event.total.toFixed(0)} mm · ${(event.concentration * 100).toFixed(0)}% of 9 d rain · peak ${event.peak.toFixed(1)} mm/d`;
   const wellDetail = lags.wellLags.map(item => `${item.well} +${item.lag} d (${item.rise.toFixed(2)} m rise)`).join(" · ");
   const wellValue = lags.medianLag == null
     ? "unavailable"
