@@ -24,7 +24,7 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.45;
     }
-    main { width: min(1180px, calc(100% - 28px)); margin: 16px auto 4px; }
+    main { width: min(1420px, calc(100% - 28px)); margin: 16px auto 4px; }
     header.titlebar { display: flex; justify-content: space-between; gap: 14px; align-items: start; margin-bottom: 9px; }
     h1 { margin: 0 0 4px; font-size: clamp(1.45rem, 3vw, 2rem); font-weight: 650; letter-spacing: -0.025em; }
     .subtitle { margin: 0; color: var(--muted); font-size: 0.82rem; }
@@ -55,7 +55,7 @@
       background: var(--panel);
       border-radius: 9px;
     }
-    .control-grid { display: grid; grid-template-columns: 1fr 0.72fr 0.72fr 1fr; gap: 4px; }
+    .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
     .action-row { display: flex; flex-wrap: nowrap; gap: 3px 6px; align-items: center; }
     .action-row button { flex: 0 0 auto; white-space: nowrap; }
     .wy-range { color: var(--muted); font-size: 0.67rem; }
@@ -83,8 +83,13 @@
     .controls button { min-width: 0; padding: 4px 7px; border-radius: 7px; font-size: 0.69rem; line-height: 1.2; }
     .mesh-toggle { display: flex; gap: 3px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.67rem; }
     .mesh-toggle input { accent-color: var(--accent); }
-    .layout { display: grid; grid-template-columns: minmax(360px, 700px) minmax(300px, 1fr); gap: 18px; align-items: start; }
+    .layout { display: grid; grid-template-columns: minmax(500px, 700px) 166px minmax(410px, 1fr); gap: 14px; align-items: start; }
     .map-column { min-width: 0; }
+    .controls-column { align-self: start; }
+    .controls-column .timeline-heading, .controls-column .compact-meta { display: grid; gap: 2px; }
+    .controls-column .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .controls-column .action-row button { width: 100%; }
+    .controls-column .mesh-toggle { min-height: 22px; }
     .map-shell {
       position: relative;
       width: 100%;
@@ -150,12 +155,13 @@
       backdrop-filter: blur(5px);
       pointer-events: none;
     }
-    aside { display: grid; gap: 10px; }
+    .plot-column { display: grid; gap: 10px; min-width: 0; }
     .timeseries-panel h2, .cumulative-panel h2 { margin: 0 0 6px; font-size: 0.98rem; font-weight: 650; }
-    .timeseries-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; align-items: baseline; }
-    .timeseries-current { color: var(--muted); font-size: 0.76rem; }
-    .timeseries { display: block; width: 100%; height: 300px; overflow: visible; }
-    .cumulative { display: block; width: 100%; height: 230px; overflow: visible; }
+    .timeseries-header { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: baseline; min-height: 24px; }
+    .timeseries-header h2 { white-space: nowrap; }
+    .timeseries-current { min-width: 0; overflow: hidden; color: var(--muted); font-size: 0.76rem; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+    .timeseries { display: block; width: 100%; height: 350px; overflow: visible; }
+    .cumulative { display: block; width: 100%; height: 275px; overflow: visible; }
     .map-legend h2 { margin: 0 0 2px; font-size: 0.78rem; font-weight: 700; }
     .colorbar { height: 9px; border: 1px solid rgba(23,32,38,0.34); border-radius: 2px; background: linear-gradient(90deg, #4b1d9b, #005dde, #00b6b0, #70d044, #ffd02f, #ff6b35, #c51b7d); }
     .colorbar-ticks { display: flex; justify-content: space-between; margin-top: 2px; color: var(--muted); font-size: 0.62rem; }
@@ -181,10 +187,27 @@
     .method-body { padding: 12px 14px 8px; color: var(--muted); font-size: 0.78rem; }
     .method p { margin: 0 0 7px; }
     .method strong { color: var(--ink); }
+    @media (max-width: 1100px) {
+      main { width: min(1180px, calc(100% - 28px)); }
+      .layout { grid-template-columns: minmax(360px, 1.35fr) minmax(320px, 1fr); gap: 18px; }
+      .map-column { grid-row: 1 / span 2; }
+      .controls-column, .plot-column { grid-column: 2; }
+      .control-grid { grid-template-columns: 1fr 0.72fr 0.72fr 1fr; }
+      .controls-column .timeline-heading, .controls-column .compact-meta { display: flex; }
+      .controls-column .action-row { display: flex; }
+      .controls-column .action-row button { width: auto; }
+      .timeseries { height: 300px; }
+      .cumulative { height: 230px; }
+    }
     @media (max-width: 760px) {
       main { width: min(100% - 18px, 620px); margin-top: 16px; }
       .layout { grid-template-columns: 1fr; }
-      aside { grid-template-columns: 1fr; }
+      .map-column { grid-row: auto; }
+      .controls-column, .plot-column { grid-column: 1; }
+      .control-grid { grid-template-columns: 1fr 1fr; }
+      .controls-column .timeline-heading, .controls-column .compact-meta { display: flex; }
+      .controls-column .action-row { display: flex; }
+      .plot-column { grid-template-columns: 1fr; }
     }
     @media (max-width: 430px) {
       button { width: 100%; }
@@ -223,7 +246,7 @@
           <button class="secondary-button" id="storm-next" type="button">Next →</button>
         </div>
         <dl class="lag-list" id="storm-lags"></dl>
-        <p class="storm-rule">Major storms: ≥100 mm total and ≥25 mm peak day; rain days separated by one dry day are grouped. Playback includes 7 pre-storm and 30 response days.</p>
+        <p class="storm-rule">Pulse events only: centered 3-day P ≥175 mm, isolated by 21 d, with one dominant Elder Q peak ≥10 mm/d. The window closes before the next ≥50 mm three-day pulse.</p>
       </section>
     </div>
   </header>
@@ -258,8 +281,7 @@
       </div>
     </div>
 
-    <aside>
-      <section class="controls" aria-label="Playback controls">
+    <section class="controls controls-column" aria-label="Playback controls">
         <div class="control-grid">
           <div class="select-wrap">
             <label for="water-year">Water year</label>
@@ -310,8 +332,9 @@
           <label class="mesh-toggle"><input id="impute" type="checkbox"> Impute</label>
           <label class="mesh-toggle"><input id="rain-history" type="checkbox"> Tetris™ rain</label>
         </div>
-      </section>
+    </section>
 
+    <aside class="plot-column">
       <section class="timeseries-panel" aria-label="Synchronized streamflow and groundwater time series">
         <div class="timeseries-header">
           <h2>USGS 11475560 + wells</h2>
@@ -345,7 +368,7 @@
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged; the surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
-          <p>Storm mode groups rain days separated by no more than one dry day, then retains major events with at least 100 mm total and a 25 mm/day peak. Event playback begins seven days before the storm and ends 30 days after it. The lag explorer measures from the event's peak-rain day to peak Elder runoff and to each observed well's shallowest water level in the following 30 days; it does not use imputed well values.</p>
+          <p>Storm mode selects isolated, centered three-day rain pulses of at least 175 mm—approximately the extreme upper tail of this record—then requires one dominant Elder Creek response of at least 10 mm/day in the following 21 days. Candidate pulses within 21 days compete and only the larger survives; periods with a secondary rain pulse above 55% of the primary or a secondary runoff response above 65% of the primary rise are excluded. The response window closes before a later local three-day rain pulse reaches 50 mm. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
           <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, timestep, speed, and optional display layers into the URL.</p>
           <p>The bottom-center Elder Q circle in both spatial views shows the selected day's watershed-normalized discharge. Circle radius is logarithmic over a fixed 0.05–50 mm/day range; rarer flows above the range use the maximum radius.</p>
           <p>GIF export captures the complete selected water-year or all-time range at the chosen timestep and speed. It preserves the current spatial layout and display options exactly, uses the canvas's native high-DPI rendering with a minimum 900 px output width, burns in the on-screen date badge, and loops continuously.</p>
@@ -625,11 +648,14 @@ const Q_SYMBOL_MIN_MM_DAY = 0.05;
 const Q_SYMBOL_MAX_MM_DAY = 50;
 const GIF_EXPORT_MIN_WIDTH = 900;
 const GIF_EXPORT_MAX_FRAMES = 400;
-const STORM_MIN_TOTAL_MM = 100;
-const STORM_MIN_PEAK_MM_DAY = 25;
-const STORM_WET_DAY_MM = 1;
+const STORM_MIN_PULSE_3DAY_MM = 175;
+const STORM_LOCAL_MAX_WINDOW_DAYS = 10;
+const STORM_MIN_SEPARATION_DAYS = 21;
 const STORM_PRE_DAYS = 7;
-const STORM_RESPONSE_DAYS = 30;
+const STORM_RESPONSE_DAYS = 21;
+const STORM_MIN_Q_PEAK_MM_DAY = 10;
+const STORM_MAX_SECONDARY_Q_RESPONSE = 0.65;
+const STORM_MAX_SECONDARY_RAIN_PULSE = 0.55;
 const IMPUTATION_GATE_EXCLUDED = new Set(DATA.imputation?.guardrails?.donor_wells_excluded_from_loss_gate || []);
 const WELL_FIRST_OBSERVATION = DATA.wells.map((well, wellIndex) => {
   const first = DATA.records.find(record => record[2][wellIndex] != null);
@@ -688,34 +714,118 @@ function waterYearForDate(date) {
 }
 
 function detectStormEvents() {
-  const events = [];
-  let group = [];
-  const finish = () => {
-    if (!group.length) return;
-    const total = group.reduce((sum, item) => sum + item.amount, 0);
-    const peak = group.reduce((largest, item) => item.amount > largest.amount ? item : largest, group[0]);
-    if (total >= STORM_MIN_TOTAL_MM && peak.amount >= STORM_MIN_PEAK_MM_DAY) {
-      const start = group[0].date;
-      const end = group[group.length - 1].date;
-      events.push({
-        start,
-        end,
-        total,
-        peak: peak.amount,
-        peakDate: peak.date,
-        waterYear: waterYearForDate(start),
-        windowStart: addUtcDays(start, -STORM_PRE_DAYS),
-        windowEnd: addUtcDays(end, STORM_RESPONSE_DAYS)
-      });
+  const dates = [...PRECIPITATION_BY_DATE.keys()].sort();
+  const precipitation = dates.map(date => PRECIPITATION_BY_DATE.get(date) || 0);
+  const runoff = dates.map(date => RUNOFF_BY_DATE.get(date));
+  const centeredSum = (values, index, radius) => {
+    let total = 0;
+    for (let offset = -radius; offset <= radius; offset++) {
+      const value = values[index + offset];
+      if (value != null && Number.isFinite(value)) total += value;
     }
-    group = [];
+    return total;
   };
-  for (const [date, amount] of [...PRECIPITATION_BY_DATE.entries()].sort((left, right) => left[0].localeCompare(right[0]))) {
-    if (!Number.isFinite(amount) || amount < STORM_WET_DAY_MM) continue;
-    if (group.length && utcDayOffset(group[group.length - 1].date, date) > 2) finish();
-    group.push({ date, amount });
+  const centeredMean = (values, index, radius) => {
+    const available = [];
+    for (let offset = -radius; offset <= radius; offset++) {
+      const value = values[index + offset];
+      if (value != null && Number.isFinite(value)) available.push(value);
+    }
+    return available.length ? available.reduce((sum, value) => sum + value, 0) / available.length : null;
+  };
+  const precipitation3Day = dates.map((_, index) => centeredSum(precipitation, index, 1));
+  const runoff3Day = dates.map((_, index) => centeredMean(runoff, index, 1));
+  const candidates = [];
+  precipitation3Day.forEach((amount, index) => {
+    if (amount < STORM_MIN_PULSE_3DAY_MM) return;
+    const local = precipitation3Day.slice(
+      Math.max(0, index - STORM_LOCAL_MAX_WINDOW_DAYS),
+      Math.min(precipitation3Day.length, index + STORM_LOCAL_MAX_WINDOW_DAYS + 1)
+    );
+    if (amount === Math.max(...local) && (index === 0 || amount > precipitation3Day[index - 1])) {
+      candidates.push(index);
+    }
+  });
+  const isolatedCandidates = [];
+  for (const index of candidates.sort((left, right) => precipitation3Day[right] - precipitation3Day[left])) {
+    if (isolatedCandidates.every(selected => Math.abs(selected - index) > STORM_MIN_SEPARATION_DAYS)) {
+      isolatedCandidates.push(index);
+    }
   }
-  finish();
+  isolatedCandidates.sort((left, right) => left - right);
+
+  const events = [];
+  for (const pulseIndex of isolatedCandidates) {
+    const rainIndices = [pulseIndex - 1, pulseIndex, pulseIndex + 1]
+      .filter(index => index >= 0 && index < dates.length);
+    const rainPeakIndex = rainIndices.reduce((largest, index) =>
+      precipitation[index] > precipitation[largest] ? index : largest, rainIndices[0]);
+    const baselineValues = runoff3Day.slice(Math.max(0, rainPeakIndex - 7), rainPeakIndex)
+      .filter(value => value != null && Number.isFinite(value));
+    if (!baselineValues.length) continue;
+    const runoffBaseline = linearPercentile(baselineValues, 0.5);
+    let responseDays = STORM_RESPONSE_DAYS;
+    for (let offset = 4; offset <= STORM_RESPONSE_DAYS; offset++) {
+      const index = rainPeakIndex + offset;
+      if (index >= precipitation3Day.length - 1) break;
+      const isNewPulse = precipitation3Day[index] >= 50
+        && precipitation3Day[index] >= precipitation3Day[index - 1]
+        && precipitation3Day[index] >= precipitation3Day[index + 1];
+      if (isNewPulse) {
+        responseDays = Math.max(3, offset - 2);
+        break;
+      }
+    }
+    const responseEnd = Math.min(dates.length - 1, rainPeakIndex + responseDays);
+    const responseIndices = Array.from(
+      { length: responseEnd - rainPeakIndex + 1 },
+      (_, offset) => rainPeakIndex + offset
+    ).filter(index => runoff3Day[index] != null && Number.isFinite(runoff3Day[index]));
+    if (!responseIndices.length) continue;
+    const runoffPeakIndex = responseIndices.reduce((largest, index) =>
+      runoff3Day[index] > runoff3Day[largest] ? index : largest, responseIndices[0]);
+    if (runoffPeakIndex >= responseEnd - 1) continue;
+    if (runoff3Day[runoffPeakIndex] < STORM_MIN_Q_PEAK_MM_DAY) continue;
+    const runoffRise = runoff3Day[runoffPeakIndex] - runoffBaseline;
+    if (runoffRise <= Math.max(0.15, runoffBaseline * 0.5)) continue;
+
+    const localRunoffPeaks = responseIndices.filter(index => {
+      const previous = runoff3Day[index - 1];
+      const next = runoff3Day[index + 1];
+      return previous != null && next != null
+        && runoff3Day[index] >= previous
+        && runoff3Day[index] >= next
+        && runoff3Day[index] >= runoffBaseline + 0.2 * runoffRise;
+    });
+    const secondaryRise = Math.max(0, ...localRunoffPeaks
+      .filter(index => Math.abs(index - runoffPeakIndex) > 3)
+      .map(index => runoff3Day[index] - runoffBaseline));
+    if (secondaryRise / runoffRise > STORM_MAX_SECONDARY_Q_RESPONSE) continue;
+    const secondaryRain = Math.max(0, ...precipitation3Day.slice(
+      Math.min(dates.length, pulseIndex + 4),
+      Math.min(dates.length, runoffPeakIndex + 4)
+    ));
+    if (secondaryRain > STORM_MAX_SECONDARY_RAIN_PULSE * precipitation3Day[pulseIndex]) continue;
+
+    const start = dates[Math.max(0, pulseIndex - 1)];
+    const end = dates[Math.min(dates.length - 1, pulseIndex + 1)];
+    const peakDate = dates[rainPeakIndex];
+    events.push({
+      start,
+      end,
+      total: precipitation3Day[pulseIndex],
+      peak: precipitation[rainPeakIndex],
+      peakDate,
+      runoffPeakDate: dates[runoffPeakIndex],
+      runoffPeak: runoff3Day[runoffPeakIndex],
+      runoffBaseline,
+      runoffLag: runoffPeakIndex - rainPeakIndex,
+      responseDays,
+      waterYear: waterYearForDate(peakDate),
+      windowStart: addUtcDays(start, -STORM_PRE_DAYS),
+      windowEnd: addUtcDays(peakDate, responseDays)
+    });
+  }
   return events;
 }
 
@@ -791,29 +901,41 @@ function nearestStormIndex(date) {
 }
 
 function stormLagSummary(event) {
-  const responseEnd = addUtcDays(event.peakDate, STORM_RESPONSE_DAYS);
-  let runoffPeak = null;
-  for (let offset = 0; offset <= STORM_RESPONSE_DAYS; offset++) {
-    const date = addUtcDays(event.peakDate, offset);
-    const value = RUNOFF_BY_DATE.get(date);
-    if (value != null && Number.isFinite(value) && (!runoffPeak || value > runoffPeak.value)) {
-      runoffPeak = { date, value, lag: offset };
-    }
-  }
+  const runoffPeak = {
+    date: event.runoffPeakDate,
+    value: event.runoffPeak,
+    lag: event.runoffLag
+  };
   const wellLags = [];
   DATA.wells.forEach((well, wellIndex) => {
-    let shallowest = null;
-    let observations = 0;
-    for (let offset = 0; offset <= STORM_RESPONSE_DAYS; offset++) {
-      const date = addUtcDays(event.peakDate, offset);
-      if (date > responseEnd) break;
-      const signedDepth = RECORD_BY_DATE.get(date)?.[2]?.[wellIndex];
-      if (signedDepth == null) continue;
-      observations += 1;
-      const depth = -signedDepth;
-      if (!shallowest || depth < shallowest.depth) shallowest = { date, depth, lag: offset };
+    const baselineDepths = [];
+    for (let offset = -7; offset < 0; offset++) {
+      const signedDepth = RECORD_BY_DATE.get(addUtcDays(event.peakDate, offset))?.[2]?.[wellIndex];
+      if (signedDepth != null) baselineDepths.push(-signedDepth);
     }
-    if (shallowest && observations >= 5) wellLags.push({ well: wellId(well), ...shallowest });
+    if (baselineDepths.length < 4) return;
+    const baselineDepth = linearPercentile(baselineDepths, 0.5);
+    const response = [];
+    for (let offset = 0; offset <= event.responseDays; offset++) {
+      const neighborhood = [];
+      for (let smoothingOffset = -1; smoothingOffset <= 1; smoothingOffset++) {
+        const date = addUtcDays(event.peakDate, offset + smoothingOffset);
+        const signedDepth = RECORD_BY_DATE.get(date)?.[2]?.[wellIndex];
+        if (signedDepth != null) neighborhood.push(-signedDepth);
+      }
+      if (neighborhood.length >= 2) {
+        response.push({
+          date: addUtcDays(event.peakDate, offset),
+          depth: neighborhood.reduce((sum, value) => sum + value, 0) / neighborhood.length,
+          lag: offset
+        });
+      }
+    }
+    if (response.length < 5) return;
+    const peak = response.reduce((shallowest, item) => item.depth < shallowest.depth ? item : shallowest, response[0]);
+    const rise = baselineDepth - peak.depth;
+    const resolved = peak.lag < event.responseDays - 1;
+    if (resolved && rise >= 0.05) wellLags.push({ well: wellId(well), rise, ...peak });
   });
   const orderedLags = wellLags.map(item => item.lag).sort((left, right) => left - right);
   const medianLag = orderedLags.length ? linearPercentile(orderedLags, 0.5) : null;
@@ -831,8 +953,8 @@ function updateStormPopover() {
   const event = STORM_EVENTS[activeStormIndex];
   const lags = stormLagSummary(event);
   document.getElementById("storm-count").textContent = `${activeStormIndex + 1} / ${STORM_EVENTS.length}`;
-  document.getElementById("storm-meta").innerHTML = `<strong>${formatShortDate(event.start)} – ${formatShortDate(event.end)}</strong><br>${event.total.toFixed(0)} mm total · ${event.peak.toFixed(1)} mm/d peak on ${formatShortDate(event.peakDate)}`;
-  const wellDetail = lags.wellLags.map(item => `${item.well} +${item.lag} d`).join(" · ");
+  document.getElementById("storm-meta").innerHTML = `<strong>${formatShortDate(event.start)} – ${formatShortDate(event.end)}</strong><br>P₃ ${event.total.toFixed(0)} mm · ${event.peak.toFixed(1)} mm/d rain peak on ${formatShortDate(event.peakDate)}`;
+  const wellDetail = lags.wellLags.map(item => `${item.well} +${item.lag} d (${item.rise.toFixed(2)} m rise)`).join(" · ");
   const wellValue = lags.medianLag == null
     ? "unavailable"
     : `+${lags.medianLag.toFixed(lags.medianLag % 1 ? 1 : 0)} d median`;
@@ -840,8 +962,8 @@ function updateStormPopover() {
     ? `+${lags.orderedLags[0]}–${lags.orderedLags[lags.orderedLags.length - 1]} d · ${lags.orderedLags.length} wells`
     : "unavailable";
   document.getElementById("storm-lags").innerHTML = [
-    ["Peak P → peak Q", lags.runoffPeak ? `+${lags.runoffPeak.lag} d` : "unavailable", ""],
-    ["Peak P → shallowest wells", wellValue, wellDetail],
+    ["Rain peak → Elder Q peak", `+${lags.runoffPeak.lag} d · ${lags.runoffPeak.value.toFixed(1)} mm/d`, "3-day-smoothed Elder Creek runoff"],
+    ["Rain peak → well peaks", wellValue, wellDetail],
     ["Well-lag range", rangeValue, wellDetail]
   ].map(([label, value, title]) => `<dt>${label}</dt><dd title="${title}">${value}</dd>`).join("");
   document.getElementById("storm-prev").disabled = activeStormIndex <= 0;
@@ -2000,14 +2122,14 @@ function updateWaterBudget(record, rain) {
 
 function drawTimeseries(record) {
   const width = Math.max(300, Math.round(timeseriesSvg.getBoundingClientRect().width));
-  const height = 300;
+  const height = Math.max(300, Math.round(timeseriesSvg.getBoundingClientRect().height));
   const left = 40;
   const right = 34;
   const plotWidth = width - left - right;
   const flowTop = 18;
-  const flowHeight = 88;
-  const wellTop = 140;
-  const wellHeight = 122;
+  const flowHeight = Math.round(height * 0.293);
+  const wellTop = Math.round(height * 0.467);
+  const wellHeight = height - wellTop - 38;
   const axisBottom = wellTop + wellHeight;
   const waterYear = Number(record[3]);
   const flowSeries = DATA.streamflow[String(waterYear)];
@@ -2049,7 +2171,7 @@ function drawTimeseries(record) {
   const guideColor = "#1c2e36";
 
   timeseriesSvg.appendChild(svgNode("text", { x: left, y: 10, fill: muted, "font-size": 11 }, "Elder Creek runoff · mm/day (log)"));
-  timeseriesSvg.appendChild(svgNode("text", { x: left, y: 133, fill: muted, "font-size": 11 }, "Groundwater depth · m below ground"));
+  timeseriesSvg.appendChild(svgNode("text", { x: left, y: wellTop - 7, fill: muted, "font-size": 11 }, "Groundwater depth · m below ground"));
 
   for (const tick of [0.1, 1, 10, 100]) {
     if (tick < flowMin || tick > flowMax) continue;
@@ -2145,7 +2267,7 @@ function drawTimeseries(record) {
         const lower = points.slice().reverse().map(point => [point.x, yDepth(point.depth + point.uncertainty)]);
         const polygon = upper.concat(lower).map((point, index) => `${index ? "L" : "M"}${point[0].toFixed(2)},${point[1].toFixed(2)}`).join(" ") + " Z";
         const band = svgNode("path", {
-          d: polygon, fill: color, "fill-opacity": Math.max(0.045, confidenceOpacity * 0.11),
+          d: polygon, fill: color, "fill-opacity": Math.max(0.14, confidenceOpacity * 0.23),
           stroke: "none", "data-well": well.label, "data-source": "imputation-uncertainty"
         });
         band.appendChild(svgNode("title", {}, `${well.label}: ±${calibration.p80.toFixed(2)} m empirical 80% absolute-error radius`));
@@ -2196,7 +2318,7 @@ function drawTimeseries(record) {
     timeseriesSvg.appendChild(svgNode("line", { x1: xx, x2: xx, y1: axisBottom, y2: axisBottom + 4, stroke: frame, "stroke-width": 0.8 }));
     timeseriesSvg.appendChild(svgNode("text", {
       x: xx,
-      y: 293,
+      y: height - 7,
       fill: muted,
       "font-size": 11,
       "text-anchor": index === 0 ? "start" : index === tickDates.length - 1 ? "end" : "middle"
@@ -2307,7 +2429,7 @@ function cumulativePQ(series, endDay) {
 
 function drawCumulativePlot(record) {
   const width = Math.max(300, Math.round(cumulativeSvg.getBoundingClientRect().width));
-  const height = 230;
+  const height = Math.max(230, Math.round(cumulativeSvg.getBoundingClientRect().height));
   const left = 58;
   const right = 16;
   const top = 16;
