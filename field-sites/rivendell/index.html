@@ -367,7 +367,7 @@
   <div class="method-body">
           <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. The underlying head field remains linear within each Delaunay triangle; contour paths are display-smoothed through their triangle-edge crossings.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
-          <p>Arrows show −∇h after area-weighted gradients from adjoining triangles are blended continuously between wells. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
+          <p>Arrows show the exact local −∇h of each containing Delaunay triangle. Their fixed length encodes direction only; gradient magnitude is shown by color. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
           <p>The optional Impute display fills only approved gaps with gradient-boosted-tree hydrographs from observed donor wells, precipitation, runoff, and season, then uses a Kalman smoother to correct slowly varying bias against observations around each gap. Open gaps at the newest edge use past data only and are marked provisional. The model refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands retain conservative held-out-water-year empirical error guides, not formal probabilistic intervals.</p>
           <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged, then a robust roughness-penalized fit estimates the displayed head profile without forcing it through every well observation; the well markers retain the observations for comparison. The surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
@@ -1480,44 +1480,13 @@ function drawArrow(x, y, dx, dy) {
 }
 
 function drawGradientField(triangles) {
-  const vertexGradients = new Map();
-  for (const triangle of triangles) {
-    const [a, b, c] = triangle.points;
-    const area = Math.max(1e-6, Math.abs(
-      (b.px - a.px) * (c.py - a.py) - (b.py - a.py) * (c.px - a.px)
-    ) / 2);
-    for (const point of triangle.points) {
-      const total = vertexGradients.get(point.index) || { gx: 0, gy: 0, weight: 0 };
-      total.gx += triangle.gx * area;
-      total.gy += triangle.gy * area;
-      total.weight += area;
-      vertexGradients.set(point.index, total);
-    }
-  }
-  for (const total of vertexGradients.values()) {
-    total.gx /= total.weight;
-    total.gy /= total.weight;
-  }
-
   const spacing = clamp(cssWidth / 10.5, 34, 52);
   for (let y = spacing * 0.65; y < cssHeight; y += spacing) {
     for (let x = spacing * 0.65; x < cssWidth; x += spacing) {
-      let weights = null;
-      const triangle = triangles.find(item => {
-        weights = barycentric(x, y, item.points);
-        return weights;
-      });
+      const triangle = triangles.find(item => barycentric(x, y, item.points));
       if (!triangle) continue;
-      const gx = triangle.points.reduce(
-        (sum, point, index) => sum + weights[index] * vertexGradients.get(point.index).gx,
-        0
-      );
-      const gy = triangle.points.reduce(
-        (sum, point, index) => sum + weights[index] * vertexGradients.get(point.index).gy,
-        0
-      );
       // Map flow components are (-gx east, -gy north); screen y increases south.
-      drawArrow(x, y, -gx, gy);
+      drawArrow(x, y, -triangle.gx, triangle.gy);
     }
   }
 }
