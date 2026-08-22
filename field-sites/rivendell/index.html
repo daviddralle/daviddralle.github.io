@@ -382,8 +382,8 @@
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>Storm mode selects clean pulses rather than only large storms. A candidate must contain at least 25 mm over a centered three-day window, hold at least 65% of the surrounding nine-day rain, and be the strongest candidate within seven days. The Elder response must peak within seven days, rise clearly above its seven-day baseline, and have no secondary peak above 55% of the primary rise. Rain after the pulse but before that peak is tightly limited, and the response window closes before the next material rain pulse. Events are labeled small (&lt;75 mm), medium (75–175 mm), or large (≥175 mm); size does not otherwise affect selection. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
           <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, timestep, speed, and optional display layers into the URL.</p>
-          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the 399.08 m Rivendell lower-boundary elevation. This is a visual proxy for creek-level variation—not a surveyed, co-located hydraulic datum—and should not be read as absolute head at Rivendell.</p>
-          <p>The Elder Q circle is placed beside that lower-boundary stage proxy in both spatial views. It shows the selected day's watershed-normalized discharge; circle radius is logarithmic over a fixed 0.05–50 mm/day range, and rarer flows above the range use the maximum radius.</p>
+          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the mapped Elder Creek thalweg beside Rivendell. The channel position comes from the local Rivendell stream-bed GIS layer, and its profile elevation comes from the 1 m Rivendell DEM. This is a visual proxy for creek-level variation—not a surveyed, co-located hydraulic datum—and should not be read as absolute head at Rivendell.</p>
+          <p>The Elder Q circle is placed near the mapped channel in both spatial views. It shows the selected day's watershed-normalized discharge; circle radius is logarithmic over a fixed 0.05–50 mm/day range, and rarer flows above the range use the maximum radius.</p>
           <p>MP4 export captures one complete pass through the selected water-year or all-time range at the chosen timestep and speed. It preserves the current spatial layout and display options exactly, uses the canvas's native high-DPI rendering with a minimum 900 px output width, and burns in the on-screen date badge and legends. H.264 compression keeps the download substantially smaller than an animated GIF.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
           <p>Precipitation uses Angelo Meadow observations with PRISM filling incomplete days. Runoff is USGS 11475560 discharge normalized by watershed area; stage is the same gage's daily mean of instantaneous gage height.</p>
@@ -683,11 +683,32 @@ const RAIN_HISTORY_DAYS = 30;
 const RAIN_FULL_WIDTH_MM_DAY = 120;
 const Q_SYMBOL_MIN_MM_DAY = 0.05;
 const Q_SYMBOL_MAX_MM_DAY = 50;
+const ELDER_CHANNEL = {
+  planCenterline: [
+    [444467.779, 4397832.470], [444476.279, 4397822.970], [444489.779, 4397818.470],
+    [444497.279, 4397825.970], [444560.279, 4397861.970], [444575.779, 4397876.470],
+    [444623.279, 4397908.470], [444648.779, 4397917.970], [444679.279, 4397918.970],
+    [444710.779, 4397910.470], [444737.779, 4397913.470], [444757.279, 4397919.470],
+    [444804.779, 4397949.470], [444818.779, 4397963.970], [444834.279, 4397971.470],
+    [444859.779, 4397998.470], [444881.279, 4398010.470], [444910.779, 4398020.470],
+    [444914.779, 4398025.970]
+  ],
+  profileBankDistances: [124.020, 142.749],
+  profileThalwegDistance: 133.385,
+  profileMaxDistance: 148,
+  profileGround: [
+    [119.184, 399.080], [120, 398.522], [122, 396.909], [124.020, 395.704],
+    [126, 393.907], [128, 393.212], [130, 392.628], [132, 392.531],
+    [133.385, 392.399], [134, 392.399], [136, 392.529], [138, 392.638],
+    [140, 393.166], [142, 394.599], [142.749, 395.708], [144, 396.841],
+    [146, 399.326], [148, 400.316]
+  ]
+};
 const ELDER_STAGE_DEFAULT = {
-  plan_easting_m: 444790.401,
-  plan_northing_m: 4397937.835,
-  profile_distance_m: 119.184,
-  profile_base_elevation_m: 399.08,
+  plan_easting_m: 444789.957,
+  plan_northing_m: 4397939.933,
+  profile_distance_m: 133.385,
+  profile_base_elevation_m: 392.399,
   referenceStageFt: 2.5
 };
 const MP4_EXPORT_MIN_WIDTH = 900;
@@ -1671,7 +1692,7 @@ function drawTextPill(text, x, y, font, color) {
 }
 
 function elderStageMetadata() {
-  return { ...ELDER_STAGE_DEFAULT, ...(DATA.elderStage || {}) };
+  return { ...(DATA.elderStage || {}), ...ELDER_STAGE_DEFAULT };
 }
 
 function elderStageValues(record) {
@@ -1686,51 +1707,43 @@ function drawPlanElderStage(record) {
   const stage = elderStageValues(record);
   const centerX = sx(metadata.plan_easting_m);
   const centerY = sy(metadata.plan_northing_m);
-  const upperWell = DATA.wells.find(well => well.id === "well-15");
-  const lowerWell = DATA.wells.find(well => well.id === "well-1");
-  const axisX = lowerWell.x - upperWell.x;
-  const axisY = lowerWell.y - upperWell.y;
-  const axisLength = Math.hypot(axisX, axisY);
-  const acrossX = -axisY / axisLength;
-  const acrossY = axisX / axisLength;
-  const alongX = axisX / axisLength;
-  const alongY = axisY / axisLength;
   const relativeM = Number.isFinite(stage.relativeM) ? stage.relativeM : 0;
 
-  const traceStage = () => {
-    for (let index = 0; index <= 16; index++) {
-      const fraction = index / 16 * 2 - 1;
-      const across = fraction * 15;
-      const bend = Math.sin(fraction * Math.PI) * 0.8;
-      const x = sx(metadata.plan_easting_m + acrossX * across + alongX * bend);
-      const y = sy(metadata.plan_northing_m + acrossY * across + alongY * bend);
+  const traceChannel = () => {
+    ELDER_CHANNEL.planCenterline.forEach(([easting, northing], index) => {
+      const x = sx(easting);
+      const y = sy(northing);
       if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
+    });
   };
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.beginPath();
-  traceStage();
+  traceChannel();
   ctx.strokeStyle = "rgba(255,255,255,0.88)";
-  ctx.lineWidth = 7 + clamp(relativeM * 5, 0, 9);
+  ctx.lineWidth = 6.5 + clamp(relativeM * 3, 0, 5);
   ctx.stroke();
   ctx.beginPath();
-  traceStage();
-  ctx.strokeStyle = Number.isFinite(stage.relativeM)
-    ? "rgba(18,119,160,0.78)"
-    : "rgba(90,112,122,0.48)";
-  ctx.lineWidth = 3 + clamp(relativeM * 5, 0, 9);
+  traceChannel();
+  ctx.strokeStyle = "rgba(11,112,161,0.86)";
+  ctx.lineWidth = 3.1 + clamp(relativeM * 3, 0, 5);
   ctx.stroke();
   ctx.restore();
 
   const stageLabel = Number.isFinite(stage.relativeM)
-    ? `stage +${stage.relativeM.toFixed(2)} m`
-    : "stage unavailable";
-  drawTextPill(stageLabel, centerX, centerY + 20, "600 10.5px ui-sans-serif, system-ui, sans-serif", "rgba(15,76,101,0.92)");
+    ? `Elder Creek · +${stage.relativeM.toFixed(2)} m stage`
+    : "Elder Creek";
+  drawTextPill(
+    stageLabel,
+    centerX + 43,
+    centerY - 12,
+    "600 10.5px ui-sans-serif, system-ui, sans-serif",
+    "rgba(15,76,101,0.92)"
+  );
   return {
-    x: clamp(centerX + 58, 50, cssWidth - 50),
-    y: clamp(centerY + 58, 92, cssHeight - 92),
+    x: clamp(centerX + 62, 58, cssWidth - 58),
+    y: clamp(centerY + 72, 102, cssHeight - 102),
     targetX: centerX,
     targetY: centerY,
     labelSide: 1
@@ -1743,42 +1756,75 @@ function drawProfileElderStage(record, xScale, yScale) {
   const relativeM = Number.isFinite(stage.relativeM) ? stage.relativeM : 0;
   const centerX = xScale(metadata.profile_distance_m);
   const baseY = yScale(metadata.profile_base_elevation_m);
-  const surfaceY = yScale(metadata.profile_base_elevation_m + relativeM);
-  const displayedSurfaceY = Math.min(surfaceY, baseY - 2.5);
-  const halfWidth = 18;
+  const surfaceElevation = metadata.profile_base_elevation_m + relativeM;
+  const surfaceY = yScale(surfaceElevation);
+  const [upperBank, lowerBank] = ELDER_CHANNEL.profileBankDistances;
+  const channelGround = ELDER_CHANNEL.profileGround.filter(([distance]) => distance >= upperBank && distance <= lowerBank);
 
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(centerX - halfWidth, baseY);
-  ctx.quadraticCurveTo(centerX, displayedSurfaceY - 2, centerX + halfWidth, displayedSurfaceY);
-  ctx.lineTo(centerX + halfWidth, baseY);
-  ctx.closePath();
-  ctx.fillStyle = Number.isFinite(stage.relativeM)
-    ? "rgba(20,130,173,0.30)"
-    : "rgba(90,112,122,0.16)";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(centerX - halfWidth, displayedSurfaceY);
-  ctx.quadraticCurveTo(centerX, displayedSurfaceY - 2, centerX + halfWidth, displayedSurfaceY);
-  ctx.strokeStyle = Number.isFinite(stage.relativeM)
-    ? "rgba(10,94,132,0.92)"
-    : "rgba(90,112,122,0.60)";
-  ctx.lineWidth = 2.4;
+  channelGround.forEach(([distance, elevation], index) => {
+    if (index === 0) ctx.moveTo(xScale(distance), yScale(elevation));
+    else ctx.lineTo(xScale(distance), yScale(elevation));
+  });
+  ctx.strokeStyle = "rgba(10,105,153,0.94)";
+  ctx.lineWidth = 3;
   ctx.lineCap = "round";
+  ctx.lineJoin = "round";
   ctx.stroke();
+
+  if (Number.isFinite(stage.relativeM)) {
+    const wetGround = [];
+    for (let index = 0; index < channelGround.length - 1; index++) {
+      const a = channelGround[index];
+      const b = channelGround[index + 1];
+      const aWet = a[1] <= surfaceElevation;
+      const bWet = b[1] <= surfaceElevation;
+      if (aWet && (!wetGround.length || wetGround[wetGround.length - 1] !== a)) wetGround.push(a);
+      if (aWet !== bWet) {
+        const fraction = (surfaceElevation - a[1]) / (b[1] - a[1]);
+        wetGround.push([a[0] + (b[0] - a[0]) * fraction, surfaceElevation]);
+      }
+      if (bWet) wetGround.push(b);
+    }
+    if (wetGround.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(xScale(wetGround[0][0]), yScale(wetGround[0][1]));
+      for (let index = 1; index < wetGround.length; index++) {
+        ctx.lineTo(xScale(wetGround[index][0]), yScale(wetGround[index][1]));
+      }
+      ctx.lineTo(xScale(wetGround[wetGround.length - 1][0]), surfaceY);
+      ctx.lineTo(xScale(wetGround[0][0]), surfaceY);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(20,130,173,0.34)";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(xScale(wetGround[0][0]), surfaceY);
+      ctx.lineTo(xScale(wetGround[wetGround.length - 1][0]), surfaceY);
+      ctx.strokeStyle = "rgba(7,89,131,0.96)";
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+    }
+  }
   ctx.restore();
 
   const stageLabel = Number.isFinite(stage.relativeM)
-    ? `stage +${stage.relativeM.toFixed(2)} m`
-    : "stage unavailable";
-  drawTextPill(stageLabel, centerX - 45, displayedSurfaceY - 15, "600 10.5px ui-sans-serif, system-ui, sans-serif", "rgba(15,76,101,0.92)");
-  const bubbleX = clamp(centerX - 68, 58, cssWidth - 58);
+    ? `Elder Creek · +${stage.relativeM.toFixed(2)} m stage`
+    : "Elder Creek";
+  drawTextPill(
+    stageLabel,
+    centerX - 20,
+    (Number.isFinite(stage.relativeM) ? surfaceY : baseY) - 14,
+    "600 10.5px ui-sans-serif, system-ui, sans-serif",
+    "rgba(15,76,101,0.92)"
+  );
+  const bubbleX = clamp(centerX - 38, 58, cssWidth - 58);
   return {
     x: bubbleX,
-    y: clamp(displayedSurfaceY - 72, 150, cssHeight - 120),
+    y: clamp(baseY - 76, 158, cssHeight - 122),
     targetX: centerX,
-    targetY: displayedSurfaceY,
-    labelSide: bubbleX > 155 ? -1 : 1
+    targetY: Number.isFinite(stage.relativeM) ? surfaceY : baseY,
+    labelSide: -1
   };
 }
 
@@ -2134,8 +2180,9 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   const bottom = 62;
   const plotWidth = cssWidth - left - right;
   const plotHeight = cssHeight - top - bottom;
-  const xMax = DATA.crossSection.distanceMax;
+  const xMax = ELDER_CHANNEL.profileMaxDistance;
   const elevations = profile.flatMap(point => [point[1], point[2], point[3]]);
+  elevations.push(...ELDER_CHANNEL.profileGround.map(point => point[1]));
   for (const item of section.individuals) {
     elevations.push(item.well.z);
     if (item.active) elevations.push(item.head);
@@ -2177,12 +2224,21 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   ctx.restore();
 
   if (rainHistoryInput.checked) {
-    const rainBottom = Math.max(...profile.map(point => y(point[2])));
+    const rainBottom = Math.max(
+      ...profile.map(point => y(point[2])),
+      ...ELDER_CHANNEL.profileGround.map(point => y(point[1]))
+    );
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(0, top);
     ctx.lineTo(cssWidth, top);
-    ctx.lineTo(cssWidth, y(profile[profile.length - 1][2]));
+    const channelEnd = ELDER_CHANNEL.profileGround[ELDER_CHANNEL.profileGround.length - 1];
+    ctx.lineTo(cssWidth, y(channelEnd[1]));
+    ctx.lineTo(x(channelEnd[0]), y(channelEnd[1]));
+    for (let index = ELDER_CHANNEL.profileGround.length - 2; index >= 0; index--) {
+      const point = ELDER_CHANNEL.profileGround[index];
+      ctx.lineTo(x(point[0]), y(point[1]));
+    }
     for (let index = profile.length - 1; index >= 0; index--) {
       ctx.lineTo(x(profile[index][0]), y(profile[index][2]));
     }
@@ -2205,6 +2261,19 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   }
   ctx.closePath();
   ctx.fillStyle = "rgba(96,105,99,0.19)";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.beginPath();
+  ELDER_CHANNEL.profileGround.forEach((point, index) => {
+    if (index === 0) ctx.moveTo(x(point[0]), y(point[1]));
+    else ctx.lineTo(x(point[0]), y(point[1]));
+  });
+  ctx.lineTo(x(ELDER_CHANNEL.profileGround[ELDER_CHANNEL.profileGround.length - 1][0]), cssHeight - bottom);
+  ctx.lineTo(x(ELDER_CHANNEL.profileGround[0][0]), cssHeight - bottom);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(96,105,99,0.14)";
   ctx.fill();
   ctx.restore();
 
@@ -2258,7 +2327,7 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     ctx.lineJoin = "round";
     ctx.stroke();
 
-    const labelPoint = bedrockPoints[Math.min(bedrockPoints.length - 1, Math.floor(bedrockPoints.length * 0.72))];
+    const labelPoint = bedrockPoints[Math.min(bedrockPoints.length - 1, Math.floor(bedrockPoints.length * 0.36))];
     const labelY = Math.min(cssHeight - bottom - 8, labelPoint.y + 18);
     ctx.font = "650 10.5px ui-sans-serif, system-ui, sans-serif";
     ctx.textAlign = "center";
@@ -2277,6 +2346,7 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     if (index === 0) ctx.moveTo(x(point[0]), y(point[2]));
     else ctx.lineTo(x(point[0]), y(point[2]));
   });
+  ELDER_CHANNEL.profileGround.slice(1).forEach(point => ctx.lineTo(x(point[0]), y(point[1])));
   ctx.strokeStyle = "rgba(49,60,58,0.96)";
   ctx.lineWidth = 2.15;
   ctx.lineJoin = "round";
@@ -2409,7 +2479,7 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   ctx.fillText("Downslope-averaged cross-section", cssWidth / 2, 78);
   ctx.font = "10.5px ui-sans-serif, system-ui, sans-serif";
   ctx.fillStyle = "rgba(74,88,95,0.9)";
-  ctx.fillText(`${DATA.crossSection.swathWidth} m LiDAR swath · W15 → lower boundary`, cssWidth / 2, 96);
+  ctx.fillText(`${DATA.crossSection.swathWidth} m LiDAR swath · W15 → Elder Creek`, cssWidth / 2, 96);
   ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
   ctx.fillStyle = "rgba(45,58,64,0.9)";
   ctx.fillText("Downslope distance from Well 15 (m)", left + plotWidth / 2, cssHeight - 13);
@@ -2421,7 +2491,7 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   ctx.textAlign = "left";
   ctx.fillText("W15 / upper slope", left, cssHeight - bottom + 25);
   ctx.textAlign = "right";
-  ctx.fillText("lower boundary", cssWidth - right, cssHeight - bottom + 25);
+  ctx.fillText("Elder Creek", cssWidth - right, cssHeight - bottom + 25);
   ctx.restore();
   return elderStagePlacement;
 }
@@ -3021,9 +3091,9 @@ function draw() {
     drawHeadContours(triangles, headScale, colorMode);
     drawMesh(triangles);
     drawGradientField(triangles);
+    elderPlacement = drawPlanElderStage(record);
     drawWells(record, headScale, colorMode, colorScale);
     drawMapFurniture();
-    elderPlacement = drawPlanElderStage(record);
   }
   drawDischargeSymbol(record, elderPlacement);
   drawTimeseries(record);
