@@ -56,8 +56,11 @@
       border-radius: 9px;
     }
     .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-    .action-row { display: flex; flex-wrap: nowrap; gap: 3px 6px; align-items: center; }
-    .action-row button { flex: 0 0 auto; white-space: nowrap; }
+    .action-row { display: grid; gap: 8px; }
+    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .action-buttons button { width: 100%; white-space: nowrap; }
+    .action-buttons #export-mp4 { grid-column: 1 / -1; }
+    .option-list { display: grid; gap: 3px; }
     .wy-range { color: var(--muted); font-size: 0.67rem; }
     .timeline-heading, .compact-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
     .compact-meta { color: var(--muted); font-size: 0.64rem; line-height: 1.2; }
@@ -81,22 +84,27 @@
     input[type="range"] { width: 100%; accent-color: var(--accent); }
     select { width: 100%; border: 1px solid var(--line); border-radius: 7px; padding: 4px 18px 4px 6px; background: #fff; color: var(--ink); font-size: 0.76rem; }
     .controls button { min-width: 0; padding: 4px 7px; border-radius: 7px; font-size: 0.69rem; line-height: 1.2; }
-    .mesh-toggle { display: flex; gap: 3px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.67rem; }
+    .mesh-toggle { display: flex; gap: 6px; align-items: center; min-height: 28px; white-space: nowrap; color: var(--muted); font-size: 0.67rem; }
     .mesh-toggle input { accent-color: var(--accent); }
-    .impute-toggle-group { display: flex; gap: 3px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.64rem; }
-    .impute-toggle-group > span { font-weight: 600; }
-    .impute-toggle-group label { display: flex; gap: 1px; align-items: center; }
-    .impute-toggle-group input { margin: 0; accent-color: var(--accent); }
+    .sidebar-option { padding: 2px 3px; }
+    .sidebar-option input { margin: 0; accent-color: var(--accent); }
     .layout { display: grid; grid-template-columns: minmax(470px, 1fr) minmax(520px, 1.25fr) clamp(190px, 14vw, 220px); gap: 10px; align-items: start; }
     .map-column { grid-column: 1; grid-row: 1; min-width: 0; }
     .plot-column { grid-column: 2; grid-row: 1; }
-    .controls-column { grid-column: 3; grid-row: 1; align-self: start; }
-    .controls-column .control-grid { grid-template-columns: 1fr; }
-    .controls-column .timeline-heading, .controls-column .compact-meta { display: grid; gap: 2px; }
-    .controls-column .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-    .controls-column .action-row button { width: 100%; }
-    .controls-column .mesh-toggle { min-height: 22px; }
-    .controls-column .impute-toggle-group { min-height: 22px; }
+    .controls-column { grid-column: 3; grid-row: 1; align-self: start; min-height: 640px; padding: 11px; gap: 10px; align-content: start; }
+    .controls-column .control-grid { grid-template-columns: 1fr; gap: 9px; }
+    .controls-column .timeline-heading { display: grid; grid-template-rows: 1.25em 1.25em; gap: 3px; }
+    .controls-column .range-wrap { min-height: 61px; }
+    .controls-column .compact-meta {
+      display: grid;
+      grid-template-rows: 1.25em 1.25em;
+      gap: 3px;
+      min-height: calc(2.5em + 3px);
+      font-variant-numeric: tabular-nums;
+    }
+    .controls-column .compact-meta > span { overflow: hidden; white-space: nowrap; }
+    .controls-column .option-list { grid-template-columns: 1fr; gap: 4px; }
+    .controls-column .sidebar-option { min-height: 28px; }
     .map-shell {
       position: relative;
       width: 100%;
@@ -207,10 +215,14 @@
       .map-column { grid-row: 1 / span 2; }
       .controls-column { grid-column: 2; grid-row: 1; }
       .plot-column { grid-column: 2; grid-row: 2; }
+      .controls-column { min-height: 0; padding: 7px; gap: 4px; }
       .controls-column .control-grid { grid-template-columns: 1fr 0.72fr 0.72fr 1fr; }
       .controls-column .timeline-heading, .controls-column .compact-meta { display: flex; }
-      .controls-column .action-row { display: flex; }
-      .controls-column .action-row button { width: auto; }
+      .controls-column .range-wrap, .controls-column .compact-meta { min-height: 0; }
+      .controls-column .action-row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+      .controls-column .action-buttons, .controls-column .option-list { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+      .controls-column .action-buttons button { width: auto; }
+      .controls-column .option-list .sidebar-option { min-height: 26px; }
       .timeseries { height: 300px; }
       .cumulative { height: 230px; }
     }
@@ -340,18 +352,19 @@
           <span class="rain-window" id="rain-window"></span>
         </div>
         <div class="action-row">
-          <button id="play" type="button" aria-pressed="false">Play</button>
-          <button id="reset" class="secondary-button" type="button">Reset</button>
-          <button id="export-mp4" class="secondary-button" type="button" aria-label="Export MP4" title="Export the selected range exactly as displayed">MP4</button>
-          <label class="mesh-toggle"><input id="loop" type="checkbox"> Loop</label>
-          <label class="mesh-toggle"><input id="mesh" type="checkbox"> Mesh</label>
-          <label class="mesh-toggle"><input id="all-time" type="checkbox"> All time</label>
-          <div class="impute-toggle-group" aria-label="Imputation controls">
-            <span>Impute</span>
-            <label><input id="impute-gw" type="checkbox" checked> GW</label>
-            <label><input id="impute-vms" type="checkbox" checked> θ*</label>
+          <div class="action-buttons">
+            <button id="play" type="button" aria-pressed="false">Play</button>
+            <button id="reset" class="secondary-button" type="button">Reset</button>
+            <button id="export-mp4" class="secondary-button" type="button" aria-label="Export MP4" title="Export the selected range exactly as displayed">MP4</button>
           </div>
-          <label class="mesh-toggle"><input id="rain-history" type="checkbox"> Tetris™ rain</label>
+          <div class="option-list" aria-label="Display options">
+            <label class="mesh-toggle sidebar-option"><input id="loop" type="checkbox"> Loop</label>
+            <label class="mesh-toggle sidebar-option"><input id="mesh" type="checkbox"> Mesh</label>
+            <label class="mesh-toggle sidebar-option"><input id="all-time" type="checkbox"> All time</label>
+            <label class="mesh-toggle sidebar-option"><input id="rain-history" type="checkbox"> Tetris™ rain</label>
+            <label class="mesh-toggle sidebar-option"><input id="impute-gw" type="checkbox" checked> Impute GW</label>
+            <label class="mesh-toggle sidebar-option"><input id="impute-vms" type="checkbox" checked> Impute θ*</label>
+          </div>
         </div>
     </section>
 
