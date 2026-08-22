@@ -1848,12 +1848,13 @@ function drawProfileElderStage(record, xScale, yScale) {
   const surfaceY = yScale(surfaceElevation);
 
   const stageLabel = Number.isFinite(stage.relativeM)
-    ? `Elder Creek · +${stage.relativeM.toFixed(2)} m stage`
-    : "Elder Creek";
+    ? `Stage +${stage.relativeM.toFixed(2)} m`
+    : "Stage unavailable";
+  const stageLabelX = clamp(centerX + 48, 70, cssWidth - 58);
   drawTextPill(
     stageLabel,
-    centerX + 28,
-    (Number.isFinite(stage.relativeM) ? surfaceY : baseY) - 34,
+    stageLabelX,
+    (Number.isFinite(stage.relativeM) ? surfaceY : baseY) - 38,
     "600 10.5px ui-sans-serif, system-ui, sans-serif",
     "rgba(15,76,101,0.92)"
   );
