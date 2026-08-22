@@ -83,6 +83,10 @@
     .controls button { min-width: 0; padding: 4px 7px; border-radius: 7px; font-size: 0.69rem; line-height: 1.2; }
     .mesh-toggle { display: flex; gap: 3px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.67rem; }
     .mesh-toggle input { accent-color: var(--accent); }
+    .impute-toggle-group { display: flex; gap: 3px; align-items: center; min-height: 26px; white-space: nowrap; color: var(--muted); font-size: 0.64rem; }
+    .impute-toggle-group > span { font-weight: 600; }
+    .impute-toggle-group label { display: flex; gap: 1px; align-items: center; }
+    .impute-toggle-group input { margin: 0; accent-color: var(--accent); }
     .layout { display: grid; grid-template-columns: minmax(470px, 1fr) minmax(520px, 1.25fr) clamp(190px, 14vw, 220px); gap: 10px; align-items: start; }
     .map-column { grid-column: 1; grid-row: 1; min-width: 0; }
     .plot-column { grid-column: 2; grid-row: 1; }
@@ -92,6 +96,7 @@
     .controls-column .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
     .controls-column .action-row button { width: 100%; }
     .controls-column .mesh-toggle { min-height: 22px; }
+    .controls-column .impute-toggle-group { min-height: 22px; }
     .map-shell {
       position: relative;
       width: 100%;
@@ -341,7 +346,11 @@
           <label class="mesh-toggle"><input id="loop" type="checkbox"> Loop</label>
           <label class="mesh-toggle"><input id="mesh" type="checkbox"> Mesh</label>
           <label class="mesh-toggle"><input id="all-time" type="checkbox"> All time</label>
-          <label class="mesh-toggle"><input id="impute" type="checkbox" checked> Impute</label>
+          <div class="impute-toggle-group" aria-label="Imputation controls">
+            <span>Impute</span>
+            <label><input id="impute-gw" type="checkbox" checked> GW</label>
+            <label><input id="impute-vms" type="checkbox" checked> θ*</label>
+          </div>
           <label class="mesh-toggle"><input id="rain-history" type="checkbox"> Tetris™ rain</label>
         </div>
     </section>
@@ -376,9 +385,10 @@
           <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. The underlying head field remains linear within each Delaunay triangle; contour paths are display-smoothed through their triangle-edge crossings.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
           <p>Arrows show the exact local −∇h of each containing Delaunay triangle. Their fixed length encodes direction only; gradient magnitude is shown by color. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
-          <p>The optional Impute display fills only approved gaps with gradient-boosted-tree hydrographs from observed donor wells, precipitation, runoff, and season, then uses a Kalman smoother to correct slowly varying bias against observations around each gap. Open gaps at the newest edge use past data only and are marked provisional. The model refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands retain conservative held-out-water-year empirical error guides, not formal probabilistic intervals.</p>
+          <p>The optional Impute GW display fills only approved gaps with gradient-boosted-tree hydrographs from observed donor wells, precipitation, runoff, and season, then uses a Kalman smoother to correct slowly varying bias against observations around each gap. Open gaps at the newest edge use past data only and are marked provisional. The model refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands retain conservative held-out-water-year empirical error guides, not formal probabilistic intervals.</p>
           <p>The cross-section projects wells onto a Well 15-to-Elder Creek axis. Wells within 8 m along that axis are averaged, then a robust roughness-penalized fit estimates one groundwater surface without forcing it through every well observation; the well markers retain the observations for comparison. When stage is available, it is the terminal groundwater observation: the same fitted surface is pinned to that transferred elevation and continues across the wetted portion of the channel. The surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from documented drilled depths. Z<sub>b</sub> stops at the final drilled W1/W12 control; stage constrains groundwater head but provides no information about fresh-bedrock elevation beneath Elder Creek.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
+          <p>Impute θ* uses a two-tier gradient-boosted-tree reconstruction evaluated on complete held-out water years. With two or more observed VMS donor depths it also uses those depths; whole-array outages use an independent fallback driven by observed wells, precipitation, runoff, dry-spell duration, and annual phase. Closed gaps are bias-anchored to observations on both boundaries using weights selected from other water years. Neither imputed wells nor earlier VMS predictions are used recursively. Dashed cell borders mark reconstructed θ*; open newest-edge gaps use past data only and are provisional.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>Storm mode selects clean pulses rather than only large storms. A candidate must contain at least 25 mm over a centered three-day window, hold at least 65% of the surrounding nine-day rain, and be the strongest candidate within seven days. The Elder response must peak within seven days, rise clearly above its seven-day baseline, and have no secondary peak above 55% of the primary rise. Rain after the pulse but before that peak is tightly limited, and the response window closes before the next material rain pulse. Events are labeled small (&lt;75 mm), medium (75–175 mm), or large (≥175 mm); size does not otherwise affect selection. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
           <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, timestep, speed, and optional display layers into the URL.</p>
@@ -564,6 +574,32 @@ function mergeImputationBundle(bundle) {
   if (bundle.triangulations) Object.assign(DATA.triangulations, bundle.triangulations);
 }
 
+function mergeVmsImputationBundle(bundle) {
+  const localChannels = bundle.dimensions?.vms_channels || [];
+  const records = new Map();
+  for (const sourceRecord of bundle.records || []) {
+    const values = Array(DATA.vms.channels.length).fill(null);
+    let imputedMask = 0;
+    let provisionalMask = 0;
+    localChannels.forEach((channel, localIndex) => {
+      const dashboardIndex = DATA.vms.channels.indexOf(channel);
+      const value = sourceRecord[3]?.[localIndex];
+      if (dashboardIndex < 0 || value == null || !Number.isFinite(value)) return;
+      values[dashboardIndex] = value;
+      imputedMask |= 1 << dashboardIndex;
+      if ((sourceRecord[2] || 0) & (1 << localIndex)) provisionalMask |= 1 << dashboardIndex;
+    });
+    if (imputedMask) records.set(sourceRecord[0], { values, imputedMask, provisionalMask });
+  }
+  DATA.vmsImputation = {
+    modelVersion: bundle.model_version,
+    generatedAt: bundle.generated_at,
+    guardrails: bundle.guardrails,
+    calibration: bundle.calibration || null,
+    records
+  };
+}
+
 async function loadPublishedData() {
   const dataRoot = new URL("data/", window.location.href);
   const indexResponse = await fetch(new URL("latest.json", dataRoot), { cache: "no-store" });
@@ -578,11 +614,14 @@ async function loadPublishedData() {
   const bundlePaths = [...new Set(
     (index.bundles || [{ path: index.current_bundle }]).map(item => item.path)
   )];
-  const [bundleResponses, vmsResponse, imputationResponse] = await Promise.all([
+  const [bundleResponses, vmsResponse, imputationResponse, vmsImputationResponse] = await Promise.all([
     Promise.all(bundlePaths.map(path => fetch(`${new URL(path, dataRoot)}?v=${version}`, { cache: "no-store" }))),
     fetch(`${new URL(index.vms_extension, dataRoot)}?v=${version}`, { cache: "no-store" }),
     index.imputation_bundle
       ? fetch(`${new URL(index.imputation_bundle, dataRoot)}?v=${version}`, { cache: "no-store" }).catch(() => null)
+      : Promise.resolve(null),
+    index.vms_imputation_bundle
+      ? fetch(`${new URL(index.vms_imputation_bundle, dataRoot)}?v=${version}`, { cache: "no-store" }).catch(() => null)
       : Promise.resolve(null)
   ]);
   if (bundleResponses.some(response => !response.ok) || !vmsResponse.ok) {
@@ -594,6 +633,8 @@ async function loadPublishedData() {
   mergeVmsExtension(await vmsResponse.json());
   if (imputationResponse?.ok) mergeImputationBundle(await imputationResponse.json());
   else console.warn("Published imputation bundle is unavailable; observed display remains active");
+  if (vmsImputationResponse?.ok) mergeVmsImputationBundle(await vmsImputationResponse.json());
+  else console.warn("Published VMS imputation bundle is unavailable; observed VMS display remains active");
   return `Through ${index.latest_complete_day}`;
 }
 
@@ -621,7 +662,8 @@ const viewModeSelect = document.getElementById("view-mode");
 const loopInput = document.getElementById("loop");
 const meshInput = document.getElementById("mesh");
 const allTimeInput = document.getElementById("all-time");
-const imputeInput = document.getElementById("impute");
+const imputeInput = document.getElementById("impute-gw");
+const vmsImputeInput = document.getElementById("impute-vms");
 const rainHistoryInput = document.getElementById("rain-history");
 const tooltip = document.getElementById("tooltip");
 const timeseriesSvg = document.getElementById("timeseries");
@@ -632,6 +674,10 @@ imputeInput.disabled = !(DATA.imputation?.records?.size);
 imputeInput.title = imputeInput.disabled
   ? "No validated imputation bundle is available"
   : "Show guardrail-approved GBT–Kalman reconstructions for missing well observations";
+vmsImputeInput.disabled = !(DATA.vmsImputation?.records?.size);
+vmsImputeInput.title = vmsImputeInput.disabled
+  ? "No validated VMS imputation bundle is available"
+  : "Show validated XGBoost reconstructions for missing VMS θ* observations";
 const topoImage = new Image();
 const offscreen = document.createElement("canvas");
 const offctx = offscreen.getContext("2d");
@@ -926,6 +972,22 @@ function displayRecord(sourceRecord) {
     : sourceRecord;
 }
 
+function displayVmsRecord(date) {
+  const values = (VMS_BY_DATE.get(date) || Array(DATA.vms.channels.length).fill(null)).slice();
+  if (!vmsImputeInput.checked) return { values, imputedMask: 0, provisionalMask: 0 };
+  const reconstruction = DATA.vmsImputation?.records?.get(date);
+  if (!reconstruction) return { values, imputedMask: 0, provisionalMask: 0 };
+  let imputedMask = 0;
+  let provisionalMask = 0;
+  reconstruction.values.forEach((value, index) => {
+    if (values[index] != null || value == null || !Number.isFinite(value)) return;
+    values[index] = value;
+    imputedMask |= 1 << index;
+    if (reconstruction.provisionalMask & (1 << index)) provisionalMask |= 1 << index;
+  });
+  return { values, imputedMask, provisionalMask };
+}
+
 function recordValueIsImputed(record, wellIndex) {
   return Boolean((record[4] || 0) & (1 << wellIndex));
 }
@@ -1088,6 +1150,8 @@ function syncUrlState() {
   parameters.set("speed", speedSelect.value);
   if (imputeInput.disabled) parameters.delete("impute");
   else parameters.set("impute", imputeInput.checked ? "1" : "0");
+  if (vmsImputeInput.disabled) parameters.delete("vmsimpute");
+  else parameters.set("vmsimpute", vmsImputeInput.checked ? "1" : "0");
   for (const [name, input] of [["rain", rainHistoryInput], ["mesh", meshInput], ["loop", loopInput]]) {
     if (input.checked) parameters.set(name, "1");
     else parameters.delete(name);
@@ -1109,6 +1173,7 @@ function restoreUrlState() {
   optionValue(speedSelect, "speed", "5");
   allTimeInput.checked = parameters.get("all") === "1";
   imputeInput.checked = !imputeInput.disabled && parameters.get("impute") !== "0";
+  vmsImputeInput.checked = !vmsImputeInput.disabled && parameters.get("vmsimpute") !== "0";
   rainHistoryInput.checked = parameters.get("rain") === "1";
   meshInput.checked = parameters.get("mesh") === "1";
   loopInput.checked = parameters.get("loop") === "1";
@@ -2157,7 +2222,8 @@ function regularizedHeadProfile(groups) {
 }
 
 function drawVmsStrip(record, x, y) {
-  const values = VMS_BY_DATE.get(record[0]) || null;
+  const vmsRecord = displayVmsRecord(record[0]);
+  const values = vmsRecord.values;
   const centers = DATA.vms.sensorDepthsM;
   const boundaries = [DATA.vms.layerTopM];
   for (let index = 0; index < centers.length - 1; index++) {
@@ -2179,6 +2245,8 @@ function drawVmsStrip(record, x, y) {
     const height = Math.max(lowerY - upperY, 1);
     const value = values?.[index];
     const available = value != null && Number.isFinite(value);
+    const imputed = Boolean(vmsRecord.imputedMask & (1 << index));
+    const provisional = Boolean(vmsRecord.provisionalMask & (1 << index));
     if (available) {
       const color = colorForVms(value, 255);
       ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},0.96)`;
@@ -2190,6 +2258,14 @@ function drawVmsStrip(record, x, y) {
     ctx.strokeStyle = "rgba(255,255,255,0.88)";
     ctx.lineWidth = 0.8;
     ctx.strokeRect(x0, upperY, halfWidth * 2, height);
+    if (imputed) {
+      ctx.save();
+      ctx.setLineDash([2, 1.6]);
+      ctx.strokeStyle = "rgba(13,54,70,0.9)";
+      ctx.lineWidth = 1.15;
+      ctx.strokeRect(x0 + 1, upperY + 1, halfWidth * 2 - 2, Math.max(1, height - 2));
+      ctx.restore();
+    }
 
     const sensorY = y(groundElevation - centers[index]);
     ctx.beginPath();
@@ -2206,7 +2282,9 @@ function drawVmsStrip(record, x, y) {
       ctx.fill();
       ctx.strokeStyle = "rgba(15,31,38,0.9)";
       ctx.lineWidth = 0.65;
+      if (imputed) ctx.setLineDash([1.4, 1.2]);
       ctx.stroke();
+      ctx.setLineDash([]);
     }
     screenVmsLayers.push({
       x0,
@@ -2216,6 +2294,8 @@ function drawVmsStrip(record, x, y) {
       channel: DATA.vms.channels[index],
       depth: centers[index],
       value: available ? value : null,
+      imputed,
+      provisional,
       date: record[0]
     });
   }
@@ -3143,11 +3223,14 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
   const imputed = record[4]
     ? record[2].filter((value, index) => value != null && recordValueIsImputed(record, index)).length
     : 0;
-  const vmsValues = VMS_BY_DATE.get(record[0]);
-  const vmsValid = vmsValues?.filter(value => value != null && Number.isFinite(value)) || [];
+  const vmsRecord = displayVmsRecord(record[0]);
+  const vmsValid = vmsRecord.values.filter(value => value != null && Number.isFinite(value));
   const vmsCount = vmsValid.length;
+  const vmsImputedCount = vmsRecord.values.filter((value, index) => (
+    value != null && Boolean(vmsRecord.imputedMask & (1 << index))
+  )).length;
   document.getElementById("vms-current-range").textContent = vmsCount
-    ? ` · today ${Math.min(...vmsValid).toFixed(2)}–${Math.max(...vmsValid).toFixed(2)}`
+    ? ` · today ${Math.min(...vmsValid).toFixed(2)}–${Math.max(...vmsValid).toFixed(2)}${vmsImputedCount ? ` · ${vmsImputedCount} reconstructed` : ""}`
     : " · unavailable";
   document.getElementById("date-label").textContent = label;
   meshInput.disabled = viewMode === "section";
@@ -3631,6 +3714,7 @@ meshInput.addEventListener("change", () => { draw(); syncUrlState(); });
 rainHistoryInput.addEventListener("change", () => { draw(); syncUrlState(); });
 loopInput.addEventListener("change", syncUrlState);
 imputeInput.addEventListener("change", () => { tooltip.hidden = true; draw(); syncUrlState(); });
+vmsImputeInput.addEventListener("change", () => { tooltip.hidden = true; draw(); syncUrlState(); });
 window.addEventListener("keydown", event => {
   if (exportInProgress) return;
   if (event.key === "ArrowLeft") { stopPlayback(); playbackStopPosition = null; setYearPosition(currentYearPosition - 1); }
@@ -3647,7 +3731,7 @@ canvas.addEventListener("pointermove", event => {
   if (vmsLayer) {
     const detail = vmsLayer.value == null
       ? "No VMS observation on this date"
-      : `Relative moisture θ* ${vmsLayer.value.toFixed(3)}<br>Daily value · water-year 5th–95th percentile normalization`;
+      : `Relative moisture θ* ${vmsLayer.value.toFixed(3)}<br>${vmsLayer.imputed ? `XGBoost reconstruction${vmsLayer.provisional ? " · provisional" : ""}` : "Daily observation"} · water-year 5th–95th percentile normalization`;
     tooltip.innerHTML = `<strong>VMS ${vmsLayer.channel}</strong><br>${vmsLayer.depth.toFixed(1)} m sensor center<br>${detail}`;
     tooltip.style.left = `${clamp(x, 6, cssWidth - 190)}px`;
     tooltip.style.top = `${clamp(y, 38, cssHeight - 38)}px`;
