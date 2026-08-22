@@ -125,6 +125,8 @@ nav a[aria-current="page"] { color: var(--river); }
   border-bottom: 1px solid var(--line);
 }
 
+.site-card img.map-thumbnail { object-position: center top; }
+
 .site-card div { padding: 18px 20px 20px; }
 
 .site-card h1,
