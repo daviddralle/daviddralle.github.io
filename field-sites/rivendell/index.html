@@ -341,7 +341,7 @@
           <label class="mesh-toggle"><input id="loop" type="checkbox"> Loop</label>
           <label class="mesh-toggle"><input id="mesh" type="checkbox"> Mesh</label>
           <label class="mesh-toggle"><input id="all-time" type="checkbox"> All time</label>
-          <label class="mesh-toggle"><input id="impute" type="checkbox"> Impute</label>
+          <label class="mesh-toggle"><input id="impute" type="checkbox" checked> Impute</label>
           <label class="mesh-toggle"><input id="rain-history" type="checkbox"> Tetris™ rain</label>
         </div>
     </section>
@@ -1086,7 +1086,9 @@ function syncUrlState() {
   parameters.set("color", colorModeSelect.value);
   parameters.set("step", strideSelect.value);
   parameters.set("speed", speedSelect.value);
-  for (const [name, input] of [["impute", imputeInput], ["rain", rainHistoryInput], ["mesh", meshInput], ["loop", loopInput]]) {
+  if (imputeInput.disabled) parameters.delete("impute");
+  else parameters.set("impute", imputeInput.checked ? "1" : "0");
+  for (const [name, input] of [["rain", rainHistoryInput], ["mesh", meshInput], ["loop", loopInput]]) {
     if (input.checked) parameters.set(name, "1");
     else parameters.delete(name);
   }
@@ -1106,7 +1108,7 @@ function restoreUrlState() {
   optionValue(strideSelect, "step", "7");
   optionValue(speedSelect, "speed", "5");
   allTimeInput.checked = parameters.get("all") === "1";
-  imputeInput.checked = !imputeInput.disabled && parameters.get("impute") === "1";
+  imputeInput.checked = !imputeInput.disabled && parameters.get("impute") !== "0";
   rainHistoryInput.checked = parameters.get("rain") === "1";
   meshInput.checked = parameters.get("mesh") === "1";
   loopInput.checked = parameters.get("loop") === "1";
