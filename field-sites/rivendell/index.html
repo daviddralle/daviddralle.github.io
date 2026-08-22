@@ -2167,7 +2167,8 @@ function drawVmsStrip(record, x, y) {
 
   const distance = DATA.vms.sectionDistance;
   const groundElevation = profileElevationAt(distance);
-  const centerX = x(distance);
+  const displayOffsetX = cssWidth < 520 ? 7 : 10;
+  const centerX = x(distance) + displayOffsetX;
   const halfWidth = cssWidth < 520 ? 9 : 12;
   const x0 = centerX - halfWidth;
   screenVmsLayers = [];
