@@ -377,12 +377,12 @@
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
           <p>Arrows show the exact local −∇h of each containing Delaunay triangle. Their fixed length encodes direction only; gradient magnitude is shown by color. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
           <p>The optional Impute display fills only approved gaps with gradient-boosted-tree hydrographs from observed donor wells, precipitation, runoff, and season, then uses a Kalman smoother to correct slowly varying bias against observations around each gap. Open gaps at the newest edge use past data only and are marked provisional. The model refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands retain conservative held-out-water-year empirical error guides, not formal probabilistic intervals.</p>
-          <p>The cross-section projects wells onto a Well 15-to-lower-boundary axis. Wells within 8 m along that axis are averaged, then a robust roughness-penalized fit estimates the displayed head profile without forcing it through every well observation; the well markers retain the observations for comparison. The surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths; it is structural context, not a fitted hydrologic surface.</p>
+          <p>The cross-section projects wells onto a Well 15-to-Elder Creek axis. Wells within 8 m along that axis are averaged, then a robust roughness-penalized fit estimates the displayed head profile without forcing it through every well observation; the well markers retain the observations for comparison. When stage is available, the fit is pinned to that transferred creek elevation and carried across the channel as a constant-head boundary. The surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from the documented total drilled depths. Beneath the unmeasured creek reach, its dashed continuation assumes the mean W1/W12 weathered-zone thickness (8.355 m); this is structural context and an explicit extrapolation, not a measured profile.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>Storm mode selects clean pulses rather than only large storms. A candidate must contain at least 25 mm over a centered three-day window, hold at least 65% of the surrounding nine-day rain, and be the strongest candidate within seven days. The Elder response must peak within seven days, rise clearly above its seven-day baseline, and have no secondary peak above 55% of the primary rise. Rain after the pulse but before that peak is tightly limited, and the response window closes before the next material rain pulse. Events are labeled small (&lt;75 mm), medium (75–175 mm), or large (≥175 mm); size does not otherwise affect selection. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
           <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, timestep, speed, and optional display layers into the URL.</p>
-          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the mapped Elder Creek thalweg directly downgradient from W1/W12. The channel position comes from the local Rivendell stream-bed GIS layer, and its profile elevation comes from the 1 m Rivendell DEM. When stage is available, that transferred elevation acts as an approximate lower-boundary groundwater-head control in the plan and profile interpolation. It is not a surveyed, co-located hydraulic datum, so interpret its variation rather than its absolute elevation.</p>
+          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the mapped Elder Creek thalweg directly downgradient from W1/W12. The channel position comes from the local Rivendell stream-bed GIS layer, and its profile elevation comes from the 1 m Rivendell DEM. When stage is available, that transferred elevation acts as an approximate lower-boundary groundwater-head control in the plan and profile interpolation. Profile water-surface elevation uses the transferred metres directly; plan-view channel width uses a fixed 0–0.65 m display scale so the same variation remains visible. It is not a surveyed, co-located hydraulic datum, so interpret its variation rather than its absolute elevation.</p>
           <p>The Elder Q circle is placed near the mapped channel in both spatial views. It shows the selected day's watershed-normalized discharge; circle radius is logarithmic over a fixed 0.05–50 mm/day range, and rarer flows above the range use the maximum radius.</p>
           <p>MP4 export captures one complete pass through the selected water-year or all-time range at the chosen timestep and speed. It preserves the current spatial layout and display options exactly, uses the canvas's native high-DPI rendering with a minimum 900 px output width, and burns in the on-screen date badge and legends. H.264 compression keeps the download substantially smaller than an animated GIF.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
@@ -696,6 +696,8 @@ const ELDER_CHANNEL = {
   profileBankDistances: [124.020, 142.749],
   profileThalwegDistance: 133.385,
   profileMaxDistance: 148,
+  inferredWeatheredThicknessM: 8.355,
+  stageDisplayP95M: 0.65,
   profileGround: [
     [119.184, 399.080], [120, 398.522], [122, 396.909], [124.020, 395.704],
     [126, 393.907], [128, 393.212], [130, 392.628], [132, 392.531],
@@ -1747,6 +1749,9 @@ function drawPlanElderStage(record, headScale, colorMode, colorScale) {
   const centerX = sx(metadata.plan_easting_m);
   const centerY = sy(metadata.plan_northing_m);
   const relativeM = Number.isFinite(stage.relativeM) ? stage.relativeM : 0;
+  const stageFraction = Number.isFinite(stage.relativeM)
+    ? clamp(stage.relativeM / ELDER_CHANNEL.stageDisplayP95M, 0, 1)
+    : 0;
 
   const traceChannel = () => {
     ELDER_CHANNEL.planCenterline.forEach(([easting, northing], index) => {
@@ -1761,12 +1766,12 @@ function drawPlanElderStage(record, headScale, colorMode, colorScale) {
   ctx.beginPath();
   traceChannel();
   ctx.strokeStyle = "rgba(255,255,255,0.88)";
-  ctx.lineWidth = 6.5 + clamp(relativeM * 3, 0, 5);
+  ctx.lineWidth = 6.5 + stageFraction * 8;
   ctx.stroke();
   ctx.beginPath();
   traceChannel();
-  ctx.strokeStyle = "rgba(11,112,161,0.86)";
-  ctx.lineWidth = 3.1 + clamp(relativeM * 3, 0, 5);
+  ctx.strokeStyle = `rgba(11,112,161,${(0.72 + stageFraction * 0.22).toFixed(3)})`;
+  ctx.lineWidth = 3.1 + stageFraction * 7;
   ctx.stroke();
   ctx.restore();
 
@@ -2171,7 +2176,10 @@ function regularizedHeadProfile(groups) {
     weights = residuals.map(residual => residual <= cutoff ? 1 : cutoff / residual);
   }
 
-  return groups.map((group, index) => ({ ...group, fittedHead: fitted[index] }));
+  return groups.map((group, index) => ({
+    ...group,
+    fittedHead: group.proxy ? group.head : fitted[index]
+  }));
 }
 
 function drawVmsStrip(record, x, y) {
@@ -2263,6 +2271,11 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   const xMax = ELDER_CHANNEL.profileMaxDistance;
   const elevations = profile.flatMap(point => [point[1], point[2], point[3]]);
   elevations.push(...ELDER_CHANNEL.profileGround.map(point => point[1]));
+  const inferredChannelBedrock = ELDER_CHANNEL.profileGround.map(([distance, elevation]) => ({
+    x: distance,
+    elevation: elevation - ELDER_CHANNEL.inferredWeatheredThicknessM
+  }));
+  elevations.push(...inferredChannelBedrock.map(point => point.elevation));
   for (const item of section.individuals) {
     elevations.push(item.well.z);
     if (item.active) elevations.push(item.head);
@@ -2358,7 +2371,16 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   ctx.restore();
 
   const fittedGroups = regularizedHeadProfile(section.groups);
-  const headPoints = fittedGroups.map(group => ({
+  const surfaceGroups = fittedGroups.slice();
+  if (section.stage) {
+    surfaceGroups.push({
+      ...section.stage,
+      x: ELDER_CHANNEL.profileBankDistances[1],
+      fittedHead: section.stage.head,
+      channelBoundary: true
+    });
+  }
+  const headPoints = surfaceGroups.map(group => ({
     x: x(group.x),
     y: y(group.fittedHead)
   }));
@@ -2385,11 +2407,17 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     ctx.restore();
   }
 
-  const bedrockPoints = section.bedrockGroups.map(group => ({
+  const observedBedrockPoints = section.bedrockGroups.map(group => ({
     x: x(group.x),
     y: y(group.elevation),
     labels: group.labels
   }));
+  const bedrockPoints = [
+    ...observedBedrockPoints,
+    ...inferredChannelBedrock
+      .filter(point => point.x > section.bedrockGroups[section.bedrockGroups.length - 1].x + 0.1)
+      .map(point => ({ x: x(point.x), y: y(point.elevation), inferred: true }))
+  ];
   if (bedrockPoints.length >= 2) {
     ctx.save();
     ctx.beginPath();
@@ -2401,13 +2429,27 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     ctx.fill();
 
     ctx.beginPath();
-    traceSmoothProfile(bedrockPoints);
+    traceSmoothProfile(observedBedrockPoints);
     ctx.strokeStyle = "rgba(54,82,98,0.92)";
     ctx.lineWidth = 2.2;
     ctx.lineJoin = "round";
     ctx.stroke();
 
-    const labelPoint = bedrockPoints[Math.min(bedrockPoints.length - 1, Math.floor(bedrockPoints.length * 0.36))];
+    if (bedrockPoints.length > observedBedrockPoints.length) {
+      const inferredBoundary = [
+        observedBedrockPoints[observedBedrockPoints.length - 1],
+        ...bedrockPoints.slice(observedBedrockPoints.length)
+      ];
+      ctx.beginPath();
+      traceSmoothProfile(inferredBoundary);
+      ctx.setLineDash([5, 3]);
+      ctx.strokeStyle = "rgba(54,82,98,0.76)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    const labelPoint = observedBedrockPoints[Math.min(observedBedrockPoints.length - 1, Math.floor(observedBedrockPoints.length * 0.36))];
     const labelY = Math.min(cssHeight - bottom - 8, labelPoint.y + 18);
     ctx.font = "650 10.5px ui-sans-serif, system-ui, sans-serif";
     ctx.textAlign = "center";
@@ -2437,8 +2479,8 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
   drawVmsStrip(record, x, y);
 
   for (let index = 0; index < headSegments.length; index++) {
-    const a = fittedGroups[index];
-    const b = fittedGroups[index + 1];
+    const a = surfaceGroups[index];
+    const b = surfaceGroups[index + 1];
     const segment = headSegments[index];
     const ax = segment.start.x;
     const ay = segment.start.y;
