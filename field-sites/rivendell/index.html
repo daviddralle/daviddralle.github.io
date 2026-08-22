@@ -282,7 +282,7 @@
             <div class="key-row"><span class="key-arrow">→</span><span id="direction-key-label">Direction of −∇h</span></div>
             <div class="key-row"><span class="key-well"></span><span id="well-key-label">Active well</span></div>
             <div class="key-row"><span class="key-line topo"></span><span id="topo-key-label">Topographic contour</span></div>
-            <div class="key-row"><span class="key-line stage"></span><span>Elder stage proxy</span></div>
+            <div class="key-row"><span class="key-line stage"></span><span>Elder stage head control</span></div>
           </div>
           <div class="vms-legend" id="vms-legend" hidden>
             <div class="vms-legend-label"><strong>VMS within-WY moisture θ*</strong><span id="vms-current-range"></span></div>
@@ -382,7 +382,7 @@
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>Storm mode selects clean pulses rather than only large storms. A candidate must contain at least 25 mm over a centered three-day window, hold at least 65% of the surrounding nine-day rain, and be the strongest candidate within seven days. The Elder response must peak within seven days, rise clearly above its seven-day baseline, and have no secondary peak above 55% of the primary rise. Rain after the pulse but before that peak is tightly limited, and the response window closes before the next material rain pulse. Events are labeled small (&lt;75 mm), medium (75–175 mm), or large (≥175 mm); size does not otherwise affect selection. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
           <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, timestep, speed, and optional display layers into the URL.</p>
-          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the mapped Elder Creek thalweg beside Rivendell. The channel position comes from the local Rivendell stream-bed GIS layer, and its profile elevation comes from the 1 m Rivendell DEM. This is a visual proxy for creek-level variation—not a surveyed, co-located hydraulic datum—and should not be read as absolute head at Rivendell.</p>
+          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the mapped Elder Creek thalweg directly downgradient from W1/W12. The channel position comes from the local Rivendell stream-bed GIS layer, and its profile elevation comes from the 1 m Rivendell DEM. When stage is available, that transferred elevation acts as an approximate lower-boundary groundwater-head control in the plan and profile interpolation. It is not a surveyed, co-located hydraulic datum, so interpret its variation rather than its absolute elevation.</p>
           <p>The Elder Q circle is placed near the mapped channel in both spatial views. It shows the selected day's watershed-normalized discharge; circle radius is logarithmic over a fixed 0.05–50 mm/day range, and rarer flows above the range use the maximum radius.</p>
           <p>MP4 export captures one complete pass through the selected water-year or all-time range at the chosen timestep and speed. It preserves the current spatial layout and display options exactly, uses the canvas's native high-DPI rendering with a minimum 900 px output width, and burns in the on-screen date badge and legends. H.264 compression keeps the download substantially smaller than an animated GIF.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
@@ -1228,6 +1228,8 @@ function headScaleForRecord(record) {
   const heads = record[2]
     .map((depth, index) => depth == null ? null : DATA.wells[index].z + depth)
     .filter(value => value != null && Number.isFinite(value));
+  const stageHead = elderStageHead(record);
+  if (Number.isFinite(stageHead)) heads.push(stageHead);
   let min = Math.floor(Math.min(...heads) / DATA.contourInterval) * DATA.contourInterval;
   let max = Math.ceil(Math.max(...heads) / DATA.contourInterval) * DATA.contourInterval;
   if (max <= min) max = min + DATA.contourInterval;
@@ -1271,7 +1273,14 @@ function triangleData(record) {
   const depths = record[2];
   const heads = DATA.wells.map((well, index) => depths[index] == null ? null : well.z + depths[index]);
   const triangles = DATA.triangulations[String(record[1])] || [];
-  return triangles.map(indices => {
+  const makeTriangle = (indices, points) => {
+    const [p0, p1, p2] = points;
+    const denominator = p0.x * (p1.y - p2.y) + p1.x * (p2.y - p0.y) + p2.x * (p0.y - p1.y);
+    const gx = (p0.h * (p1.y - p2.y) + p1.h * (p2.y - p0.y) + p2.h * (p0.y - p1.y)) / denominator;
+    const gy = (p0.h * (p2.x - p1.x) + p1.h * (p0.x - p2.x) + p2.h * (p1.x - p0.x)) / denominator;
+    return { indices, points, gx, gy };
+  };
+  const result = triangles.map(indices => {
     const points = indices.map(index => ({
       index,
       x: DATA.wells[index].x,
@@ -1281,12 +1290,35 @@ function triangleData(record) {
       px: sx(DATA.wells[index].x),
       py: sy(DATA.wells[index].y)
     }));
-    const [p0, p1, p2] = points;
-    const denominator = p0.x * (p1.y - p2.y) + p1.x * (p2.y - p0.y) + p2.x * (p0.y - p1.y);
-    const gx = (p0.h * (p1.y - p2.y) + p1.h * (p2.y - p0.y) + p2.h * (p0.y - p1.y)) / denominator;
-    const gy = (p0.h * (p2.x - p1.x) + p1.h * (p0.x - p2.x) + p2.h * (p1.x - p0.x)) / denominator;
-    return { indices, points, gx, gy };
+    return makeTriangle(indices, points);
   });
+
+  const stageHead = elderStageHead(record);
+  const w1Index = DATA.wells.findIndex(well => well.id === "well-1");
+  const w12Index = DATA.wells.findIndex(well => well.id === "well-12");
+  if (Number.isFinite(stageHead) && Number.isFinite(heads[w1Index]) && Number.isFinite(heads[w12Index])) {
+    const metadata = elderStageMetadata();
+    const boundaryPoints = [w1Index, w12Index].map(index => ({
+      index,
+      x: DATA.wells[index].x,
+      y: DATA.wells[index].y,
+      h: heads[index],
+      d: -depths[index],
+      px: sx(DATA.wells[index].x),
+      py: sy(DATA.wells[index].y)
+    }));
+    boundaryPoints.push({
+      index: "elder-stage",
+      x: metadata.plan_easting_m,
+      y: metadata.plan_northing_m,
+      h: stageHead,
+      d: 0,
+      px: sx(metadata.plan_easting_m),
+      py: sy(metadata.plan_northing_m)
+    });
+    result.push(makeTriangle([w1Index, w12Index, "elder-stage"], boundaryPoints));
+  }
+  return result;
 }
 
 function barycentric(px, py, points) {
@@ -1702,7 +1734,14 @@ function elderStageValues(record) {
   };
 }
 
-function drawPlanElderStage(record) {
+function elderStageHead(record) {
+  const relativeM = elderStageValues(record).relativeM;
+  return Number.isFinite(relativeM)
+    ? elderStageMetadata().profile_base_elevation_m + relativeM
+    : null;
+}
+
+function drawPlanElderStage(record, headScale, colorMode, colorScale) {
   const metadata = elderStageMetadata();
   const stage = elderStageValues(record);
   const centerX = sx(metadata.plan_easting_m);
@@ -1731,6 +1770,27 @@ function drawPlanElderStage(record) {
   ctx.stroke();
   ctx.restore();
 
+  const stageHead = elderStageHead(record);
+  if (Number.isFinite(stageHead)) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 5.4, 0, Math.PI * 2);
+    if (colorMode === "head") {
+      const color = colorForHead(stageHead, headScale, 255);
+      ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+    } else if (colorMode === "depth") {
+      const color = colorForDepth(0, colorScale, 255);
+      ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+    } else {
+      ctx.fillStyle = "rgba(255,255,255,0.96)";
+    }
+    ctx.fill();
+    ctx.strokeStyle = "rgba(8,38,51,0.98)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
   const stageLabel = Number.isFinite(stage.relativeM)
     ? `Elder Creek · +${stage.relativeM.toFixed(2)} m stage`
     : "Elder Creek";
@@ -1742,11 +1802,12 @@ function drawPlanElderStage(record) {
     "rgba(15,76,101,0.92)"
   );
   return {
-    x: clamp(centerX + 62, 58, cssWidth - 58),
-    y: clamp(centerY + 72, 102, cssHeight - 102),
+    x: cssWidth - 70,
+    y: clamp(centerY + 152, 190, cssHeight - 164),
     targetX: centerX,
     targetY: centerY,
-    labelSide: 1
+    labelSide: -1,
+    labelLayout: "above"
   };
 }
 
@@ -1919,6 +1980,17 @@ function crossSectionFrame(record) {
       labels: active.map(item => item.well.id.replace("well-", "W"))
     };
   }).filter(Boolean);
+  const stageHead = elderStageHead(record);
+  const stage = Number.isFinite(stageHead) ? {
+    x: elderStageMetadata().profile_distance_m,
+    head: stageHead,
+    depth: 0,
+    count: 1,
+    labels: ["Elder stage"],
+    proxy: true
+  } : null;
+  if (stage) groups.push(stage);
+  groups.sort((a, b) => a.x - b.x);
   const bedrockGroups = clusters.map(cluster => ({
     x: cluster.reduce((sum, item) => sum + item.well.sectionDistance, 0) / cluster.length,
     elevation: cluster.reduce(
@@ -1931,7 +2003,7 @@ function crossSectionFrame(record) {
   for (let index = 0; index < groups.length - 1; index++) {
     gradients.push(Math.abs(groups[index + 1].head - groups[index].head) / Math.max(groups[index + 1].x - groups[index].x, 0.01));
   }
-  return { individuals, groups, bedrockGroups, gradients };
+  return { individuals, groups, bedrockGroups, gradients, stage };
 }
 
 function profileElevationAt(distance) {
@@ -2402,6 +2474,28 @@ function drawCrossSection(record, headScale, colorMode, colorScale, section) {
     ctx.strokeStyle = stroke;
     ctx.lineWidth = 4.3;
     ctx.stroke();
+  }
+
+  if (section.stage) {
+    const stageX = x(section.stage.x);
+    const stageY = y(section.stage.head);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(stageX, stageY, 5.4, 0, Math.PI * 2);
+    if (colorMode === "head") {
+      const color = colorForHead(section.stage.head, headScale, 255);
+      ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+    } else if (colorMode === "depth") {
+      const color = colorForDepth(0, colorScale, 255);
+      ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+    } else {
+      ctx.fillStyle = "rgba(255,255,255,0.96)";
+    }
+    ctx.fill();
+    ctx.strokeStyle = "rgba(8,38,51,0.98)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
   }
 
   screenWells = [];
@@ -3099,7 +3193,7 @@ function draw() {
     drawHeadContours(triangles, headScale, colorMode);
     drawMesh(triangles);
     drawGradientField(triangles);
-    elderPlacement = drawPlanElderStage(record);
+    elderPlacement = drawPlanElderStage(record, headScale, colorMode, colorScale);
     drawWells(record, headScale, colorMode, colorScale);
     drawMapFurniture();
   }
