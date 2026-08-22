@@ -1813,35 +1813,39 @@ function drawProfileElderStage(record, xScale, yScale) {
     : "Elder Creek";
   drawTextPill(
     stageLabel,
-    centerX - 20,
-    (Number.isFinite(stage.relativeM) ? surfaceY : baseY) - 14,
+    centerX + 28,
+    (Number.isFinite(stage.relativeM) ? surfaceY : baseY) - 34,
     "600 10.5px ui-sans-serif, system-ui, sans-serif",
     "rgba(15,76,101,0.92)"
   );
-  const bubbleX = clamp(centerX - 38, 58, cssWidth - 58);
+  const bubbleX = clamp(centerX + 28, 58, cssWidth - 58);
   return {
     x: bubbleX,
-    y: clamp(baseY - 76, 158, cssHeight - 122),
+    y: clamp(baseY - 98, 182, cssHeight - 144),
     targetX: centerX,
     targetY: Number.isFinite(stage.relativeM) ? surfaceY : baseY,
-    labelSide: -1
+    labelSide: -1,
+    labelLayout: "above",
+    showTether: false
   };
 }
 
 function drawDischargeSymbol(record, placement) {
   const runoff = RUNOFF_BY_DATE.get(record[0]);
   const maximumRadius = 32;
-  const { x, y, targetX, targetY, labelSide = 1 } = placement;
+  const { x, y, targetX, targetY, labelSide = 1, labelLayout = "side", showTether = true } = placement;
   ctx.save();
-  const tetherAngle = Math.atan2(targetY - y, targetX - x);
-  ctx.beginPath();
-  ctx.moveTo(x + Math.cos(tetherAngle) * (maximumRadius + 2), y + Math.sin(tetherAngle) * (maximumRadius + 2));
-  ctx.lineTo(targetX, targetY);
-  ctx.strokeStyle = "rgba(10,70,96,0.48)";
-  ctx.lineWidth = 1.2;
-  ctx.setLineDash([3, 3]);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  if (showTether) {
+    const tetherAngle = Math.atan2(targetY - y, targetX - x);
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(tetherAngle) * (maximumRadius + 2), y + Math.sin(tetherAngle) * (maximumRadius + 2));
+    ctx.lineTo(targetX, targetY);
+    ctx.strokeStyle = "rgba(10,70,96,0.48)";
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
 
   if (runoff != null && Number.isFinite(runoff) && runoff > 0) {
     const fraction = clamp(
@@ -1863,13 +1867,17 @@ function drawDischargeSymbol(record, placement) {
     ctx.stroke();
 
     const value = runoff < 1 ? runoff.toFixed(2) : runoff < 10 ? runoff.toFixed(1) : runoff.toFixed(0);
-    const labelX = x + labelSide * (maximumRadius + 43);
-    drawTextPill("Elder Q", labelX, y - 9, "650 13px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
-    drawTextPill(`${value} mm/d`, labelX, y + 10, "600 12px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
+    const labelX = labelLayout === "above" ? x : x + labelSide * (maximumRadius + 43);
+    const titleY = labelLayout === "above" ? y - maximumRadius - 32 : y - 9;
+    const valueY = labelLayout === "above" ? y - maximumRadius - 13 : y + 10;
+    drawTextPill("Elder Q", labelX, titleY, "650 13px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
+    drawTextPill(`${value} mm/d`, labelX, valueY, "600 12px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
   } else {
-    const labelX = x + labelSide * (maximumRadius + 47);
-    drawTextPill("Elder Q", labelX, y - 9, "650 13px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
-    drawTextPill("unavailable", labelX, y + 10, "600 12px ui-sans-serif, system-ui, sans-serif", "rgba(72,86,93,0.9)");
+    const labelX = labelLayout === "above" ? x : x + labelSide * (maximumRadius + 47);
+    const titleY = labelLayout === "above" ? y - maximumRadius - 32 : y - 9;
+    const valueY = labelLayout === "above" ? y - maximumRadius - 13 : y + 10;
+    drawTextPill("Elder Q", labelX, titleY, "650 13px ui-sans-serif, system-ui, sans-serif", "rgba(17,48,61,0.9)");
+    drawTextPill("unavailable", labelX, valueY, "600 12px ui-sans-serif, system-ui, sans-serif", "rgba(72,86,93,0.9)");
   }
   ctx.restore();
 }
