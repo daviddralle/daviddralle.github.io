@@ -61,7 +61,8 @@
     .action-buttons button { width: 100%; white-space: nowrap; }
     .action-buttons #export-mp4 { grid-column: 1 / -1; }
     .option-list { display: grid; gap: 3px; }
-    .wy-range { color: var(--muted); font-size: 0.67rem; }
+    .wy-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 8px; color: var(--muted); font-size: 0.67rem; font-variant-numeric: tabular-nums; line-height: 1.25; }
+    .wy-count { flex: 0 0 auto; white-space: nowrap; }
     .timeline-heading, .compact-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
     .compact-meta { color: var(--muted); font-size: 0.64rem; line-height: 1.2; }
     .rain-window { color: var(--muted); }
@@ -93,8 +94,7 @@
     .plot-column { grid-column: 2; grid-row: 1; }
     .controls-column { grid-column: 3; grid-row: 1; align-self: start; min-height: 640px; padding: 11px; gap: 10px; align-content: start; }
     .controls-column .control-grid { grid-template-columns: 1fr; gap: 9px; }
-    .controls-column .timeline-heading { display: grid; grid-template-rows: 1.25em 1.25em; gap: 3px; }
-    .controls-column .range-wrap { min-height: 61px; }
+    .controls-column .range-wrap { display: grid; gap: 4px; min-height: 0; }
     .controls-column .compact-meta {
       display: grid;
       grid-template-rows: 1.25em 1.25em;
@@ -176,6 +176,26 @@
       top: 112px;
       bottom: auto;
     }
+    .map-shell.trajectory-view canvas { cursor: crosshair; }
+    .trajectory-panel {
+      position: absolute;
+      z-index: 4;
+      right: 12px;
+      bottom: 12px;
+      width: min(248px, calc(100% - 24px));
+      padding: 9px 10px;
+      border: 1px solid rgba(23,32,38,0.18);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 3px 12px rgba(25,35,40,0.15);
+      backdrop-filter: blur(6px);
+    }
+    .trajectory-panel[hidden] { display: none; }
+    .trajectory-heading { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+    .trajectory-heading strong { font-size: 0.76rem; }
+    .trajectory-clear { width: auto; min-width: 0; padding: 2px 6px; border: 0; background: transparent; color: var(--accent); font-size: 0.65rem; }
+    .trajectory-clear:hover { background: var(--accent-soft); }
+    .trajectory-status { margin: 3px 0 0; color: var(--muted); font-size: 0.66rem; line-height: 1.3; }
     .plot-column { display: grid; gap: 10px; min-width: 0; }
     .timeseries-panel h2, .cumulative-panel h2 { margin: 0 0 6px; font-size: 0.98rem; font-weight: 650; }
     .timeseries-header { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: baseline; min-height: 24px; }
@@ -218,7 +238,7 @@
       .controls-column { min-height: 0; padding: 7px; gap: 4px; }
       .controls-column .control-grid { grid-template-columns: 1fr 0.72fr 0.72fr 1fr; }
       .controls-column .timeline-heading, .controls-column .compact-meta { display: flex; }
-      .controls-column .range-wrap, .controls-column .compact-meta { min-height: 0; }
+      .controls-column .compact-meta { min-height: 0; }
       .controls-column .action-row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
       .controls-column .action-buttons, .controls-column .option-list { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
       .controls-column .action-buttons button { width: auto; }
@@ -253,7 +273,7 @@
   <header class="titlebar">
     <div>
       <h1>Rivendell hydraulic-head field</h1>
-      <p class="subtitle">Daily head fields · plan and downslope profile</p>
+      <p class="subtitle">Daily head fields · plan, trajectory, and downslope profile</p>
     </div>
     <div class="header-actions">
       <button class="header-tool" id="health-open" type="button" aria-expanded="false" aria-controls="health-popover"><span class="status-dot" id="status-dot"></span>Data</button>
@@ -287,6 +307,7 @@
         <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
         <select class="view-switch" id="view-mode" aria-label="Spatial view">
           <option value="plan">Plan view</option>
+          <option value="trajectory">Trajectory view</option>
           <option value="section" selected>Cross-section</option>
         </select>
         <section class="map-legend" aria-label="Map legend">
@@ -306,6 +327,13 @@
             <div class="vms-colorbar" id="vms-colorbar" aria-hidden="true" style="background:linear-gradient(90deg,#8e0152,#e72945,#ffad00,#fff05f,#26caaa,#0078da,#2c009c)"></div>
             <div class="vms-colorbar-ticks"><span>0 · dry</span><span>1 · wet</span></div>
           </div>
+        </section>
+        <section class="trajectory-panel" id="trajectory-panel" aria-live="polite" hidden>
+          <div class="trajectory-heading">
+            <strong>Down-gradient trajectory</strong>
+            <button class="trajectory-clear" id="trajectory-clear" type="button" hidden>Clear</button>
+          </div>
+          <p class="trajectory-status" id="trajectory-status">Click inside the modeled area, or click a well, to release a tracer.</p>
         </section>
       </div>
     </div>
@@ -344,7 +372,8 @@
           </div>
         </div>
         <div class="range-wrap">
-          <div class="timeline-heading"><label for="time" id="time-label">Date</label><span class="wy-range" id="wy-range"></span></div>
+          <label for="time" id="time-label">Date</label>
+          <div class="wy-meta"><span id="wy-range"></span><span class="wy-count" id="wy-count"></span></div>
           <input id="time" type="range" min="0" value="0" step="1">
         </div>
         <div class="compact-meta" aria-live="polite">
@@ -395,17 +424,18 @@
     <button class="dialog-close" id="methods-close" type="button" aria-label="Close methods">×</button>
   </div>
   <div class="method-body">
-          <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. The underlying head field remains linear within each Delaunay triangle; contour paths are display-smoothed through their triangle-edge crossings.</p>
-          <p>Gradient mode uses a square-root scale and may saturate the highest tenth of triangles at the ≥ threshold so the rest remains distinguishable.</p>
-          <p>Arrows show the exact local −∇h of each containing Delaunay triangle. Their fixed length encodes direction only; gradient magnitude is shown by color. Topography is display-only, and fields stop at the active-well convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
+          <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. Plan view remains linear within each Delaunay triangle. Trajectory view uses the validated exact thin-plate-spline field, clipped to the observation-and-stage convex hull, so head, contours, gradients, and paths vary continuously rather than changing at triangle edges.</p>
+          <p>Gradient mode uses a square-root scale and may saturate the highest tenth of local gradients at the ≥ threshold so the rest remains distinguishable.</p>
+          <p>Arrows show local −∇h. In plan view this is the exact gradient of each containing Delaunay triangle; in trajectory view it is the analytic thin-plate-spline gradient. Their fixed length encodes direction only; gradient magnitude is shown by color. Topography is display-only, and fields stop at the active-control convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
+          <p>The trajectory is a frozen-date streamline integrated down the normalized head gradient from the clicked point. It updates when the date or imputation setting changes and uses the same observed plus approved reconstructed well values shown on the map. It is a geometric screening result—not an advective travel-time model—and does not yet include hydraulic conductivity, porosity, dispersion, matrix exchange, or transient particle motion.</p>
           <p>The optional Impute GW display fills only approved gaps with gradient-boosted-tree hydrographs from observed donor wells, precipitation, runoff, and season, then uses a Kalman smoother to correct slowly varying bias against observations around each gap. Open gaps at the newest edge use past data only and are marked provisional. The model refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands retain conservative held-out-water-year empirical error guides, not formal probabilistic intervals.</p>
           <p>The cross-section projects wells onto a Well 15-to-Elder Creek axis. Wells within 8 m along that axis are averaged, then a robust roughness-penalized fit estimates one groundwater surface without forcing it through every well observation; the well markers retain the observations for comparison. When stage is available, it is the terminal groundwater observation: the same fitted surface is pinned to that transferred elevation and continues across the wetted portion of the channel. The surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from documented drilled depths. Z<sub>b</sub> stops at the final drilled W1/W12 control; stage constrains groundwater head but provides no information about fresh-bedrock elevation beneath Elder Creek.</p>
           <p>The VMS strip is projected between Wells 10 and 7. Its seven blocks show daily TDT relative moisture at sensor centers from 1.4 to 11.4 m. Each depth and water year is normalized independently between robust 5th and 95th percentiles of daily source values, with values outside those bounds clipped to 0 or 1. A sparse partial year reuses the most recent qualified year's bounds. This removes persistent sensor-baseline shifts—especially the A3 shift following the October 2021 wet-up—without altering cached raw values. Colors show within-year wetting and drying; they are not absolute storage and should not be compared quantitatively across depths or years. Blank hatched blocks indicate missing VMS data. Processing follows <a href="https://doi.org/10.1029/2025WR040778" target="_blank" rel="noreferrer">Lapides et al. (2025)</a>; the dashboard loads the latest published Dendra record and retains its embedded record as a fallback.</p>
           <p>Impute θ* uses a two-tier gradient-boosted-tree reconstruction evaluated on complete held-out water years. With two or more observed VMS donor depths it also uses those depths; whole-array outages use an independent fallback driven by observed wells, precipitation, runoff, dry-spell duration, and annual phase. Closed gaps are bias-anchored to observations on both boundaries using weights selected from other water years. Neither imputed wells nor earlier VMS predictions are used recursively. Dashed cell borders mark reconstructed θ*; open newest-edge gaps use past data only and are provisional.</p>
           <p>The optional Tetris™ rain layer shows the previous 30 daily precipitation totals as deterministic block rows. The selected date is at the top and older days descend toward the hillslope; a fixed 120 mm/day scale controls both row length and blue intensity. It is off by default.</p>
           <p>Storm mode selects clean pulses rather than only large storms. A candidate must contain at least 25 mm over a centered three-day window, hold at least 65% of the surrounding nine-day rain, and be the strongest candidate within seven days. The Elder response must peak within seven days, rise clearly above its seven-day baseline, and have no secondary peak above 55% of the primary rise. Rain after the pulse but before that peak is tightly limited, and the response window closes before the next material rain pulse. Events are labeled small (&lt;75 mm), medium (75–175 mm), or large (≥175 mm); size does not otherwise affect selection. Elder Q and observed well responses use three-day smoothing. Well lags require at least a 0.05 m water-level rise and a resolved peak before the response window ends; imputed values are not used.</p>
-          <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, timestep, speed, and optional display layers into the URL.</p>
-          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the mapped Elder Creek thalweg directly downgradient from W1/W12. The channel position comes from the local Rivendell stream-bed GIS layer, and its profile elevation comes from the 1 m Rivendell DEM. When stage is available, that transferred elevation acts as an approximate lower-boundary groundwater-head control in the plan and profile interpolation. Profile water-surface elevation uses the transferred metres directly; plan-view channel width uses a fixed 0–0.65 m display scale so the same variation remains visible. It is not a surveyed, co-located hydraulic datum, so interpret its variation rather than its absolute elevation.</p>
+          <p>The Data indicator summarizes the selected date and published source freshness without changing the plot layout. Share copies the exact date, water year or all-time scope, spatial and color modes, trajectory release point, timestep, speed, and optional display layers into the URL.</p>
+          <p>Elder Creek stage uses USGS parameter 00065 at gage 11475560. Fifteen-minute values are averaged within local civil days, with at least 48 readings required. The display subtracts a fixed 2.50 ft reference, converts the nonnegative variation to metres, and transfers it to the mapped Elder Creek thalweg directly downgradient from W1/W12. The channel position comes from the local Rivendell stream-bed GIS layer, and its profile elevation comes from the 1 m Rivendell DEM. When stage is available, that transferred elevation acts as an approximate lower-boundary groundwater-head control in the plan, trajectory, and profile interpolation. Profile water-surface elevation uses the transferred metres directly; plan-view channel width uses a fixed 0–0.65 m display scale so the same variation remains visible. It is not a surveyed, co-located hydraulic datum, so interpret its variation rather than its absolute elevation.</p>
           <p>The Elder Q circle is placed near the mapped channel in both spatial views. It shows the selected day's watershed-normalized discharge; circle radius is logarithmic over a fixed 0.05–50 mm/day range, and rarer flows above the range use the maximum radius.</p>
           <p>MP4 export captures one complete pass through the selected water-year or all-time range at the chosen timestep and speed. It preserves the current spatial layout and display options exactly, uses the canvas's native high-DPI rendering with a minimum 900 px output width, and burns in the on-screen date badge and legends. H.264 compression keeps the download substantially smaller than an animated GIF.</p>
           <p>The cumulative Q-vs-P plot begins October 1 and uses equal millimetres per screen pixel on both axes, so wet-period segment slope is ΔQ/ΔP. Colored axis bars and the point show the current cumulative amounts; the pale curve shows the remainder of the selected record.</p>
@@ -672,6 +702,9 @@ const strideSelect = document.getElementById("stride");
 const speedSelect = document.getElementById("speed");
 const colorModeSelect = document.getElementById("color-mode");
 const viewModeSelect = document.getElementById("view-mode");
+const trajectoryPanel = document.getElementById("trajectory-panel");
+const trajectoryStatus = document.getElementById("trajectory-status");
+const trajectoryClearButton = document.getElementById("trajectory-clear");
 const loopInput = document.getElementById("loop");
 const meshInput = document.getElementById("mesh");
 const allTimeInput = document.getElementById("all-time");
@@ -710,6 +743,7 @@ let cssWidth = 0;
 let cssHeight = 0;
 let screenWells = [];
 let screenVmsLayers = [];
+let trajectorySeed = null;
 let playbackStopPosition = null;
 let activeStormIndex = null;
 let urlStateReady = false;
@@ -1157,7 +1191,14 @@ function syncUrlState() {
     parameters.set("wy", String(selectedWaterYear.year));
     parameters.delete("all");
   }
-  parameters.set("view", viewModeSelect.value === "section" ? "profile" : "plan");
+  parameters.set("view", viewModeSelect.value === "section" ? "profile" : viewModeSelect.value);
+  if (trajectorySeed) {
+    parameters.set("tx", trajectorySeed.x.toFixed(3));
+    parameters.set("ty", trajectorySeed.y.toFixed(3));
+  } else {
+    parameters.delete("tx");
+    parameters.delete("ty");
+  }
   parameters.set("color", colorModeSelect.value);
   parameters.set("step", strideSelect.value);
   parameters.set("speed", speedSelect.value);
@@ -1180,7 +1221,15 @@ function restoreUrlState() {
     const value = parameters.get(name);
     input.value = [...input.options].some(option => option.value === value) ? value : fallback;
   };
-  viewModeSelect.value = parameters.get("view") === "plan" ? "plan" : "section";
+  const requestedView = parameters.get("view");
+  viewModeSelect.value = requestedView === "plan" || requestedView === "trajectory"
+    ? requestedView
+    : "section";
+  const seedX = Number(parameters.get("tx"));
+  const seedY = Number(parameters.get("ty"));
+  trajectorySeed = parameters.has("tx") && parameters.has("ty") && Number.isFinite(seedX) && Number.isFinite(seedY)
+    ? { x: seedX, y: seedY, label: "Shared point" }
+    : null;
   optionValue(colorModeSelect, "color", "head");
   optionValue(strideSelect, "step", "7");
   optionValue(speedSelect, "speed", "5");
@@ -1411,6 +1460,309 @@ function barycentric(px, py, points) {
   const w2 = 1 - w0 - w1;
   if (w0 < -0.001 || w1 < -0.001 || w2 < -0.001) return null;
   return [w0, w1, w2];
+}
+
+const TPS_SCALE_METRES = 100;
+
+function convexHull(points) {
+  const sorted = points
+    .map(point => ({ x: point.x, y: point.y }))
+    .sort((left, right) => left.x - right.x || left.y - right.y)
+    .filter((point, index, values) => !index || point.x !== values[index - 1].x || point.y !== values[index - 1].y);
+  if (sorted.length < 3) return sorted;
+  const cross = (origin, a, b) => (a.x - origin.x) * (b.y - origin.y) - (a.y - origin.y) * (b.x - origin.x);
+  const lower = [];
+  for (const point of sorted) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) lower.pop();
+    lower.push(point);
+  }
+  const upper = [];
+  for (let index = sorted.length - 1; index >= 0; index--) {
+    const point = sorted[index];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) upper.pop();
+    upper.push(point);
+  }
+  lower.pop();
+  upper.pop();
+  return lower.concat(upper);
+}
+
+function pointInConvexHull(x, y, hull) {
+  if (hull.length < 3) return false;
+  let sign = 0;
+  for (let index = 0; index < hull.length; index++) {
+    const a = hull[index];
+    const b = hull[(index + 1) % hull.length];
+    const cross = (b.x - a.x) * (y - a.y) - (b.y - a.y) * (x - a.x);
+    if (Math.abs(cross) < 1e-7) continue;
+    const edgeSign = Math.sign(cross);
+    if (!sign) sign = edgeSign;
+    else if (edgeSign !== sign) return false;
+  }
+  return true;
+}
+
+function solveLinearSystem(matrix, values) {
+  const size = values.length;
+  const rows = matrix.map((row, index) => row.concat(values[index]));
+  for (let column = 0; column < size; column++) {
+    let pivot = column;
+    for (let row = column + 1; row < size; row++) {
+      if (Math.abs(rows[row][column]) > Math.abs(rows[pivot][column])) pivot = row;
+    }
+    if (Math.abs(rows[pivot][column]) < 1e-11) return null;
+    [rows[column], rows[pivot]] = [rows[pivot], rows[column]];
+    const divisor = rows[column][column];
+    for (let entry = column; entry <= size; entry++) rows[column][entry] /= divisor;
+    for (let row = 0; row < size; row++) {
+      if (row === column) continue;
+      const factor = rows[row][column];
+      if (Math.abs(factor) < 1e-14) continue;
+      for (let entry = column; entry <= size; entry++) rows[row][entry] -= factor * rows[column][entry];
+    }
+  }
+  return rows.map(row => row[size]);
+}
+
+function thinPlateKernel(radius) {
+  return radius > 1e-12 ? radius * radius * Math.log(radius) : 0;
+}
+
+function makeThinPlateSurface(inputPoints) {
+  if (inputPoints.length < 3) return null;
+  const hull = convexHull(inputPoints);
+  if (hull.length < 3) return null;
+  const origin = {
+    x: inputPoints.reduce((total, point) => total + point.x, 0) / inputPoints.length,
+    y: inputPoints.reduce((total, point) => total + point.y, 0) / inputPoints.length
+  };
+  const points = inputPoints.map(point => ({
+    ...point,
+    nx: (point.x - origin.x) / TPS_SCALE_METRES,
+    ny: (point.y - origin.y) / TPS_SCALE_METRES
+  }));
+  const count = points.length;
+  const size = count + 3;
+  const matrix = Array.from({ length: size }, () => Array(size).fill(0));
+  const values = Array(size).fill(0);
+  for (let row = 0; row < count; row++) {
+    values[row] = points[row].value;
+    for (let column = 0; column < count; column++) {
+      matrix[row][column] = thinPlateKernel(Math.hypot(points[row].nx - points[column].nx, points[row].ny - points[column].ny));
+    }
+    matrix[row][count] = 1;
+    matrix[row][count + 1] = points[row].nx;
+    matrix[row][count + 2] = points[row].ny;
+    matrix[count][row] = 1;
+    matrix[count + 1][row] = points[row].nx;
+    matrix[count + 2][row] = points[row].ny;
+  }
+  const solution = solveLinearSystem(matrix, values);
+  if (!solution) return null;
+  const weights = solution.slice(0, count);
+  const affine = solution.slice(count);
+  const bounds = {
+    xmin: Math.min(...hull.map(point => point.x)),
+    xmax: Math.max(...hull.map(point => point.x)),
+    ymin: Math.min(...hull.map(point => point.y)),
+    ymax: Math.max(...hull.map(point => point.y))
+  };
+  return {
+    points,
+    hull,
+    bounds,
+    contains(x, y) {
+      return pointInConvexHull(x, y, hull);
+    },
+    value(x, y) {
+      const nx = (x - origin.x) / TPS_SCALE_METRES;
+      const ny = (y - origin.y) / TPS_SCALE_METRES;
+      let result = affine[0] + affine[1] * nx + affine[2] * ny;
+      for (let index = 0; index < count; index++) {
+        result += weights[index] * thinPlateKernel(Math.hypot(nx - points[index].nx, ny - points[index].ny));
+      }
+      return result;
+    },
+    gradient(x, y) {
+      const nx = (x - origin.x) / TPS_SCALE_METRES;
+      const ny = (y - origin.y) / TPS_SCALE_METRES;
+      let gx = affine[1];
+      let gy = affine[2];
+      for (let index = 0; index < count; index++) {
+        const dx = nx - points[index].nx;
+        const dy = ny - points[index].ny;
+        const radius = Math.hypot(dx, dy);
+        if (radius <= 1e-12) continue;
+        const factor = weights[index] * (2 * Math.log(radius) + 1);
+        gx += factor * dx;
+        gy += factor * dy;
+      }
+      return { gx: gx / TPS_SCALE_METRES, gy: gy / TPS_SCALE_METRES };
+    }
+  };
+}
+
+function smoothSurfaces(record) {
+  const headPoints = [];
+  const depthPoints = [];
+  let imputedCount = 0;
+  record[2].forEach((depth, index) => {
+    if (depth == null || !Number.isFinite(depth)) return;
+    const well = DATA.wells[index];
+    const imputed = recordValueIsImputed(record, index);
+    if (imputed) imputedCount++;
+    headPoints.push({ x: well.x, y: well.y, value: well.z + depth, label: well.label, imputed });
+    depthPoints.push({ x: well.x, y: well.y, value: -depth, label: well.label, imputed });
+  });
+  const stageHead = elderStageHead(record);
+  const stage = elderStageMetadata();
+  if (Number.isFinite(stageHead)) {
+    headPoints.push({ x: stage.plan_easting_m, y: stage.plan_northing_m, value: stageHead, label: "Elder Creek stage", stage: true });
+    depthPoints.push({ x: stage.plan_easting_m, y: stage.plan_northing_m, value: 0, label: "Elder Creek stage", stage: true });
+  }
+  return {
+    head: makeThinPlateSurface(headPoints),
+    depth: makeThinPlateSurface(depthPoints),
+    controlCount: headPoints.length,
+    imputedCount,
+    stage
+  };
+}
+
+function mapX(px, width = cssWidth) {
+  return DATA.bounds.xmin + px / width * (DATA.bounds.xmax - DATA.bounds.xmin);
+}
+
+function mapY(py, height = cssHeight) {
+  return DATA.bounds.ymax - py / height * (DATA.bounds.ymax - DATA.bounds.ymin);
+}
+
+function gradientScaleForSurface(surface) {
+  if (!surface) return gradientScaleForValues([]);
+  const values = [];
+  const sampleCount = 15;
+  for (let row = 0; row <= sampleCount; row++) {
+    const y = surface.bounds.ymin + row / sampleCount * (surface.bounds.ymax - surface.bounds.ymin);
+    for (let column = 0; column <= sampleCount; column++) {
+      const x = surface.bounds.xmin + column / sampleCount * (surface.bounds.xmax - surface.bounds.xmin);
+      if (!surface.contains(x, y)) continue;
+      const gradient = surface.gradient(x, y);
+      values.push(Math.hypot(gradient.gx, gradient.gy));
+    }
+  }
+  return gradientScaleForValues(values);
+}
+
+function renderSmoothField(surfaces, colorMode, colorScale) {
+  const surface = colorMode === "depth" ? surfaces.depth : surfaces.head;
+  if (!surface) return;
+  const scale = 0.48;
+  const width = Math.max(180, Math.round(cssWidth * scale));
+  const height = Math.max(240, Math.round(cssHeight * scale));
+  offscreen.width = width;
+  offscreen.height = height;
+  const image = offctx.createImageData(width, height);
+  const pixels = image.data;
+  for (let py = 0; py < height; py++) {
+    const y = mapY(py + 0.5, height);
+    for (let px = 0; px < width; px++) {
+      const x = mapX(px + 0.5, width);
+      if (!surface.contains(x, y)) continue;
+      let value;
+      if (colorMode === "gradient") {
+        const gradient = surface.gradient(x, y);
+        value = Math.hypot(gradient.gx, gradient.gy);
+      } else {
+        value = surface.value(x, y);
+      }
+      const color = colorMode === "head"
+        ? colorForHead(value, colorScale)
+        : colorMode === "depth"
+          ? colorForDepth(value, colorScale)
+          : colorForGradient(value, colorScale);
+      const offset = (py * width + px) * 4;
+      pixels[offset] = color[0];
+      pixels[offset + 1] = color[1];
+      pixels[offset + 2] = color[2];
+      pixels[offset + 3] = color[3];
+    }
+  }
+  offctx.putImageData(image, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(offscreen, 0, 0, cssWidth, cssHeight);
+}
+
+function smoothContourTriangles(surface, step = 6) {
+  const columns = Math.ceil(cssWidth / step);
+  const rows = Math.ceil(cssHeight / step);
+  const grid = [];
+  for (let row = 0; row <= rows; row++) {
+    const py = Math.min(cssHeight, row * step);
+    const values = [];
+    for (let column = 0; column <= columns; column++) {
+      const px = Math.min(cssWidth, column * step);
+      const x = mapX(px);
+      const y = mapY(py);
+      values.push(surface.contains(x, y) ? { px, py, h: surface.value(x, y) } : null);
+    }
+    grid.push(values);
+  }
+  const triangles = [];
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const a = grid[row][column];
+      const b = grid[row][column + 1];
+      const c = grid[row + 1][column + 1];
+      const d = grid[row + 1][column];
+      if (a && b && c) triangles.push([a, b, c]);
+      if (a && c && d) triangles.push([a, c, d]);
+    }
+  }
+  return triangles;
+}
+
+function drawSmoothHeadContours(surface, headScale, colorMode) {
+  if (!surface) return;
+  const triangles = smoothContourTriangles(surface);
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const placedLabels = [];
+  for (let level = headScale.min; level <= headScale.max + 0.01; level += DATA.contourInterval) {
+    const segments = [];
+    for (const triangle of triangles) {
+      const points = contourIntersections(triangle, level, "h");
+      if (points.length >= 2) segments.push([points[0], points[1]]);
+    }
+    const path = new Path2D();
+    const candidates = [];
+    for (const line of stitchContourSegments(segments, 1.5)) {
+      traceContourLine(path, line);
+      const midpoint = contourLineMidpoint(line);
+      if (midpoint.length > 12 && midpoint.x > 28 && midpoint.x < cssWidth - 28 && midpoint.y > 22 && midpoint.y < cssHeight - 24) candidates.push(midpoint);
+    }
+    ctx.strokeStyle = "rgba(255,255,255,0.76)";
+    ctx.lineWidth = 3.2;
+    ctx.stroke(path);
+    const color = colorForHead(level, headScale, 255);
+    ctx.strokeStyle = colorMode === "head" ? `rgb(${color[0]}, ${color[1]}, ${color[2]})` : "rgba(17,44,54,0.92)";
+    ctx.lineWidth = 1.65;
+    ctx.stroke(path);
+    const label = candidates
+      .sort((left, right) => right.length - left.length)
+      .find(candidate => placedLabels.every(other => Math.hypot(other.x - candidate.x, other.y - candidate.y) > 34));
+    if (!label) continue;
+    placedLabels.push(label);
+    ctx.font = "650 8.5px ui-sans-serif, system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.strokeText(String(Math.round(level)), label.x, label.y);
+    ctx.fillStyle = colorMode === "head" ? `rgb(${color[0]}, ${color[1]}, ${color[2]})` : "rgba(17,44,54,0.96)";
+    ctx.fillText(String(Math.round(level)), label.x, label.y);
+  }
+  ctx.restore();
 }
 
 function renderField(triangles, colorMode, colorScale) {
@@ -1660,6 +2012,110 @@ function drawGradientField(triangles) {
       drawArrow(x, y, -triangle.gx, triangle.gy);
     }
   }
+}
+
+function drawSmoothGradientField(surface) {
+  if (!surface) return;
+  const spacing = clamp(cssWidth / 10.5, 34, 52);
+  for (let y = spacing * 0.65; y < cssHeight; y += spacing) {
+    for (let x = spacing * 0.65; x < cssWidth; x += spacing) {
+      const mapPoint = { x: mapX(x), y: mapY(y) };
+      if (!surface.contains(mapPoint.x, mapPoint.y)) continue;
+      const gradient = surface.gradient(mapPoint.x, mapPoint.y);
+      // Map flow components are (-gx east, -gy north); screen y increases south.
+      drawArrow(x, y, -gradient.gx, gradient.gy);
+    }
+  }
+}
+
+function traceTrajectory(surface, seed, stage) {
+  if (!surface || !surface.contains(seed.x, seed.y)) return null;
+  const points = [{ x: seed.x, y: seed.y }];
+  const step = 0.25;
+  const maxSteps = 1600;
+  let length = 0;
+  let termination = "maximum path length reached";
+  for (let index = 0; index < maxSteps; index++) {
+    const current = points[points.length - 1];
+    if (Math.hypot(current.x - stage.plan_easting_m, current.y - stage.plan_northing_m) <= 2) {
+      termination = "reaches the Elder Creek control";
+      break;
+    }
+    const gradient = surface.gradient(current.x, current.y);
+    const magnitude = Math.hypot(gradient.gx, gradient.gy);
+    if (!Number.isFinite(magnitude) || magnitude < 1e-5) {
+      termination = "enters a near-flat head zone";
+      break;
+    }
+    const ux = -gradient.gx / magnitude;
+    const uy = -gradient.gy / magnitude;
+    const midpoint = { x: current.x + ux * step / 2, y: current.y + uy * step / 2 };
+    if (!surface.contains(midpoint.x, midpoint.y)) {
+      termination = "exits the modeled control hull";
+      break;
+    }
+    const midpointGradient = surface.gradient(midpoint.x, midpoint.y);
+    const midpointMagnitude = Math.hypot(midpointGradient.gx, midpointGradient.gy);
+    if (!Number.isFinite(midpointMagnitude) || midpointMagnitude < 1e-5) {
+      termination = "enters a near-flat head zone";
+      break;
+    }
+    const next = {
+      x: current.x - midpointGradient.gx / midpointMagnitude * step,
+      y: current.y - midpointGradient.gy / midpointMagnitude * step
+    };
+    if (!surface.contains(next.x, next.y)) {
+      termination = "exits the modeled control hull";
+      break;
+    }
+    points.push(next);
+    length += step;
+  }
+  const startHead = surface.value(points[0].x, points[0].y);
+  const end = points[points.length - 1];
+  const endHead = surface.value(end.x, end.y);
+  return { points, length, headDrop: startHead - endHead, termination };
+}
+
+function drawTrajectory(surface, surfaces) {
+  trajectoryClearButton.hidden = !trajectorySeed;
+  if (!trajectorySeed) {
+    trajectoryStatus.textContent = `Click inside the modeled area, or click a well, to release a tracer. ${surfaces.controlCount} controls${surfaces.imputedCount ? ` · ${surfaces.imputedCount} reconstructed` : ""}.`;
+    return;
+  }
+  const trajectory = traceTrajectory(surface, trajectorySeed, surfaces.stage);
+  if (!trajectory) {
+    trajectoryStatus.textContent = `${trajectorySeed.label || "Release point"} is outside this date's modeled control hull. Choose another point.`;
+    return;
+  }
+  const screenPoints = trajectory.points.map(point => ({ x: sx(point.x), y: sy(point.y) }));
+  const path = new Path2D();
+  path.moveTo(screenPoints[0].x, screenPoints[0].y);
+  for (let index = 1; index < screenPoints.length; index++) path.lineTo(screenPoints[index].x, screenPoints[index].y);
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "rgba(255,255,255,0.94)";
+  ctx.lineWidth = 6.5;
+  ctx.stroke(path);
+  ctx.strokeStyle = "#cf3f20";
+  ctx.lineWidth = 3;
+  ctx.stroke(path);
+  const start = screenPoints[0];
+  const end = screenPoints[screenPoints.length - 1];
+  ctx.fillStyle = "#fff";
+  ctx.strokeStyle = "#cf3f20";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(start.x, start.y, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#cf3f20";
+  ctx.beginPath();
+  ctx.arc(end.x, end.y, 4.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  trajectoryStatus.textContent = `${trajectorySeed.label || "Release point"} · ${trajectory.length.toFixed(1)} m path · ${Math.max(0, trajectory.headDrop).toFixed(2)} m head drop · ${trajectory.termination}. ${surfaces.controlCount} controls${surfaces.imputedCount ? ` · ${surfaces.imputedCount} reconstructed` : ""}.`;
 }
 
 function drawMesh(triangles) {
@@ -3183,11 +3639,12 @@ function updateLegend(colorMode, colorScale, viewMode) {
   const vmsColorbar = document.getElementById("vms-colorbar");
   const swatch = document.getElementById("field-key-swatch");
   const isSection = viewMode === "section";
+  const isTrajectory = viewMode === "trajectory";
   document.getElementById("vms-legend").hidden = !isSection;
   vmsColorbar.style.backgroundImage = paletteGradient(vmsPalette);
   document.getElementById("direction-key-label").textContent = isSection
     ? "Downslope → lower boundary"
-    : "Flow direction −∇h";
+    : isTrajectory ? "TPS streamline direction −∇h" : "Flow direction −∇h";
   document.getElementById("topo-key-label").textContent = isSection
     ? "LiDAR mean + IQR"
     : "Topo contour · 5 m";
@@ -3196,7 +3653,7 @@ function updateLegend(colorMode, colorScale, viewMode) {
     document.getElementById("legend-subtitle").textContent = "Daily head elevation (m)";
     document.getElementById("field-key-label").textContent = isSection
       ? "Averaged water table"
-      : "Head contour · 5 m";
+      : isTrajectory ? "Smooth head contour · 5 m" : "Head contour · 5 m";
     document.getElementById("legend-min").textContent = colorScale.min.toFixed(0);
     document.getElementById("legend-mid").textContent = ((colorScale.min + colorScale.max) / 2).toFixed(1);
     document.getElementById("legend-max").textContent = colorScale.max.toFixed(0);
@@ -3207,7 +3664,7 @@ function updateLegend(colorMode, colorScale, viewMode) {
     document.getElementById("legend-subtitle").textContent = "Positive depth below ground (m)";
     document.getElementById("field-key-label").textContent = isSection
       ? "Water-table depth color"
-      : "Depth field + head contours";
+      : isTrajectory ? "Smooth depth + head contours" : "Depth field + head contours";
     document.getElementById("legend-min").textContent = colorScale.min.toFixed(0);
     document.getElementById("legend-mid").textContent = ((colorScale.min + colorScale.max) / 2).toFixed(1);
     document.getElementById("legend-max").textContent = colorScale.max.toFixed(0);
@@ -3217,10 +3674,10 @@ function updateLegend(colorMode, colorScale, viewMode) {
     document.getElementById("legend-heading").textContent = "Hydraulic-head gradient";
     document.getElementById("legend-subtitle").textContent = isSection
       ? "|dh/ds| (m/m) · √ scale"
-      : "|∇h| (m/m) · √ scale";
+      : isTrajectory ? "|∇h| (m/m) · exact TPS · √ scale" : "|∇h| (m/m) · √ scale";
     document.getElementById("field-key-label").textContent = isSection
       ? "Water-table segment"
-      : "Gradient zone";
+      : isTrajectory ? "Smooth gradient field" : "Gradient zone";
     document.getElementById("legend-min").textContent = colorScale.min.toFixed(2);
     document.getElementById("legend-mid").textContent = (colorScale.max * 0.25).toFixed(2);
     document.getElementById("legend-max").textContent = `${colorScale.capped ? "≥" : ""}${colorScale.max.toFixed(2)}`;
@@ -3246,7 +3703,7 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
     ? ` · today ${Math.min(...vmsValid).toFixed(2)}–${Math.max(...vmsValid).toFixed(2)}${vmsImputedCount ? ` · ${vmsImputedCount} reconstructed` : ""}`
     : " · unavailable";
   document.getElementById("date-label").textContent = label;
-  meshInput.disabled = viewMode === "section";
+  meshInput.disabled = viewMode !== "plan";
   document.getElementById("well-key-label").textContent = imputeInput.checked
     ? "Well · imputed dots/ring"
     : "Active well";
@@ -3261,7 +3718,9 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
       : "hydraulic-head gradient magnitude";
   const spatialDescription = viewMode === "section"
     ? "averaged downslope cross-section with fresh-bedrock boundary"
-    : "plan-view field";
+    : viewMode === "trajectory"
+      ? "continuous thin-plate-spline trajectory field"
+      : "plan-view field";
   const runoff = RUNOFF_BY_DATE.get(record[0]);
   const runoffDescription = runoff != null
     ? `, Elder Creek runoff ${runoff.toFixed(3)} millimetres per day`
@@ -3270,7 +3729,7 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
   const stageDescription = stageFt != null
     ? `, Elder Creek daily mean stage ${stageFt.toFixed(2)} feet`
     : "";
-  const imputedDescription = imputed ? `, including ${imputed} imputed wells` : "";
+  const imputedDescription = imputed ? `, including ${imputed} imputed ${imputed === 1 ? "well" : "wells"}` : "";
   canvas.setAttribute("aria-label", `Rivendell ${colorDescription} ${spatialDescription} on ${label}, using ${active} active wells${imputedDescription}${runoffDescription}${stageDescription}`);
 }
 
@@ -3282,6 +3741,8 @@ function draw() {
   const colorMode = colorModeSelect.value;
   const viewMode = viewModeSelect.value;
   shell.classList.toggle("section-view", viewMode === "section");
+  shell.classList.toggle("trajectory-view", viewMode === "trajectory");
+  trajectoryPanel.hidden = viewMode !== "trajectory";
   const rain = precipitationWindow(record);
   const headScale = headScaleForRecord(record);
   let colorScale;
@@ -3295,7 +3756,7 @@ function draw() {
         ? depthScale()
         : gradientScaleForValues(section.gradients);
     elderPlacement = drawCrossSection(record, headScale, colorMode, colorScale, section);
-  } else {
+  } else if (viewMode === "plan") {
     ctx.drawImage(topoImage, 0, 0, cssWidth, cssHeight);
     const triangles = triangleData(record);
     colorScale = colorMode === "head"
@@ -3310,6 +3771,27 @@ function draw() {
     drawMesh(triangles);
     drawGradientField(triangles);
     elderPlacement = drawPlanElderStage(record, headScale, colorMode, colorScale);
+    drawWells(record, headScale, colorMode, colorScale);
+    drawMapFurniture();
+  } else {
+    ctx.drawImage(topoImage, 0, 0, cssWidth, cssHeight);
+    const surfaces = smoothSurfaces(record);
+    colorScale = colorMode === "head"
+      ? headScale
+      : colorMode === "depth"
+        ? depthScale()
+        : gradientScaleForSurface(surfaces.head);
+    if (surfaces.head) {
+      renderSmoothField(surfaces, colorMode, colorScale);
+      if (rainHistoryInput.checked) drawRainfallHistory(record, 58, cssHeight - 42);
+      drawSmoothHeadContours(surfaces.head, headScale, colorMode);
+      drawSmoothGradientField(surfaces.head);
+      elderPlacement = drawPlanElderStage(record, headScale, colorMode, colorScale);
+      drawTrajectory(surfaces.head, surfaces);
+    } else {
+      trajectoryStatus.textContent = "A continuous field cannot be fit on this date because fewer than three independent controls are available.";
+      trajectoryClearButton.hidden = !trajectorySeed;
+    }
     drawWells(record, headScale, colorMode, colorScale);
     drawMapFurniture();
   }
@@ -3381,7 +3863,8 @@ function selectWaterYear(value) {
   waterYearSelect.disabled = selectedWaterYear.allTime;
   if (!selectedWaterYear.allTime) waterYearSelect.value = String(selectedWaterYear.year);
   document.getElementById("time-label").textContent = selectedWaterYear.allTime ? "All-time date" : `WY${selectedWaterYear.year} date`;
-  document.getElementById("wy-range").textContent = `${formatShortDate(selectedWaterYear.start)} – ${formatShortDate(selectedWaterYear.end)} · ${selectedWaterYear.count} fields`;
+  document.getElementById("wy-range").textContent = `${formatShortDate(selectedWaterYear.start)} – ${formatShortDate(selectedWaterYear.end)}`;
+  document.getElementById("wy-count").textContent = `${selectedWaterYear.count} fields`;
   setYearPosition(currentYearPosition);
 }
 
@@ -3661,7 +4144,7 @@ async function exportMp4() {
     recorder.stop();
     await stopped;
     if (!chunks.length) throw new Error("MP4 encoder returned no data");
-    const view = viewModeSelect.value === "section" ? "profile" : "plan";
+    const view = viewModeSelect.value === "section" ? "profile" : viewModeSelect.value;
     const range = selectedWaterYear.allTime ? "all-time" : `wy${selectedWaterYear.year}`;
     downloadBlob(
       new Blob(chunks, { type: recorder.mimeType || mimeType }),
@@ -3783,6 +4266,27 @@ canvas.addEventListener("pointermove", event => {
   tooltip.hidden = false;
 });
 canvas.addEventListener("pointerleave", () => { tooltip.hidden = true; });
+canvas.addEventListener("click", event => {
+  if (viewModeSelect.value !== "trajectory" || exportInProgress) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const nearest = screenWells
+    .filter(item => item.active)
+    .map(item => ({ item, distance: Math.hypot(item.x - x, item.y - y) }))
+    .sort((left, right) => left.distance - right.distance)[0];
+  trajectorySeed = nearest && nearest.distance <= 16
+    ? { x: nearest.item.well.x, y: nearest.item.well.y, label: nearest.item.well.label }
+    : { x: mapX(x), y: mapY(y), label: "Clicked point" };
+  tooltip.hidden = true;
+  draw();
+  syncUrlState();
+});
+trajectoryClearButton.addEventListener("click", () => {
+  trajectorySeed = null;
+  draw();
+  syncUrlState();
+});
 
 function closeHeaderPopovers(except = null) {
   for (const [buttonId, popover] of [["health-open", healthPopover], ["storms-open", stormsPopover]]) {
