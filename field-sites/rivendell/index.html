@@ -360,6 +360,7 @@
               <option value="2">2 fps</option>
               <option value="5" selected>5 fps</option>
               <option value="10">10 fps</option>
+              <option value="20">20 fps</option>
             </select>
           </div>
           <div class="select-wrap">
@@ -424,9 +425,9 @@
     <button class="dialog-close" id="methods-close" type="button" aria-label="Close methods">×</button>
   </div>
   <div class="method-body">
-          <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. Plan view remains linear within each Delaunay triangle. Trajectory view uses the validated exact thin-plate-spline field, clipped to the observation-and-stage convex hull, so head, contours, gradients, and paths vary continuously rather than changing at triangle edges.</p>
+          <p><strong>Color shows calculated head, measured depth to water, or head-gradient magnitude.</strong> Depth mode interpolates positive depth below surveyed ground directly from the wells while retaining head-derived contours and flow directions. Plan and trajectory views use the validated exact thin-plate-spline field, clipped to the observation-and-stage convex hull, so head, contours, gradients, and paths vary continuously rather than changing at triangle edges. The optional mesh is a reference overlay only and does not define the field.</p>
           <p>Gradient mode uses a square-root scale and may saturate the highest tenth of local gradients at the ≥ threshold so the rest remains distinguishable.</p>
-          <p>Arrows show local −∇h. In plan view this is the exact gradient of each containing Delaunay triangle; in trajectory view it is the analytic thin-plate-spline gradient. Their fixed length encodes direction only; gradient magnitude is shown by color. Topography is display-only, and fields stop at the active-control convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
+          <p>Arrows show the analytic thin-plate-spline −∇h in both map views. Their fixed length encodes direction only; gradient magnitude is shown by color. Topography is display-only, and fields stop at the active-control convex hull. Hover over wells for head and depth. W13 is retained as a wet-period observation: its cleaned Dendra stream is null when water falls below the cable/sensor limit.</p>
           <p>The trajectory is a frozen-date streamline integrated down the normalized head gradient from the clicked point. It updates when the date or imputation setting changes and uses the same observed plus approved reconstructed well values shown on the map. It is a geometric screening result—not an advective travel-time model—and does not yet include hydraulic conductivity, porosity, dispersion, matrix exchange, or transient particle motion.</p>
           <p>The optional Impute GW display fills only approved gaps with gradient-boosted-tree hydrographs from observed donor wells, precipitation, runoff, and season, then uses a Kalman smoother to correct slowly varying bias against observations around each gap. Open gaps at the newest edge use past data only and are marked provisional. The model refuses dates with more than 50% donor-well loss, never uses other predictions recursively, and never fills W2 or W13 because their nulls cannot be separated reliably from below-sensor censoring. W2 and W13 observations remain predictors when present, but these chronically sparse wells do not count against the donor-loss gate when absent. Dotted time-series segments and ringed well symbols mark predictions. Pale bands retain conservative held-out-water-year empirical error guides, not formal probabilistic intervals.</p>
           <p>The cross-section projects wells onto a Well 15-to-Elder Creek axis. Wells within 8 m along that axis are averaged, then a robust roughness-penalized fit estimates one groundwater surface without forcing it through every well observation; the well markers retain the observations for comparison. When stage is available, it is the terminal groundwater observation: the same fitted surface is pinned to that transferred elevation and continues across the wetted portion of the channel. The surface is the mean of a 50 m-wide LiDAR swath and its shaded band is the cross-slope interquartile range. The gray-blue fresh-bedrock boundary, Z<sub>b</sub>, is a display-smoothed curve through clustered well-bottom elevations calculated from documented drilled depths. Z<sub>b</sub> stops at the final drilled W1/W12 control; stage constrains groundwater head but provides no information about fresh-bedrock elevation beneath Elder Creek.</p>
@@ -3644,7 +3645,7 @@ function updateLegend(colorMode, colorScale, viewMode) {
   vmsColorbar.style.backgroundImage = paletteGradient(vmsPalette);
   document.getElementById("direction-key-label").textContent = isSection
     ? "Downslope → lower boundary"
-    : isTrajectory ? "TPS streamline direction −∇h" : "Flow direction −∇h";
+    : isTrajectory ? "TPS streamline direction −∇h" : "TPS flow direction −∇h";
   document.getElementById("topo-key-label").textContent = isSection
     ? "LiDAR mean + IQR"
     : "Topo contour · 5 m";
@@ -3653,7 +3654,7 @@ function updateLegend(colorMode, colorScale, viewMode) {
     document.getElementById("legend-subtitle").textContent = "Daily head elevation (m)";
     document.getElementById("field-key-label").textContent = isSection
       ? "Averaged water table"
-      : isTrajectory ? "Smooth head contour · 5 m" : "Head contour · 5 m";
+      : "Smooth head contour · 5 m";
     document.getElementById("legend-min").textContent = colorScale.min.toFixed(0);
     document.getElementById("legend-mid").textContent = ((colorScale.min + colorScale.max) / 2).toFixed(1);
     document.getElementById("legend-max").textContent = colorScale.max.toFixed(0);
@@ -3664,7 +3665,7 @@ function updateLegend(colorMode, colorScale, viewMode) {
     document.getElementById("legend-subtitle").textContent = "Positive depth below ground (m)";
     document.getElementById("field-key-label").textContent = isSection
       ? "Water-table depth color"
-      : isTrajectory ? "Smooth depth + head contours" : "Depth field + head contours";
+      : "Smooth depth + head contours";
     document.getElementById("legend-min").textContent = colorScale.min.toFixed(0);
     document.getElementById("legend-mid").textContent = ((colorScale.min + colorScale.max) / 2).toFixed(1);
     document.getElementById("legend-max").textContent = colorScale.max.toFixed(0);
@@ -3674,10 +3675,10 @@ function updateLegend(colorMode, colorScale, viewMode) {
     document.getElementById("legend-heading").textContent = "Hydraulic-head gradient";
     document.getElementById("legend-subtitle").textContent = isSection
       ? "|dh/ds| (m/m) · √ scale"
-      : isTrajectory ? "|∇h| (m/m) · exact TPS · √ scale" : "|∇h| (m/m) · √ scale";
+      : "|∇h| (m/m) · exact TPS · √ scale";
     document.getElementById("field-key-label").textContent = isSection
       ? "Water-table segment"
-      : isTrajectory ? "Smooth gradient field" : "Gradient zone";
+      : "Smooth gradient field";
     document.getElementById("legend-min").textContent = colorScale.min.toFixed(2);
     document.getElementById("legend-mid").textContent = (colorScale.max * 0.25).toFixed(2);
     document.getElementById("legend-max").textContent = `${colorScale.capped ? "≥" : ""}${colorScale.max.toFixed(2)}`;
@@ -3720,7 +3721,7 @@ function updateText(record, colorMode, colorScale, viewMode, section = null, rai
     ? "averaged downslope cross-section with fresh-bedrock boundary"
     : viewMode === "trajectory"
       ? "continuous thin-plate-spline trajectory field"
-      : "plan-view field";
+      : "continuous thin-plate-spline plan-view field";
   const runoff = RUNOFF_BY_DATE.get(record[0]);
   const runoffDescription = runoff != null
     ? `, Elder Creek runoff ${runoff.toFixed(3)} millimetres per day`
@@ -3756,23 +3757,6 @@ function draw() {
         ? depthScale()
         : gradientScaleForValues(section.gradients);
     elderPlacement = drawCrossSection(record, headScale, colorMode, colorScale, section);
-  } else if (viewMode === "plan") {
-    ctx.drawImage(topoImage, 0, 0, cssWidth, cssHeight);
-    const triangles = triangleData(record);
-    colorScale = colorMode === "head"
-      ? headScale
-      : colorMode === "depth"
-        ? depthScale()
-        : gradientScaleForTriangles(triangles);
-    renderField(triangles, colorMode, colorScale);
-    if (rainHistoryInput.checked) drawRainfallHistory(record, 58, cssHeight - 42);
-    if (colorMode === "gradient") drawGradientZones(triangles);
-    drawHeadContours(triangles, headScale, colorMode);
-    drawMesh(triangles);
-    drawGradientField(triangles);
-    elderPlacement = drawPlanElderStage(record, headScale, colorMode, colorScale);
-    drawWells(record, headScale, colorMode, colorScale);
-    drawMapFurniture();
   } else {
     ctx.drawImage(topoImage, 0, 0, cssWidth, cssHeight);
     const surfaces = smoothSurfaces(record);
@@ -3785,10 +3769,11 @@ function draw() {
       renderSmoothField(surfaces, colorMode, colorScale);
       if (rainHistoryInput.checked) drawRainfallHistory(record, 58, cssHeight - 42);
       drawSmoothHeadContours(surfaces.head, headScale, colorMode);
+      if (viewMode === "plan") drawMesh(triangleData(record));
       drawSmoothGradientField(surfaces.head);
       elderPlacement = drawPlanElderStage(record, headScale, colorMode, colorScale);
-      drawTrajectory(surfaces.head, surfaces);
-    } else {
+      if (viewMode === "trajectory") drawTrajectory(surfaces.head, surfaces);
+    } else if (viewMode === "trajectory") {
       trajectoryStatus.textContent = "A continuous field cannot be fit on this date because fewer than three independent controls are available.";
       trajectoryClearButton.hidden = !trajectorySeed;
     }
