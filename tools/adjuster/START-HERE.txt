@@ -73,3 +73,11 @@ backup and restore. This is not a promise of unlimited size or identical speed
 on every browser. Available disk space, browser quotas, memory for indexes and
 history, and the number of edits still matter. Direct save streams large files;
 the download fallback is limited to 256 MiB of output per export.
+
+TIME-SERIES NAVIGATION
+Each example has two editable stations, field measurements and reference data.
+Use Example notes to inspect worked corrections. Switch stations to compare
+the same time window. Use 1d / 7d / 30d / All, drag to select, or double-click
+to zoom (Shift double-click zooms out). With the plot focused, + / - zoom and
+left / right arrows pan. Enter both dates and choose Show dates.
+The second station has its own corrected CSV in the examples folder.
