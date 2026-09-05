@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Instructions for running Adjuster locally, opening examples, saving projects and exporting hydrologic time series.">
+  <title>Adjuster instructions — David Dralle</title>
+  <link rel="stylesheet" href="/assets/site.css">
+  <style>
+    .instructions {max-width: 800px; padding-block: 32px 64px;}
+    .instructions h1 {font-size: 2rem; margin: 0 0 12px;}
+    .instructions h2 {font-size: 1.3rem; margin-top: 32px;}
+    .instructions li {margin: 12px 0;}
+    .instructions pre {overflow: auto; padding: 18px; background: white; border: 1px solid var(--line); font-size: .9rem;}
+    .instructions .actions {display: flex; gap: 20px; flex-wrap: wrap; margin: 24px 0; font-weight: 650; color: var(--river);}
+    .instructions code {overflow-wrap: anywhere;}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="wordmark" href="/">David Dralle</a>
+    <nav aria-label="Primary navigation"><a href="/tools/">Tools</a><a href="/">Home</a></nav>
+  </header>
+  <main class="instructions">
+    <h1>Adjuster instructions</h1>
+    <p>Review and correct hydrologic time series, with original measurements and an editable correction history.</p>
+    <p class="actions"><a href="./Adjuster-local.zip" download>Download Adjuster (.zip, 687 KiB)</a><a href="./">Open Adjuster in browser</a></p>
+    <h2>Run locally</h2>
+    <ol>
+      <li>Download and unzip the folder. Keep it somewhere convenient, then open <code>Adjuster.html</code> in a current desktop browser. No server or runtime installation is required. Chrome or Edge supports the direct project-folder workflow.</li>
+      <li>Create a folder for your watershed or monitoring network inside <code>projects/</code>. Choose <strong>Create / open project folder</strong> in Adjuster and select it. Grant read/write access when the browser asks.</li>
+      <li>Import CSV, TSV or Campbell TOA5 files. Map timestamp and measurement columns, units, datum and time offset. Import each station or measurement as a separate series. The import Destination menu can append strictly later readings; import overlapping data or historical backfill as a separate series.</li>
+      <li>Select an interval, preview a correction, enter a reason and apply. Applied edits and undo/redo save automatically. Wait for each operation to finish before closing the application. A preview is not a saved edit.</li>
+    </ol>
+    <h2>Explore the examples</h2>
+    <p>Choose an example on the project screen to generate a fresh editable project. Each has two editable stations, independent field observations, reference data and completed corrections. All measurements and calibration evidence are synthetic.</p>
+    <ul>
+      <li><strong>Well record:</strong> drift, datum offsets, manual depth checks, interpolation, missing observations and absent timestamps. Corrected depth can also be exported as water-level elevation.</li>
+      <li><strong>Stream stage:</strong> calibration, reference reconstruction, quality review and an illustrative bounded stage–discharge rating for S01. The tributary gage S03 has its own corrections and starts with stage-only export.</li>
+    </ul>
+    <p><strong>Example notes</strong> explains the corrections and selects their intervals. The download also contains original CSVs, known simulated values, completed exports for both editable stations and compressed project backups.</p>
+    <h2>Navigate the record</h2>
+    <p>Use <strong>1d / 7d / 30d / All</strong>, or enter both dates and choose <strong>Show dates</strong>. Drag across the plot to select an interval, then choose <strong>Zoom to selection</strong>. Double-click to zoom in; Shift double-click zooms out. With the plot focused, + / − zoom and left/right arrows pan. Switching stations retains an overlapping time window and selects matching field readings.</p>
+    <h2>Save and export</h2>
+    <p><strong>Export</strong> produces corrected CSVs with original values, quality flags and provenance. <strong>Export backup</strong> produces a complete <code>.adjuster.gz</code> project containing all records, original imports and correction history. Restore into a new empty folder. Legacy <code>.adjuster.json</code> projects can also be migrated.</p>
+    <pre>Adjuster-local/
+  Adjuster.html
+  START-HERE.txt
+  projects/
+    My watershed/
+      project.json
+      data/
+      history/
+  examples/
+  exports/
+  backups/</pre>
+    <p>Adjuster creates and manages <code>project.json</code>, <code>data/</code> and <code>history/</code>. Keep the entire project folder together. Close the app before copying or syncing it, and use one editor per folder. Keep independent backups; autosave is not a backup.</p>
+    <h2>Browser storage and large projects</h2>
+    <p>If folder access is unavailable, choose <strong>Create browser project</strong>. Browser storage is specific to the browser and website/local-file context and may be cleared or evicted. Export backups regularly, or use <strong>Copy to project folder</strong> in a supported browser. Placing an HTML file next to a folder does not grant it write permission.</p>
+    <p>Wide plots show sampled extrema and gaps; corrections and exports use all records. The storage engine has been tested with three million records across three stations. Performance depends on the computer, browser, available storage and edit history. Browsers without a direct save picker buffer downloads and limit each export to 256 MiB.</p>
+    <p class="actions"><a href="./Adjuster-local.zip" download>Download Adjuster</a><a href="./">Open Adjuster</a></p>
+  </main>
+</body>
+</html>
