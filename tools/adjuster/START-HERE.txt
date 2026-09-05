@@ -1,0 +1,75 @@
+ADJUSTER — HYDROLOGIC TIME-SERIES EDITOR
+
+1. Keep this folder somewhere convenient. Double-click Adjuster.html to open
+   the application in a current desktop browser. No server or runtime install
+   is required. Use Chrome or Edge for the direct project-folder workflow.
+
+EXAMPLE PROJECTS
+
+The project screen includes two complete synthetic examples:
+- Well record: drift, datum offset, manual readings and interpolation.
+- Stream stage: calibration, reference reconstruction, quality review and
+  a synthetic bounded stage-discharge rating.
+Choose either example to generate its data and completed edit history locally.
+The Example notes button explains each correction and selects its interval.
+The examples/ folder also contains ready-to-restore project backups, the
+underlying CSVs, known simulated values, corrected exports and detailed notes.
+All example data and calibration evidence are generated, not field observations.
+
+2. Inside projects/, create a folder for a watershed or monitoring network.
+   In Adjuster, click Create / open project folder and select that folder.
+   Grant the browser read/write access when prompted.
+
+3. Import a CSV, TSV or Campbell TOA5 file. Map timestamp and measurement
+   columns, units, datum and time offset. Each series is one station and
+   measurement. Import another column or gage as another series. To append a
+   later download, select its existing series in the import Destination menu.
+   Overlaps and historical backfill must be imported as a separate series.
+
+4. Select a period, preview a correction, enter a reason, and apply it.
+   Imports, applied edits and undo/redo save automatically. Wait for each
+   operation to finish before closing the window. Preview is not a saved edit.
+
+5. Use Export for corrected CSVs. Use Export backup for a complete compressed
+   .adjuster.gz project: original imports, all records and correction history.
+   Put these in exports/ and backups/ respectively. Restore a backup into a
+   NEW empty folder. Legacy .adjuster.json projects can also be migrated.
+
+FOLDER LAYOUT
+
+Adjuster-local/
+  Adjuster.html                   The program. Replace this to update it.
+  START-HERE.txt                   These instructions.
+  projects/
+    My watershed/                 Select this folder in the program.
+      project.json                Index and correction journal.
+      data/                       Managed raw blocks and source fragments.
+      history/                    Saved project revision manifests.
+  examples/                       Two completed examples and original CSVs.
+  exports/                        Corrected CSVs for other programs.
+  backups/                        Complete compressed project backups.
+
+The application creates project.json, data/ and history/. Do not edit or
+rename those managed files. The project is the WHOLE folder, not project.json
+alone. Close Adjuster before copying or syncing a project folder. Keep a
+separate backup on another drive when the work matters; autosave is not backup.
+Only one editor should use a folder at a time.
+
+BROWSER STORAGE
+
+If the browser cannot offer folder access, use Create browser project. This
+also saves locally, but browser data can be cleared or evicted. Projects are
+specific to that browser and site/local-file context. Export backups regularly
+or use Copy to project folder in a browser that supports it. Merely placing an
+HTML next to a folder does not grant the browser permission to write there.
+
+LARGE RECORDS
+
+Adjuster streams imports and exports and works on small data blocks. Wide
+plots show sampled extrema and gaps; detailed records appear when you narrow
+the time window. Corrections and exports use the full records. The tested
+storage engine handled three million records across three stations, including
+backup and restore. This is not a promise of unlimited size or identical speed
+on every browser. Available disk space, browser quotas, memory for indexes and
+history, and the number of edits still matter. Direct save streams large files;
+the download fallback is limited to 256 MiB of output per export.

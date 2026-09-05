@@ -125,7 +125,7 @@ nav a[aria-current="page"] { color: var(--river); }
   border-bottom: 1px solid var(--line);
 }
 
-.site-card img.map-thumbnail { object-position: center top; }
+.site-card img.map-thumbnail { object-fit: contain; object-position: center; background: white; }
 
 .site-card div { padding: 18px 20px 20px; }
 
@@ -153,3 +153,7 @@ nav a[aria-current="page"] { color: var(--river); }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }
 }
+
+.site-card p {font-size:0.95rem;line-height:1.5;}
+.site-card .card-links {margin:0;padding:0 20px 20px;font-size:0.9rem;}
+.site-card .card-links a {color:var(--river);}
