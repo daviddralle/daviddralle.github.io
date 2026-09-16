@@ -28,6 +28,7 @@ window.setupMapLabels=function(){
    if(!best)continue;placed.push(best);const node=document.createElement('span');node.className='map-feature-label '+(isWell?'well':'tree');node.textContent=c.text;node.style.cssText=`left:${best.x}px;top:${best.y}px;width:${best.w}px;height:${best.h}px`;nodes.push(node);
    const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',c.p.x);line.setAttribute('y1',c.p.y);line.setAttribute('x2',best.ax);line.setAttribute('y2',best.ay);line.setAttribute('class',isWell?'well':'tree');leaderLines.push(line);
   }
+  if($('#contours').checked)nodes.push(...window.AtlasContourLabels.layout({lines:window.atlasContourLines||[],project:c=>map.latLngToContainerPoint([c[1],c[0]]),width:size.x,height:size.y,obstacles:[...obstacles,...placed],points}));
   labels.replaceChildren(...nodes);svg.replaceChildren(...leaderLines);overlay.dataset.placed=String(nodes.length);overlay.dataset.candidates=String(candidates.length);
  }
  map.on('move zoomend resize',window.scheduleLabels);map.on('zoomend',()=>{for(const id of S.visible){const d=manifest.layers.find(l=>l.id===id);S.layers.get(id).eachLayer(l=>{if(l.setStyle)l.setStyle(style(l.feature,d));if(l.setRadius)l.setRadius(style(l.feature,d).radius);});}});

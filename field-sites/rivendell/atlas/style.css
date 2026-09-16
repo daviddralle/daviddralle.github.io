@@ -22,3 +22,5 @@
 .scene-toolbar,.scene-legend{z-index:2}#bill-label{z-index:1}
 
 .bill-dig-actions{display:flex;gap:5px;margin-top:8px}#bill-dig{border-color:#c6a46d;color:#f4dfba}#bill-dig:disabled{opacity:.6;cursor:wait}#bill-pit-count:empty{display:none}
+
+.contour-elevation-label{position:absolute;pointer-events:none;user-select:none;white-space:nowrap;font:500 11px/17px Arial,Helvetica,sans-serif;letter-spacing:.3px;color:#343b37;background:#edf0e3e8;padding:0 4px;border-radius:4px;text-shadow:0 1px 0 #fff8;box-shadow:0 0 3px 2px #edf0e34d;transform-origin:center}
