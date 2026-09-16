@@ -1,0 +1,111 @@
+{
+  "water_masks": {
+    "creek": {
+      "url": "data/3d/creek.u8",
+      "filled_cells": 6819,
+      "cell_size_m": 1
+    },
+    "streams": {
+      "url": "data/3d/streams.u8",
+      "filled_cells": 6209,
+      "cell_size_m": 1
+    }
+  },
+  "origin_utm_e_n_z": [
+    444800,
+    4397850,
+    400
+  ],
+  "bounds_utm": [
+    444500,
+    4397500,
+    444995,
+    4397995
+  ],
+  "units": "meters",
+  "vertical_exaggeration": 1,
+  "terrain": {
+    "url": "data/3d/terrain.f32",
+    "width": 495,
+    "height": 495,
+    "x0": 444500.0,
+    "y0": 4397995.0,
+    "step": 1,
+    "min_m": 411.9737854003906,
+    "max_m": 534.2977294921875
+  },
+  "vegetation": {
+    "url": "data/3d/vegetation.u16",
+    "count": 650000,
+    "encoding": "uint16 little endian interleaved east,north,elevation,height_above_ground; values/100+offset",
+    "offset": [
+      444500,
+      4397500,
+      300,
+      0
+    ],
+    "scale": 0.01,
+    "eligible_source_returns": 3289873,
+    "after_35cm_voxel_filter": 2857073,
+    "height_range_m": [
+      0.5,
+      85
+    ],
+    "display_color_range_m": [
+      0,
+      65
+    ],
+    "color_stops_m": [
+      {
+        "height_m": 0,
+        "color": "#c3a675"
+      },
+      {
+        "height_m": 2,
+        "color": "#c5bb76"
+      },
+      {
+        "height_m": 7,
+        "color": "#91b34e"
+      },
+      {
+        "height_m": 20,
+        "color": "#4d973b"
+      },
+      {
+        "height_m": 65,
+        "color": "#206038"
+      }
+    ]
+  },
+  "source": {
+    "url": "https://opentopography.s3.sdsc.edu/pc-bulk/CA14_Dietrich_A/ot_444000_4397000.laz",
+    "doi": "https://doi.org/10.5069/G9MP517V",
+    "dataset": "2014 Angelo NCALM / ERCZO",
+    "vertical": "GEOID 12A",
+    "horizontal": "NAD83 (2011) / UTM 10N",
+    "license": "CC BY 4.0",
+    "source_header": {
+      "crs": "EPSG:26910",
+      "point_count": 15478760,
+      "scale": [
+        0.01,
+        0.01,
+        0.01
+      ]
+    },
+    "class_counts_in_crop": {
+      "1": 3514336,
+      "2": 336663,
+      "7": 8
+    },
+    "sha256": "04c00ba9dfe2133814f9f5fb8facc3aedf1ca1cb90dc79fc31e50650adecddc9"
+  },
+  "notes": [
+    "Terrain, returns and distances use the same meter scale, vertical exaggeration fixed at 1.",
+    "Above-ground class-1 returns are predominantly vegetation, not a classified vegetation inventory. Noise and ground class omitted.",
+    "Feature symbols are draped on LiDAR terrain for display; they are not corrected survey elevations or instrument mounting heights.",
+    "The source was cropped, voxel-thinned and deterministically sampled; each displayed point is an actual LiDAR return. No canopy surface was converted into synthetic points.",
+    "3D context is the 495 m square within the original 1 km tile. All field points fall inside it. Context lines are clipped to this cutout."
+  ]
+}

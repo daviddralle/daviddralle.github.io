@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rivendell hydraulic-head field</title>
+  <title>Rivendell Groundwater Dashboard</title>
   <style>
     :root {
       color-scheme: light;
@@ -267,13 +267,14 @@
       .action-row button { width: auto; }
     }
   </style>
+<link rel="stylesheet" href="/assets/rivendell-nav.css">
 </head>
-<body>
+<body><nav class="rivendell-nav" aria-label="Rivendell views"><a class="rivendell-back" href="/field-sites/">← Field sites</a><div><a aria-current="page" href="/field-sites/rivendell/">Groundwater</a><a  href="/field-sites/rivendell/atlas/">Field Atlas</a></div></nav>
 <main>
   <header class="titlebar">
     <div>
-      <h1>Rivendell hydraulic-head field</h1>
-      <p class="subtitle">Daily head fields · plan, trajectory, and downslope profile</p>
+      <h1>Rivendell Groundwater Dashboard</h1>
+      <p class="subtitle">Groundwater levels, hydraulic gradients, and seasonal dynamics · Rivendell / Elder Creek</p>
     </div>
     <div class="header-actions">
       <button class="header-tool" id="health-open" type="button" aria-expanded="false" aria-controls="health-popover"><span class="status-dot" id="status-dot"></span>Data</button>
@@ -302,7 +303,7 @@
   <section class="layout">
     <div class="map-column">
       <div class="map-shell" id="map-shell">
-        <canvas id="map" role="img" aria-label="Interpolated Rivendell hydraulic-head field and hydraulic-gradient directions"></canvas>
+        <canvas id="map" role="img" aria-label="Interpolated Rivendell Groundwater Dashboard and hydraulic-gradient directions"></canvas>
         <div class="map-date"><strong id="date-label"></strong></div>
         <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
         <select class="view-switch" id="view-mode" aria-label="Spatial view">
