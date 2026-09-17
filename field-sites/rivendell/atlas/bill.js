@@ -4,12 +4,12 @@ import * as THREE from './vendor/three/three.module.js';
 export function createBill({scene,pits,pickGround,heightAt,origin,camera,controls,project,host,render,stations,explore}){
  const $=s=>document.querySelector(s),root=new THREE.Group(),overlay=new THREE.Scene();overlay.add(root);root.visible=false;for(const light of scene.children.filter(o=>o.isLight))overlay.add(light.clone());
  const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:1});
- const blue=mat('#284c85'),red=mat('#ae263c'),skin=mat('#dfb18e'),gray=mat('#bcb9ae'),dark=mat('#242d34'),brown=mat('#655346'),paper=mat('#e5e0c7');
+ const blue=mat('#284c85'),red=mat('#ae263c'),skin=mat('#dfb18e'),gray=mat('#bcb9ae'),dark=mat('#242d34'),brown=mat('#655346'),bootBlack=mat('#121416'),paper=mat('#e5e0c7');
  function part(g,geo,m,x,y,z){const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o;}
  const box=(g,m,x,y,z,w,h,d)=>part(g,new THREE.BoxGeometry(w,h,d),m,x,y,z);
  const ball=(g,m,x,y,z,r,sx=1,sy=1,sz=1)=>{const o=part(g,new THREE.SphereGeometry(r,14,10),m,x,y,z);o.scale.set(sx,sy,sz);return o;};
  const torso=box(root,blue,0,1.16,0,.45,.64,.24);const sweater=box(root,red,0,1.16,0,.47,.65,.26);sweater.visible=false;
- const legs=[],arms=[];for(const side of [-1,1]){const leg=new THREE.Group();leg.position.set(side*.125,.84,0);root.add(leg);box(leg,dark,0,-.36,0,.17,.69,.18);box(leg,brown,0,-.76,.055,.19,.13,.31);legs.push(leg);const arm=new THREE.Group();arm.position.set(side*.29,1.41,0);root.add(arm);const sleeve=box(arm,blue,0,-.23,0,.16,.45,.18);ball(arm,skin,0,-.49,0,.095);arms.push({pivot:arm,sleeve});}
+ const legs=[],arms=[];for(const side of [-1,1]){const leg=new THREE.Group();leg.position.set(side*.125,.84,0);root.add(leg);box(leg,dark,0,-.36,0,.17,.69,.18);box(leg,bootBlack,0,-.76,.055,.19,.13,.31);legs.push(leg);const arm=new THREE.Group();arm.position.set(side*.29,1.41,0);root.add(arm);const sleeve=box(arm,blue,0,-.23,0,.16,.45,.18);ball(arm,skin,0,-.49,0,.095);arms.push({pivot:arm,sleeve});}
  ball(root,skin,0,1.64,.015,.205,.9,1.08,.95);ball(root,gray,0,1.64,-.06,.21,1,1,.8);ball(root,skin,0,1.66,.085,.18,.92,1, .8);ball(root,skin,0,1.65,.235,.046,1,1,1.3);
  // Dark glasses, silver moustache, and a striped knit cap.
  for(const x of [-.087,.087])box(root,dark,x,1.735,.218,.14,.058,.035);box(root,dark,0,1.735,.215,.045,.018,.03);ball(root,gray,0,1.59,.223,.08,1,.3,.35);
