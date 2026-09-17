@@ -34,7 +34,7 @@ el('#bill-pause').onclick();down();move(490,440);up(490,440);tick(.1);assert.equ
 el('#bill-chocolate').fire('pointerdown');doc.fire('pointermove',{clientX:500,clientY:440,target:canvas});tick(.016);assert.equal(container.dataset.chocolateDropValid,'true');assert(!controls.enabled);const foodRing=overlay.children.find(o=>o.geometry?.type==='RingGeometry'&&o.visible);assert(foodRing);assert.equal(foodRing.position.x,10);assert.equal(foodRing.position.z,4);assert.equal(foodRing.material.color.getHex(),billRing.material.color.getHex());up(500,440);assert.equal(container.dataset.billChocolateCount,'1');
 for(let i=0;i<120&&Number(container.dataset.billBoostSeconds)===0;i++)tick(.05);
 assert(Number(container.dataset.billBoostSeconds)>0);assert.equal(container.dataset.billChocolateCount,'0');
-let old=root.position.clone();tick(.1);const fast=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(fast-.136)<1e-7);
+let old=root.position.clone();tick(.1);const fast=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(fast-.204)<1e-7);
 // Chocolate compresses a full seven-second measurement/notebook stop to 1.75 s.
 down();up(400,400);tick(.9);assert(container.dataset.billState.includes('Checking a field measurement'));
 tick(.2);assert(container.dataset.billState.includes('Writing in the notebook'));
@@ -46,7 +46,7 @@ down();up(400,400);tick(1.8);assert(container.dataset.billState.includes('Checki
 tick(2.3);assert(container.dataset.billState.includes('Writing in the notebook'));
 tick(2.8);assert(container.dataset.billState.includes('Writing in the notebook'));
 tick(.2);assert(container.dataset.billState.startsWith('Walking'));
-console.log('PASS: chocolate gives 2x walking and 4x measurement/notebook stops; normal timing returns after expiry.');
+console.log('PASS: chocolate gives 3x walking and 4x measurement/notebook stops; normal timing returns after expiry.');
 // Distant chocolate does not attract Bill until he is within the detection radius.
 el('#bill-chocolate').fire('pointerdown');up(950,950);tick(.1);assert.equal(container.dataset.billChocolateCount,'1');assert(!el('#bill-status').textContent.includes('Chocolate spotted'));
 // Cancelling a chocolate drag restores navigation and creates no extra snack.
@@ -67,4 +67,4 @@ assert(HAIKUS.every(p=>HAIKU_SOURCES[p.source]?.doi&&p.lines.every(line=>line.le
 assert.equal(new Set(HAIKUS.map(p=>p.id)).size,100);
 const deck=createHaikuDeck(()=>.3),cycle=Array.from({length:100},()=>deck().id);assert.equal(new Set(cycle).size,100);assert.notEqual(deck().id,cycle.at(-1));
 console.log('PASS: almonds, seated writing, 20-second poem, return to work, 100 unique haikus and nonrepeating shuffle.');
-console.log('PASS: held pickup, ground drop, fixed camera, pointer cancellation, invalid drop, paused-state restoration, nearby chocolate, distant detection limit, 2x speed and 30-second expiry.');
+console.log('PASS: held pickup, ground drop, fixed camera, pointer cancellation, invalid drop, paused-state restoration, nearby chocolate, distant detection limit, 3x speed and 30-second expiry.');
