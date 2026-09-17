@@ -1,4 +1,4 @@
-import {createHaikuDeck} from './bill-haikus.js';
+import {createHaikuDeck} from './bill-haikus.js?v=bill-literature-1';
 import * as THREE from './vendor/three/three.module.js';
 // A procedural field companion. Never writes to the scientific layers or exports.
 export function createBill({scene,pits,pickGround,heightAt,origin,camera,controls,project,host,render,stations,explore}){

@@ -1,903 +1,1111 @@
-// Original field haikus for Bill. Shuffled without repeats until the library is exhausted.
+// Original poems inspired by the cited research, not quotations by its authors.
+// Editorial notes and reading record: HAIKU-SOURCES.md.
+export const HAIKU_SOURCES={
+  "rempe2018": {
+    "authors": "Rempe, D. M., and Dietrich, W. E.",
+    "year": 2018,
+    "title": "Direct observations of rock moisture, a hidden component of the hydrologic cycle",
+    "doi": "10.1073/pnas.1800141115",
+    "url": "https://czo-archive.criticalzone.org/eel/publications/pub/rempe-dietrich-2018-direct-observations-of-rock-moisture-a-hidden-component/",
+    "finding": "Repeated borehole neutron measurements track winter recharge and summer withdrawal of water held in unsaturated weathered bedrock. Trees use this store after shallow soils dry."
+  },
+  "dralle2018": {
+    "authors": "Dralle, D. N., Hahm, W. J., Rempe, D. M., Karst, N. J., Thompson, S. E., and Dietrich, W. E.",
+    "year": 2018,
+    "title": "Quantification of the seasonal hillslope water storage that does not drive streamflow",
+    "doi": "10.1002/hyp.11627",
+    "url": "https://onlinelibrary.wiley.com/doi/10.1002/hyp.11627",
+    "finding": "Discharge responds to only part of changing seasonal storage. The indirect component can support transpiration, and equal discharge need not imply equal total storage."
+  },
+  "hahm2019lithology": {
+    "authors": "Hahm, W. J., Rempe, D. M., Dralle, D. N., Dawson, T. E., Lovill, S. M., Bryk, A. B., Bish, D. L., Schieber, J., and Dietrich, W. E.",
+    "year": 2019,
+    "title": "Lithologically Controlled Subsurface Critical Zone Thickness and Water Storage Capacity Determine Regional Plant Community Composition",
+    "doi": "10.1029/2018WR023760",
+    "url": "https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2018WR023760",
+    "finding": "Under similar climate, deeply weathered Coastal Belt rock supports evergreen forest and sustained summer flow; a thin weathered zone in Central Belt mélange supports oak savanna and seasonal streams."
+  },
+  "hahm2019capacity": {
+    "authors": "Hahm, W. J., Dralle, D. N., Rempe, D. M., Bryk, A. B., Thompson, S. E., Dawson, T. E., and Dietrich, W. E.",
+    "year": 2019,
+    "title": "Low Subsurface Water Storage Capacity Relative to Annual Rainfall Decouples Mediterranean Plant Productivity and Water Use From Rainfall Variability",
+    "doi": "10.1029/2019GL083294",
+    "url": "https://czo-archive.criticalzone.org/eel/publications/pub/hahm-et-al-2019-low-subsurface-water-storage-capacity-relative-to-annual-ra/",
+    "finding": "Where both wetter and drier winters refill a limited subsurface store, summer plant water availability varies less than annual rainfall. The refill condition matters; this is not immunity to all drought."
+  },
+  "hahm2020oak": {
+    "authors": "Hahm, W. J., Rempe, D. M., Dralle, D. N., Dawson, T. E., and Dietrich, W. E.",
+    "year": 2020,
+    "title": "Oak Transpiration Drawn From the Weathered Bedrock Vadose Zone in the Summer Dry Season",
+    "doi": "10.1029/2020WR027419",
+    "url": "https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2020WR027419",
+    "finding": "Isotopes and declining rock moisture support summer oak use of unsaturated weathered rock, rather than nearby groundwater in poorly oxygenated, low-permeability fresh rock."
+  },
+  "oshun2016": {
+    "authors": "Oshun, J., Dietrich, W. E., Dawson, T. E., and Fung, I.",
+    "year": 2016,
+    "title": "Dynamic, structured heterogeneity of water isotopes inside hillslopes",
+    "doi": "10.1002/2015WR017485",
+    "url": "https://agupubs.onlinelibrary.wiley.com/doi/10.1002/2015WR017485",
+    "finding": "Storm isotope variability is damped in groundwater; mobile and more tightly held water can differ even within one hillslope. Sampling method and material matter."
+  },
+  "rempe2014": {
+    "authors": "Rempe, D. M., and Dietrich, W. E.",
+    "year": 2014,
+    "title": "A bottom-up control on fresh-bedrock topography under landscapes",
+    "doi": "10.1073/pnas.1404763111",
+    "url": "https://czo-archive.criticalzone.org/eel/publications/pub/rempe-dietrich-2014-a-bottom-up-control-on-fresh-bedrock-topography-under-l/",
+    "finding": "A testable model links channel incision, drainage of fresh rock, and the advance of weathering. It predicts a weathered zone that thickens toward the ridge."
+  },
+  "salve2012": {
+    "authors": "Salve, R., Rempe, D. M., and Dietrich, W. E.",
+    "year": 2012,
+    "title": "Rain, rock moisture dynamics, and the rapid response of perched groundwater in weathered, fractured argillite underlying a steep hillslope",
+    "doi": "10.1029/2012WR012583",
+    "url": "https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2012WR012583",
+    "finding": "Some wells respond before a deep wetting front is observed, consistent with preferential fracture flow. Neighboring wells can respond very differently to one storm."
+  },
+  "montgomery1988": {
+    "authors": "Montgomery, D. R., and Dietrich, W. E.",
+    "year": 1988,
+    "title": "Where do channels begin?",
+    "doi": "10.1038/336232a0",
+    "url": "https://www.nature.com/articles/336232a0",
+    "finding": "Mapped channel heads show an inverse relation between source area and slope, with landslide initiation important in steep humid terrain. An unchannelled valley can extend above the channel head."
+  },
+  "montgomery1994": {
+    "authors": "Montgomery, D. R., and Dietrich, W. E.",
+    "year": 1994,
+    "title": "A physically based model for the topographic control on shallow landsliding",
+    "doi": "10.1029/93WR02979",
+    "url": "https://agupubs.onlinelibrary.wiley.com/doi/10.1029/93WR02979",
+    "finding": "Coupling topographically concentrated subsurface flow to slope stability explains why steep convergent hollows are prone to shallow landslides."
+  },
+  "heimsath1997": {
+    "authors": "Heimsath, A. M., Dietrich, W. E., Nishiizumi, K., and Finkel, R. C.",
+    "year": 1997,
+    "title": "The soil production function and landscape equilibrium",
+    "doi": "10.1038/41056",
+    "url": "https://www.nature.com/articles/41056",
+    "finding": "Northern California measurements using curvature and cosmogenic nuclides indicate declining soil production with increasing soil thickness. A steady form can coexist with continual material replacement."
+  },
+  "roering1999": {
+    "authors": "Roering, J. J., Kirchner, J. W., and Dietrich, W. E.",
+    "year": 1999,
+    "title": "Evidence for nonlinear, diffusive sediment transport on hillslopes and implications for landscape morphology",
+    "doi": "10.1029/1998WR900090",
+    "url": "https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/1998WR900090",
+    "finding": "A nonlinear transport law links rounded hilltops and nearly planar steep flanks. Near a critical gradient, small slope changes can accompany large changes in soil flux."
+  },
+  "sklar2004": {
+    "authors": "Sklar, L. S., and Dietrich, W. E.",
+    "year": 2004,
+    "title": "A mechanistic model for river incision into bedrock by saltating bed load",
+    "doi": "10.1029/2003WR002496",
+    "url": "https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2003WR002496",
+    "finding": "Moving sediment abrades exposed bedrock, but abundant sediment can protect it by covering the bed. Erosion is greatest at intermediate relative sediment supply."
+  }
+};
+
 export const HAIKUS=[
   {
     "id": 1,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "Rain on the ridge crest",
-      "Each drop finds a path downhill",
-      "The creek keeps the sum"
+      "August in the firs",
+      "The rain that never reached streams",
+      "Rises through the wood"
     ]
   },
   {
     "id": 2,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "First rain on dry leaves",
-      "The dust gives back its perfume",
-      "Roots wait in the dark"
+      "Dust along the trail",
+      "Below the reach of my spade",
+      "Winter feeds the leaves"
     ]
   },
   {
     "id": 3,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "Clouds lean on the hills",
-      "A thousand small doors open",
-      "The soil drinks in turns"
+      "The creek and the crown",
+      "Draw from a hill full of rain",
+      "By separate paths"
     ]
   },
   {
     "id": 4,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "Rain threads through the firs",
-      "Needles gather silver beads",
-      "One falls on my book"
+      "Nine wells in the shade",
+      "We lower a probe through rock",
+      "To measure the rain"
     ]
   },
   {
     "id": 5,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "A storm leaves at dawn",
-      "The stones keep their wet shadows",
-      "Long after the clouds"
+      "No rain on the roof",
+      "Yet the fir adds a new ring",
+      "From last winter's store"
     ]
   },
   {
     "id": 6,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "Soft rain on the roof",
-      "Below us the hillslope wakes",
-      "One pore at a time"
+      "Tall fir, shallow soil",
+      "Beneath the brown forest floor",
+      "The rock still holds rain"
     ]
   },
   {
     "id": 7,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "The gauge fills all night",
-      "No one hears the deep roots drink",
-      "Dawn smells of wet bark"
+      "The last storm is gone",
+      "A needle opens to light",
+      "Deep rock gives up rain"
     ]
   },
   {
     "id": 8,
-    "theme": "rain",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "Cold drops cross the fern",
-      "A bead hangs beneath each tip",
-      "Then joins the long fall"
+      "A dry clod crumbles",
+      "Far beneath the empty soil",
+      "Roots still find a drink"
     ]
   },
   {
     "id": 9,
-    "theme": "rain",
-    "lines": [
-      "The sky tips its bowl",
-      "A dark seam spreads through the duff",
-      "Worms find higher ground"
-    ]
-  },
-  {
-    "id": 10,
-    "theme": "rain",
-    "lines": [
-      "Thunder fades upstream",
-      "Rain still knocks on alder leaves",
-      "The creek answers back"
-    ]
-  },
-  {
-    "id": 11,
-    "theme": "streams",
-    "lines": [
-      "Small creek in the shade",
-      "You carry the hill away",
-      "One grain at a time"
-    ]
-  },
-  {
-    "id": 12,
-    "theme": "streams",
-    "lines": [
-      "A riffle turns white",
-      "Dark pools hold the fallen leaves",
-      "Each has its own pace"
-    ]
-  },
-  {
-    "id": 13,
-    "theme": "streams",
-    "lines": [
-      "Stones divide the flow",
-      "The creek braids around my boots",
-      "Then forgets my shape"
-    ]
-  },
-  {
-    "id": 14,
-    "theme": "streams",
-    "lines": [
-      "Where two streams first meet",
-      "Their cold voices blend as one",
-      "Beneath alder shade"
-    ]
-  },
-  {
-    "id": 15,
-    "theme": "streams",
-    "lines": [
-      "Foam circles a pool",
-      "A leaf makes the same journey",
-      "But never stays long"
-    ]
-  },
-  {
-    "id": 16,
-    "theme": "streams",
-    "lines": [
-      "The channel bends west",
-      "One bank yields a little more",
-      "One bar learns to grow"
-    ]
-  },
-  {
-    "id": 17,
-    "theme": "streams",
-    "lines": [
-      "A fish holds its place",
-      "Water slips around its fins",
-      "The whole hill moves past"
-    ]
-  },
-  {
-    "id": 18,
-    "theme": "streams",
-    "lines": [
-      "Creek light on the wall",
-      "The current writes in bright strokes",
-      "No word lasts till dusk"
-    ]
-  },
-  {
-    "id": 19,
-    "theme": "streams",
-    "lines": [
-      "The last riffle fades",
-      "A pool keeps a patch of sky",
-      "Deep beneath the ferns"
-    ]
-  },
-  {
-    "id": 20,
-    "theme": "streams",
-    "lines": [
-      "New gravel at dawn",
-      "The night has moved the channel",
-      "My map stays the same"
-    ]
-  },
-  {
-    "id": 21,
-    "theme": "wells",
-    "lines": [
-      "A tape drops through steel",
-      "Cool dark rises from the well",
-      "The hillside listens"
-    ]
-  },
-  {
-    "id": 22,
-    "theme": "wells",
-    "lines": [
-      "Water in the well",
-      "Holds the weight of distant rain",
-      "Under silent roots"
-    ]
-  },
-  {
-    "id": 23,
-    "theme": "wells",
-    "lines": [
-      "A small rise at dusk",
-      "The well has heard from the ridge",
-      "Before the creek does"
-    ]
-  },
-  {
-    "id": 24,
-    "theme": "wells",
-    "lines": [
-      "Deep beneath my boots",
-      "Water leans toward the valley",
-      "No sunlight goes there"
-    ]
-  },
-  {
-    "id": 25,
-    "theme": "wells",
-    "lines": [
-      "The sensor blinks green",
-      "A hill writes its secret pulse",
-      "In a column file"
-    ]
-  },
-  {
-    "id": 26,
-    "theme": "wells",
-    "lines": [
-      "The creek falls all week",
-      "Still the old well holds its head",
-      "Patient under stone"
-    ]
-  },
-  {
-    "id": 27,
-    "theme": "wells",
-    "lines": [
-      "One bead on the tape",
-      "The deep hill offers a clue",
-      "I write down the depth"
-    ]
-  },
-  {
-    "id": 28,
-    "theme": "wells",
-    "lines": [
-      "A cap cold with dew",
-      "I lift the lid of the well",
-      "And lower my voice"
-    ]
-  },
-  {
-    "id": 29,
-    "theme": "wells",
-    "lines": [
-      "Rain stopped days ago",
-      "The well keeps the storm in mind",
-      "And lets go slowly"
-    ]
-  },
-  {
-    "id": 30,
-    "theme": "wells",
-    "lines": [
-      "A cord hums below",
-      "The numbers climb through the night",
-      "Roots keep their counsel"
-    ]
-  },
-  {
-    "id": 31,
-    "theme": "trees",
-    "lines": [
-      "Roots split the dark shale",
-      "A green crown leans toward the light",
-      "Two worlds share one tree"
-    ]
-  },
-  {
-    "id": 32,
-    "theme": "trees",
-    "lines": [
-      "Tall fir on the ridge",
-      "Your needles comb the low clouds",
-      "Your roots read the rock"
-    ]
-  },
-  {
-    "id": 33,
-    "theme": "trees",
-    "lines": [
-      "The oak shades my notes",
-      "Its roots pass beneath the page",
-      "Beyond every line"
-    ]
-  },
-  {
-    "id": 34,
-    "theme": "trees",
-    "lines": [
-      "A leaf turns to light",
-      "Water climbs the hidden stairs",
-      "Air waits at the door"
-    ]
-  },
-  {
-    "id": 35,
-    "theme": "trees",
-    "lines": [
-      "Moss on fallen bark",
-      "The old tree gives back its rain",
-      "Softly to the soil"
-    ]
-  },
-  {
-    "id": 36,
-    "theme": "trees",
-    "lines": [
-      "Dry leaves in the heat",
-      "Deep roots find a cooler seam",
-      "The crown waits for dusk"
-    ]
-  },
-  {
-    "id": 37,
-    "theme": "trees",
-    "lines": [
-      "A red trunk sheds skin",
-      "Pale curls catch on fern and stone",
-      "New bark meets the fog"
-    ]
-  },
-  {
-    "id": 38,
-    "theme": "trees",
-    "lines": [
-      "Bay leaves scent the path",
-      "A branch dips across the creek",
-      "Green above the gray"
-    ]
-  },
-  {
-    "id": 39,
-    "theme": "trees",
-    "lines": [
-      "A seed finds a crack",
-      "One thin root explores the dark",
-      "The cliff makes some room"
-    ]
-  },
-  {
-    "id": 40,
-    "theme": "trees",
-    "lines": [
-      "Wind in the treetops",
-      "Roots hold fast to fractured stone",
-      "Two kinds of motion"
-    ]
-  },
-  {
-    "id": 41,
-    "theme": "soil",
-    "lines": [
-      "Dark soil on my hands",
-      "A whole hillside in one pinch",
-      "Crumbs of rain and time"
-    ]
-  },
-  {
-    "id": 42,
-    "theme": "soil",
-    "lines": [
-      "One ant climbs the pit",
-      "Its road crosses all my lines",
-      "I move the ruler"
-    ]
-  },
-  {
-    "id": 43,
-    "theme": "soil",
-    "lines": [
-      "The topsoil smells sweet",
-      "Below, a pale band of clay",
-      "Keeps the winter damp"
-    ]
-  },
-  {
-    "id": 44,
-    "theme": "soil",
-    "lines": [
-      "A worm folds the earth",
-      "Small tunnels stitch through the dark",
-      "Rain borrows their paths"
-    ]
-  },
-  {
-    "id": 45,
-    "theme": "soil",
-    "lines": [
-      "Dry cracks in the path",
-      "Close their mouths beneath the rain",
-      "The ground changes shape"
-    ]
-  },
-  {
-    "id": 46,
-    "theme": "soil",
-    "lines": [
-      "A root in the wall",
-      "Draws a curve through bands of clay",
-      "No legend for this"
-    ]
-  },
-  {
-    "id": 47,
-    "theme": "soil",
-    "lines": [
-      "Small pores hold the rain",
-      "Wide pores pass it to the depths",
-      "Both keep the hill green"
-    ]
-  },
-  {
-    "id": 48,
-    "theme": "soil",
-    "lines": [
-      "A dark stain runs down",
-      "Old root paths wake in the storm",
-      "The soil remembers"
-    ]
-  },
-  {
-    "id": 49,
-    "theme": "soil",
-    "lines": [
-      "A spade strikes a stone",
-      "The hole becomes a question",
-      "I kneel down to look"
-    ]
-  },
-  {
-    "id": 50,
-    "theme": "soil",
-    "lines": [
-      "Deep red under brown",
-      "Each handful has its own past",
-      "Rain turns one more page"
-    ]
-  },
-  {
-    "id": 51,
-    "theme": "rock",
-    "lines": [
-      "A thin crack in shale",
-      "Winter works the same small seam",
-      "The hillside exhales"
-    ]
-  },
-  {
-    "id": 52,
-    "theme": "rock",
-    "lines": [
-      "Stone turns into soil",
-      "No clock can show all the steps",
-      "A root marks the time"
-    ]
-  },
-  {
-    "id": 53,
-    "theme": "rock",
-    "lines": [
-      "Fresh chips in my palm",
-      "The gray rock has an old smell",
-      "Rain waits at the edge"
-    ]
-  },
-  {
-    "id": 54,
-    "theme": "rock",
-    "lines": [
-      "A slope sheds one grain",
-      "Gravity needs no witness",
-      "The creek takes it home"
-    ]
-  },
-  {
-    "id": 55,
-    "theme": "rock",
-    "lines": [
-      "Soft rock under hard",
-      "The layers lean toward the creek",
-      "Rain reads them sideways"
-    ]
-  },
-  {
-    "id": 56,
-    "theme": "rock",
-    "lines": [
-      "A boulder holds shade",
-      "Its warm face cools after dusk",
-      "Moss keeps the north side"
-    ]
-  },
-  {
-    "id": 57,
-    "theme": "rock",
-    "lines": [
-      "The cliff sheds a flake",
-      "A fern waits beneath the fall",
-      "Spring will find new soil"
-    ]
-  },
-  {
-    "id": 58,
-    "theme": "rock",
-    "lines": [
-      "Rain enters a seam",
-      "A small cold hand in the rock",
-      "Pushing at the door"
-    ]
-  },
-  {
-    "id": 59,
-    "theme": "rock",
-    "lines": [
-      "The ridge wears thin soil",
-      "Old stone shows through at the crest",
-      "Clouds cover the rest"
-    ]
-  },
-  {
-    "id": 60,
-    "theme": "rock",
-    "lines": [
-      "At the fresh road cut",
-      "Bent layers show their old strain",
-      "Grass softens the scar"
-    ]
-  },
-  {
-    "id": 61,
-    "theme": "tracers",
-    "lines": [
-      "We label the rain",
-      "Then ask the creek where it went",
-      "The hills keep some back"
-    ]
-  },
-  {
-    "id": 62,
-    "theme": "tracers",
-    "lines": [
-      "One drop, two stories",
-      "The light and the heavy blend",
-      "Deep under the trees"
-    ]
-  },
-  {
-    "id": 63,
-    "theme": "tracers",
-    "lines": [
-      "Glass rows greet the dawn",
-      "Each holds a small piece of rain",
-      "And a long question"
-    ]
-  },
-  {
-    "id": 64,
-    "theme": "tracers",
-    "lines": [
-      "A salt pulse goes past",
-      "The creek reveals its quick paths",
-      "Slow pools hold a trace"
-    ]
-  },
-  {
-    "id": 65,
-    "theme": "tracers",
-    "lines": [
-      "Old rain meets new rain",
-      "Their signatures drift downstream",
-      "No drop wears a date"
-    ]
-  },
-  {
-    "id": 66,
-    "theme": "tracers",
-    "lines": [
-      "A mark in the flow",
-      "Fades but does not quite vanish",
-      "I fill one more flask"
-    ]
-  },
-  {
-    "id": 67,
-    "theme": "tracers",
-    "lines": [
-      "The sample looks clear",
-      "A hidden ratio whispers",
-      "Of clouds far away"
-    ]
-  },
-  {
-    "id": 68,
-    "theme": "tracers",
-    "lines": [
-      "Cold glass in my hand",
-      "The creek gives a coded note",
-      "I save it for dusk"
-    ]
-  },
-  {
-    "id": 69,
-    "theme": "tracers",
-    "lines": [
-      "The tracer runs late",
-      "Somewhere in the folded hill",
-      "Old water makes room"
-    ]
-  },
-  {
-    "id": 70,
-    "theme": "tracers",
-    "lines": [
-      "Two peaks on the screen",
-      "The storm has more than one path",
-      "Through a single hill"
-    ]
-  },
-  {
-    "id": 71,
-    "theme": "fog",
-    "lines": [
-      "Fog fills the ravine",
-      "The ridge floats above the trees",
-      "An island till noon"
-    ]
-  },
-  {
-    "id": 72,
-    "theme": "fog",
-    "lines": [
-      "Gray clouds brush the fir",
-      "Drops gather without a storm",
-      "The forest makes rain"
-    ]
-  },
-  {
-    "id": 73,
-    "theme": "fog",
-    "lines": [
-      "Mist beads on my hat",
-      "The notebook takes on soft waves",
-      "Ink follows the grain"
-    ]
-  },
-  {
-    "id": 74,
-    "theme": "fog",
-    "lines": [
-      "Low cloud on the trail",
-      "Each spider holds a small net",
-      "Full of silver light"
-    ]
-  },
-  {
-    "id": 75,
-    "theme": "fog",
-    "lines": [
-      "The sun finds a gap",
-      "Steam lifts from the fallen log",
-      "Its long night is done"
-    ]
-  },
-  {
-    "id": 76,
-    "theme": "fog",
-    "lines": [
-      "A leaf catches mist",
-      "No gauge stands beneath that branch",
-      "The roots know the sum"
-    ]
-  },
-  {
-    "id": 77,
-    "theme": "fog",
-    "lines": [
-      "Clouds pool in the creek",
-      "Though the water still runs clear",
-      "Two rivers at dawn"
-    ]
-  },
-  {
-    "id": 78,
-    "theme": "fog",
-    "lines": [
-      "The wet moss grows bright",
-      "A thin wind moves through the fog",
-      "Then all is stillness"
-    ]
-  },
-  {
-    "id": 79,
-    "theme": "fog",
-    "lines": [
-      "White breath on the ridge",
-      "The trees drink from passing clouds",
-      "Before the sun wakes"
-    ]
-  },
-  {
-    "id": 80,
-    "theme": "fog",
-    "lines": [
-      "Fog erases hills",
-      "My boots still know the steep trail",
-      "One step, then one more"
-    ]
-  },
-  {
-    "id": 81,
-    "theme": "seasons",
-    "lines": [
-      "Summer thins the creek",
-      "The stones grow warm in the sun",
-      "Deep wells keep their cool"
-    ]
-  },
-  {
-    "id": 82,
-    "theme": "seasons",
-    "lines": [
-      "First leaves in the pool",
-      "Autumn puts a roof on streams",
-      "One red tile at dawn"
-    ]
-  },
-  {
-    "id": 83,
-    "theme": "seasons",
-    "lines": [
-      "New rain darkens dust",
-      "The long dry season loosens",
-      "Its grip on the roots"
-    ]
-  },
-  {
-    "id": 84,
-    "theme": "seasons",
-    "lines": [
-      "A long day of heat",
-      "The hill spends its stored water",
+    "theme": "rock-moisture",
+    "source": "rempe2018",
+    "lines": [
+      "Green through the dry months",
+      "The forest spends its winter",
       "One leaf at a time"
     ]
   },
   {
-    "id": 85,
-    "theme": "seasons",
+    "id": 10,
+    "theme": "rock-moisture",
+    "source": "rempe2018",
     "lines": [
-      "Spring fills every seam",
-      "The slope sends word to the creek",
-      "In clear cold pulses"
+      "The probe stops again",
+      "A meter down, then one more",
+      "Summer leaves its mark"
+    ]
+  },
+  {
+    "id": 11,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "The stream gauge runs low",
+      "Not all the rain in this hill",
+      "Has a path past here"
+    ]
+  },
+  {
+    "id": 12,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "Two days, equal flow",
+      "More rain held beneath the roots",
+      "Than the gauge can tell"
+    ]
+  },
+  {
+    "id": 13,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "A line on the graph",
+      "Counts what the stream can carry",
+      "Leaves spend unseen rain"
+    ]
+  },
+  {
+    "id": 14,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "Rain in the hill’s pores",
+      "A twig greens above the weir",
+      "Beyond its tally"
+    ]
+  },
+  {
+    "id": 15,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "The gauge by the bridge",
+      "Cannot count the drops that climb",
+      "Into sunlit leaves"
+    ]
+  },
+  {
+    "id": 16,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "A falling blue line",
+      "Above it, branches still green",
+      "Below it, my notes"
+    ]
+  },
+  {
+    "id": 17,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "We tally the rain",
+      "Then subtract the running creek",
+      "Roots hold the balance"
+    ]
+  },
+  {
+    "id": 18,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "The well drains downhill",
+      "Close by, a root draws on pores",
+      "That do not drain free"
+    ]
+  },
+  {
+    "id": 19,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "Same flow as last spring",
+      "I turn the page back to check",
+      "A drier hill now"
+    ]
+  },
+  {
+    "id": 20,
+    "theme": "indirect-storage",
+    "source": "dralle2018",
+    "lines": [
+      "A stream in a jar",
+      "Beside it, a branch in leaf",
+      "Two ways out of rock"
+    ]
+  },
+  {
+    "id": 21,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "One cloud, two hillsides",
+      "Dark firs face the golden grass",
+      "The change lies below"
+    ]
+  },
+  {
+    "id": 22,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "The same winter rain",
+      "One slope keeps a summer creek",
+      "One keeps empty stones"
+    ]
+  },
+  {
+    "id": 23,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "Across the contact",
+      "My boots leave the shade of firs",
+      "For sun between oaks"
+    ]
+  },
+  {
+    "id": 24,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "Deep cracks, dark green crowns",
+      "Tight stone under tawny grass",
+      "One sky over both"
+    ]
+  },
+  {
+    "id": 25,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "The drill brings up gray",
+      "At three meters beneath grass",
+      "Firs stand on more room"
+    ]
+  },
+  {
+    "id": 26,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "An oak on pale grass",
+      "Across the ridge, firs crowd close",
+      "Rain falls on them both"
+    ]
+  },
+  {
+    "id": 27,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "The stream through the firs",
+      "Still threads its stones in August",
+      "Next valley, dry leaves"
+    ]
+  },
+  {
+    "id": 28,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "A core on the tarp",
+      "The forest border runs through",
+      "What looked like plain rock"
+    ]
+  },
+  {
+    "id": 29,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "Green moss at the ford",
+      "The hill has room beneath roots",
+      "To keep winter rain"
+    ]
+  },
+  {
+    "id": 30,
+    "theme": "bedrock-and-forest",
+    "source": "hahm2019lithology",
+    "lines": [
+      "No change in the clouds",
+      "Yet the woods end at my feet",
+      "I kneel to the rock"
+    ]
+  },
+  {
+    "id": 31,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "A small cup fills first",
+      "The long wet winter spills past",
+      "Summer gets one cup"
+    ]
+  },
+  {
+    "id": 32,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "Two winters, one brim",
+      "The oak begins each dry spell",
+      "With the same small store"
+    ]
+  },
+  {
+    "id": 33,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "More rain on the gauge",
+      "No more room beneath the grass",
+      "The creek takes the rest"
+    ]
+  },
+  {
+    "id": 34,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "A wet year runs off",
+      "A dry year can fill this hill",
+      "If the rains suffice"
+    ]
+  },
+  {
+    "id": 35,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "Once filled, the hill sheds",
+      "Another long night of rain",
+      "The grass gets no more"
+    ]
+  },
+  {
+    "id": 36,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "Small stores, steady leaves",
+      "Both winters have filled the cracks",
+      "Both springs start the same"
+    ]
+  },
+  {
+    "id": 37,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "The ridge keeps its share",
+      "Storm after storm leaves the rest",
+      "To stones in the creek"
+    ]
+  },
+  {
+    "id": 38,
+    "theme": "storage-capacity",
+    "source": "hahm2019capacity",
+    "lines": [
+      "An oak outlasts drought",
+      "Its small store filled in winter",
+      "The crown stays in leaf"
+    ]
+  },
+  {
+    "id": 39,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "The well holds water",
+      "The oak draws from drier rock",
+      "Above that dark pool"
+    ]
+  },
+  {
+    "id": 40,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "Green oak, tawny grass",
+      "The roots pull hard on damp stone",
+      "Long after spring rain"
+    ]
+  },
+  {
+    "id": 41,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "At dawn, clipped oak leaves",
+      "Tell how tightly rock holds rain",
+      "Before the heat comes"
+    ]
+  },
+  {
+    "id": 42,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "A twig in the bag",
+      "Its water bears the same mark",
+      "As the weathered rock"
+    ]
+  },
+  {
+    "id": 43,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "Below the oak's shade",
+      "The water table lies close",
+      "Roots drink higher up"
+    ]
+  },
+  {
+    "id": 44,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "The grass turns to straw",
+      "Oak leaves still turn toward the sun",
+      "Drawing on damp rock"
+    ]
+  },
+  {
+    "id": 45,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "Wet rock without air",
+      "A full well beneath the oak",
+      "Is not its canteen"
+    ]
+  },
+  {
+    "id": 46,
+    "theme": "oak-water-sources",
+    "source": "hahm2020oak",
+    "lines": [
+      "Late sun through oak leaves",
+      "The probe finds less in the rock",
+      "Than it found in spring"
+    ]
+  },
+  {
+    "id": 47,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "Rain jars on the bench",
+      "Each storm leaves its own faint mark",
+      "The well blends them all"
+    ]
+  },
+  {
+    "id": 48,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "Two drops, clear as glass",
+      "One from a crack, one from stone",
+      "The numbers part ways"
+    ]
+  },
+  {
+    "id": 49,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "A storm's jagged trace",
+      "Grows smooth beneath the hillside",
+      "The well keeps its calm"
+    ]
+  },
+  {
+    "id": 50,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "Rock warms in the flask",
+      "A second jar holds well drops",
+      "Their clear depths differ"
+    ]
+  },
+  {
+    "id": 51,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "A label curls loose",
+      "The clear jar holds no colors",
+      "Yet holds signs of rain"
+    ]
+  },
+  {
+    "id": 52,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "The storm speaks in peaks",
+      "Below, the trace hardly moves",
+      "Old rain meets the new"
+    ]
+  },
+  {
+    "id": 53,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "One hill, many jars",
+      "The rain we catch between grains",
+      "Is not all the rain"
+    ]
+  },
+  {
+    "id": 54,
+    "theme": "water-isotopes",
+    "source": "oshun2016",
+    "lines": [
+      "At the same small depth",
+      "Rock holds more than one story",
+      "Two clear drops diverge"
+    ]
+  },
+  {
+    "id": 55,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "The creek cuts its bed",
+      "Deep rock drains toward the daylight",
+      "Rust takes one step down"
+    ]
+  },
+  {
+    "id": 56,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "Two ridges at once",
+      "One outlined against the sky",
+      "One beneath my boots"
+    ]
+  },
+  {
+    "id": 57,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "The hill wears thin soil",
+      "But holds a deep, broken world",
+      "Above the fresh stone"
+    ]
+  },
+  {
+    "id": 58,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "Where the creek cuts down",
+      "Old pore water finds a path",
+      "And lets the air in"
+    ]
+  },
+  {
+    "id": 59,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "We climb toward the crest",
+      "The drill must travel farther",
+      "To find unscarred rock"
+    ]
+  },
+  {
+    "id": 60,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "A gray heart of stone",
+      "Waits beneath the rust and roots",
+      "For a way to drain"
+    ]
+  },
+  {
+    "id": 61,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "The stream lowers first",
+      "The hidden hill takes its cue",
+      "From that narrow cut"
+    ]
+  },
+  {
+    "id": 62,
+    "theme": "weathering-front",
+    "source": "rempe2014",
+    "lines": [
+      "No root has reached here",
+      "Yet the creek can change this rock",
+      "By letting it drain"
+    ]
+  },
+  {
+    "id": 63,
+    "theme": "fracture-recharge",
+    "source": "salve2012",
+    "lines": [
+      "Rain wakes the deep well",
+      "The wet front is still shallow",
+      "Rain takes the split seams"
+    ]
+  },
+  {
+    "id": 64,
+    "theme": "fracture-recharge",
+    "source": "salve2012",
+    "lines": [
+      "Two wells, one rainstorm",
+      "One leaps while the other waits",
+      "Between them, dark rock"
+    ]
+  },
+  {
+    "id": 65,
+    "theme": "fracture-recharge",
+    "source": "salve2012",
+    "lines": [
+      "A hard rain at dusk",
+      "The trace climbs before my boots",
+      "Have soaked all the way"
+    ]
+  },
+  {
+    "id": 66,
+    "theme": "fracture-recharge",
+    "source": "salve2012",
+    "lines": [
+      "No even wet sheet",
+      "A few cracks carry the storm",
+      "Deep beneath the ferns"
+    ]
+  },
+  {
+    "id": 67,
+    "theme": "fracture-recharge",
+    "source": "salve2012",
+    "lines": [
+      "Rain taps the well cap",
+      "Below, the rising water",
+      "Takes a hidden route"
+    ]
+  },
+  {
+    "id": 68,
+    "theme": "fracture-recharge",
+    "source": "salve2012",
+    "lines": [
+      "Meters down in rock",
+      "A sudden rise in the well",
+      "Outruns the wet front"
+    ]
+  },
+  {
+    "id": 69,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "I walk past the stream",
+      "Its banks end beneath the ferns",
+      "The valley goes on"
+    ]
+  },
+  {
+    "id": 70,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "Where the blue line ends",
+      "A hollow gathers the rain",
+      "Without any banks"
+    ]
+  },
+  {
+    "id": 71,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "Under steeper ferns",
+      "A stream starts closer to sky",
+      "Than my old map shows"
+    ]
+  },
+  {
+    "id": 72,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "Headwaters at dusk",
+      "The last bank fades into leaves",
+      "My map ends too soon"
+    ]
+  },
+  {
+    "id": 73,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "No spring marks the start",
+      "Just a cut beneath the roots",
+      "And gravel laid bare"
+    ]
+  },
+  {
+    "id": 74,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "I follow the banks",
+      "Up where both fade into duff",
+      "Then keep on walking"
+    ]
+  },
+  {
+    "id": 75,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "A fan of ridgelines",
+      "Narrows toward a notch in soil",
+      "Here the stream begins"
+    ]
+  },
+  {
+    "id": 76,
+    "theme": "channel-heads",
+    "source": "montgomery1988",
+    "lines": [
+      "The hollow grows steep",
+      "A scar takes the place of soil",
+      "The channel starts here"
+    ]
+  },
+  {
+    "id": 77,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "Rain folds into folds",
+      "The hollow fills from both sides",
+      "Soil loosens its grip"
+    ]
+  },
+  {
+    "id": 78,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "A steep slope holds fast",
+      "Then water lifts at its base",
+      "The roots take the strain"
+    ]
+  },
+  {
+    "id": 79,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "The storm crowds one fold",
+      "A scar opens in the fern",
+      "Fresh mud joins the creek"
+    ]
+  },
+  {
+    "id": 80,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "The contours bend in",
+      "Rain finds the same narrow place",
+      "Where the hillside failed"
+    ]
+  },
+  {
+    "id": 81,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "A spoonful of earth",
+      "Upslope, a bowl full of rain",
+      "Downstream, a new bar"
+    ]
+  },
+  {
+    "id": 82,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "A root spans the scar",
+      "On one side, the old ground stays",
+      "One side holds the sky"
+    ]
+  },
+  {
+    "id": 83,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "Hollow after rain",
+      "The soil has left its outline",
+      "On the standing roots"
+    ]
+  },
+  {
+    "id": 84,
+    "theme": "shallow-landslides",
+    "source": "montgomery1994",
+    "lines": [
+      "I trace the wet fold",
+      "The map gathers lines inward",
+      "The slope gathers rain"
+    ]
+  },
+  {
+    "id": 85,
+    "theme": "soil-production",
+    "source": "heimsath1997",
+    "lines": [
+      "A thin cloak of soil",
+      "Rock breaks faster underneath",
+      "Than under deep earth"
     ]
   },
   {
     "id": 86,
-    "theme": "seasons",
+    "theme": "soil-production",
+    "source": "heimsath1997",
     "lines": [
-      "The creek shrinks to shade",
-      "A frog keeps the quiet pool",
-      "Till the rains return"
+      "Quartz grains in a bag",
+      "The sky has left them a clock",
+      "Too small for my eyes"
     ]
   },
   {
     "id": 87,
-    "theme": "seasons",
+    "theme": "soil-production",
+    "source": "heimsath1997",
     "lines": [
-      "New grass on the scar",
-      "The wet months soften the slope",
-      "And hide last year's lines"
+      "Soil slips toward the creek",
+      "New grains take its place below",
+      "The ridge holds its shape"
     ]
   },
   {
     "id": 88,
-    "theme": "seasons",
+    "theme": "soil-production",
+    "source": "heimsath1997",
     "lines": [
-      "Hot wind through the oaks",
-      "The well chart dips down once more",
-      "We wait for a cloud"
+      "A pit at the crest",
+      "A second one down the slope",
+      "Two depths, one question"
     ]
   },
   {
     "id": 89,
-    "theme": "seasons",
+    "theme": "soil-production",
+    "source": "heimsath1997",
     "lines": [
-      "Frost rims the steel cap",
-      "Below, the dark water rests",
-      "Past the reach of dawn"
+      "Under thicker soil",
+      "Fresh rock takes longer to join",
+      "The slow downhill drift"
     ]
   },
   {
     "id": 90,
-    "theme": "seasons",
+    "theme": "soil-production",
+    "source": "heimsath1997",
     "lines": [
-      "A late shower falls",
-      "Dry fern fronds lift toward the sound",
-      "The hill takes a breath"
+      "A hill seems at rest",
+      "Its skin made and carried off",
+      "Grain answering grain"
     ]
   },
   {
     "id": 91,
-    "theme": "fieldnotes",
+    "theme": "hillslope-transport",
+    "source": "roering1999",
     "lines": [
-      "Mud clings to my boots",
-      "The hill sends a sample home",
-      "Without any forms"
+      "Round ridge, straight steep flank",
+      "A small change in slope can send",
+      "Much more soil downhill"
     ]
   },
   {
     "id": 92,
-    "theme": "fieldnotes",
+    "theme": "hillslope-transport",
+    "source": "roering1999",
     "lines": [
-      "My pencil grows short",
-      "The hillslope grows more complex",
-      "I sharpen the point"
+      "A root lifts a clod",
+      "It falls a little downslope",
+      "The ridge rounds with time"
     ]
   },
   {
     "id": 93,
-    "theme": "fieldnotes",
+    "theme": "hillslope-transport",
+    "source": "roering1999",
     "lines": [
-      "An almond at noon",
-      "The notebook rests on my knees",
-      "A new verse takes root"
+      "The slope scarcely changed",
+      "Yet twice the earth may pass here",
+      "Beneath the same ferns"
     ]
   },
   {
     "id": 94,
-    "theme": "fieldnotes",
+    "theme": "hillslope-transport",
+    "source": "roering1999",
     "lines": [
-      "Three lines in the shade",
-      "The creek fills the space between",
-      "I put down my pen"
+      "From crest to steep flank",
+      "The curve gives way to a line",
+      "Soil quickens its pace"
     ]
   },
   {
     "id": 95,
-    "theme": "fieldnotes",
+    "theme": "hillslope-transport",
+    "source": "roering1999",
     "lines": [
-      "The old raincoat drips",
-      "A small stream runs off one sleeve",
-      "No gauge for this one"
+      "Small kicks in the soil",
+      "The steep hill gives each a shove",
+      "Toward the waiting creek"
     ]
   },
   {
     "id": 96,
-    "theme": "fieldnotes",
+    "theme": "bedrock-incision",
+    "source": "sklar2004",
     "lines": [
-      "The map shows a line",
-      "The hill shows a thousand paths",
-      "I fold up the map"
+      "A stone skips downstream",
+      "Each strike takes a fleck of bed",
+      "The gorge deepens there"
     ]
   },
   {
     "id": 97,
-    "theme": "fieldnotes",
+    "theme": "bedrock-incision",
+    "source": "sklar2004",
     "lines": [
-      "A flag in the duff",
-      "Marks the place I meant to find",
-      "Not the one I found"
+      "Too much gravel comes",
+      "The tools become a blanket",
+      "The bed keeps its skin"
     ]
   },
   {
     "id": 98,
-    "theme": "fieldnotes",
+    "theme": "bedrock-incision",
+    "source": "sklar2004",
     "lines": [
-      "Last light on the well",
-      "I pack the tape and pencils",
-      "The hill works all night"
+      "Clear flood over rock",
+      "Without stones to strike the bed",
+      "Less is worn away"
     ]
   },
   {
     "id": 99,
-    "theme": "fieldnotes",
+    "theme": "bedrock-incision",
+    "source": "sklar2004",
     "lines": [
-      "My watch says go home",
-      "The creek has one more question",
-      "I sit for a while"
+      "A clack under foam",
+      "One pebble strikes the bedrock",
+      "The walls stand apart"
     ]
   },
   {
     "id": 100,
-    "theme": "fieldnotes",
+    "theme": "bedrock-incision",
+    "source": "sklar2004",
     "lines": [
-      "A page full of sums",
-      "One bird calls across the slope",
-      "I lose count and smile"
+      "The bar shifts at dawn",
+      "Bare rock meets the bouncing stones",
+      "Fresh scars catch the light"
     ]
   }
 ];

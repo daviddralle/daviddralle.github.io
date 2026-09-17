@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../field-sites/rivendell/atlas/vendor/three/three.module.js';
-import {HAIKUS,createHaikuDeck} from '../field-sites/rivendell/atlas/bill-haikus.js';
+import {HAIKUS,HAIKU_SOURCES,createHaikuDeck} from '../field-sites/rivendell/atlas/bill-haikus.js';
 import {createBill} from '../field-sites/rivendell/atlas/bill.js';
 const elements=new Map();
 class Element {
@@ -51,6 +51,9 @@ assert.equal(container.dataset.billPoemPhase,'reading');assert.equal(el('#bill-h
 for(let i=0;i<190;i++)tick(.1);assert.equal(container.dataset.billPoemPhase,'reading');assert.deepEqual([root.position.x,root.position.z],seatedXZ);
 for(let i=0;i<12;i++)tick(.1);assert.equal(container.dataset.billPoemPhase,'working');assert(el('#bill-haiku').hidden);assert(Math.hypot(root.position.x-seatedXZ[0],root.position.z-seatedXZ[1])>0);
 assert.equal(HAIKUS.length,100);assert.equal(new Set(HAIKUS.map(p=>p.lines.join('|'))).size,100);assert(HAIKUS.every(p=>p.lines.length===3&&p.lines.every(s=>s.length>0)));
+assert.equal(Object.keys(HAIKU_SOURCES).length,13);
+assert(HAIKUS.every(p=>HAIKU_SOURCES[p.source]?.doi&&p.lines.every(line=>line.length<=40)));
+assert.equal(new Set(HAIKUS.map(p=>p.id)).size,100);
 const deck=createHaikuDeck(()=>.3),cycle=Array.from({length:100},()=>deck().id);assert.equal(new Set(cycle).size,100);assert.notEqual(deck().id,cycle.at(-1));
 console.log('PASS: almonds, seated writing, 20-second poem, return to work, 100 unique haikus and nonrepeating shuffle.');
 console.log('PASS: held pickup, ground drop, fixed camera, pointer cancellation, invalid drop, paused-state restoration, nearby chocolate, distant detection limit, 2x speed and 30-second expiry.');
