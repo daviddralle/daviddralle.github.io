@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../field-sites/rivendell/atlas/vendor/three/three.module.js';
+import {HAIKUS,createHaikuDeck} from '../field-sites/rivendell/atlas/bill-haikus.js';
 import {createBill} from '../field-sites/rivendell/atlas/bill.js';
 const elements=new Map();
 class Element {
@@ -39,4 +40,17 @@ now+=30001;old=root.position.clone();tick(.1);const normal=Math.hypot(root.posit
 el('#bill-chocolate').fire('pointerdown');up(950,950);tick(.1);assert.equal(container.dataset.billChocolateCount,'1');assert(!el('#bill-status').textContent.includes('Chocolate spotted'));
 // Cancelling a chocolate drag restores navigation and creates no extra snack.
 const count=container.dataset.billChocolateCount;el('#bill-chocolate').fire('pointerdown');doc.fire('pointermove',{clientX:510,clientY:440,target:canvas});tick(.016);doc.fire('pointercancel');assert(!bill.dragging);assert(controls.enabled);assert.equal(container.dataset.billChocolateCount,count);
+// Almonds trigger a seated composition, then exactly 20 seconds of visible poetry.
+const almondX=400+root.position.x*10,almondY=400+root.position.z*10;
+el('#bill-almonds').fire('pointerdown');up(almondX,almondY);assert.equal(container.dataset.billAlmondCount,'1');
+for(let i=0;i<80&&container.dataset.billPoemPhase!=='composing';i++)tick(.05);
+assert.equal(container.dataset.billPoemPhase,'composing');assert.equal(container.dataset.billAlmondCount,'0');assert.equal(container.dataset.billBoostSeconds,'0');
+const seatedXZ=[root.position.x,root.position.z];
+for(let i=0;i<65&&container.dataset.billPoemPhase!=='reading';i++)tick(.05);
+assert.equal(container.dataset.billPoemPhase,'reading');assert.equal(el('#bill-haiku').textContent.split('\n').length,3);assert(Math.abs(root.position.y-(heightAt(root.position.x,-root.position.z)-400-.65))<1e-9);
+for(let i=0;i<190;i++)tick(.1);assert.equal(container.dataset.billPoemPhase,'reading');assert.deepEqual([root.position.x,root.position.z],seatedXZ);
+for(let i=0;i<12;i++)tick(.1);assert.equal(container.dataset.billPoemPhase,'working');assert(el('#bill-haiku').hidden);assert(Math.hypot(root.position.x-seatedXZ[0],root.position.z-seatedXZ[1])>0);
+assert.equal(HAIKUS.length,100);assert.equal(new Set(HAIKUS.map(p=>p.lines.join('|'))).size,100);assert(HAIKUS.every(p=>p.lines.length===3&&p.lines.every(s=>s.length>0)));
+const deck=createHaikuDeck(()=>.3),cycle=Array.from({length:100},()=>deck().id);assert.equal(new Set(cycle).size,100);assert.notEqual(deck().id,cycle.at(-1));
+console.log('PASS: almonds, seated writing, 20-second poem, return to work, 100 unique haikus and nonrepeating shuffle.');
 console.log('PASS: held pickup, ground drop, fixed camera, pointer cancellation, invalid drop, paused-state restoration, nearby chocolate, distant detection limit, 2x speed and 30-second expiry.');

@@ -41,3 +41,10 @@ stack multiplicatively. These objects are kept out of scientific data exports.
 
 Run `node scripts/check-bill-interactions.mjs` for drag/drop, cancellation,
 landing-ring, chocolate detection, and speed/expiry checks.
+
+Bill's controls now open in a top toolbar, separate from terrain settings.
+Almonds use the same drag, ground-ring and re-positioning controls as chocolate.
+After eating almonds Bill sits, writes for three seconds, displays a field haiku
+for 20 seconds, then resumes work. `bill-haikus.js` contains
+100 original three-line poems across ten themes, shuffled without repetition
+until all 100 have been used. No external model or service is called at runtime.
