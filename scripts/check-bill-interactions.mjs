@@ -71,3 +71,26 @@ assert.equal(new Set(HAIKUS.map(p=>p.id)).size,100);
 const deck=createHaikuDeck(()=>.3),cycle=Array.from({length:100},()=>deck().id);assert.equal(new Set(cycle).size,100);assert.notEqual(deck().id,cycle.at(-1));
 console.log('PASS: almonds, seated writing, 20-second poem, return to work, 100 unique haikus and nonrepeating shuffle.');
 console.log('PASS: held pickup, ground drop, fixed camera, pointer cancellation, invalid drop, paused-state restoration, nearby chocolate, distant detection limit, 3x speed and 30-second expiry.');
+// Both chocolate types add to the live balance, including repeated top-ups above 60 s.
+function eatAtFeet(button,seconds){
+ const beforeMs=Math.max(0,Number(container.dataset.billBoostSeconds)*1000),started=now;
+ const count=Number(container.dataset.billChocolateCount);
+ el(button).fire('pointerdown');up(400+root.position.x*10,400+root.position.z*10);
+ assert.equal(Number(container.dataset.billChocolateCount),count+1);
+ for(let i=0;i<80&&Number(container.dataset.billChocolateCount)>count;i++)tick(.05);
+ assert.equal(Number(container.dataset.billChocolateCount),count);
+ const actual=Number(container.dataset.billBoostSeconds);
+ const expected=Math.ceil(Math.max(0,beforeMs-(now-started))/1000+seconds);
+ assert(Math.abs(actual-expected)<=1,`${button}: expected ${expected}s, got ${actual}s`);
+ assert.equal(el('#bill-energy-fill').style.transform,'scaleX(1)');
+ assert.equal(Number(el('#bill-energy-meter').getAttribute('aria-valuemax')),actual);
+ return actual;
+}
+assert.equal(eatAtFeet('#bill-dark-chocolate',60),60);
+tick(10);
+assert(eatAtFeet('#bill-chocolate',30)>75);
+assert(eatAtFeet('#bill-dark-chocolate',60)>130);
+assert(eatAtFeet('#bill-chocolate',30)>155);
+now+=Number(container.dataset.billBoostSeconds)*1000+1;tick(.01);
+assert.equal(container.dataset.billBoostSeconds,'0');assert(el('#bill-energy').hidden);
+console.log('PASS: dark +60s, milk +30s, additive mixed/repeated top-ups, meter capacity and full expiry.');

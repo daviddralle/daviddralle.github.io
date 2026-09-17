@@ -22,10 +22,10 @@ function setup(kind){
  const camera=new THREE.PerspectiveCamera(43,1,.2,6000),controls=Object.assign(new Element(),{target:new THREE.Vector3(),enabled:true,autoRotate:false,update(){}});
  const bill=createBill({scene:new THREE.Scene(),pits:{clear(){},begin(){return null;}},heightAt:(x,n)=>400+.1*x+.2*n,origin:[0,0,400],camera,controls,host,render(){},project:v=>({x:400+v.x*10,y:400-v.y*10,z:0}),pickGround:(x,y)=>new THREE.Vector3((x-400)/10,.1*(x-400)/10-.2*(y-400)/10,(y-400)/10),stations:[{x:0,z:0,label:'A'}],explore(){}});
  el('#bill-toggle').onclick();el('#bill-pause').onclick();
- const button=el(kind==='almond'?'#bill-almonds':'#bill-chocolate'),key=kind==='almond'?'billAlmondCount':'billChocolateCount';
+ const button=el(kind==='almond'?'#bill-almonds':kind==='dark-chocolate'?'#bill-dark-chocolate':'#bill-chocolate'),key=kind==='almond'?'billAlmondCount':'billChocolateCount';
  return {bill,canvas,container,doc,win,button,controls,el,camera,count:()=>Number(container.dataset[key]),hit:v=>{hit=v;},captureFails:v=>{captureFails=v;},start:props=>button.fire('pointerdown',props),up:props=>doc.fire('pointerup',{clientX:500,clientY:500,...props}),tags:()=>container.children.filter(e=>e.className?.includes('chocolate-label')&&!e.removed)};
 }
-for(const kind of ['chocolate','almond']){
+for(const kind of ['chocolate','dark-chocolate','almond']){
  let h=setup(kind);const text=h.button.textContent,camera=h.camera.position.clone();
  h.start();assert(h.bill.dragging);assert(h.canvas.hasPointerCapture(1));assert.equal(h.button.textContent,text);assert(!h.controls.enabled);
  h.up();assert.equal(h.tags()[0].style.left,'500px');assert.equal(h.tags()[0].hidden,false);assert.equal(h.count(),1,`${kind}: very first, sub-frame drop`);assert(!h.bill.dragging);assert(h.controls.enabled);assert(h.camera.position.equals(camera));
