@@ -34,13 +34,13 @@ el('#bill-pause').onclick();down();move(490,440);up(490,440);tick(.1);assert.equ
 el('#bill-chocolate').fire('pointerdown');doc.fire('pointermove',{clientX:500,clientY:440,target:canvas});tick(.016);assert.equal(container.dataset.chocolateDropValid,'true');assert(!controls.enabled);const foodRing=overlay.children.find(o=>o.geometry?.type==='RingGeometry'&&o.visible);assert(foodRing);assert.equal(foodRing.position.x,10);assert.equal(foodRing.position.z,4);assert.equal(foodRing.material.color.getHex(),billRing.material.color.getHex());up(500,440);assert.equal(container.dataset.billChocolateCount,'1');
 for(let i=0;i<120&&Number(container.dataset.billBoostSeconds)===0;i++)tick(.05);
 assert(Number(container.dataset.billBoostSeconds)>0);assert.equal(container.dataset.billChocolateCount,'0');
-let old=root.position.clone();tick(.1);const fast=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(fast-.34)<1e-7);
+let old=root.position.clone();tick(.1);const fast=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(fast-.136)<1e-7);
 // Chocolate compresses a full seven-second measurement/notebook stop to 1.75 s.
 down();up(400,400);tick(.9);assert(container.dataset.billState.includes('Checking a field measurement'));
 tick(.2);assert(container.dataset.billState.includes('Writing in the notebook'));
 tick(.6);assert(container.dataset.billState.includes('Writing in the notebook'));
 tick(.1);assert(container.dataset.billState.startsWith('Walking'));assert(Number(container.dataset.billBoostSeconds)>0);
-now+=30001;old=root.position.clone();tick(.1);const normal=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(normal-.17)<1e-7);assert.equal(container.dataset.billBoostSeconds,'0');
+now+=30001;old=root.position.clone();tick(.1);const normal=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(normal-.068)<1e-7);assert.equal(container.dataset.billBoostSeconds,'0');
 // Once the boost expires, the same stop returns to its original seven seconds.
 down();up(400,400);tick(1.8);assert(container.dataset.billState.includes('Checking a field measurement'));
 tick(2.3);assert(container.dataset.billState.includes('Writing in the notebook'));
