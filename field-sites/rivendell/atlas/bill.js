@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three/three.module.js';
 // A procedural field companion. Never writes to the scientific layers or exports.
-export function createBill({scene,pits,heightAt,origin,camera,controls,project,host,render,stations,explore}){
+export function createBill({scene,pits,pickGround,heightAt,origin,camera,controls,project,host,render,stations,explore}){
  const $=s=>document.querySelector(s),root=new THREE.Group(),overlay=new THREE.Scene();overlay.add(root);root.visible=false;for(const light of scene.children.filter(o=>o.isLight))overlay.add(light.clone());
  const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:1});
  const blue=mat('#284c85'),red=mat('#ae263c'),skin=mat('#dfb18e'),gray=mat('#bcb9ae'),dark=mat('#242d34'),brown=mat('#655346'),paper=mat('#e5e0c7');
@@ -27,23 +27,119 @@ export function createBill({scene,pits,heightAt,origin,camera,controls,project,h
  let digging=null,digElapsed=0,wasPaused=false,notice='',noticeTime=0;
  let enabled=false,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,follow=true,elapsed=0,station=0,dwell=0,visits=0,pose='Walking',wearing=false;
  const route=stations.length?stations:[{x:15,z:0,label:'the hillslope'}];root.position.set(route[0].x,heightAt(route[0].x+origin[0],origin[1]-route[0].z)-origin[2],route[0].z);station=route.length>1?1:0;
- const label=document.createElement('div');label.id='bill-label';label.hidden=true;label.textContent='Bill';host.parentElement.append(label);
- function status(){const text=noticeTime>0?notice:digging?(paused?'Dig paused':`Digging a soil pit · ${Math.min(99,Math.floor(digElapsed/4.2*100))}%`):paused?'Field break':pose==='Walking'?`Walking to ${route[station].label}`:`${pose} · stop ${visits}`;$('#bill-status').textContent=text;host.parentElement.dataset.billState=text;host.parentElement.dataset.billPosition=root.position.toArray().map(x=>x.toFixed(2)).join(',');}
+ const label=document.createElement('button');label.type='button';label.id='bill-label';label.title='Click and hold to pick Bill up';label.setAttribute('aria-label','Move Bill: hold Space and use arrow keys');label.hidden=true;label.textContent='Bill';host.parentElement.append(label);
+ function status(){const text=placingChocolate?(chocolateHover?'Release to drop chocolate on the ring':'Drag chocolate over the hillslope'):carrying?(dropPoint?'Dangling · release to drop':'Move Bill over the hillslope · release to put him back'):noticeTime>0?notice:eating>0?'Eating chocolate':digging?(paused?'Dig paused':`Digging a soil pit · ${Math.min(99,Math.floor(digElapsed/4.2*100))}%`):paused?'Field break':pose==='Walking'?snackTarget?'Chocolate spotted!':`Walking to ${route[station].label}`:`${pose} · stop ${visits}`;$('#bill-status').textContent=text;const boost=Math.max(0,Math.ceil((boostUntil-performance.now())/1000));$('#bill-energy').hidden=!boost;$('#bill-energy').textContent=boost?`Chocolate boost · ${boost}s`:'';host.parentElement.dataset.billBoostSeconds=String(boost);host.parentElement.dataset.billChocolateCount=String(chocolates.length);host.parentElement.dataset.billState=text;host.parentElement.dataset.billPosition=root.position.toArray().map(x=>x.toFixed(2)).join(',');}
  function finishDig(){if(!digging)return;pits.progress(digging,1);digging=null;shovel.visible=false;rod.visible=true;notebook.visible=true;root.rotation.x=0;arms[0].pivot.rotation.x=-.85;arms[1].pivot.rotation.x=0;paused=wasPaused;$('#bill-dig').disabled=false;$('#bill-dig').textContent='Dig a pit';$('#bill-pause').setAttribute('aria-pressed',String(paused));$('#bill-pause').textContent=paused?'Resume':'Pause';status();}
  $('#bill-dig').onclick=()=>{if(digging)return;const x=root.position.x+Math.sin(root.rotation.y)*1.05,z=root.position.z+Math.cos(root.rotation.y)*1.05;digging=pits.begin(x,z);if(!digging){notice='A pit is already here — let Bill walk a little farther.';noticeTime=3;status();return;}noticeTime=0;wasPaused=paused;paused=false;digElapsed=0;shovel.visible=true;rod.visible=false;notebook.visible=false;$('#bill-dig').disabled=true;$('#bill-dig').textContent='Digging…';$('#bill-pause').setAttribute('aria-pressed','false');$('#bill-pause').textContent='Pause';if(matchMedia('(prefers-reduced-motion: reduce)').matches)finishDig();status();render();};
  $('#bill-clear-pits').onclick=()=>{finishDig();pits.clear();render();};
  function clearTerrain(){camera.position.y=Math.max(camera.position.y,heightAt(camera.position.x+origin[0],origin[1]-camera.position.z)-origin[2]+4);}
  function releaseFollow(){follow=false;$('#bill-follow').setAttribute('aria-pressed','false');}
  function focus(){controls.target.copy(root.position).add(new THREE.Vector3(0,1,0));camera.position.copy(controls.target).add(new THREE.Vector3(9,12,11));clearTerrain();controls.update();}
- function toggle(){outfit();enabled=!enabled;if(!enabled)finishDig();root.visible=enabled;label.hidden=!enabled;$('#bill-toggle').setAttribute('aria-pressed',String(enabled));$('#bill-panel').hidden=!enabled;if(enabled){controls.autoRotate=false;$('#scene-spin').setAttribute('aria-pressed','false');$('#bill-pause').setAttribute('aria-pressed',String(paused));$('#bill-pause').textContent=paused?'Resume':'Pause';follow=true;$('#bill-follow').setAttribute('aria-pressed','true');focus();}status();render();}
+ function toggle(){cancelCarry();outfit();enabled=!enabled;if(!enabled){finishEating(false);finishDig();chocolates.forEach(f=>f.label.hidden=true);}root.visible=enabled;label.hidden=!enabled;$('#bill-toggle').setAttribute('aria-pressed',String(enabled));$('#bill-panel').hidden=!enabled;if(enabled){controls.autoRotate=false;$('#scene-spin').setAttribute('aria-pressed','false');$('#bill-pause').setAttribute('aria-pressed',String(paused));$('#bill-pause').textContent=paused?'Resume':'Pause';follow=true;$('#bill-follow').setAttribute('aria-pressed','true');focus();}status();render();}
  $('#bill-toggle').onclick=toggle;$('#bill-pause').onclick=()=>{paused=!paused;$('#bill-pause').setAttribute('aria-pressed',String(paused));$('#bill-pause').textContent=paused?'Resume':'Pause';status();};$('#bill-follow').onclick=()=>{follow=!follow;$('#bill-follow').setAttribute('aria-pressed',String(follow));if(follow)focus();};
  $('#bill-roam').onclick=()=>{releaseFollow();explore();};
+ // Dragging uses terrain intersections, with a separate ring marking the true ground.
+ const canvas=host.querySelector('canvas'),landing=new THREE.Mesh(new THREE.RingGeometry(.72,.9,48),new THREE.MeshBasicMaterial({color:'#ffe2a0',side:THREE.DoubleSide,transparent:true,opacity:.95,depthTest:false,depthWrite:false}));
+ landing.rotation.x=-Math.PI/2;landing.visible=false;overlay.add(landing);
+ const billGuide=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),new THREE.LineBasicMaterial({color:'#ffe2a0',transparent:true,opacity:.6,depthTest:false,depthWrite:false}));billGuide.visible=false;overlay.add(billGuide);
+ let carrying=false,carryOrigin=null,carryPaused=false,carryFollow=false,dropPoint=null,dragPointer=null,dragStart=null,captureTarget=null,pendingPointer=null,carryTime=0,controlsEnabled=true;
+ const locked=['#bill-chocolate','#bill-dig','#bill-clear-pits','#bill-pause','#bill-follow','#bill-roam','#scene-home','#scene-top','#scene-spin','#scene-vms-detail'];
+ function carryUI(){
+  host.parentElement.classList.toggle('bill-carrying',carrying);host.parentElement.dataset.billCarrying=String(carrying);
+  for(const id of locked)$(id).disabled=carrying;
+  label.textContent=carrying?'Wheee!':'Bill ↕';
+ }
+ function poseCarry(){
+  // Keep the picked-up figure legible while the landing ring stays at terrain scale.
+  const ground=dropPoint||carryOrigin,worldPerPixel=2*camera.position.distanceTo(ground)*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/Math.max(1,host.clientHeight);
+  const scale=Math.max(1,Math.min(18,worldPerPixel*22));root.scale.setScalar(scale);
+  root.position.copy(ground);root.position.y+=scale*1.5;
+  root.rotation.x=.03;root.rotation.z=Math.sin(carryTime*3)*.08;legs.forEach((l,i)=>l.rotation.x=.12+Math.sin(carryTime*4+i)*.12);
+  arms[0].pivot.rotation.x=-2.7;arms[1].pivot.rotation.x=-2.5;halo.visible=false;
+  landing.visible=billGuide.visible=!!dropPoint;landing.position.copy(ground);landing.position.y+=.08;landing.scale.setScalar(Math.max(.6,worldPerPixel*14));
+  const guide=billGuide.geometry.attributes.position;guide.setXYZ(0,...landing.position.toArray());guide.setXYZ(1,...root.position.toArray());guide.needsUpdate=true;billGuide.geometry.computeBoundingSphere();
+  host.parentElement.dataset.billLanding=ground.toArray().map(x=>x.toFixed(3)).join(',');
+  host.parentElement.dataset.billDropValid=String(!!dropPoint);
+ }
+ function beginCarry(){
+  if(!enabled||carrying)return;cancelChocolate();finishEating(false);finishDig();carryOrigin=root.position.clone();carryOrigin.y=heightAt(carryOrigin.x+origin[0],origin[1]-carryOrigin.z)-origin[2];
+  carryPaused=paused;carryFollow=follow;controlsEnabled=controls.enabled;controls.autoRotate=false;$('#scene-spin').setAttribute('aria-pressed','false');releaseFollow();controls.enabled=false;
+  carrying=true;dropPoint=carryOrigin.clone();carryTime=0;noticeTime=0;rod.visible=false;notebook.visible=false;$('#scene-hover').hidden=true;
+  carryUI();poseCarry();status();render();
+ }
+ function endCarry(commit){
+  if(!carrying)return;const destination=commit&&dropPoint?dropPoint:carryOrigin;const dropped=!!(commit&&dropPoint);carrying=false;pendingPointer=null;
+  root.position.copy(destination);root.position.y=heightAt(destination.x+origin[0],origin[1]-destination.z)-origin[2];root.scale.setScalar(1);root.rotation.x=root.rotation.z=0;
+  arms.forEach(a=>a.pivot.rotation.x=0);legs.forEach(l=>l.rotation.x=0);halo.visible=true;rod.visible=true;notebook.visible=true;landing.visible=billGuide.visible=false;paused=carryPaused;controls.enabled=controlsEnabled;
+  if(captureTarget&&dragPointer!==null&&captureTarget.hasPointerCapture(dragPointer))captureTarget.releasePointerCapture(dragPointer);dragPointer=null;captureTarget=null;
+  if(dropped){let nearest=0;for(let i=1;i<route.length;i++)if(Math.hypot(route[i].x-root.position.x,route[i].z-root.position.z)<Math.hypot(route[nearest].x-root.position.x,route[nearest].z-root.position.z))nearest=i;station=(nearest+route.length-1)%route.length;visits++;dwell=7;pose='Checking a field measurement';}
+  else{follow=carryFollow;$('#bill-follow').setAttribute('aria-pressed',String(follow));}
+  carryUI();status();render();
+ }
+ function cancelCarry(){endCarry(false);cancelChocolate();}
+ function canDropAt(x,y){const element=document.elementFromPoint(x,y);return !!element&&(element===canvas||element===label||label.contains(element)||element.classList.contains?.('chocolate-label'));}
+ function moveCarry(x,y){dropPoint=canDropAt(x,y)?pickGround(x,y):null;poseCarry();}
+ function heldPointer(e,target){dragStart={x:e.clientX,y:e.clientY};dragPointer=e.pointerId;captureTarget=target;target.setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();}
+ function onDown(e){
+  if(!enabled||e.button!==0||host.parentElement.hidden)return;
+  if(placingChocolate){e.preventDefault();e.stopImmediatePropagation();return;}
+  if(carrying){heldPointer(e,canvas);moveCarry(e.clientX,e.clientY);return;}
+  const r=host.getBoundingClientRect(),b=screenBounds(),x=e.clientX-r.left,y=e.clientY-r.top;
+  if(b&&x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h){beginCarry();heldPointer(e,canvas);return;}
+  const food=chocolates.find(f=>{if(f===snackTarget&&eating>0)return false;const p=project(f.mesh.position);return p.z>-1&&p.z<1&&Math.hypot(p.x-x,p.y-y)<16;});if(food){beginChocolate(food);holdChocolate(e,canvas);}
+ }
+ canvas.addEventListener('pointerdown',onDown,true);
+ label.addEventListener('pointerdown',e=>{if(e.button!==0)return;if(!carrying)beginCarry();heldPointer(e,label);});
+ label.addEventListener('click',e=>e.preventDefault());
+ label.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat){e.preventDefault();beginCarry();}});
+ label.addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();endCarry(true);}});
+ document.addEventListener('pointermove',e=>{if(placingChocolate){if(chocolatePointer!==null&&e.pointerId!==chocolatePointer)return;chocolatePending={x:e.clientX,y:e.clientY};e.preventDefault();e.stopImmediatePropagation();return;}if(!carrying)return;if(dragPointer!==null&&e.pointerId!==dragPointer)return;pendingPointer={x:e.clientX,y:e.clientY};if(e.target===canvas||dragPointer!==null){e.preventDefault();e.stopImmediatePropagation();}},true);
+ document.addEventListener('pointerup',e=>{if(placingChocolate&&e.pointerId===chocolatePointer){e.preventDefault();e.stopImmediatePropagation();const p=canDropAt(e.clientX,e.clientY)?pickGround(e.clientX,e.clientY):null;if(p)dropChocolate(p);cancelChocolate();status();render();return;}if(!carrying||dragPointer!==e.pointerId)return;if(dragStart&&Math.hypot(e.clientX-dragStart.x,e.clientY-dragStart.y)<3)dropPoint=carryOrigin.clone();else moveCarry(e.clientX,e.clientY);e.preventDefault();e.stopImmediatePropagation();endCarry(true);},true);
+ document.addEventListener('pointercancel',e=>{if(placingChocolate)cancelChocolate();if(carrying&&e.pointerId===dragPointer)cancelCarry();},true);
+ document.addEventListener('keydown',e=>{if(placingChocolate){if(e.key==='Escape'){e.preventDefault();cancelChocolate();status();render();}else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();const p=project(chocolateHover||root.position),r=host.getBoundingClientRect();moveChocolate(r.left+p.x+(e.key==='ArrowRight'?10:e.key==='ArrowLeft'?-10:0),r.top+p.y+(e.key==='ArrowDown'?10:e.key==='ArrowUp'?-10:0));status();render();}return;}if(!carrying)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();cancelCarry();}else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();e.stopImmediatePropagation();const p=project(dropPoint||carryOrigin),r=host.getBoundingClientRect(),step=e.shiftKey?30:10;moveCarry(r.left+p.x+(e.key==='ArrowRight'?step:e.key==='ArrowLeft'?-step:0),r.top+p.y+(e.key==='ArrowDown'?step:e.key==='ArrowUp'?-step:0));status();render();}},true);
+ for(const target of [canvas,label])target.addEventListener('lostpointercapture',e=>{if(carrying&&e.pointerId===dragPointer)cancelCarry();if(placingChocolate&&e.pointerId===chocolatePointer)cancelChocolate();});
+ window.addEventListener('blur',cancelCarry);document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelCarry();});
+ // Chocolate stays outside the field datasets and follows the same LiDAR ground.
+ const chocolateMaterial=mat('#442016'),wrapperMaterial=mat('#c79556'),foilMaterial=mat('#e8d8b5');
+ function chocolateMesh(){const g=new THREE.Group();box(g,chocolateMaterial,0,.08,0,.7,.14,.38);box(g,wrapperMaterial,-.17,.085,0,.38,.16,.4);box(g,foilMaterial,.04,.17,0,.06,.025,.39);for(const x of [.14,.3])for(const z of [-.1,.1])box(g,chocolateMaterial,x,.175,z,.12,.045,.14);return g;}
+ const chocolates=[];let placingChocolate=false,chocolatePointer=null,chocolateHover=null,chocolatePending=null,chocolateControlsEnabled=true,chocolateCaptureTarget=null,chocolateSource=null,snackTarget=null,eating=0,boostUntil=0;
+ const previewChocolate=chocolateMesh(),chocolateLanding=new THREE.Mesh(new THREE.RingGeometry(.72,.9,48),new THREE.MeshBasicMaterial({color:'#ffe2a0',side:THREE.DoubleSide,transparent:true,opacity:.95,depthTest:false,depthWrite:false}));chocolateLanding.rotation.x=-Math.PI/2;
+ const chocolateGuide=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),new THREE.LineBasicMaterial({color:'#ffe2a0',transparent:true,opacity:.6,depthTest:false,depthWrite:false}));
+ overlay.add(previewChocolate,chocolateLanding,chocolateGuide);previewChocolate.visible=chocolateLanding.visible=chocolateGuide.visible=false;
+ const chocolateButton=$('#bill-chocolate');
+ function moveChocolate(x,y){
+  chocolateHover=canDropAt(x,y)?pickGround(x,y):null;previewChocolate.visible=chocolateLanding.visible=chocolateGuide.visible=!!chocolateHover;host.parentElement.dataset.chocolateDropValid=String(!!chocolateHover);
+  if(!chocolateHover)return;
+  const unit=2*camera.position.distanceTo(chocolateHover)*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/Math.max(1,host.clientHeight),scale=Math.max(1,unit*45);
+  previewChocolate.scale.setScalar(scale);previewChocolate.position.copy(chocolateHover).add(new THREE.Vector3(0,Math.max(1.3,unit*65),0));previewChocolate.rotation.set(.15,.35,.1);
+  chocolateLanding.position.copy(chocolateHover).add(new THREE.Vector3(0,.08,0));chocolateLanding.scale.setScalar(Math.max(.6,unit*14));
+  const attr=chocolateGuide.geometry.attributes.position;attr.setXYZ(0,...chocolateLanding.position.toArray());attr.setXYZ(1,...previewChocolate.position.toArray());attr.needsUpdate=true;chocolateGuide.geometry.computeBoundingSphere();
+  host.parentElement.dataset.chocolateLanding=chocolateHover.toArray().map(x=>x.toFixed(3)).join(',');
+ }
+ function beginChocolate(food=null){if(placingChocolate||carrying)return;chocolateSource=food;if(food){food.mesh.visible=false;food.label.hidden=true;}placingChocolate=true;chocolateControlsEnabled=controls.enabled;controls.enabled=false;controls.autoRotate=false;$('#scene-spin').setAttribute('aria-pressed','false');host.parentElement.classList.add('chocolate-placing');chocolateButton.textContent='🍫 Release to drop';status();render();}
+ function holdChocolate(e,target){chocolatePointer=e.pointerId;chocolateCaptureTarget=target;target.setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();}
+ chocolateButton.addEventListener('pointerdown',e=>{if(e.button!==0)return;beginChocolate();holdChocolate(e,chocolateButton);});
+ chocolateButton.addEventListener('click',e=>e.preventDefault());
+ chocolateButton.addEventListener('lostpointercapture',e=>{if(placingChocolate&&e.pointerId===chocolatePointer)cancelChocolate();});
+ chocolateButton.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat){e.preventDefault();beginChocolate();const p=project(root.position),r=host.getBoundingClientRect();moveChocolate(r.left+p.x,r.top+p.y);}});
+ chocolateButton.addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();if(chocolateHover)dropChocolate(chocolateHover);cancelChocolate();status();render();}});
+ function cancelChocolate(){const wasPlacing=placingChocolate;placingChocolate=false;chocolateHover=null;chocolatePending=null;previewChocolate.visible=chocolateLanding.visible=chocolateGuide.visible=false;const id=chocolatePointer;chocolatePointer=null;if(id!==null&&chocolateCaptureTarget?.hasPointerCapture(id))chocolateCaptureTarget.releasePointerCapture(id);chocolateCaptureTarget=null;if(chocolateSource){chocolateSource.mesh.visible=true;chocolateSource.label.hidden=false;chocolateSource=null;}if(wasPlacing)controls.enabled=chocolateControlsEnabled;chocolateButton.textContent='🍫 Chocolate';host.parentElement.classList.remove('chocolate-placing');host.parentElement.dataset.chocolateDropValid='false';}
+
+ function removeChocolate(food){const i=chocolates.indexOf(food);if(i>=0)chocolates.splice(i,1);overlay.remove(food.mesh);food.mesh.traverse(o=>o.geometry?.dispose());food.label.remove();}
+ function dropChocolate(p){if(chocolateSource){chocolateSource.mesh.position.copy(p);chocolateSource.mesh.visible=true;chocolateSource.x=p.x;chocolateSource.z=p.z;chocolateSource.label.hidden=false;chocolateSource=null;return;}if(chocolates.length>=8){const oldest=chocolates.find(f=>f!==snackTarget);if(oldest)removeChocolate(oldest);}const mesh=chocolateMesh();mesh.position.copy(p);mesh.rotation.y=.3;overlay.add(mesh);const tag=document.createElement('button');tag.type='button';tag.className='chocolate-label';tag.textContent='🍫';tag.title='Hold and drag chocolate';tag.setAttribute('aria-label','Move chocolate');host.parentElement.append(tag);const food={mesh,label:tag,x:p.x,z:p.z};chocolates.push(food);tag.addEventListener('pointerdown',e=>{if(e.button!==0)return;beginChocolate(food);holdChocolate(e,tag);});tag.addEventListener('lostpointercapture',e=>{if(placingChocolate&&e.pointerId===chocolatePointer)cancelChocolate();});tag.addEventListener('click',e=>e.preventDefault());}
+
+ function finishEating(reward=true){if(!eating)return;eating=0;if(snackTarget)removeChocolate(snackTarget);snackTarget=null;notebook.visible=true;rod.visible=true;pose='Walking';if(reward)boostUntil=performance.now()+30000;}
+ function updateChocolate(dt){
+  if(placingChocolate&&chocolatePending){moveChocolate(chocolatePending.x,chocolatePending.y);chocolatePending=null;}
+  for(const food of chocolates){const p=project(food.mesh.position.clone().add(new THREE.Vector3(0,.45,0)));food.label.hidden=!enabled||food===chocolateSource||food===snackTarget&&eating>0||p.z< -1||p.z>1||p.x<0||p.x>host.clientWidth||p.y<0||p.y>host.clientHeight;food.label.style.left=p.x+'px';food.label.style.top=p.y+'px';}
+  if(!paused&&!carrying&&!digging&&!eating&&!placingChocolate){let nearest=null,best=25;for(const food of chocolates){const d=Math.hypot(food.x-root.position.x,food.z-root.position.z);if(d<best){nearest=food;best=d;}}if(nearest){snackTarget=nearest;dwell=0;pose='Walking';}}
+ }
  // Manual camera navigation remains available; following can be restored explicitly.
  controls.addEventListener('start',()=>{if(enabled)releaseFollow();});
- function update(dt){if(!enabled)return false;noticeTime=Math.max(0,noticeTime-dt);const old=root.position.clone();if(!paused){elapsed+=dt;if(digging){digElapsed+=dt;const t=Math.min(1,digElapsed/4.2),stroke=Math.sin(digElapsed*Math.PI*2.4);pits.progress(digging,t);root.rotation.x=.12+.12*stroke;root.rotation.z=0;arms[0].pivot.rotation.x=-.5-.3*stroke;arms[1].pivot.rotation.x=-.65-.6*stroke;legs.forEach(l=>l.rotation.x=0);if(t>=1)finishDig();}else if(dwell>0){dwell-=dt;pose=dwell>3?'Checking a field measurement':'Writing in the notebook';arms[0].pivot.rotation.x=-.85;arms[1].pivot.rotation.x=dwell>3?-.35:-1.0+Math.sin(elapsed*7)*.06;legs.forEach(l=>l.rotation.x=0);root.rotation.z=Math.sin(elapsed*2)*.012;if(dwell<=0){station=(station+1)%route.length;pose='Walking';}}else{const target=route[station],dx=target.x-root.position.x,dz=target.z-root.position.z,distance=Math.hypot(dx,dz),step=Math.min(distance,dt*1.7);if(distance<.2){visits++;dwell=7;wearing=visits%2===1;outfit();}else{root.position.x+=dx/distance*step;root.position.z+=dz/distance*step;root.rotation.y=Math.atan2(dx,dz);legs.forEach((l,i)=>l.rotation.x=Math.sin(elapsed*7+i*Math.PI)*.42);arms.forEach((a,i)=>a.pivot.rotation.x=Math.sin(elapsed*7+i*Math.PI+Math.PI)*.24);root.rotation.z=0;}}
- root.position.y=heightAt(root.position.x+origin[0],origin[1]-root.position.z)-origin[2]+(digging||dwell>0?0:Math.abs(Math.sin(elapsed*7))*.04);if(follow){const delta=root.position.clone().sub(old);camera.position.add(delta);controls.target.add(delta);clearTerrain();}}
- const p=project(root.position.clone().add(new THREE.Vector3(0,2.3,0)));label.hidden=p.z< -1||p.z>1||p.x<0||p.x>host.clientWidth||p.y<0||p.y>host.clientHeight;label.style.left=p.x+'px';label.style.top=p.y+'px';status();return true;}
+ function update(dt){if(!enabled)return false;updateChocolate(dt);noticeTime=Math.max(0,noticeTime-dt);const old=root.position.clone();if(carrying){carryTime+=dt;if(pendingPointer){moveCarry(pendingPointer.x,pendingPointer.y);pendingPointer=null;}poseCarry();}else if(!paused&&!placingChocolate){elapsed+=dt;if(eating>0){eating-=dt;pose='Eating chocolate';arms[0].pivot.rotation.x=-1.6+Math.sin(elapsed*6)*.1;arms[1].pivot.rotation.x=-.8;legs.forEach(l=>l.rotation.x=0);if(snackTarget)snackTarget.mesh.position.copy(root.position).add(new THREE.Vector3(Math.sin(root.rotation.y)*.4,1.5,Math.cos(root.rotation.y)*.4));if(eating<=0){eating=.001;finishEating();}}else if(digging){digElapsed+=dt;const t=Math.min(1,digElapsed/4.2),stroke=Math.sin(digElapsed*Math.PI*2.4);pits.progress(digging,t);root.rotation.x=.12+.12*stroke;root.rotation.z=0;arms[0].pivot.rotation.x=-.5-.3*stroke;arms[1].pivot.rotation.x=-.65-.6*stroke;legs.forEach(l=>l.rotation.x=0);if(t>=1)finishDig();}else if(dwell>0){dwell-=dt;pose=dwell>3?'Checking a field measurement':'Writing in the notebook';arms[0].pivot.rotation.x=-.85;arms[1].pivot.rotation.x=dwell>3?-.35:-1.0+Math.sin(elapsed*7)*.06;legs.forEach(l=>l.rotation.x=0);root.rotation.z=Math.sin(elapsed*2)*.012;if(dwell<=0){station=(station+1)%route.length;pose='Walking';}}else{const target=snackTarget||route[station],dx=target.x-root.position.x,dz=target.z-root.position.z,distance=Math.hypot(dx,dz),step=Math.min(distance,dt*1.7*(performance.now()<boostUntil?2:1));if(distance<.2&&snackTarget){eating=2;pose='Eating chocolate';rod.visible=false;notebook.visible=false;}else if(distance<.2){visits++;dwell=7;wearing=visits%2===1;outfit();}else{root.position.x+=dx/distance*step;root.position.z+=dz/distance*step;root.rotation.y=Math.atan2(dx,dz);legs.forEach((l,i)=>l.rotation.x=Math.sin(elapsed*7+i*Math.PI)*.42);arms.forEach((a,i)=>a.pivot.rotation.x=Math.sin(elapsed*7+i*Math.PI+Math.PI)*.24);root.rotation.z=0;}}
+ root.position.y=heightAt(root.position.x+origin[0],origin[1]-root.position.z)-origin[2]+(digging||dwell>0||eating>0?0:Math.abs(Math.sin(elapsed*7))*.04);if(follow){const delta=root.position.clone().sub(old);camera.position.add(delta);controls.target.add(delta);clearTerrain();}}
+ const p=project(root.position.clone().add(new THREE.Vector3(0,2.3*root.scale.y,0)));label.hidden=p.z< -1||p.z>1||p.x<0||p.x>host.clientWidth||p.y<0||p.y>host.clientHeight;label.style.left=p.x+'px';label.style.top=p.y+'px';status();return true;}
  function renderOverlay(renderer,camera){if(!enabled)return;const auto=renderer.autoClear;renderer.autoClear=false;renderer.clearDepth();renderer.render(overlay,camera);renderer.autoClear=auto;host.parentElement.dataset.billRenderPass='after-field-markers';}
- function screenBounds(){if(!enabled)return null;const pp=[];for(const x of [-.65,.65])for(const y of [0,2.5])for(const z of [-.65,.65])pp.push(project(root.position.clone().add(new THREE.Vector3(x,y,z))));if(pp.every(p=>p.z< -1||p.z>1))return null;const xs=pp.map(p=>p.x),ys=pp.map(p=>p.y);return {x:Math.min(...xs)-8,y:Math.min(...ys)-8,w:Math.max(...xs)-Math.min(...xs)+16,h:Math.max(...ys)-Math.min(...ys)+16};}
- return {update,releaseFollow,renderOverlay,screenBounds};
+ function screenBounds(){if(!enabled)return null;const pp=[];for(const x of [-.65,.65])for(const y of [0,2.5])for(const z of [-.65,.65])pp.push(project(root.position.clone().add(new THREE.Vector3(x,y,z).multiplyScalar(root.scale.x))));if(pp.every(p=>p.z< -1||p.z>1))return null;const xs=pp.map(p=>p.x),ys=pp.map(p=>p.y);return {x:Math.min(...xs)-8,y:Math.min(...ys)-8,w:Math.max(...xs)-Math.min(...xs)+16,h:Math.max(...ys)-Math.min(...ys)+16};}
+ return {update,releaseFollow,renderOverlay,screenBounds,cancelCarry,get carrying(){return carrying;},get dragging(){return carrying||placingChocolate;}};
 }

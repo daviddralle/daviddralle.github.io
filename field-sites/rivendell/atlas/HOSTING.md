@@ -26,3 +26,18 @@ node scripts/check-atlas-terrain.cjs
 
 The first command rebuilds `data/ground-elevations.json` for feature details;
 the second checks triangle sampling, draping, VMS geometry and contour intervals.
+
+## Bill interactions
+
+Hold and drag Bill (or his label) to lift him; release to place him on the LiDAR
+terrain. Chocolate uses the same gesture from its control or a previously placed
+bar. Matching rings and guide lines show both landing positions. Invalid drops
+restore the previous position. Escape, pointer cancellation, leaving the scene,
+and window blur release the interaction and restore camera controls.
+
+Bill notices chocolate within 25 horizontal meters, eats it, and walks at twice
+his normal speed for 30 seconds. The boost uses elapsed real time and does not
+stack multiplicatively. These objects are kept out of scientific data exports.
+
+Run `node scripts/check-bill-interactions.mjs` for drag/drop, cancellation,
+landing-ring, chocolate detection, and speed/expiry checks.
