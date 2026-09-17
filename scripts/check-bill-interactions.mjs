@@ -35,7 +35,18 @@ el('#bill-chocolate').fire('pointerdown');doc.fire('pointermove',{clientX:500,cl
 for(let i=0;i<120&&Number(container.dataset.billBoostSeconds)===0;i++)tick(.05);
 assert(Number(container.dataset.billBoostSeconds)>0);assert.equal(container.dataset.billChocolateCount,'0');
 let old=root.position.clone();tick(.1);const fast=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(fast-.34)<1e-7);
+// Chocolate compresses a full seven-second measurement/notebook stop to 1.75 s.
+down();up(400,400);tick(.9);assert(container.dataset.billState.includes('Checking a field measurement'));
+tick(.2);assert(container.dataset.billState.includes('Writing in the notebook'));
+tick(.6);assert(container.dataset.billState.includes('Writing in the notebook'));
+tick(.1);assert(container.dataset.billState.startsWith('Walking'));assert(Number(container.dataset.billBoostSeconds)>0);
 now+=30001;old=root.position.clone();tick(.1);const normal=Math.hypot(root.position.x-old.x,root.position.z-old.z);assert(Math.abs(normal-.17)<1e-7);assert.equal(container.dataset.billBoostSeconds,'0');
+// Once the boost expires, the same stop returns to its original seven seconds.
+down();up(400,400);tick(1.8);assert(container.dataset.billState.includes('Checking a field measurement'));
+tick(2.3);assert(container.dataset.billState.includes('Writing in the notebook'));
+tick(2.8);assert(container.dataset.billState.includes('Writing in the notebook'));
+tick(.2);assert(container.dataset.billState.startsWith('Walking'));
+console.log('PASS: chocolate gives 2x walking and 4x measurement/notebook stops; normal timing returns after expiry.');
 // Distant chocolate does not attract Bill until he is within the detection radius.
 el('#bill-chocolate').fire('pointerdown');up(950,950);tick(.1);assert.equal(container.dataset.billChocolateCount,'1');assert(!el('#bill-status').textContent.includes('Chocolate spotted'));
 // Cancelling a chocolate drag restores navigation and creates no extra snack.

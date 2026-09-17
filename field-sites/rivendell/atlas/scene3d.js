@@ -1,5 +1,5 @@
 import {createPits} from './pits.js';
-import {createBill} from './bill.js?v=snack-drag-2';
+import {createBill} from './bill.js?v=chocolate-work-1';
 import * as THREE from './vendor/three/three.module.js';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
 const $=s=>document.querySelector(s);
