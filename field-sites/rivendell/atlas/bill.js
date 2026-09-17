@@ -87,7 +87,7 @@ export function createBill({scene,pits,pickGround,heightAt,origin,camera,control
   if(carrying){heldPointer(e,canvas);moveCarry(e.clientX,e.clientY);return;}
   const r=host.getBoundingClientRect(),b=screenBounds(false),x=e.clientX-r.left,y=e.clientY-r.top;
   if(b&&x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h){beginCarry();heldPointer(e,canvas);return;}
-  const food=chocolates.find(f=>{if(f===snackTarget&&eating>0)return false;const p=project(f.mesh.position);return p.z>-1&&p.z<1&&Math.hypot(p.x-x,p.y-y)<16;});if(food){beginChocolate(food);holdChocolate(e,canvas);}
+  const food=chocolates.find(f=>{if(f===snackTarget&&eating>0)return false;const p=project(f.mesh.position);return p.z>-1&&p.z<1&&Math.hypot(p.x-x,p.y-y)<16;});if(food)startSnackPointer(e,food);
  }
  canvas.addEventListener('pointerdown',onDown,true);
  label.addEventListener('pointerdown',e=>{if(e.button!==0)return;if(!carrying)beginCarry();heldPointer(e,label);});
@@ -96,7 +96,7 @@ export function createBill({scene,pits,pickGround,heightAt,origin,camera,control
  label.addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();endCarry(true);}});
  document.addEventListener('pointermove',e=>{if(placingChocolate){if(chocolatePointer!==null&&e.pointerId!==chocolatePointer)return;chocolatePending={x:e.clientX,y:e.clientY};e.preventDefault();e.stopImmediatePropagation();return;}if(!carrying)return;if(dragPointer!==null&&e.pointerId!==dragPointer)return;pendingPointer={x:e.clientX,y:e.clientY};if(e.target===canvas||dragPointer!==null){e.preventDefault();e.stopImmediatePropagation();}},true);
  document.addEventListener('pointerup',e=>{if(placingChocolate&&e.pointerId===chocolatePointer){e.preventDefault();e.stopImmediatePropagation();const p=canDropAt(e.clientX,e.clientY)?pickGround(e.clientX,e.clientY):null;if(p)dropChocolate(p);cancelChocolate();status();render();return;}if(!carrying||dragPointer!==e.pointerId)return;if(dragStart&&Math.hypot(e.clientX-dragStart.x,e.clientY-dragStart.y)<3)dropPoint=carryOrigin.clone();else moveCarry(e.clientX,e.clientY);e.preventDefault();e.stopImmediatePropagation();endCarry(true);},true);
- document.addEventListener('pointercancel',e=>{if(placingChocolate)cancelChocolate();if(carrying&&e.pointerId===dragPointer)cancelCarry();},true);
+ document.addEventListener('pointercancel',e=>{if(placingChocolate&&e.pointerId===chocolatePointer){cancelChocolate();status();render();}if(carrying&&e.pointerId===dragPointer)cancelCarry();},true);
  document.addEventListener('keydown',e=>{if(placingChocolate){if(e.key==='Escape'){e.preventDefault();cancelChocolate();status();render();}else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();const p=project(chocolateHover||root.position),r=host.getBoundingClientRect();moveChocolate(r.left+p.x+(e.key==='ArrowRight'?10:e.key==='ArrowLeft'?-10:0),r.top+p.y+(e.key==='ArrowDown'?10:e.key==='ArrowUp'?-10:0));status();render();}return;}if(!carrying)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();cancelCarry();}else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();e.stopImmediatePropagation();const p=project(dropPoint||carryOrigin),r=host.getBoundingClientRect(),step=e.shiftKey?30:10;moveCarry(r.left+p.x+(e.key==='ArrowRight'?step:e.key==='ArrowLeft'?-step:0),r.top+p.y+(e.key==='ArrowDown'?step:e.key==='ArrowUp'?-step:0));status();render();}},true);
  for(const target of [canvas,label])target.addEventListener('lostpointercapture',e=>{if(carrying&&e.pointerId===dragPointer)cancelCarry();if(placingChocolate&&e.pointerId===chocolatePointer)cancelChocolate();});
  window.addEventListener('blur',cancelCarry);document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelCarry();});
@@ -120,20 +120,37 @@ export function createBill({scene,pits,pickGround,heightAt,origin,camera,control
   const attr=chocolateGuide.geometry.attributes.position;attr.setXYZ(0,...chocolateLanding.position.toArray());attr.setXYZ(1,...previewChocolate.position.toArray());attr.needsUpdate=true;chocolateGuide.geometry.computeBoundingSphere();
   host.parentElement.dataset.chocolateLanding=chocolateHover.toArray().map(x=>x.toFixed(3)).join(',');
  }
- function beginChocolate(food=null,kind='chocolate'){if(placingChocolate||carrying)return;activeSnackKind=food?.kind||kind;previewBar.visible=activeSnackKind==='chocolate';previewAlmonds.visible=activeSnackKind==='almond';chocolateSource=food;if(food){food.mesh.visible=false;food.label.hidden=true;}placingChocolate=true;chocolateControlsEnabled=controls.enabled;controls.enabled=false;controls.autoRotate=false;$('#scene-spin').setAttribute('aria-pressed','false');host.parentElement.classList.add('chocolate-placing');(activeSnackKind==='almond'?almondButton:chocolateButton).textContent='Release to drop';status();render();}
- function holdChocolate(e,target){chocolatePointer=e.pointerId;chocolateCaptureTarget=target;target.setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();}
+ function beginChocolate(food=null,kind='chocolate'){
+  if(!enabled||host.parentElement.hidden||placingChocolate||carrying||food===snackTarget&&eating>0)return false;
+  activeSnackKind=food?.kind||kind;previewBar.visible=activeSnackKind==='chocolate';previewAlmonds.visible=activeSnackKind==='almond';chocolateSource=food;
+  placingChocolate=true;chocolateControlsEnabled=controls.enabled;controls.enabled=false;controls.autoRotate=false;$('#scene-spin').setAttribute('aria-pressed','false');
+  if(food){food.mesh.visible=false;food.label.hidden=true;}
+  host.parentElement.classList.add('chocolate-placing');(activeSnackKind==='almond'?almondButton:chocolateButton).classList.add('snack-held');
+  return true;
+ }
+ function startSnackPointer(e,food=null,kind='chocolate'){
+  if(e.button!==0||e.isPrimary===false||!beginChocolate(food,kind))return;
+  // Capture on the persistent canvas, never a source button that can hide or reflow.
+  // Establish ownership before rendering so even a down/up within one frame drops.
+  chocolatePointer=e.pointerId;chocolateCaptureTarget=canvas;
+  e.preventDefault();e.stopImmediatePropagation();
+  try{canvas.setPointerCapture(e.pointerId);}catch{chocolateCaptureTarget=null;}
+  moveChocolate(e.clientX,e.clientY);status();render();
+ }
+ function preventNativeDrag(e){e.preventDefault();}
+
  for(const [button,kind] of [[chocolateButton,'chocolate'],[almondButton,'almond']]){
-  button.addEventListener('pointerdown',e=>{if(e.button!==0)return;beginChocolate(null,kind);holdChocolate(e,button);});
+  button.draggable=false;button.addEventListener('dragstart',preventNativeDrag);
+  button.addEventListener('pointerdown',e=>startSnackPointer(e,null,kind));
   button.addEventListener('click',e=>e.preventDefault());
-  button.addEventListener('lostpointercapture',e=>{if(placingChocolate&&e.pointerId===chocolatePointer)cancelChocolate();});
-  button.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat){e.preventDefault();beginChocolate(null,kind);const p=project(root.position),r=host.getBoundingClientRect();moveChocolate(r.left+p.x,r.top+p.y);}});
-  button.addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();if(chocolateHover)dropChocolate(chocolateHover);cancelChocolate();status();render();}});
+  button.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat){e.preventDefault();if(!beginChocolate(null,kind))return;const p=project(root.position),r=host.getBoundingClientRect();moveChocolate(r.left+p.x,r.top+p.y);status();render();}});
+  button.addEventListener('keyup',e=>{if(e.code==='Space'&&placingChocolate&&chocolatePointer===null){e.preventDefault();if(chocolateHover)dropChocolate(chocolateHover);cancelChocolate();status();render();}});
  }
 
- function cancelChocolate(){const wasPlacing=placingChocolate;placingChocolate=false;chocolateHover=null;chocolatePending=null;previewChocolate.visible=chocolateLanding.visible=chocolateGuide.visible=false;const id=chocolatePointer;chocolatePointer=null;if(id!==null&&chocolateCaptureTarget?.hasPointerCapture(id))chocolateCaptureTarget.releasePointerCapture(id);chocolateCaptureTarget=null;if(chocolateSource){chocolateSource.mesh.visible=true;chocolateSource.label.hidden=false;chocolateSource=null;}if(wasPlacing)controls.enabled=chocolateControlsEnabled;chocolateButton.textContent='🍫 Chocolate';almondButton.textContent='Almonds';host.parentElement.classList.remove('chocolate-placing');host.parentElement.dataset.chocolateDropValid='false';}
+ function cancelChocolate(){const wasPlacing=placingChocolate;placingChocolate=false;chocolateHover=null;chocolatePending=null;previewChocolate.visible=chocolateLanding.visible=chocolateGuide.visible=false;const id=chocolatePointer;chocolatePointer=null;if(id!==null&&chocolateCaptureTarget?.hasPointerCapture(id))chocolateCaptureTarget.releasePointerCapture(id);chocolateCaptureTarget=null;if(chocolateSource){chocolateSource.mesh.visible=true;chocolateSource.label.hidden=false;chocolateSource=null;}if(wasPlacing)controls.enabled=chocolateControlsEnabled;chocolateButton.classList.remove('snack-held');almondButton.classList.remove('snack-held');host.parentElement.classList.remove('chocolate-placing');host.parentElement.dataset.chocolateDropValid='false';}
 
  function removeChocolate(food){const i=chocolates.indexOf(food);if(i>=0)chocolates.splice(i,1);overlay.remove(food.mesh);food.mesh.traverse(o=>o.geometry?.dispose());food.label.remove();}
- function dropChocolate(p){if(chocolateSource){chocolateSource.mesh.position.copy(p);chocolateSource.mesh.visible=true;chocolateSource.x=p.x;chocolateSource.z=p.z;chocolateSource.label.hidden=false;chocolateSource=null;return;}if(chocolates.length>=8){const oldest=chocolates.find(f=>f!==snackTarget);if(oldest)removeChocolate(oldest);}const mesh=activeSnackKind==='almond'?almondMesh():chocolateMesh();mesh.position.copy(p);mesh.rotation.y=.3;overlay.add(mesh);const tag=document.createElement('button');tag.type='button';tag.className='chocolate-label'+(activeSnackKind==='almond'?' almond-label':'');tag.textContent=activeSnackKind==='almond'?'':'🍫';tag.title='Hold and drag '+snackName();tag.setAttribute('aria-label','Move '+snackName());host.parentElement.append(tag);const food={mesh,label:tag,x:p.x,z:p.z,kind:activeSnackKind};chocolates.push(food);tag.addEventListener('pointerdown',e=>{if(e.button!==0)return;beginChocolate(food);holdChocolate(e,tag);});tag.addEventListener('lostpointercapture',e=>{if(placingChocolate&&e.pointerId===chocolatePointer)cancelChocolate();});tag.addEventListener('click',e=>e.preventDefault());}
+ function dropChocolate(p){if(chocolateSource){const food=chocolateSource;food.mesh.position.copy(p);food.mesh.visible=true;food.x=p.x;food.z=p.z;chocolateSource=null;layoutSnack(food);return;}if(chocolates.length>=8){const oldest=chocolates.find(f=>f!==snackTarget);if(oldest)removeChocolate(oldest);}const mesh=activeSnackKind==='almond'?almondMesh():chocolateMesh();mesh.position.copy(p);mesh.rotation.y=.3;overlay.add(mesh);const tag=document.createElement('button');tag.type='button';tag.className='chocolate-label'+(activeSnackKind==='almond'?' almond-label':'');tag.textContent=activeSnackKind==='almond'?'':'🍫';tag.title='Hold and drag '+snackName();tag.setAttribute('aria-label','Move '+snackName());host.parentElement.append(tag);const food={mesh,label:tag,x:p.x,z:p.z,kind:activeSnackKind};chocolates.push(food);layoutSnack(food);tag.draggable=false;tag.addEventListener('dragstart',preventNativeDrag);tag.addEventListener('pointerdown',e=>startSnackPointer(e,food));tag.addEventListener('click',e=>e.preventDefault());}
 
  function finishEating(reward=true){if(!eating)return;const kind=snackTarget?.kind;eating=0;if(snackTarget)removeChocolate(snackTarget);snackTarget=null;notebook.visible=true;rod.visible=true;pose='Walking';if(reward){if(kind==='almond')beginPoem();else boostUntil=performance.now()+30000;}}
  const drawHaiku=createHaikuDeck();let poemActive=false,poemTime=0,poemStarted=0,poemShownAt=0,currentPoem=null;
@@ -146,9 +163,10 @@ export function createBill({scene,pits,pickGround,heightAt,origin,camera,control
  }
  function layoutPoem(){if(!poemActive){haikuBox.hidden=true;return;}const p=project(root.position.clone().add(new THREE.Vector3(0,2.6,0)));haikuBox.hidden=p.z< -1||p.z>1||p.x<0||p.x>host.clientWidth||p.y<0||p.y>host.clientHeight;if(haikuBox.hidden)return;const half=haikuBox.offsetWidth/2;haikuBox.style.left=Math.max(half+10,Math.min(host.clientWidth-half-10,p.x))+'px';const barBottom=$('#bill-toolbar').getBoundingClientRect().bottom-host.getBoundingClientRect().top;haikuBox.style.top=Math.max(haikuBox.offsetHeight+barBottom+12,p.y-14)+'px';}
 
+ function layoutSnack(food){const p=project(food.mesh.position.clone().add(new THREE.Vector3(0,.45,0)));food.label.hidden=!enabled||food===chocolateSource||food===snackTarget&&eating>0||p.z< -1||p.z>1||p.x<0||p.x>host.clientWidth||p.y<0||p.y>host.clientHeight;food.label.style.left=p.x+'px';food.label.style.top=p.y+'px';}
  function updateChocolate(dt){
   if(placingChocolate&&chocolatePending){moveChocolate(chocolatePending.x,chocolatePending.y);chocolatePending=null;}
-  for(const food of chocolates){const p=project(food.mesh.position.clone().add(new THREE.Vector3(0,.45,0)));food.label.hidden=!enabled||food===chocolateSource||food===snackTarget&&eating>0||p.z< -1||p.z>1||p.x<0||p.x>host.clientWidth||p.y<0||p.y>host.clientHeight;food.label.style.left=p.x+'px';food.label.style.top=p.y+'px';}
+  chocolates.forEach(layoutSnack);
   if(!paused&&!carrying&&!digging&&!eating&&!poemActive&&!placingChocolate){let nearest=null,best=25;for(const food of chocolates){const d=Math.hypot(food.x-root.position.x,food.z-root.position.z);if(d<best){nearest=food;best=d;}}if(nearest){snackTarget=nearest;dwell=0;pose='Walking';}}
  }
  // Manual camera navigation remains available; following can be restored explicitly.
