@@ -77,7 +77,7 @@ async function view(name){
   window.scene3d?.close();$('#inspector').hidden=true;closeMobile();
   const loading=$('#scene-loading');loading.hidden=false;loading.textContent='Opening the wider view…';
   try{
-   cosmicPromise??=import('./cosmic-view.js?v=cosmic-1').then(m=>m.createCosmicView({container:$('#cosmic-view'),navigate:view})).catch(e=>{cosmicPromise=null;throw e;});
+   cosmicPromise??=import('./cosmic-view.js?v=solar-scale-2').then(m=>m.createCosmicView({container:$('#cosmic-view'),navigate:view})).catch(e=>{cosmicPromise=null;throw e;});
    const cosmic=await cosmicPromise;if(request!==viewRequest)return;window.cosmicView=cosmic;cosmic.open(name);
    document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('selected',b.dataset.view===name));
   }catch(e){if(request===viewRequest){loading.textContent='Could not open the space view. Choose another zoom level to return to the map.';console.error(e);return;}}

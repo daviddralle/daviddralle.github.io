@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three/three.module.js';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {PLANETS,globePoint,seededRandom,GAIA_MAP} from './cosmic-model.js';
+import {PLANETS,globePoint,seededRandom,GAIA_MAP,SOLAR_DISPLAY} from './cosmic-model.js?v=solar-scale-2';
 
 const INFO={
  earth:{title:'Earth',eyebrow:'OUR FIELD SITE, FROM ORBIT',subtitle:'Rivendell · 39.729° N, 123.644° W',scale:'12,756 km · equatorial diameter',note:'NASA Blue Marble · December 2004',source:'https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/',next:'solar',nextLabel:'Out to the Solar System ↗',back:'california',backLabel:'↓ California'},
@@ -37,12 +37,12 @@ export function createCosmicView({container,navigate}){
   return {group,labels:[{text:'Rivendell',detail:'Angelo Coast Range Reserve',point:p,go:'site',primary:true,globe:true}]};
  }
  function makeSolar(){
-  const group=new THREE.Group(),sun=sphere(1.5,'#fff2be',{emissive:'#ffc66e',emissiveIntensity:2});group.add(sun);group.add(glow('#ffbb64',12));
-  const items=[{text:'Sun',point:new THREE.Vector3(),priority:1}];
-  for(const p of PLANETS){const r=p.au*3;orbit(group,r,p.name==='Earth'?'#9fcfab':'#7e98b4',p.name==='Earth'?.6:.25);const at=new THREE.Vector3(Math.cos(p.phase)*r,0,Math.sin(p.phase)*r),body=sphere(p.radius,p.color,{emissive:p.color,emissiveIntensity:.25});body.position.copy(at);group.add(body);
+  const group=new THREE.Group(),sun=new THREE.Mesh(new THREE.SphereGeometry(SOLAR_DISPLAY.sunRadius,48,32),new THREE.MeshBasicMaterial({color:'#ffe4a0'}));group.add(sun);const corona=glow('#ffbb64',SOLAR_DISPLAY.sunGlowDiameter);corona.material.opacity=.65;group.add(corona);
+  const items=[{text:'Sun',point:new THREE.Vector3(),radius:SOLAR_DISPLAY.sunRadius,priority:1}];
+  for(const p of PLANETS){const r=p.au*SOLAR_DISPLAY.unitsPerAU;orbit(group,r,p.name==='Earth'?'#9fcfab':'#7e98b4',p.name==='Earth'?.6:.25);const at=new THREE.Vector3(Math.cos(p.phase)*r,0,Math.sin(p.phase)*r),body=sphere(p.radius,p.color,{emissive:p.color,emissiveIntensity:.25});body.position.copy(at);group.add(body);
    if(p.name==='Saturn'){const ring=new THREE.Mesh(new THREE.RingGeometry(p.radius*1.3,p.radius*2,80),new THREE.MeshBasicMaterial({color:'#c6b193',side:THREE.DoubleSide,transparent:true,opacity:.6}));ring.rotation.x=Math.PI*.43;body.add(ring);}
-   if(p.name==='Earth'){body.material.map=texture;body.material.color.set('#ffffff');const halo=glow('#8cedcf',7);halo.position.copy(at);group.add(halo);}
-   items.push({text:p.name,detail:p.name==='Earth'?'Rivendell is here':`${p.au.toFixed(p.au<2?2:1)} AU`,point:at,go:p.name==='Earth'?'earth':null,primary:p.name==='Earth'});
+   if(p.name==='Earth'){body.material.map=texture;body.material.color.set('#ffffff');const halo=glow('#8cedcf',SOLAR_DISPLAY.earthGlowDiameter);halo.material.opacity=.5;halo.position.copy(at);group.add(halo);}
+   items.push({text:p.name,radius:p.radius,detail:p.name==='Earth'?'Rivendell is here':`${p.au.toFixed(p.au<2?2:1)} AU`,point:at,go:p.name==='Earth'?'earth':null,primary:p.name==='Earth'});
   }
   const belt=new Float32Array(900*3);for(let i=0;i<belt.length;i+=3){const r=(2.15+rand()*.95)*3,a=rand()*Math.PI*2;belt[i]=Math.cos(a)*r;belt[i+1]=(rand()-.5)*.3;belt[i+2]=Math.sin(a)*r;}
   const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(belt,3));group.add(new THREE.Points(geom,new THREE.PointsMaterial({size:.07,color:'#a6a390',transparent:true,opacity:.5})));
@@ -63,7 +63,8 @@ export function createCosmicView({container,navigate}){
   for(const item of labels){const {el,point}=item,p=point.clone().project(camera),x=(p.x+1)*w/2,y=(1-p.y)*h/2;
    if(p.z< -1||p.z>1||x<0||x>w||y<0||y>h||(item.globe&&point.dot(camera.position.clone().sub(point))<=0)){el.hidden=true;continue;}
    el.hidden=false;const ww=el.offsetWidth,hh=el.offsetHeight;let chosen;
-   for(const gap of [16,36,60,90,125]){for(const [dx,dy] of [[gap,-hh/2],[-ww-gap,-hh/2],[-ww/2,-hh-gap],[-ww/2,gap]]){const r={x:x+dx,y:y+dy,w:ww,h:hh};if(r.x<8||r.y<8||r.x+ww>w-8||r.y+hh>h-8||placed.some(b=>intersects(r,b)))continue;chosen=r;break;}if(chosen)break;}
+   const edge=point.clone().add(new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar(item.radius||0)).project(camera),clearance=Math.max(16,Math.abs(edge.x-p.x)*w/2+9);
+   for(const gap of [clearance,clearance+20,clearance+44,clearance+74,clearance+109]){for(const [dx,dy] of [[gap,-hh/2],[-ww-gap,-hh/2],[-ww/2,-hh-gap],[-ww/2,gap]]){const r={x:x+dx,y:y+dy,w:ww,h:hh};if(r.x<8||r.y<8||r.x+ww>w-8||r.y+hh>h-8||placed.some(b=>intersects(r,b)))continue;chosen=r;break;}if(chosen)break;}
    if(!chosen){el.hidden=true;continue;}placed.push(chosen);el.style.left=chosen.x+'px';el.style.top=chosen.y+'px';const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x);l.setAttribute('y1',y);l.setAttribute('x2',Math.max(chosen.x,Math.min(x,chosen.x+ww)));l.setAttribute('y2',Math.max(chosen.y,Math.min(y,chosen.y+hh)));l.setAttribute('stroke',item.primary?'#c0ec94':'#9aadc1');svg.append(l);
   }
  }

@@ -1,8 +1,10 @@
 // Mean Sun distances (million km), NASA NSSDCA Planetary Fact Sheet.
 // Fixed orbital phases illustrate the architecture; they are not an ephemeris.
+// Display radii are deliberately enlarged, but leave the inner orbits clear.
+export const SOLAR_DISPLAY={unitsPerAU:3,sunRadius:.32,sunGlowDiameter:1.4,earthGlowDiameter:.85};
 export const PLANETS=[
- ['Mercury',57.9,'#bbb4a8',.45,2.3],['Venus',108.2,'#e6c693',.65,4.0],
- ['Earth',149.6,'#71d5ec',.7,.6],['Mars',228,'#da9273',.55,5.2],
+ ['Mercury',57.9,'#bbb4a8',.065,2.3],['Venus',108.2,'#e6c693',.14,4.0],
+ ['Earth',149.6,'#71d5ec',.15,.6],['Mars',228,'#da9273',.085,5.2],
  ['Jupiter',778.5,'#d7b590',1.65,2.0],['Saturn',1432,'#dfcaa4',1.4,4.1],
  ['Uranus',2867,'#9bd6d9',1.15,.6],['Neptune',4515,'#748eda',1.1,3.3]
 ].map(([name,distance,color,radius,phase])=>({name,au:distance/149.6,color,radius,phase}));
