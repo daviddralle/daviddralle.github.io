@@ -69,7 +69,7 @@ Public raster objects:
 
 The nominal cutout covers UTM easting 444150–445500 and northing 4397300–4398500; actual pixel-aligned bounds are preserved in the GeoTIFFs. Only the required raster window was read. No full point-cloud download or paid processing job was launched.
 
-The provider lists NAD83 (2011) / UTM zone 10N and GEOID 12A heights. Fresh terrain samples match the existing research LiDAR at all 13 wells. LiDAR is 29.13–30.76 m above the surveyed well Z values, median 30.13 m. A vertical-reference mismatch is plausible, but the well datum needs documentation. The atlas applies no vertical offset and displays both heights separately.
+The provider lists NAD83 (2011) / UTM zone 10N and GEOID 12A heights. Fresh terrain samples match the existing research LiDAR at all 12 displayed wells. LiDAR is 29.13–30.76 m above the surveyed well Z values, median 30.10 m. A vertical-reference mismatch is plausible, but the well datum needs documentation. The atlas applies no vertical offset and displays both heights separately.
 
 Canopy height is surface minus ground from the same acquisition. Negative differences are clipped to zero for visualization; the displayed palette saturates at 65 m. Invalid surface/ground cells are transparent. This is historical canopy structure, not assigned heights or positions of individual trunks. Tree positions were not snapped to canopy peaks. Two-metre contours are generated from terrain smoothed with a one-pixel Gaussian and simplified by 0.35 m for cartographic display. They retain the LiDAR height reference.
 
@@ -115,7 +115,7 @@ Ground uses neutral gray hillshade with no elevation tint. Both canopy displays 
 - 2 m contours span the full DEM footprint. The 83 missing pixels (of 1,620,000) use nearest valid terrain only for display shading and contours. The source DEM is unchanged. 3D contours are clipped to exact mesh edges, joined across closed-ring seams, and draped 0.24 m above terrain to avoid occlusion.
 - USGS NHD flowlines guide least-cost low-valley traces within a 110 m corridor on the 1 m DEM. Shared endpoints preserve junctions; tributaries join the receiving channel at their first close approach, avoiding false parallel tails. Regional water fill is a narrow cartographic ribbon: Elder 4 m, South Fork Eel 8 m, other streams 2–3 m. These are inferred channel traces, not surveyed banks, modeled floods or current wetted areas. The original creek-bed polygons remain an optional comparison layer, off by default. Filled 3D ribbons follow terrain facets, with a 0.3 m display lift to avoid flicker.
 - Well construction follows Daniella M. Rempe (2016), *Controls on critical zone thickness and hydrologic dynamics at the hillslope scale*, Table 3.1, printed page 37 / PDF page 53, https://escholarship.org/uc/item/6td3h4s8. The groundwater manuscript cites this dissertation. The table was checked visually against the local dissertation PDF.
-- Total depths (m): 1=9.50, 2=12.20, 3=14.40, 5=25.30, 6=19.90, 7=19.80, 10=27.40, 12=7.21, 13=18.44, 14=32.92, 15=33.22, 16=34.29. Well 11 has no depth in the table and receives no invented shaft.
+- Total depths (m): 1=9.50, 2=12.20, 3=14.40, 5=25.30, 6=19.90, 7=19.80, 10=27.40, 12=7.21, 13=18.44, 14=32.92, 15=33.22, 16=34.29. Abandoned Well 11 is excluded from the published atlas, including survey point 267 and its residual.
 - Boreholes extend vertically below LiDAR ground by documented total depth. Shaft widths are enlarged for visibility; length is true scale, with 5 m ticks. This see-through layer does not imply water level, screen intervals, present usable depth, or correction of the survey/LiDAR vertical datum difference.
 
 ## VMS alignment correction · 18 September 2026
@@ -132,3 +132,16 @@ The platform and well-registration results themselves are unchanged.
 Rebuild with `scripts/rebuild-vms.py` (pyproj), followed by
 `scripts/audit-atlas-ground.py`. `vms-alignment.json` records the comparison.
 The surface-port interpretation and exact collar positions remain reconstructed.
+
+## Rempe dissertation metadata · 18 September 2026
+
+The 12 well inspectors now include curated notes from *Controls on critical zone thickness and hydrologic dynamics at the hillslope scale* (Daniella Marie Rempe, 2016). Printed pages and PDF page numbers are stored on every note and were checked against `SUBMITTED_Rempe_Thesis.pdf`.
+
+- Construction and instruments: pp. 31–34, Table 3.1 p. 37 (PDF 47–50, 53).
+- Historical saturation-zone depths along Wells 1, 3, 6, 10, 15: pp. 45–46 (PDF 61–62). These retain the thesis surface reference; they are not converted to LiDAR elevations or rendered as current water levels.
+- Drying below the well bottom at Wells 2 and 13, and pumping exclusions for Wells 1, 3, 10: p. 34 (PDF 50), with drying also discussed on p. 46 (PDF 62).
+- Roadcut and drilling disturbance corrections, surface casing: §B.6 and Table B.1, p. 175 (PDF 191). These explain original-profile depth versus present ground; they do not apply a new offset to the atlas.
+
+Well 11 was removed at the site owner's direction because it is abandoned. Source shapefiles are unchanged. Published map/3D/search/export records, both survey versions, the residual layer and published label audit omit it. Historical registration fits remain unchanged, including their original control count and diagnostics; removing an abandoned installation does not invalidate its historical position as a survey tie. The original metadata audit covers 284 observations, of which 283 remain published.
+
+Reproduce the curated metadata and removal using `scripts/update-rempe-metadata.py`, then rebuild displayed ground heights with `scripts/audit-atlas-ground.py`.

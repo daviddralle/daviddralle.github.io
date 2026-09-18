@@ -6,7 +6,7 @@ const $=s=>document.querySelector(s);
 const escapeText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function fetchOK(url,kind='json'){const r=await fetch(url);if(!r.ok)throw Error('Could not load '+url);return r[kind]();}
 export async function createScene(atlas){
- const [meta,raw,vegBuffer,lineData,featureData]=await Promise.all([fetchOK('data/3d/scene.json'),fetchOK('data/3d/terrain.f32','arrayBuffer'),fetchOK('data/3d/vegetation.u16','arrayBuffer'),fetchOK('data/3d/contours.json'),fetchOK('data/3d/features.json')]);
+ const [meta,raw,vegBuffer,lineData,featureData]=await Promise.all([fetchOK('data/3d/scene.json'),fetchOK('data/3d/terrain.f32','arrayBuffer'),fetchOK('data/3d/vegetation.u16','arrayBuffer'),fetchOK('data/3d/contours.json'),fetchOK('data/3d/features.json?v=rempe-metadata-1')]);
  const heights=new Float32Array(raw),packed=new Uint16Array(vegBuffer),origin=meta.origin_utm_e_n_z,tm=meta.terrain,host=$('#scene-canvas'),container=$('#scene-3d');
  const scene=new THREE.Scene();scene.background=new THREE.Color('#12272f');scene.fog=new THREE.Fog('#12272f',1300,3000);
  const camera=new THREE.PerspectiveCamera(43,1,.2,6000);camera.up.set(0,1,0);
