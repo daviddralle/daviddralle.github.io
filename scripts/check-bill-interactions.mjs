@@ -94,3 +94,20 @@ assert(eatAtFeet('#bill-chocolate',30)>155);
 now+=Number(container.dataset.billBoostSeconds)*1000+1;tick(.01);
 assert.equal(container.dataset.billBoostSeconds,'0');assert(el('#bill-energy').hidden);
 console.log('PASS: dark +60s, milk +30s, additive mixed/repeated top-ups, meter capacity and full expiry.');
+// Fresh Bill instances choose among all three outfits without consulting saved state.
+const originalRandom=Math.random;
+try{
+ for(const [draw,expected] of [[0,'wet'],[.34,'dry'],[.99,'sweater'],[.34,'dry']]){
+  Math.random=()=>draw;controls.listeners={};canvas.listeners={};
+  const fresh=createBill({scene:new THREE.Scene(),pits:{clear(){}},heightAt,origin,camera,controls,host,render(){},project:v=>({x:400,y:400,z:0}),pickGround(){return null;},stations:[{x:0,z:0,label:'A'},{x:100,z:0,label:'B'}],explore(){}});
+  assert.equal(el('#bill-season').value,expected);
+  el('#bill-toggle').onclick();assert.equal(container.dataset.billSeason,expected);
+  canvas.fire('wheel');controls.fire('start');assert.equal(el('#bill-follow').getAttribute('aria-pressed'),'true');
+  camera.position.sub(controls.target).multiplyScalar(.6).add(controls.target);controls.fire('end');
+  const zoomRadius=Math.hypot(camera.position.x-controls.target.x,camera.position.z-controls.target.z);fresh.update(.1);
+  assert(Math.abs(Math.hypot(camera.position.x-controls.target.x,camera.position.z-controls.target.z)-zoomRadius)<1e-9);
+  controls.fire('start');const manual=camera.position.clone();fresh.update(.1);assert.deepEqual(camera.position.toArray(),manual.toArray());
+  el('#bill-follow').onclick();assert.equal(el('#bill-follow').getAttribute('aria-pressed'),'true');
+ }
+}finally{Math.random=originalRandom;}
+console.log('PASS: fresh initialization can select wet, dry or sweater Bill, including legitimate repeated outfits.');
