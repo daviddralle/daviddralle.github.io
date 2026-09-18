@@ -1,0 +1,29 @@
+{
+  "alignment": "Original archived total-station geometry, consistent with VMS platform",
+  "sleeves": [
+    {
+      "sleeve": "A",
+      "collar_utm_e_n": [
+        444826.3968323713,
+        4397853.697778434
+      ],
+      "distance_to_western_platform_edge_m": 0.5558194483417985,
+      "well_registered_fit_distance_m": 5.801761845166467,
+      "horizontal_shift_from_well_registered_fit_m": 6.877964572944764,
+      "azimuth_grid_deg": 259.6070382456193,
+      "collar_lidar_elevation_m": 482.73997285872315
+    },
+    {
+      "sleeve": "B",
+      "collar_utm_e_n": [
+        444825.3210082482,
+        4397854.98172915
+      ],
+      "distance_to_western_platform_edge_m": 0.23026172524825417,
+      "well_registered_fit_distance_m": 6.946599855016853,
+      "horizontal_shift_from_well_registered_fit_m": 6.813112649755385,
+      "azimuth_grid_deg": 259.6070382456193,
+      "collar_lidar_elevation_m": 482.08173972886453
+    }
+  ]
+}

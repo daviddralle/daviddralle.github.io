@@ -117,3 +117,18 @@ Ground uses neutral gray hillshade with no elevation tint. Both canopy displays 
 - Well construction follows Daniella M. Rempe (2016), *Controls on critical zone thickness and hydrologic dynamics at the hillslope scale*, Table 3.1, printed page 37 / PDF page 53, https://escholarship.org/uc/item/6td3h4s8. The groundwater manuscript cites this dissertation. The table was checked visually against the local dissertation PDF.
 - Total depths (m): 1=9.50, 2=12.20, 3=14.40, 5=25.30, 6=19.90, 7=19.80, 10=27.40, 12=7.21, 13=18.44, 14=32.92, 15=33.22, 16=34.29. Well 11 has no depth in the table and receives no invented shaft.
 - Boreholes extend vertically below LiDAR ground by documented total depth. Shaft widths are enlarged for visibility; length is true scale, with 5 m ticks. This see-through layer does not imply water level, screen intervals, present usable depth, or correction of the survey/LiDAR vertical datum difference.
+
+## VMS alignment correction · 18 September 2026
+
+The original sleeve reconstruction combined the well-registered total-station points
+with the unmodified VMS platform polygon. That put inferred collars 5.80 m and 6.95 m
+from the platform's western edge. The revised reconstruction uses `survey_original.geojson`
+for the VSP/FS marks and the same documented port intervals and 55° inclination.
+Collars now lie 0.56 m (A) and 0.23 m (B) from the western edge. The shared bearing
+is 259.61° grid azimuth. Both sleeves and their sampling intervals moved together;
+all elevations are recomputed from the rendered LiDAR terrain at the new collars.
+The platform and well-registration results themselves are unchanged.
+
+Rebuild with `scripts/rebuild-vms.py` (pyproj), followed by
+`scripts/audit-atlas-ground.py`. `vms-alignment.json` records the comparison.
+The surface-port interpretation and exact collar positions remain reconstructed.
