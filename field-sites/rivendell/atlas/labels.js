@@ -8,6 +8,7 @@ window.setupMapLabels=function(){
  const intersects=(a,b,p=3)=>a.x<b.x+b.w+p&&a.x+a.w+p>b.x&&a.y<b.y+b.h+p&&a.y+a.h+p>b.y;
  function layout(){
   if(!map)return;const size=map.getSize(),z=map.getZoom(),base=$('.map-shell').getBoundingClientRect();
+  if(z<16){labels.replaceChildren();svg.replaceChildren();overlay.dataset.placed='0';overlay.dataset.candidates='0';return;}
   const obstacles=[...document.querySelectorAll('.map-title,.map-tools,#inspector,.leaflet-control-zoom,.map-bottom,.leaflet-control-scale,#map-message:not([hidden]),#canopy-legend:not([hidden])')].filter(e=>!e.hidden&&getComputedStyle(e).display!=='none').map(e=>{const r=e.getBoundingClientRect();return{x:r.left-base.left,y:r.top-base.top,w:r.width,h:r.height};});
   const points=[],candidates=[];
   for(const id of S.visible){const d=manifest.layers.find(l=>l.id===id);for(const f of S.data.get(id).features){if(f.geometry.type!=='Point'||!matches(f,d))continue;const [lng,lat]=f.geometry.coordinates,p=map.latLngToContainerPoint([lat,lng]);if(p.x<0||p.x>size.x||p.y<0||p.y>size.y)continue;const r=style(f,d).radius;points.push({x:p.x,y:p.y,r,uid:f.properties.uid});let text,priority;
