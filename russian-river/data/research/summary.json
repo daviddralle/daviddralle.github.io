@@ -34,5 +34,35 @@
     "original": 8.78656,
     "rehosted": 8.4641,
     "mark_west": 8.46907
+  },
+  "certificate": {
+    "survey_date": "2018-09-25",
+    "address": "21008 River Blvd., Monte Rio, CA",
+    "apn": "095-170-007-000",
+    "building_diagram": 6,
+    "vertical_datum": "NAVD88",
+    "units": "feet",
+    "construction_status": "Finished construction",
+    "C2a_bottom_enclosure_floor_ft": 37.2,
+    "C2b_next_higher_floor_ft": 45.6,
+    "C2d_garage_slab_ft": 37.2,
+    "C2e_equipment_ft": 37.1,
+    "equipment_description": "Hot water heater in lower enclosure (2018)",
+    "C2f_lowest_adjacent_grade_ft": 26.4,
+    "C2g_highest_adjacent_grade_ft": 38.0,
+    "C2h_lowest_grade_at_deck_stairs_ft": 28.3,
+    "B9_BFE_ft": 48.0,
+    "BFE_panel": "06097C0659E",
+    "BFE_panel_effective": "2008-12-02",
+    "BFE_status": "Historical certificate entry; not verified against current 2024 panel F",
+    "floor_interpretation": "C2.b used as living-floor reference, consistent with Diagram 6, certificate photographs, and reported lower-enclosure storage use. Current use/alterations not independently inspected.",
+    "source": "Owner-supplied elevation certificate, PDF page 2 (Section C), page 1 (Section B); original PDF retained privately outside public website."
+  },
+  "owner_observation_update": "Owner reportedly confirms high street water in 2019; no numerical depth supplied. Earlier doubt about street inundation withdrawn.",
+  "county_45_comparison": {
+    "reconstructed_water_ft_NAVD88": 46.295,
+    "surveyed_next_higher_floor_ft_NAVD88": 45.6,
+    "modeled_difference_ft": 0.695,
+    "interpretation": "Approximate water reconstruction exceeds surveyed higher floor by about 0.7 ft; this is not an observed interior depth."
   }
 }
