@@ -10,11 +10,11 @@ Working location: 21008 River Boulevard, Monte Rio, APN 095-170-007. The Septemb
 
 ## Terrain and floor assumption
 
-The 2022 bare-earth lidar samples near the road-side edge are 37.011, 37.026 and 36.335 ft NAVD88. The corresponding 2013 samples are 36.640, 35.300 and 35.610 ft. A river-side sample is 28.900 ft in 2022 and 27.960 ft in 2013. The initial map used a 37-ft road-level floor proxy. That assumption was superseded by the owner-supplied, signed finished-construction elevation certificate dated September 25, 2018.
+The 2022 bare-earth lidar samples near the road-side edge are 37.011, 37.026 and 36.335 ft NAVD88. The corresponding 2013 samples are 36.640, 35.300 and 35.610 ft. A river-side sample is 28.900 ft in 2022 and 27.960 ft in 2013. Building elevations come exclusively from the owner-supplied, signed finished-construction elevation certificate dated September 25, 2018. Lidar ground samples describe terrain and access; they are not floor estimates.
 
 Section C explicitly selects NAVD88 and feet: C2.a lower enclosure floor 37.2; C2.b next higher floor 45.6; C2.d garage slab 37.2; C2.e equipment 37.1 (hot water heater in lower enclosure); C2.f lowest adjacent grade 26.4; C2.g highest adjacent grade 38.0; C2.h lowest grade at deck/stairs 28.3. Diagram 6, certificate photographs and reported lower-enclosure storage use support using **C2.b = 45.6 ft NAVD88** as the living-floor reference. Current alterations/use have not been independently inspected. This use does not determine an insurance rating floor.
 
-The viewer defaults to 45.6 ft and offers hypothetical offsets from −4 to +4 ft, with a reset to the survey. These are scenario tests, not survey uncertainty. The previous ±2-ft floor band is removed. Original PDF and personal details remain outside the public repository; only relevant survey fields are published.
+The viewer defaults to 45.6 ft and offers hypothetical offsets from −4 to +4 ft, with a reset to the survey. These are scenario tests, not survey uncertainty. Original PDF and personal details remain outside the public repository; only relevant survey fields are published.
 
 Terrain datasets share NAVD88 but use different geoid realizations (2013 Geoid12A; 2022 Geoid18). Geoid, sampling, terrain-age and entrance-location differences have not been independently surveyed or corrected.
 
@@ -61,7 +61,7 @@ Source agencies: County of Sonoma, QSI / NV5, FEMA, USGS / NOAA CNRFC. Agency da
 - FEMA feature subset: [data/fema.json](data/fema.json).
 - Reproducible fetch and asset-building scripts plus source GeoTIFFs are retained in the local Russian Flooding research workspace. The public bundle contains only static map assets, not owner names, insurance quotes, or private records.
 
-Validation: aligned raster grids, packed-value round trips, monotonic water elevations, within-footprint water-surface consistency, and browser checks of scenarios, floor assumptions, layers, inspection, desktop and phone layout. These verify the implementation, not the physical accuracy of the county model or the assumed floor elevation.
+Validation: aligned raster grids, packed-value round trips, monotonic water elevations, within-footprint water-surface consistency, and browser checks of scenarios, certificate-based floor comparisons, layers, inspection, desktop and phone layout. These verify the implementation, not the physical accuracy of the county model or the current condition of the building.
 
 ## Display refinement · September 23, 2026
 
@@ -71,7 +71,7 @@ The map-layer palette remains available alongside flood-scenario controls. Sourc
 
 The 21 published integer-stage flood images (32–52 ft) are loaded and decoded at startup with three background workers, prioritizing stages near the opening selection. The most recent successfully displayed stage stays on the map until the selected image is decoded; the caption identifies the displayed stage while loading. A request counter prevents delayed images from replacing a newer selection. Failed images retry on selection. No stages are hydraulically interpolated.
 
-The vertical staff gauge controls the Guerneville gauge stage. The adjacent house graphic illustrates the reconstructed water elevation relative to the assumed living floor; it is a schematic, not surveyed architecture or a measured building cross-section. The flood rasters are unchanged; the certificate update supersedes the earlier assumed floor and sensitivity band.
+The vertical staff gauge controls the Guerneville gauge stage. The adjacent house graphic illustrates the reconstructed water elevation relative to the certificate-based living-floor reference; it is a schematic, not surveyed architecture or a measured building cross-section. The house geometry is schematic; its floor reference is the certificate’s 45.6 ft NAVD88.
 
 ## Historical validation and discharge frequency · September 23, 2026
 
@@ -81,6 +81,6 @@ Threshold counts use annual maxima >=72,000 cfs, with 11/86 years in the full re
 
 Johnsons Beach (11467002) is the Guerneville stage reference; Hacienda Bridge (11467000) supplies the longer discharge record. Their gauge heights and datums are not interchangeable. Daily-maximum stage coverage was audited for water years 2008–2025; gaps preclude treating these as fully observed annual stage maxima without additional review. Missing periods are not assumed dry.
 
-Original county depth metadata identify 2015 lidar and HEC-RAS 5.0.1. The newer Russian River–Mark West service identifies HEC-RAS 5.0.7. Direct 45-ft scenario depths at the selected road point are 8.79 and 8.47 ft, respectively. The atlas depth rasters and reconstructed water elevations remain unchanged. The floor reference has now been updated from 37.0 to 45.6 ft using the certificate. At the 45-ft gauge scenario this changes the modeled difference from 9.295 to 0.695 ft above the living-floor reference. The user now reports the owner confirms high street water; no measured depth has been supplied, and the earlier dry-living-floor recollection still requires corroboration. The model remains unvalidated locally.
+Original county depth metadata identify 2015 lidar and HEC-RAS 5.0.1. The newer Russian River–Mark West service identifies HEC-RAS 5.0.7. Direct 45-ft scenario depths at the selected road point are 8.79 and 8.47 ft, respectively. The atlas depth rasters and reconstructed water elevations remain unchanged. The floor reference is 45.6 ft NAVD88 from the certificate. At the 45-ft gauge scenario, modeled water is 0.695 ft above this reference. The user now reports the owner confirms high street water; no measured depth has been supplied, and the earlier dry-living-floor recollection still requires corroboration. The model remains unvalidated locally.
 
 The Corps PR-100 historic marks require datum and location reconciliation before numerical comparison to the atlas. A separate published 2019 model comparison uses county inundation as its reference and therefore does not independently establish county model accuracy.
