@@ -60,3 +60,7 @@ Source agencies: County of Sonoma, QSI / NV5, FEMA, USGS / NOAA CNRFC. Agency da
 - Reproducible fetch and asset-building scripts plus source GeoTIFFs are retained in the local Russian Flooding research workspace. The public bundle contains only static map assets, not owner names, insurance quotes, or private records.
 
 Validation: aligned raster grids, packed-value round trips, monotonic water elevations, within-footprint water-surface consistency, and browser checks of scenarios, floor assumptions, layers, inspection, desktop and phone layout. These verify the implementation, not the physical accuracy of the county model or the assumed floor elevation.
+
+## Display refinement · September 23, 2026
+
+The map-layer palette remains available alongside flood-scenario controls. Sources and assumptions are accessible through the Sources popup. Canopy/object height uses a linear 0–200 ft straw-to-green color scale (`#e8d6a3`, `#c7b977`, `#a7ba62`, `#62974c`, `#2c713f`, `#124b2e`); heights above 200 ft saturate and heights at or below 2 ft remain transparent. Numerical samples and flood scenarios are unchanged.
