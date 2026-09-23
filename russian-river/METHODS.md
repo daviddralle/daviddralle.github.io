@@ -70,3 +70,15 @@ The map-layer palette remains available alongside flood-scenario controls. Sourc
 The 21 published integer-stage flood images (32–52 ft) are loaded and decoded at startup with three background workers, prioritizing stages near the opening selection. The most recent successfully displayed stage stays on the map until the selected image is decoded; the caption identifies the displayed stage while loading. A request counter prevents delayed images from replacing a newer selection. Failed images retry on selection. No stages are hydraulically interpolated.
 
 The vertical staff gauge controls the Guerneville gauge stage. The adjacent house graphic illustrates the reconstructed water elevation relative to the assumed living floor; it is a schematic, not surveyed architecture or a measured building cross-section. The numerical values, floor sensitivity band, and flood rasters are unchanged.
+
+## Historical validation and discharge frequency · September 23, 2026
+
+[Research note 02](research.html) documents the unresolved 2019 check, direct road-depth samples from two county service families, and an empirical annual-peak analysis. The archive contains 86 annual discharge maxima at USGS 11467000 (water years 1940–2025). The 2019 peak is 72,000 cfs in both the current annual-peak archive and approved instantaneous record; NOAA CNRFC's historical table lists an estimated 85,300 cfs. No explanation for this difference has yet been established.
+
+Threshold counts use annual maxima >=72,000 cfs, with 11/86 years in the full record and 5/42 in 1984–2025. The latter begins after Lake Sonoma regulation started in October 1983. Exact 95% Clopper–Pearson binomial intervals assume independent years and a constant probability; climate, regulation, rating and model uncertainties are not covered. Empirical plots use rank/(n+1), whereas observed fractions use k/n. These are discharge comparisons, not living-floor flood probabilities. No fitted distribution or tail extrapolation has been applied.
+
+Johnsons Beach (11467002) is the Guerneville stage reference; Hacienda Bridge (11467000) supplies the longer discharge record. Their gauge heights and datums are not interchangeable. Daily-maximum stage coverage was audited for water years 2008–2025; gaps preclude treating these as fully observed annual stage maxima without additional review. Missing periods are not assumed dry.
+
+Original county depth metadata identify 2015 lidar and HEC-RAS 5.0.1. The newer Russian River–Mark West service identifies HEC-RAS 5.0.7. Direct 45-ft scenario depths at the selected road point are 8.79 and 8.47 ft, respectively. No change to the atlas depth rasters, floor default, or reconstructed water elevations has been made. Reported 2019 experience awaits confirmation; the model is not locally validated. The ±2 ft floor sensitivity does not quantify this discrepancy.
+
+The Corps PR-100 historic marks require datum and location reconciliation before numerical comparison to the atlas. A separate published 2019 model comparison uses county inundation as its reference and therefore does not independently establish county model accuracy.

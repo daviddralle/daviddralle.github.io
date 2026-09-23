@@ -1,0 +1,38 @@
+{
+  "prepared": "2026-09-23",
+  "status": "Exploratory; property depths unvalidated",
+  "station": "USGS-11467000",
+  "threshold_cfs": 72000.0,
+  "threshold_event": 2019,
+  "periods": [
+    {
+      "start": 1940,
+      "end": 2025,
+      "n": 86,
+      "k": 11,
+      "fraction": 0.12790697674418605,
+      "interval_95": [
+        0.06561579373088978,
+        0.2173460951876113
+      ]
+    },
+    {
+      "start": 1984,
+      "end": 2025,
+      "n": 42,
+      "k": 5,
+      "fraction": 0.11904761904761904,
+      "interval_95": [
+        0.03980552894268835,
+        0.2563166776063778
+      ]
+    }
+  ],
+  "stage_station": "USGS-11467002",
+  "stage_frequency_status": "Withheld pending gap and station-history audit",
+  "county_45_road_depth_ft": {
+    "original": 8.78656,
+    "rehosted": 8.4641,
+    "mark_west": 8.46907
+  }
+}

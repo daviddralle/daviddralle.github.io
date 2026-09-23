@@ -57,3 +57,5 @@ aside{display:flex;flex-direction:column;overflow:hidden}
 @media(max-width:640px){aside{flex:0 0 auto}.stage-console{flex-shrink:0}.secondary-controls{display:none}}
 #floor-dialog .secondary-controls{display:block;max-height:none;overflow:visible}#floor-close{font-size:24px;line-height:1;padding:4px 9px;border:0}
 @media(max-width:640px){.layer-palette.collapsed{width:138px}#layers-toggle{gap:8px}.house-impact #depth-label{max-width:none}}
+
+.validation-note{font-size:11px;line-height:1.45;margin:6px 0;padding:6px 8px;border-left:3px solid #b98436;background:#fff6df;color:#67491c}.validation-note a{color:#146b6c;text-underline-offset:2px}
