@@ -1,0 +1,42 @@
+{
+  "retrieved": "2026-09-23",
+  "bbox3857": [
+    -13693725.342170147,
+    4645010.427197929,
+    -13692625.342170147,
+    4646110.427197929
+  ],
+  "size": [
+    900,
+    900
+  ],
+  "services": {
+    "dem2013": "https://data.sonomaopenspace.org/arcgis/rest/services/SONOMA_BARE_EARTH/ImageServer",
+    "dem2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_HydroFlat_BareEarth_DEM_2022/ImageServer",
+    "canopy2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_Vegetation_Height_2022/ImageServer",
+    "hillshade2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_HydroFlat_BareEarth_HS_2022/ImageServer",
+    "aerial2025": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Ortho_SoCo_EagleView_2025/ImageServer",
+    "flood32": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_32_ft_Flood_Stage/ImageServer",
+    "flood33": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_33_ft_Flood_Stage/ImageServer",
+    "flood34": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_34_ft_Flood_Stage/ImageServer",
+    "flood35": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_35_ft_Flood_Stage/ImageServer",
+    "flood36": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_36_ft_Flood_Stage/ImageServer",
+    "flood37": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_37_ft_Flood_Stage/ImageServer",
+    "flood38": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_38_ft_Flood_Stage/ImageServer",
+    "flood39": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_39_ft_Flood_Stage/ImageServer",
+    "flood40": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_40_ft_Flood_Stage/ImageServer",
+    "flood41": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_41_ft_Flood_Stage/ImageServer",
+    "flood42": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_42_ft_Flood_Stage/ImageServer",
+    "flood43": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_43_ft_Flood_Stage/ImageServer",
+    "flood44": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_44_ft_Flood_Stage/ImageServer",
+    "flood45": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_45_ft_Flood_Stage/ImageServer",
+    "flood46": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_46_ft_Flood_Stage/ImageServer",
+    "flood47": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_47_ft_Flood_Stage/ImageServer",
+    "flood48": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_48_ft_Flood_Stage/ImageServer",
+    "flood49": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_49_ft_Flood_Stage/ImageServer",
+    "flood50": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_50_ft_Flood_Stage/ImageServer",
+    "flood51": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_51_ft_Flood_Stage/ImageServer",
+    "flood52": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_52_ft_Flood_Stage/ImageServer",
+    "dsm2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_Highest_Hit_DSM_2022/ImageServer"
+  }
+}

@@ -1,0 +1,413 @@
+{
+  "version": "2026-09-23-step1",
+  "bounds": [
+    [
+      38.46279025834359,
+      -123.01282771406265
+    ],
+    [
+      38.47052715414726,
+      -123.00294624593734
+    ]
+  ],
+  "bbox3857": [
+    -13693725.342170147,
+    4645010.427197929,
+    -13692625.342170147,
+    4646110.427197929
+  ],
+  "grid": [
+    900,
+    900
+  ],
+  "center": [
+    38.46665881,
+    -123.00788698
+  ],
+  "building_id": 194640,
+  "points": [
+    {
+      "id": "front_proxy",
+      "lon": -123.00782,
+      "lat": 38.4666,
+      "dem2013": 36.64,
+      "dem2022": 37.011
+    },
+    {
+      "id": "front_north",
+      "lon": -123.0078,
+      "lat": 38.466629,
+      "dem2013": 35.3,
+      "dem2022": 37.026
+    },
+    {
+      "id": "front_south",
+      "lon": -123.00784,
+      "lat": 38.466578,
+      "dem2013": 35.61,
+      "dem2022": 36.335
+    },
+    {
+      "id": "river_side",
+      "lon": -123.007972,
+      "lat": 38.466686,
+      "dem2013": 27.96,
+      "dem2022": 28.903
+    },
+    {
+      "id": "building_center",
+      "lon": -123.00790148,
+      "lat": 38.46664616,
+      "dem2013": 29.96,
+      "dem2022": 31.011
+    }
+  ],
+  "scenarios": [
+    {
+      "stage": 32,
+      "water_elevation_ft": 37.789,
+      "water_elevation_spatial_range_ft": [
+        37.627,
+        38.545
+      ],
+      "ground_depth_range_ft": [
+        2.045,
+        9.953
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 0.71
+    },
+    {
+      "stage": 33,
+      "water_elevation_ft": 38.506,
+      "water_elevation_spatial_range_ft": [
+        38.344,
+        39.26
+      ],
+      "ground_depth_range_ft": [
+        2.761,
+        10.669
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 1.427
+    },
+    {
+      "stage": 34,
+      "water_elevation_ft": 39.193,
+      "water_elevation_spatial_range_ft": [
+        39.031,
+        39.948
+      ],
+      "ground_depth_range_ft": [
+        3.449,
+        11.357
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 2.114
+    },
+    {
+      "stage": 35,
+      "water_elevation_ft": 39.862,
+      "water_elevation_spatial_range_ft": [
+        39.701,
+        40.616
+      ],
+      "ground_depth_range_ft": [
+        4.118,
+        12.026
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 2.783
+    },
+    {
+      "stage": 36,
+      "water_elevation_ft": 40.55,
+      "water_elevation_spatial_range_ft": [
+        40.39,
+        41.305
+      ],
+      "ground_depth_range_ft": [
+        4.807,
+        12.715
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 3.472
+    },
+    {
+      "stage": 37,
+      "water_elevation_ft": 41.203,
+      "water_elevation_spatial_range_ft": [
+        41.042,
+        41.957
+      ],
+      "ground_depth_range_ft": [
+        5.459,
+        13.368
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 4.124
+    },
+    {
+      "stage": 38,
+      "water_elevation_ft": 41.865,
+      "water_elevation_spatial_range_ft": [
+        41.705,
+        42.619
+      ],
+      "ground_depth_range_ft": [
+        6.121,
+        14.03
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 4.786
+    },
+    {
+      "stage": 39,
+      "water_elevation_ft": 42.547,
+      "water_elevation_spatial_range_ft": [
+        42.387,
+        43.3
+      ],
+      "ground_depth_range_ft": [
+        6.803,
+        14.712
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 5.467
+    },
+    {
+      "stage": 40,
+      "water_elevation_ft": 43.195,
+      "water_elevation_spatial_range_ft": [
+        43.035,
+        43.948
+      ],
+      "ground_depth_range_ft": [
+        7.45,
+        15.36
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 6.115
+    },
+    {
+      "stage": 41,
+      "water_elevation_ft": 43.818,
+      "water_elevation_spatial_range_ft": [
+        43.658,
+        44.57
+      ],
+      "ground_depth_range_ft": [
+        8.073,
+        15.983
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 6.738
+    },
+    {
+      "stage": 42,
+      "water_elevation_ft": 44.444,
+      "water_elevation_spatial_range_ft": [
+        44.284,
+        45.196
+      ],
+      "ground_depth_range_ft": [
+        8.699,
+        16.609
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 7.364
+    },
+    {
+      "stage": 43,
+      "water_elevation_ft": 45.085,
+      "water_elevation_spatial_range_ft": [
+        44.925,
+        45.837
+      ],
+      "ground_depth_range_ft": [
+        9.34,
+        17.25
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 8.005
+    },
+    {
+      "stage": 44,
+      "water_elevation_ft": 45.697,
+      "water_elevation_spatial_range_ft": [
+        45.537,
+        46.448
+      ],
+      "ground_depth_range_ft": [
+        9.952,
+        17.862
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 8.617
+    },
+    {
+      "stage": 45,
+      "water_elevation_ft": 46.295,
+      "water_elevation_spatial_range_ft": [
+        46.135,
+        47.047
+      ],
+      "ground_depth_range_ft": [
+        10.55,
+        18.461
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 9.215
+    },
+    {
+      "stage": 46,
+      "water_elevation_ft": 46.832,
+      "water_elevation_spatial_range_ft": [
+        46.672,
+        47.584
+      ],
+      "ground_depth_range_ft": [
+        11.087,
+        18.997
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 9.752
+    },
+    {
+      "stage": 47,
+      "water_elevation_ft": 47.396,
+      "water_elevation_spatial_range_ft": [
+        47.236,
+        48.148
+      ],
+      "ground_depth_range_ft": [
+        11.651,
+        19.561
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 10.316
+    },
+    {
+      "stage": 48,
+      "water_elevation_ft": 47.961,
+      "water_elevation_spatial_range_ft": [
+        47.802,
+        48.713
+      ],
+      "ground_depth_range_ft": [
+        12.217,
+        20.127
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 10.882
+    },
+    {
+      "stage": 49,
+      "water_elevation_ft": 48.504,
+      "water_elevation_spatial_range_ft": [
+        48.345,
+        49.256
+      ],
+      "ground_depth_range_ft": [
+        12.76,
+        20.67
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 11.424
+    },
+    {
+      "stage": 50,
+      "water_elevation_ft": 49.021,
+      "water_elevation_spatial_range_ft": [
+        48.862,
+        49.773
+      ],
+      "ground_depth_range_ft": [
+        13.277,
+        21.188
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 11.942
+    },
+    {
+      "stage": 51,
+      "water_elevation_ft": 49.534,
+      "water_elevation_spatial_range_ft": [
+        49.375,
+        50.285
+      ],
+      "ground_depth_range_ft": [
+        13.789,
+        21.7
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 12.454
+    },
+    {
+      "stage": 52,
+      "water_elevation_ft": 50.039,
+      "water_elevation_spatial_range_ft": [
+        49.881,
+        50.791
+      ],
+      "ground_depth_range_ft": [
+        14.295,
+        22.206
+      ],
+      "building_wet_pixel_fraction": 1.0,
+      "front_ground_depth_ft": 12.96
+    }
+  ],
+  "floor_default_ft": 37,
+  "floor_sensitivity_ft": 2,
+  "floor_assumption": "Road-side ground proxy + adjustable step-up; actual door/floor elevation is not observed. \u00b12 ft is an exploratory sensitivity range, not a confidence interval.",
+  "water_elevation_method": "County flood depth plus the 2013 bare-earth DEM, median of building pixels. Approximate reconstruction; original hydraulic model terrain has not been obtained.",
+  "vertical_reference": "Feet NAVD88. 2013 geoid12A; 2022 geoid18. Geoid-model and terrain-vintage differences have not been independently surveyed.",
+  "fema_panel": "06097C0659F",
+  "fema_effective": "2024-07-31",
+  "sources": {
+    "dem2013": "https://data.sonomaopenspace.org/arcgis/rest/services/SONOMA_BARE_EARTH/ImageServer",
+    "dem2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_HydroFlat_BareEarth_DEM_2022/ImageServer",
+    "canopy2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_Vegetation_Height_2022/ImageServer",
+    "hillshade2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_HydroFlat_BareEarth_HS_2022/ImageServer",
+    "aerial2025": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Ortho_SoCo_EagleView_2025/ImageServer",
+    "flood32": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_32_ft_Flood_Stage/ImageServer",
+    "flood33": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_33_ft_Flood_Stage/ImageServer",
+    "flood34": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_34_ft_Flood_Stage/ImageServer",
+    "flood35": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_35_ft_Flood_Stage/ImageServer",
+    "flood36": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_36_ft_Flood_Stage/ImageServer",
+    "flood37": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_37_ft_Flood_Stage/ImageServer",
+    "flood38": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_38_ft_Flood_Stage/ImageServer",
+    "flood39": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_39_ft_Flood_Stage/ImageServer",
+    "flood40": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_40_ft_Flood_Stage/ImageServer",
+    "flood41": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_41_ft_Flood_Stage/ImageServer",
+    "flood42": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_42_ft_Flood_Stage/ImageServer",
+    "flood43": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_43_ft_Flood_Stage/ImageServer",
+    "flood44": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_44_ft_Flood_Stage/ImageServer",
+    "flood45": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_45_ft_Flood_Stage/ImageServer",
+    "flood46": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_46_ft_Flood_Stage/ImageServer",
+    "flood47": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_47_ft_Flood_Stage/ImageServer",
+    "flood48": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_48_ft_Flood_Stage/ImageServer",
+    "flood49": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_49_ft_Flood_Stage/ImageServer",
+    "flood50": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_50_ft_Flood_Stage/ImageServer",
+    "flood51": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_51_ft_Flood_Stage/ImageServer",
+    "flood52": "https://data.sonomaopenspace.org/arcgis/rest/services/Projects/Guerneville_Gauge_at_52_ft_Flood_Stage/ImageServer",
+    "dsm2022": "https://socogis.sonomacounty.ca.gov/image2/rest/services/Rasters/Lidar_Highest_Hit_DSM_2022/ImageServer"
+  },
+  "depth_colors": [
+    "#9ae5ee",
+    "#48bfdc",
+    "#168bc5",
+    "#2460a8",
+    "#573595",
+    "#38175e"
+  ],
+  "depth_labels": [
+    "0\u20131",
+    "1\u20133",
+    "3\u20136",
+    "6\u201310",
+    "10\u201320",
+    "20+"
+  ]
+}

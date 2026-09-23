@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-23",
+  "checks": {
+    "numeric_png_roundtrip_max_error_ft": "<0.0051",
+    "stage_count": 21,
+    "water_elevations_monotonic": true,
+    "within_building_reconstructed_wse_range_ft": "<1 for all scenarios",
+    "javascript_syntax": "pass",
+    "desktop_viewport": [
+      1440,
+      950
+    ],
+    "phone_viewport": [
+      390,
+      844
+    ],
+    "ui": [
+      "stage preset changes overlay and readouts",
+      "floor slider recalculates depth and crossing",
+      "canopy, hillshade, terrain and aerial overlays",
+      "FEMA polygons and contours",
+      "continuous satellite/topo/streets basemaps",
+      "map pixel inspector returns numeric values"
+    ],
+    "browser_console_errors": 0
+  },
+  "scope": "Implementation and data-handling checks only; no independent hydraulic or floor-elevation validation."
+}
