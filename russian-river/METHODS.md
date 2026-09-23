@@ -64,3 +64,9 @@ Validation: aligned raster grids, packed-value round trips, monotonic water elev
 ## Display refinement · September 23, 2026
 
 The map-layer palette remains available alongside flood-scenario controls. Sources and assumptions are accessible through the Sources popup. Canopy/object height uses a linear 0–200 ft straw-to-green color scale (`#e8d6a3`, `#c7b977`, `#a7ba62`, `#62974c`, `#2c713f`, `#124b2e`); heights above 200 ft saturate and heights at or below 2 ft remain transparent. Numerical samples and flood scenarios are unchanged.
+
+## Stage explorer and preload behavior
+
+The 21 published integer-stage flood images (32–52 ft) are loaded and decoded at startup with three background workers, prioritizing stages near the opening selection. The most recent successfully displayed stage stays on the map until the selected image is decoded; the caption identifies the displayed stage while loading. A request counter prevents delayed images from replacing a newer selection. Failed images retry on selection. No stages are hydraulically interpolated.
+
+The vertical staff gauge controls the Guerneville gauge stage. The adjacent house graphic illustrates the reconstructed water elevation relative to the assumed living floor; it is a schematic, not surveyed architecture or a measured building cross-section. The numerical values, floor sensitivity band, and flood rasters are unchanged.
