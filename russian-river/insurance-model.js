@@ -1,7 +1,7 @@
 /* Transparent scenario arithmetic; no fitted hazard or proprietary damage model. */
 (function(root){
 'use strict';
-const defaults={deductible:10000,limit:250000,premium:null,waterOffset:0,costScale:1,lowerMax:15000,lowerEligible:50,upperEligible:100,repairs:[5000,40000,100000,200000,350000],weights:[10,6,5,2,1]};
+const defaults={deductible:10000,limit:250000,premium:null,waterOffset:0,costScale:1,lowerMax:0,lowerEligible:0,upperEligible:100,repairs:[5000,40000,100000,200000,350000],weights:[10,6,5,2,1]};
 const stages=[36,40,45,50,52],depthKnots=[0,1,3,6,10];
 function validate(a){
  const err=[];
@@ -20,8 +20,10 @@ function event(a,config,stage){
  const ec=config.elevation_certificate;if(!ec||ec.vertical_datum!=='NAVD88')throw new Error('Certificate reference is missing.');
  const water=s.water_elevation_ft+a.waterOffset,depth=water-ec.C2b_next_higher_floor_ft,lowerDepth=water-ec.C2a_bottom_enclosure_floor_ft;
  const upper=depth>0?interpolate(depthKnots,a.repairs,depth)*a.costScale:0;
- const lower=Math.min(1,Math.max(0,lowerDepth)/3)*a.lowerMax*a.costScale;
- const loss=upper+lower,eligible=upper*a.upperEligible/100+lower*a.lowerEligible/100;
+ // Owner-specified scope: zero damage below the surveyed living floor.
+ // Legacy lowerMax/lowerEligible inputs are retained for saved-file compatibility only.
+ const lower=0;
+ const loss=upper+lower,eligible=upper*a.upperEligible/100;
  const payout=Math.min(a.limit,Math.max(0,eligible-a.deductible));
  return{stage,water,depth,lowerDepth,upper,lower,loss,eligible,payout,retained:loss-payout};
 }

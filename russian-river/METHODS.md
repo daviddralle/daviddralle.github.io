@@ -89,7 +89,7 @@ The Corps PR-100 historic marks require datum and location reconciliation before
 
 [Insurance worksheet](insurance.html) is a separate illustrative stress test. It does not estimate measured annual property-flood probabilities. Surveyed building references remain fixed at C2.b45.6 and C2.a37.2ft NAVD88. Water-offset tests move the model surface, not the certificate floor. Model arithmetic is isolated in insurance-model.js and checked for deductible boundaries, exclusions, limits, probability weighting, missing premiums and loss conservation.
 
-Initial policy values are hypothetical: $10,000 building deductible, $250,000 building payout limit, premium unknown. Lower-enclosure loss ramps linearly to a $15,000 allowance at 3ft depth, with50% assumed eligible. Additional above-living-floor repair costs at initial wetting/1/3/6/10ft are $5,000/$40,000/$100,000/$200,000/$350,000, initially100% eligible. Those are analyst-created editable placeholders, not validated damage functions or verified coverage. Loss is zero above the living floor until modeled water exceeds it; the initial wetting cost then applies. Costs cap at the10ft knot. Contents are excluded. Lower and upper allowances represent distinct components.
+Initial policy values are hypothetical: $10,000 building deductible, $250,000 building payout limit, premium unknown. Damage below the living floor is zero, as specified by the owner through the user. Above-living-floor repair costs at initial wetting/1/3/6/10ft are $5,000/$40,000/$100,000/$200,000/$350,000, initially100% eligible. Those are analyst-created editable placeholders, not validated damage functions or verified coverage. Loss is zero above the living floor until modeled water exceeds it; the initial wetting cost then applies. Costs cap at the10ft knot. Contents are excluded. There is no lower-enclosure damage component.
 
 Five mutually exclusive annual-maximum flood scenarios use gauge stages36/40/45/50/52ft and default probabilities10/6/5/2/1%. These are round illustrative scenario weights; they are neither measured frequencies nor exceedance probabilities and are not calibrated to the5/42 Hacienda discharge statistic. The remainder receives zero modeled loss. This discrete model omits unrepresented intermediate/tail events and repeated floods within a year. Ten-year probabilities assume independent stationary years. No ENSO modifier is applied.
 
@@ -99,7 +99,7 @@ Inputs may be saved explicitly in localStorage on the current browser; no policy
 
 ### Homeowner summary · September 24, 2026
 
-The default insurance page shows two event examples (40 and 50 ft gauge stages), rounded to two significant digits, comparing total repairs paid by the owner with and without the assumed policy. Premium is separate. Labels follow the computed water depth when assumptions change. These are cost illustrations, not historical reconstructions or likelihood estimates. All annual probabilities, sensitivity tables and editable technical assumptions are behind a closed disclosure. No buy/no-buy verdict is computed from the hypothetical probability weights. The print view includes only the homeowner summary.
+The default insurance page shows two event examples (45 and 50 ft gauge stages), rounded to two significant digits, comparing total repairs paid by the owner with and without the assumed policy. Premium is separate. Labels follow the computed water depth when assumptions change. These are cost illustrations, not historical reconstructions or likelihood estimates. All annual probabilities, sensitivity tables and editable technical assumptions are behind a closed disclosure. No buy/no-buy verdict is computed from the hypothetical probability weights. The print view includes only the homeowner summary.
 
 ### Observed flow history and ENSO filter · September 24, 2026
 
@@ -112,3 +112,7 @@ The historical filter does not alter the hydraulic surfaces, damage amounts or i
 ### Fixed certificate elevations · September 24, 2026
 
 The map floor-offset slider and reset control have been removed. Map calculations read the living-floor elevation directly from certificate field C2.b (45.6 ft NAVD88); the lower enclosure remains C2.a37.2 ft. Gage height controls the water scenario. The insurance worksheet water-surface sensitivity test, behind its technical disclosure, varies modeled water rather than the surveyed building.
+
+### Living-floor damage only · September 24, 2026
+
+At the user’s explicit direction, damage is zero whenever water is at or below the surveyed living floor. The lower-enclosure repair allowance and coverage controls were removed; old saved lowerMax/lowerEligible values are ignored by the loss calculation. Cost examples now use45 and50ft gauge stages. At defaults, losses are$29,325 and$114,033; payouts$19,325 and$104,033; owner-paid repairs$10,000 in both examples, plus premiums. This is the adopted damage scope, not a physical assertion that all lower-enclosure equipment is immune to floods.
