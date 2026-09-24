@@ -1,0 +1,835 @@
+{
+  "prepared": "2026-09-24",
+  "threshold_cfs": 72000.0,
+  "threshold_year": 2019,
+  "default_start": 1984,
+  "end": 2025,
+  "sources": {
+    "flow": "https://api.waterdata.usgs.gov/ogcapi/v1/collections/peaks/items?f=json&monitoring_location_id=USGS-11467000&limit=1000",
+    "enso": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/",
+    "flow_retrieved": "2026-09-23",
+    "enso_retrieved": "2026-09-24",
+    "enso_archive_sha256": "a01e3df387390792b3ca10e8a8ccfe0c718d95f57c60996af782bc3e4337040f"
+  },
+  "classification": "NOAA CPC ERSSTv6 RONI warm episode label for DJF of the ending water year. NOAA warm label requires at least five consecutive overlapping seasons meeting its threshold. DJF is a winter grouping, not necessarily ENSO at the date of the annual peak.",
+  "period_note": "1984\u20132025 begins after Lake Sonoma regulation started in October 1983; stationarity is not assumed established. 1940\u20132025 is the full annual-peak archive; ENSO labels begin in 1950.",
+  "limits": "Observed river-discharge threshold counts, not calibrated property flood, damage, claim probabilities or seasonal forecasts. Confidence intervals assume independent Bernoulli years with constant probability. El Ni\u00f1o and other winters are small samples. No insurance weights or model water surfaces are changed by filtering.",
+  "periods": {
+    "1940": {
+      "all": {
+        "n": 86,
+        "k": 11,
+        "fraction": 0.12790697674418605,
+        "interval_95": [
+          0.06561579373088978,
+          0.2173460951876113
+        ],
+        "threshold_years": [
+          1940,
+          1956,
+          1965,
+          1966,
+          1970,
+          1974,
+          1986,
+          1995,
+          1997,
+          2006,
+          2019
+        ]
+      }
+    },
+    "1950": {
+      "all": {
+        "n": 76,
+        "k": 10,
+        "fraction": 0.13157894736842105,
+        "interval_95": [
+          0.06494156767608715,
+          0.22869579260761233
+        ],
+        "threshold_years": [
+          1956,
+          1965,
+          1966,
+          1970,
+          1974,
+          1986,
+          1995,
+          1997,
+          2006,
+          2019
+        ]
+      },
+      "el_nino": {
+        "n": 27,
+        "k": 4,
+        "fraction": 0.14814814814814814,
+        "interval_95": [
+          0.04188739647376728,
+          0.3373108640242444
+        ],
+        "threshold_years": [
+          1966,
+          1970,
+          1995,
+          2019
+        ]
+      },
+      "other": {
+        "n": 49,
+        "k": 6,
+        "fraction": 0.12244897959183673,
+        "interval_95": [
+          0.046289031081895755,
+          0.24769296835968285
+        ],
+        "threshold_years": [
+          1956,
+          1965,
+          1974,
+          1986,
+          1997,
+          2006
+        ]
+      },
+      "fisher_two_sided_p": 0.7367709036425341
+    },
+    "1984": {
+      "all": {
+        "n": 42,
+        "k": 5,
+        "fraction": 0.11904761904761904,
+        "interval_95": [
+          0.03980552894268835,
+          0.2563166776063778
+        ],
+        "threshold_years": [
+          1986,
+          1995,
+          1997,
+          2006,
+          2019
+        ]
+      },
+      "el_nino": {
+        "n": 14,
+        "k": 2,
+        "fraction": 0.14285714285714285,
+        "interval_95": [
+          0.017794515483191515,
+          0.428129160909699
+        ],
+        "threshold_years": [
+          1995,
+          2019
+        ]
+      },
+      "other": {
+        "n": 28,
+        "k": 3,
+        "fraction": 0.10714285714285714,
+        "interval_95": [
+          0.022665090639058937,
+          0.2822643957153244
+        ],
+        "threshold_years": [
+          1986,
+          1997,
+          2006
+        ]
+      },
+      "fisher_two_sided_p": 1.0
+    }
+  },
+  "annual_peaks": [
+    {
+      "water_year": 1940,
+      "peak_date": "1940-02-28",
+      "peak_cfs": 88400.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1941,
+      "peak_date": "1941-04-05",
+      "peak_cfs": 48100.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1942,
+      "peak_date": "1942-02-06",
+      "peak_cfs": 67800.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1943,
+      "peak_date": "1943-01-22",
+      "peak_cfs": 69200.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1944,
+      "peak_date": "1944-03-04",
+      "peak_cfs": 32000.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1945,
+      "peak_date": "1945-02-01",
+      "peak_cfs": 34600.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1946,
+      "peak_date": "1945-12-28",
+      "peak_cfs": 56800.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1947,
+      "peak_date": "1947-02-12",
+      "peak_cfs": 23600.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1948,
+      "peak_date": "1948-03-24",
+      "peak_cfs": 23400.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1949,
+      "peak_date": "1949-03-12",
+      "peak_cfs": 41400.0,
+      "qualifiers": "",
+      "djf_roni": null,
+      "el_nino_winter": null
+    },
+    {
+      "water_year": 1950,
+      "peak_date": "1950-02-05",
+      "peak_cfs": 44900.0,
+      "qualifiers": "",
+      "djf_roni": -1.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1951,
+      "peak_date": "1950-12-04",
+      "peak_cfs": 53600.0,
+      "qualifiers": "",
+      "djf_roni": -0.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1952,
+      "peak_date": "1951-12-28",
+      "peak_cfs": 41300.0,
+      "qualifiers": "",
+      "djf_roni": 0.7,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1953,
+      "peak_date": "1953-01-10",
+      "peak_cfs": 52200.0,
+      "qualifiers": "",
+      "djf_roni": 0.4,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1954,
+      "peak_date": "1954-01-17",
+      "peak_cfs": 59900.0,
+      "qualifiers": "",
+      "djf_roni": 0.6,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1955,
+      "peak_date": "1954-12-06",
+      "peak_cfs": 13500.0,
+      "qualifiers": "",
+      "djf_roni": -0.1,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1956,
+      "peak_date": "1955-12-23",
+      "peak_cfs": 90100.0,
+      "qualifiers": "",
+      "djf_roni": -0.8,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1957,
+      "peak_date": "1957-02-25",
+      "peak_cfs": 45800.0,
+      "qualifiers": "",
+      "djf_roni": 0.0,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1958,
+      "peak_date": "1958-02-25",
+      "peak_cfs": 68700.0,
+      "qualifiers": "",
+      "djf_roni": 1.9,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1959,
+      "peak_date": "1959-02-16",
+      "peak_cfs": 48900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.8,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1960,
+      "peak_date": "1960-02-08",
+      "peak_cfs": 63100.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1961,
+      "peak_date": "1961-01-31",
+      "peak_cfs": 33100.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.0,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1962,
+      "peak_date": "1962-02-13",
+      "peak_cfs": 57400.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.0,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1963,
+      "peak_date": "1963-02-01",
+      "peak_cfs": 71800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1964,
+      "peak_date": "1964-01-21",
+      "peak_cfs": 33400.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.0,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1965,
+      "peak_date": "1964-12-23",
+      "peak_cfs": 93400.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1966,
+      "peak_date": "1966-01-05",
+      "peak_cfs": 77000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.5,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1967,
+      "peak_date": "1967-01-21",
+      "peak_cfs": 68400.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1968,
+      "peak_date": "1968-01-30",
+      "peak_cfs": 40600.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1969,
+      "peak_date": "1969-01-14",
+      "peak_cfs": 68600.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.1,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1970,
+      "peak_date": "1970-01-24",
+      "peak_cfs": 72900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.5,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1971,
+      "peak_date": "1970-12-04",
+      "peak_cfs": 59800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.9,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1972,
+      "peak_date": "1971-12-27",
+      "peak_cfs": 8990.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1973,
+      "peak_date": "1973-01-12",
+      "peak_cfs": 62800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.7,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1974,
+      "peak_date": "1974-01-17",
+      "peak_cfs": 74000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.6,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1975,
+      "peak_date": "1975-02-13",
+      "peak_cfs": 67300.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.1,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1976,
+      "peak_date": "1976-03-01",
+      "peak_cfs": 5260.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.0,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1977,
+      "peak_date": "1977-03-16",
+      "peak_cfs": 1370.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.0,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1978,
+      "peak_date": "1978-01-17",
+      "peak_cfs": 65200.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.0,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1979,
+      "peak_date": "1979-01-11",
+      "peak_cfs": 26200.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1980,
+      "peak_date": "1980-01-14",
+      "peak_cfs": 59700.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.7,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1981,
+      "peak_date": "1981-01-28",
+      "peak_cfs": 35200.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.0,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1982,
+      "peak_date": "1981-12-20",
+      "peak_cfs": 67200.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.1,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1983,
+      "peak_date": "1983-01-27",
+      "peak_cfs": 71900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 2.4,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1984,
+      "peak_date": "1983-12-25",
+      "peak_cfs": 55200.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.6,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1985,
+      "peak_date": "1985-02-08",
+      "peak_cfs": 28500.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.8,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1986,
+      "peak_date": "1986-02-18",
+      "peak_cfs": 102000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1987,
+      "peak_date": "1987-03-13",
+      "peak_cfs": 26000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.5,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1988,
+      "peak_date": "1988-01-04",
+      "peak_cfs": 35300.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.5,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1989,
+      "peak_date": "1989-03-19",
+      "peak_cfs": 23800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.6,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1990,
+      "peak_date": "1990-01-14",
+      "peak_cfs": 18000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1991,
+      "peak_date": "1991-03-04",
+      "peak_cfs": 48500.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.6,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1992,
+      "peak_date": "1992-02-20",
+      "peak_cfs": 28000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 2.1,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1993,
+      "peak_date": "1993-01-21",
+      "peak_cfs": 55100.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.6,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1994,
+      "peak_date": "1994-02-20",
+      "peak_cfs": 14700.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1995,
+      "peak_date": "1995-01-09",
+      "peak_cfs": 93900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.2,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1996,
+      "peak_date": "1996-02-05",
+      "peak_cfs": 49200.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.9,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1997,
+      "peak_date": "1997-01-01",
+      "peak_cfs": 82100.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 1998,
+      "peak_date": "1998-02-03",
+      "peak_cfs": 56100.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 2.1,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 1999,
+      "peak_date": "1999-02-09",
+      "peak_cfs": 37800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.6,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2000,
+      "peak_date": "2000-02-14",
+      "peak_cfs": 37900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.5,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2001,
+      "peak_date": "2001-03-05",
+      "peak_cfs": 24700.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.8,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2002,
+      "peak_date": "2002-01-03",
+      "peak_cfs": 44000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2003,
+      "peak_date": "2002-12-16",
+      "peak_cfs": 57600.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.9,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2004,
+      "peak_date": "2004-02-18",
+      "peak_cfs": 63400.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2005,
+      "peak_date": "2004-12-28",
+      "peak_cfs": 21900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.5,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2006,
+      "peak_date": "2006-01-01",
+      "peak_cfs": 86000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.9,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2007,
+      "peak_date": "2007-02-11",
+      "peak_cfs": 29800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.6,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2008,
+      "peak_date": "2008-01-05",
+      "peak_cfs": 36600.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.7,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2009,
+      "peak_date": "2009-02-24",
+      "peak_cfs": 22400.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.0,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2010,
+      "peak_date": "2010-01-21",
+      "peak_cfs": 37900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.4,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2011,
+      "peak_date": "2011-03-21",
+      "peak_cfs": 37300.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.4,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2012,
+      "peak_date": "2012-03-28",
+      "peak_cfs": 26800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.8,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2013,
+      "peak_date": "2012-12-24",
+      "peak_cfs": 38400.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.5,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2014,
+      "peak_date": "2014-02-09",
+      "peak_cfs": 18900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.4,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2015,
+      "peak_date": "2014-12-12",
+      "peak_cfs": 42900.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.5,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2016,
+      "peak_date": "2016-03-11",
+      "peak_cfs": 27500.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 2.1,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2017,
+      "peak_date": "2017-01-11",
+      "peak_cfs": 55100.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.6,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2018,
+      "peak_date": "2018-04-08",
+      "peak_cfs": 14800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.1,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2019,
+      "peak_date": "2019-02-28",
+      "peak_cfs": 72000.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.7,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2020,
+      "peak_date": "2019-12-08",
+      "peak_cfs": 7390.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 0.1,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2021,
+      "peak_date": "2021-02-03",
+      "peak_cfs": 1950.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.3,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2022,
+      "peak_date": "2021-10-25",
+      "peak_cfs": 20800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.2,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2023,
+      "peak_date": "2023-01-10",
+      "peak_cfs": 36800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -0.9,
+      "el_nino_winter": false
+    },
+    {
+      "water_year": 2024,
+      "peak_date": "2024-02-06",
+      "peak_cfs": 30800.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": 1.1,
+      "el_nino_winter": true
+    },
+    {
+      "water_year": 2025,
+      "peak_date": "2025-02-05",
+      "peak_cfs": 45300.0,
+      "qualifiers": "REGULATED",
+      "djf_roni": -1.1,
+      "el_nino_winter": false
+    }
+  ]
+}

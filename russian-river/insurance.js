@@ -2,13 +2,34 @@
 const $=id=>document.getElementById(id),M=InsuranceModel;
 const money=x=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(x);
 const pct=x=>(100*x).toFixed(1)+'%';
-let config,stage=45,current,annualResult;
+let config,historyData,stage=45,current,annualResult;
 const key='russian-river-insurance-assumptions-v1';
 function read(){const number=id=>$(id).value.trim()===''?NaN:Number($(id).value);return{deductible:number('deductible'),limit:number('limit'),premium:$('premium').value.trim()===''?null:number('premium'),waterOffset:number('waterOffset'),costScale:number('costScale'),lowerMax:number('lowerMax'),lowerEligible:number('lowerEligible'),upperEligible:number('upperEligible'),repairs:[0,1,2,3,4].map(i=>number('repair-'+i)),weights:[0,1,2,3,4].map(i=>number('weight-'+i))};}
 function set(a){for(const k of ['deductible','limit','premium','waterOffset','costScale','lowerMax','lowerEligible','upperEligible'])$(k).value=a[k]===null?'':a[k];a.repairs.forEach((v,i)=>$('repair-'+i).value=v);a.weights.forEach((v,i)=>$('weight-'+i).value=v);}
+function renderHistory(){
+ const only=$('enso-only').checked, period=historyData.periods['1984'], stats=only?period.el_nino:period.all;
+ const count=`${stats.k} of ${stats.n} ${only?'El Niño winters':'years'} (${Math.round(stats.fraction*100)}%)`;
+ $('history-stat').textContent=`${count} reached or exceeded the 2019 peak of 72,000 cfs.`;
+ $('enso-interpretation').textContent=only?`Other winters: ${period.other.k} of ${period.other.n} (${Math.round(period.other.fraction*100)}%). The small samples do not establish an El Niño increase in large-flood frequency. Faint marks show the other winters.`:'Large floods occurred in both El Niño and other winters. Select the filter to inspect the El Niño subset.';
+ const range=s=>s.interval_95.map(x=>Math.round(x*100)+'%').join('–');
+ $('history-intervals').textContent=`95% binomial intervals: all years ${range(period.all)}; El Niño ${range(period.el_nino)}; other winters ${range(period.other)}. These describe sampling uncertainty assuming independent years with constant probability, not future climate or model error. Full-record threshold count: ${historyData.periods['1940'].all.k} of 86 years.`;
+ const rows=historyData.annual_peaks.filter(x=>x.water_year>=1984), w=Math.max(300,Math.round($('history-chart').getBoundingClientRect().width)),h=215,left=48,right=14,top=20,bottom=35;
+ const x=y=>left+(y-1984)/(2025-1984)*(w-left-right), y=q=>h-bottom-q/110000*(h-top-bottom);
+ const grid=[0,50000,100000].map(q=>`<line x1="${left}" x2="${w-right}" y1="${y(q)}" y2="${y(q)}" stroke="#dce4df"/><text x="${left-8}" y="${y(q)+4}" text-anchor="end">${q/1000}k</text>`).join('');
+ const marks=rows.map(r=>{const selected=!only||r.el_nino_winter,color=selected?(only?'#9b651c':'#147879'):'#bdc9c5';return `<g opacity="${selected?1:.4}"><title>Water year ${r.water_year}: ${r.peak_cfs.toLocaleString('en-US')} cfs; ${r.el_nino_winter?'El Niño':'other'} winter</title><line x1="${x(r.water_year)}" x2="${x(r.water_year)}" y1="${y(0)}" y2="${y(r.peak_cfs)}" stroke="${color}" stroke-width="2"/><circle cx="${x(r.water_year)}" cy="${y(r.peak_cfs)}" r="3" fill="${color}"/></g>`;}).join('');
+ const axis=(w<450?[1984,2005,2025]:[1984,1995,2005,2015,2025]).map(yr=>`<text x="${x(yr)}" y="${h-14}" text-anchor="middle">${yr}</text>`).join('');
+ $('history-chart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="flow-chart-title flow-chart-desc"><title id="flow-chart-title">Annual peak river discharge, 1984–2025</title><desc id="flow-chart-desc">${count} reached 72,000 cfs. ${only?'El Niño winters are highlighted; other winters are faded.':''}The full record is available as CSV in Data, full record, and model basis.</desc><g font-family="system-ui,sans-serif" font-size="12" fill="#536971">${grid}${marks}<line x1="${left}" x2="${w-right}" y1="${y(72000)}" y2="${y(72000)}" stroke="#a76c21" stroke-dasharray="5 4"/><text x="${w-right}" y="${y(72000)-7}" text-anchor="end" fill="#8b5918">2019 peak · 72,000 cfs</text>${axis}<text x="${left}" y="12">cfs</text></g></svg>`;
+}
+async function loadHistory(){
+ try{const response=await fetch('data/research/flood_enso_history.json?v=1');if(!response.ok)throw new Error('History data unavailable');historyData=await response.json();$('enso-only').disabled=false;$('enso-only').onchange=renderHistory;window.addEventListener('resize',renderHistory);renderHistory();}
+ catch{$('history-stat').textContent='The historical record could not be loaded. Reload the page or open the research page.';}
+}
 // Keep the homeowner view about event protection, not invented annual odds.
 function renderBrief(){
  const rounded=x=>x===0?'$0':'~'+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumSignificantDigits:2}).format(x);
+ const major=M.event(current,config,50);
+ $('decision-conclusion').textContent=major.payout>0?`Insurance is worth considering if a ${rounded(major.loss).replace('~','')} repair bill would be difficult to absorb. In the larger flood example, it reduces owner-paid repairs to about ${rounded(major.retained).replace('~','')}. ${current.premium===null?'The annual premium is still needed to assess the policy’s value.':'At '+money(current.premium)+' per year, cost-effectiveness remains unresolved; property damage probabilities and coverage still need verification.'}`:'Under the entered assumptions, insurance pays nothing in the larger flood example. These assumptions do not support buying this policy for that event; verify its coverage and deductible.';
+ if(major.payout>0&&major.payout<major.loss/2)$('decision-conclusion').textContent=`Under these assumptions, most of the larger flood’s repair cost remains with the owner: ${rounded(major.retained)} of ${rounded(major.loss)}. The policy offers limited protection in this example; its price and coverage need review before purchase.`;
  $('brief-limit').textContent=money(current.limit);$('brief-deductible').textContent=money(current.deductible);
  $('simple-examples').innerHTML=[40,50].map((s,i)=>{
   const e=M.event(current,config,s);
@@ -20,7 +41,7 @@ function renderBrief(){
 function render(){
  current=read();const errors=M.validate(current);$('simple-examples').hidden=!!errors.length;$('error').hidden=!errors.length;$('error').textContent=errors.join(' ');for(const id of ['export','print','save'])$(id).disabled=!!errors.length;
  $('waterOffset-value').textContent=(current.waterOffset>0?'+':'')+current.waterOffset.toFixed(2)+' ft';$('costScale-value').textContent=current.costScale.toFixed(2)+'×';
- if(errors.length){$('brief-limit').textContent='—';$('brief-deductible').textContent='—';$('simple-premium').textContent='Check the input error above.';for(const id of ['event-loss','event-payout','event-retained','annual-loss','annual-payout','annual-retained','claim-probability','ten-year'])$(id).textContent='—';$('event-water').textContent='Fix the highlighted assumptions to calculate.';$('event-breakdown').textContent='';$('event-bar').innerHTML='';$('premium-conclusion').textContent='Results unavailable until the assumptions are valid.';$('remaining').textContent='';$('sensitivity-rows').innerHTML='';for(let i=0;i<5;i++){$('loss-'+i).textContent='—';$('payout-'+i).textContent='—';}annualResult=null;return;}
+ if(errors.length){$('decision-conclusion').textContent='The assessment is unavailable until the input error below is corrected.';$('brief-limit').textContent='—';$('brief-deductible').textContent='—';$('simple-premium').textContent='Check the input error above.';for(const id of ['event-loss','event-payout','event-retained','annual-loss','annual-payout','annual-retained','claim-probability','ten-year'])$(id).textContent='—';$('event-water').textContent='Fix the highlighted assumptions to calculate.';$('event-breakdown').textContent='';$('event-bar').innerHTML='';$('premium-conclusion').textContent='Results unavailable until the assumptions are valid.';$('remaining').textContent='';$('sensitivity-rows').innerHTML='';for(let i=0;i<5;i++){$('loss-'+i).textContent='—';$('payout-'+i).textContent='—';}annualResult=null;return;}
  renderBrief();annualResult=M.annual(current,config);const e=M.event(current,config,stage);$('event-stage-number').textContent=stage;
  $('event-water').textContent=`Water here: ${e.water.toFixed(1)} ft NAVD88 · ${Math.abs(e.depth).toFixed(1)} ft ${e.depth>0?'above':'below'} the ${config.elevation_certificate.C2b_next_higher_floor_ft.toFixed(1)}-ft living-floor reference.`;
  $('event-loss').textContent=money(e.loss);$('event-payout').textContent=money(e.payout);$('event-retained').textContent=money(e.retained);$('event-bar').innerHTML=`<span style="width:${e.loss?100*e.payout/e.loss:0}%"></span>`;
@@ -48,6 +69,6 @@ async function init(){
  $('export-close').onclick=()=>$('export-dialog').close();
  $('export-download').onclick=()=>{const url=URL.createObjectURL(new Blob([$('export-text').value],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='russian-river-insurance-scenario.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);$('export-status').textContent='Download requested. Copy JSON is available if your browser does not save the file.';};
  $('export-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('export-text').value);$('export-status').textContent='Copied scenario JSON.';}catch{$('export-text').focus();$('export-text').select();$('export-status').textContent='Text selected. Use your device’s Copy command.';}};
- $('print').onclick=()=>window.print();render();
+ $('print').onclick=()=>window.print();render();loadHistory();
 }
-init().catch(e=>{$('home-brief').hidden=true;$('error').hidden=false;$('error').textContent=e.message;for(const id of ['export','print','save'])$(id).disabled=true;});
+init().catch(e=>{$('decision-conclusion').textContent='The assessment could not be loaded.';$('home-brief').hidden=true;$('error').hidden=false;$('error').textContent=e.message;for(const id of ['export','print','save'])$(id).disabled=true;});

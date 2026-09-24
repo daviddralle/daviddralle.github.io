@@ -100,3 +100,15 @@ Inputs may be saved explicitly in localStorage on the current browser; no policy
 ### Homeowner summary · September 24, 2026
 
 The default insurance page shows two event examples (40 and 50 ft gauge stages), rounded to two significant digits, comparing total repairs paid by the owner with and without the assumed policy. Premium is separate. Labels follow the computed water depth when assumptions change. These are cost illustrations, not historical reconstructions or likelihood estimates. All annual probabilities, sensitivity tables and editable technical assumptions are behind a closed disclosure. No buy/no-buy verdict is computed from the hypothetical probability weights. The print view includes only the homeowner summary.
+
+### Observed flow history and ENSO filter · September 24, 2026
+
+The insurance summary now includes the measured Hacienda Bridge annual-peak record. Default period1984–2025 has5 of42 peaks at or above the2019 discharge of72,000cfs. The El Niño checkbox subsets winters using NOAA CPC's historical ERSSTv6 Relative Oceanic Niño Index (RONI) warm-episode label for DJF of the ending water year. It uses the source's episode classification (at least five consecutive overlapping seasons), not a single-season threshold. DJF1997 is not El Niño; DJF1998 is. Grouping is by winter, not ENSO at the exact annual peak date. The source was archived September24,2026.
+
+The El Niño subset has2 of14 threshold exceedances (1995,2019), compared with3 of28 other winters (1986,1997,2006). Exact95% Clopper–Pearson intervals are1.8–42.8% and2.3–28.2%, respectively (all years4.0–25.6%). These small samples do not establish higher large-flood frequency in El Niño winters; they do not establish equivalence either. A two-sided Fisher exact comparison gives p=1.0. Both calculations assume independent years; regulation, climate trends and serial dependence are not resolved. The longer1950–2025 join and full1940–2025 peak record are retained in the downloadable data.
+
+The historical filter does not alter the hydraulic surfaces, damage amounts or illustrative financial probability weights. Discharge at Hacienda Bridge is not interchangeable with Guerneville gauge stage. There is not yet a verified discharge-stage-property-loss mapping; measured river-flow threshold fractions must not be presented as insurance claim probabilities. The conclusion describes conditional protection against a large modeled repair bill, not a calibrated actuarial buy/no-buy recommendation. Public joined data: data/research/flood_enso_history.json and.csv. Reproduction script: local scripts/analyze_enso_history.py.
+
+### Fixed certificate elevations · September 24, 2026
+
+The map floor-offset slider and reset control have been removed. Map calculations read the living-floor elevation directly from certificate field C2.b (45.6 ft NAVD88); the lower enclosure remains C2.a37.2 ft. Gage height controls the water scenario. The insurance worksheet water-surface sensitivity test, behind its technical disclosure, varies modeled water rather than the surveyed building.
