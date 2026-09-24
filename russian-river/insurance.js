@@ -12,7 +12,8 @@ function set(a){for(const k of ['limit','deductible','premium','damage'])$(k).va
 function save(){try{localStorage.setItem(key,JSON.stringify({schema:2,inputs,selection:selection()}));$('save-status').textContent='Inputs saved in this browser.';}catch{storageAvailable=false;$('save-status').textContent='Browser storage unavailable · use Export to keep inputs.';}}
 function draw(){
  const s=selection(),g=group(),f=fit(),w=Math.max(300,Math.round($('plot').clientWidth)),h=$('plot').clientHeight;
- const l=43,r=12,t=15,b=34,W=w-l-r,H=h-t-b;
+ const fontSize=parseFloat(getComputedStyle($('plot')).fontSize)||10, unit=fontSize/10;
+ const l=43*unit,r=12*unit,t=15*unit,b=34*unit,W=w-l-r,H=h-t-b;
  let graphic='',legend='';const gridColor='#e2e9e4';
  const text=(x,y,v,anchor='middle',color='#637b74')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" fill="${color}">${v}</text>`;
  const line=(x1,y1,x2,y2,color=gridColor,dash='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
@@ -20,8 +21,8 @@ function draw(){
  if(view==='frequency'){
   $('plot-title').textContent='Annual flood exceedance';
   const x=q=>l+q/120000*W,y=p=>t+(1-p)*H;
-  for(const p of [0,.25,.5,.75,1])graphic+=line(l,y(p),w-r,y(p))+text(l-7,y(p)+4,Math.round(p*100)+'%','end');
-  for(const q of [0,30000,60000,90000,120000])graphic+=text(x(q),h-16,q/1000+'k');
+  for(const p of [0,.25,.5,.75,1])graphic+=line(l,y(p),w-r,y(p))+text(l-7*unit,y(p)+4*unit,Math.round(p*100)+'%','end');
+  for(const q of [0,30000,60000,90000,120000])graphic+=text(x(q),h-16*unit,q/1000+'k');
   const curve=(values)=>data.grid_cfs.map((q,i)=>q<=120000?`${x(q).toFixed(2)},${y(values[i]).toFixed(2)}`:null).filter(Boolean);
   const band=curve(f.band_95[0]).concat(curve(f.band_95[1]).reverse()).join(' ');
   graphic+=`<polygon points="${band}" fill="#c5e1d8" opacity=".65"/>`;
@@ -33,19 +34,19 @@ function draw(){
   const peaks=[...g.peaks].sort((a,b)=>b-a);
   peaks.forEach((q,i)=>{if(q<=120000)graphic+=`<circle cx="${x(q)}" cy="${y((i+1)/(peaks.length+1))}" r="2.4" fill="#fff" stroke="#297e76"><title>${q.toLocaleString()} cfs; empirical plotting position ${pct((i+1)/(peaks.length+1))}</title></circle>`;});
   const q=data.threshold.hacienda_flow_cfs;
-  graphic+=line(x(q),t,x(q),h-b,'#a7783c','4 3')+`<circle cx="${x(q)}" cy="${y(f.p)}" r="4.5" fill="#a7783c" stroke="white"/>`+text(Math.min(w-r-20,x(q)+7),t+10,'House threshold','start','#936932');
+  graphic+=line(x(q),t,x(q),h-b,'#a7783c','4 3')+`<circle cx="${x(q)}" cy="${y(f.p)}" r="4.5" fill="#a7783c" stroke="white"/>`+text(Math.min(w-r-20,x(q)+7),t+10*unit,'House threshold','start','#936932');
   graphic+=text(l+W/2,h-1,'Annual peak discharge · cfs');
   legend+='<span style="--key:#c5e1d8">95% fit interval</span>';
  }else{
   $('plot-title').textContent='Observed annual peak discharge';
   const all=data.groups[s.period+'_all'],start=all.start,end=all.end,x=yr=>l+(yr-start)/(end-start)*W,y=q=>t+(1-q/115000)*H;
-  for(const q of [0,50000,100000])graphic+=line(l,y(q),w-r,y(q))+text(l-7,y(q)+4,q/1000+'k','end');
-  for(const yr of [start,Math.round((start+end)/2),end])graphic+=text(x(yr),h-16,yr);
+  for(const q of [0,50000,100000])graphic+=line(l,y(q),w-r,y(q))+text(l-7*unit,y(q)+4*unit,q/1000+'k','end');
+  for(const yr of [start,Math.round((start+end)/2),end])graphic+=text(x(yr),h-16*unit,yr);
   all.years.forEach((yr,i)=>{const selected=g.years.includes(yr),c=selected?'#167b75':'#cad6d0';graphic+=line(x(yr),y(0),x(yr),y(all.peaks[i]),c)+`<circle cx="${x(yr)}" cy="${y(all.peaks[i])}" r="2.6" fill="${c}"><title>${yr}: ${all.peaks[i].toLocaleString()} cfs</title></circle>`;});
   graphic+=line(l,y(data.threshold.hacienda_flow_cfs),w-r,y(data.threshold.hacienda_flow_cfs),'#a7783c','4 3')+text(w-r,y(data.threshold.hacienda_flow_cfs)-5,'House threshold','end','#936932')+text(l+W/2,h-1,'Water year');
   legend=`<span style="--key:#167b75">${label(s.season)}</span><span style="--key:#a7783c">Modeled threshold</span>`;
  }
- $('plot').innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${$('plot-title').textContent}; ${g.n} years; fitted house flood probability ${pct(f.p)}"><g font-family="system-ui,sans-serif" font-size="10">${graphic}</g></svg>`;
+ $('plot').innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${$('plot-title').textContent}; ${g.n} years; fitted house flood probability ${pct(f.p)}"><g font-family="system-ui,sans-serif" font-size="${fontSize}">${graphic}</g></svg>`;
  $('plot-key').innerHTML=legend;
 }
 function methods(){
@@ -85,6 +86,6 @@ async function init(){
  $('reset').onclick=()=>{set(M.defaults);$('period').value='modern';$('enso').checked=false;$('model').value='gev';render();};
  $('export').onclick=()=>{const record={schema:2,created:new Date().toISOString(),inputs,selection:selection(),result,frequencyFit:fit(),threshold:data.threshold,status:'Exploratory binary expected-cost scenario; provisional single-event hydraulic transfer',source:'data/research/flood_frequency.json'};$('export-text').value=JSON.stringify(record,null,2);$('copy-status').textContent='';$('export-dialog').showModal();};
  $('export-close').onclick=()=>$('export-dialog').close();$('export-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('export-text').value);$('copy-status').textContent='Copied.';}catch{$('export-text').focus();$('export-text').select();$('copy-status').textContent='Selected; use your device’s Copy command.';}};
- window.addEventListener('resize',draw);render();
+ new ResizeObserver(draw).observe($('plot'));render();
 }
 init().catch(e=>{$('conclusion').textContent='Assessment unavailable.';$('error').hidden=false;$('error').textContent=e.message;$('export').disabled=true;});
