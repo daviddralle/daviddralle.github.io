@@ -13,9 +13,9 @@ function renderBrief(){
  $('simple-examples').innerHTML=[40,50].map((s,i)=>{
   const e=M.event(current,config,s);
   const title=e.depth>0?'Water reaches living areas':e.lowerDepth>0?'Water under the house':'Water stays below both floors';
-  return `<div class="example-card"><span class="example-label">${i?'Larger flood example':'Smaller flood example'}</span><h3>${title}</h3><div class="comparison"><div><span>You pay without insurance</span><strong>${rounded(e.loss)}</strong></div><div class="insured"><span>You pay with insurance</span><strong>${rounded(e.retained)}</strong></div></div></div>`;
+  return `<div class="example-card"><span class="example-label">${s} ft at Guerneville</span><h3>${title}</h3><div class="comparison"><div><span>Without insurance</span><strong>${rounded(e.loss)}</strong></div><div class="insured"><span>With insurance</span><strong>${rounded(e.retained)}</strong></div></div></div>`;
  }).join('');
- $('simple-premium').textContent=current.premium===null?'Enter it when you have the quote.':`${money(current.premium)} per year, in addition to your share of any repairs. Price alone does not confirm coverage.`;
+ $('simple-premium').textContent=current.premium===null?'No premium has been entered.':`${money(current.premium)} per year, in addition to owner-paid repairs.`;
 }
 function render(){
  current=read();const errors=M.validate(current);$('simple-examples').hidden=!!errors.length;$('error').hidden=!errors.length;$('error').textContent=errors.join(' ');for(const id of ['export','print','save'])$(id).disabled=!!errors.length;
