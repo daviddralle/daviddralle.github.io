@@ -116,3 +116,7 @@ The map floor-offset slider and reset control have been removed. Map calculation
 ### Living-floor damage only · September 24, 2026
 
 At the user’s explicit direction, damage is zero whenever water is at or below the surveyed living floor. The lower-enclosure repair allowance and coverage controls were removed; old saved lowerMax/lowerEligible values are ignored by the loss calculation. Cost examples now use45 and50ft gauge stages. At defaults, losses are$29,325 and$114,033; payouts$19,325 and$104,033; owner-paid repairs$10,000 in both examples, plus premiums. This is the adopted damage scope, not a physical assertion that all lower-enclosure equipment is immune to floods.
+
+### Executive presentation
+
+The main page shows the conditional protection conclusion, observed flow history, modeled owner costs and policy scenario. Calibration status, probability interpretation, uncertainty, assumptions and expected-cost/risk-aversion decision rules are retained in closed Data and methods / Model and decision methods disclosures. A missing premium is represented by the quote input. No buy recommendation is derived from the illustrative annual weights.
