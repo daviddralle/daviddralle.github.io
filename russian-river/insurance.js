@@ -1,75 +1,90 @@
 'use strict';
-const $=id=>document.getElementById(id),M=InsuranceModel;
+const $=id=>document.getElementById(id), M=DecisionModel;
 const money=x=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(x);
 const pct=x=>(100*x).toFixed(1)+'%';
-let config,historyData,stage=45,current,annualResult;
-const key='russian-river-insurance-assumptions-v1';
-function read(){const number=id=>$(id).value.trim()===''?NaN:Number($(id).value);return{deductible:number('deductible'),limit:number('limit'),premium:$('premium').value.trim()===''?null:number('premium'),waterOffset:number('waterOffset'),costScale:number('costScale'),lowerMax:0,lowerEligible:0,upperEligible:number('upperEligible'),repairs:[0,1,2,3,4].map(i=>number('repair-'+i)),weights:[0,1,2,3,4].map(i=>number('weight-'+i))};}
-function set(a){for(const k of ['deductible','limit','premium','waterOffset','costScale','upperEligible'])$(k).value=a[k]===null?'':a[k];a.repairs.forEach((v,i)=>$('repair-'+i).value=v);a.weights.forEach((v,i)=>$('weight-'+i).value=v);}
-function renderHistory(){
- const only=$('enso-only').checked, period=historyData.periods['1984'], stats=only?period.el_nino:period.all;
- const count=`${stats.k} of ${stats.n} ${only?'El Niño winters':'years'} (${Math.round(stats.fraction*100)}%)`;
- $('history-stat').textContent=`${count} reached or exceeded the 2019 peak of 72,000 cfs.`;
- $('enso-interpretation').hidden=!only;$('enso-interpretation').textContent=`Other winters: ${period.other.k} of ${period.other.n} (${Math.round(period.other.fraction*100)}%). Gold marks show El Niño winters.`;
- const range=s=>s.interval_95.map(x=>Math.round(x*100)+'%').join('–');
- $('history-intervals').textContent=`95% binomial intervals: all years ${range(period.all)}; El Niño ${range(period.el_nino)}; other winters ${range(period.other)}. These describe sampling uncertainty assuming independent years with constant probability, not future climate or model error. Full-record threshold count: ${historyData.periods['1940'].all.k} of 86 years.`;
- const rows=historyData.annual_peaks.filter(x=>x.water_year>=1984), w=Math.max(300,Math.round($('history-chart').getBoundingClientRect().width)),h=215,left=48,right=14,top=20,bottom=35;
- const x=y=>left+(y-1984)/(2025-1984)*(w-left-right), y=q=>h-bottom-q/110000*(h-top-bottom);
- const grid=[0,50000,100000].map(q=>`<line x1="${left}" x2="${w-right}" y1="${y(q)}" y2="${y(q)}" stroke="#dce4df"/><text x="${left-8}" y="${y(q)+4}" text-anchor="end">${q/1000}k</text>`).join('');
- const marks=rows.map(r=>{const selected=!only||r.el_nino_winter,color=selected?(only?'#9b651c':'#147879'):'#bdc9c5';return `<g opacity="${selected?1:.4}"><title>Water year ${r.water_year}: ${r.peak_cfs.toLocaleString('en-US')} cfs; ${r.el_nino_winter?'El Niño':'other'} winter</title><line x1="${x(r.water_year)}" x2="${x(r.water_year)}" y1="${y(0)}" y2="${y(r.peak_cfs)}" stroke="${color}" stroke-width="2"/><circle cx="${x(r.water_year)}" cy="${y(r.peak_cfs)}" r="3" fill="${color}"/></g>`;}).join('');
- const axis=(w<450?[1984,2005,2025]:[1984,1995,2005,2015,2025]).map(yr=>`<text x="${x(yr)}" y="${h-14}" text-anchor="middle">${yr}</text>`).join('');
- $('history-chart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="flow-chart-title flow-chart-desc"><title id="flow-chart-title">Annual peak river discharge, 1984–2025</title><desc id="flow-chart-desc">${count} reached 72,000 cfs. ${only?'El Niño winters are highlighted; other winters are faded.':''}The full record is available as CSV in Data and methods.</desc><g font-family="system-ui,sans-serif" font-size="12" fill="#536971">${grid}${marks}<line x1="${left}" x2="${w-right}" y1="${y(72000)}" y2="${y(72000)}" stroke="#a76c21" stroke-dasharray="5 4"/><text x="${w-right}" y="${y(72000)-7}" text-anchor="end" fill="#8b5918">2019 peak · 72,000 cfs</text>${axis}<text x="${left}" y="12">cfs</text></g></svg>`;
+const key='russian-river-binary-insurance-v2';
+let data,view='frequency',result,inputs,storageAvailable=true;
+function selection(){return {period:$('period').value,season:$('enso').checked?'el_nino':'all',model:$('model').value};}
+function group(){const s=selection();return data.groups[s.period+'_'+s.season];}
+function fit(){return group().models[$('model').value];}
+function read(){return Object.fromEntries(['limit','deductible','premium','damage'].map(k=>[k,$(k).value.trim()===''?(k==='premium'?null:NaN):Number($(k).value)]));}
+function set(a){for(const k of ['limit','deductible','premium','damage'])$(k).value=a[k]===null?'':a[k];}
+function save(){try{localStorage.setItem(key,JSON.stringify({schema:2,inputs,selection:selection()}));$('save-status').textContent='Inputs saved in this browser.';}catch{storageAvailable=false;$('save-status').textContent='Browser storage unavailable · use Export to keep inputs.';}}
+function draw(){
+ const s=selection(),g=group(),f=fit(),w=Math.max(300,Math.round($('plot').clientWidth)),h=$('plot').clientHeight;
+ const l=43,r=12,t=15,b=34,W=w-l-r,H=h-t-b;
+ let graphic='',legend='';const gridColor='#e2e9e4';
+ const text=(x,y,v,anchor='middle',color='#637b74')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" fill="${color}">${v}</text>`;
+ const line=(x1,y1,x2,y2,color=gridColor,dash='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+ const label=sel=>sel==='all'?'All years':sel==='el_nino'?'El Niño':'Other winters';
+ if(view==='frequency'){
+  $('plot-title').textContent='Annual flood exceedance';
+  const x=q=>l+q/120000*W,y=p=>t+(1-p)*H;
+  for(const p of [0,.25,.5,.75,1])graphic+=line(l,y(p),w-r,y(p))+text(l-7,y(p)+4,Math.round(p*100)+'%','end');
+  for(const q of [0,30000,60000,90000,120000])graphic+=text(x(q),h-16,q/1000+'k');
+  const curve=(values)=>data.grid_cfs.map((q,i)=>q<=120000?`${x(q).toFixed(2)},${y(values[i]).toFixed(2)}`:null).filter(Boolean);
+  const band=curve(f.band_95[0]).concat(curve(f.band_95[1]).reverse()).join(' ');
+  graphic+=`<polygon points="${band}" fill="#c5e1d8" opacity=".65"/>`;
+  for(const season of ['all','el_nino','other'].filter(v=>v!==s.season).concat(s.season)){
+   const selected=season===s.season,color=selected?'#167b75':season==='el_nino'?'#ae8243':'#8b9f98';
+   graphic+=`<polyline points="${curve(data.groups[s.period+'_'+season].models[s.model].survival).join(' ')}" fill="none" stroke="${color}" stroke-width="${selected?2.5:1.2}" ${selected?'':'stroke-dasharray="4 4"'}/>`;
+   legend+=`<span style="--key:${color}">${label(season)}</span>`;
+  }
+  const peaks=[...g.peaks].sort((a,b)=>b-a);
+  peaks.forEach((q,i)=>{if(q<=120000)graphic+=`<circle cx="${x(q)}" cy="${y((i+1)/(peaks.length+1))}" r="2.4" fill="#fff" stroke="#297e76"><title>${q.toLocaleString()} cfs; empirical plotting position ${pct((i+1)/(peaks.length+1))}</title></circle>`;});
+  const q=data.threshold.hacienda_flow_cfs;
+  graphic+=line(x(q),t,x(q),h-b,'#a7783c','4 3')+`<circle cx="${x(q)}" cy="${y(f.p)}" r="4.5" fill="#a7783c" stroke="white"/>`+text(Math.min(w-r-20,x(q)+7),t+10,'House threshold','start','#936932');
+  graphic+=text(l+W/2,h-1,'Annual peak discharge · cfs');
+  legend+='<span style="--key:#c5e1d8">95% fit interval</span>';
+ }else{
+  $('plot-title').textContent='Observed annual peak discharge';
+  const all=data.groups[s.period+'_all'],start=all.start,end=all.end,x=yr=>l+(yr-start)/(end-start)*W,y=q=>t+(1-q/115000)*H;
+  for(const q of [0,50000,100000])graphic+=line(l,y(q),w-r,y(q))+text(l-7,y(q)+4,q/1000+'k','end');
+  for(const yr of [start,Math.round((start+end)/2),end])graphic+=text(x(yr),h-16,yr);
+  all.years.forEach((yr,i)=>{const selected=g.years.includes(yr),c=selected?'#167b75':'#cad6d0';graphic+=line(x(yr),y(0),x(yr),y(all.peaks[i]),c)+`<circle cx="${x(yr)}" cy="${y(all.peaks[i])}" r="2.6" fill="${c}"><title>${yr}: ${all.peaks[i].toLocaleString()} cfs</title></circle>`;});
+  graphic+=line(l,y(data.threshold.hacienda_flow_cfs),w-r,y(data.threshold.hacienda_flow_cfs),'#a7783c','4 3')+text(w-r,y(data.threshold.hacienda_flow_cfs)-5,'House threshold','end','#936932')+text(l+W/2,h-1,'Water year');
+  legend=`<span style="--key:#167b75">${label(s.season)}</span><span style="--key:#a7783c">Modeled threshold</span>`;
+ }
+ $('plot').innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${$('plot-title').textContent}; ${g.n} years; fitted house flood probability ${pct(f.p)}"><g font-family="system-ui,sans-serif" font-size="10">${graphic}</g></svg>`;
+ $('plot-key').innerHTML=legend;
 }
-async function loadHistory(){
- try{const response=await fetch('data/research/flood_enso_history.json?v=1');if(!response.ok)throw new Error('History data unavailable');historyData=await response.json();$('enso-only').disabled=false;$('enso-only').onchange=renderHistory;window.addEventListener('resize',renderHistory);renderHistory();}
- catch{$('history-stat').textContent='The historical record could not be loaded. Reload the page or open the research page.';}
-}
-// Keep the homeowner view about event protection, not invented annual odds.
-function renderBrief(){
- const rounded=x=>x===0?'$0':'~'+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumSignificantDigits:2}).format(x);
- const major=M.event(current,config,50);
- $('decision-conclusion').textContent=major.payout>0?`Insurance reduces the larger modeled repair bill from about ${rounded(major.loss).replace('~','')} to ${rounded(major.retained).replace('~','')} out of pocket. It is worth considering if paying the full repair cost would strain savings.`:'The policy pays nothing in the larger modeled flood. It provides no financial benefit for that scenario.';
- if(major.payout>0&&major.payout<major.loss/2)$('decision-conclusion').textContent=`The policy provides limited protection in the larger modeled flood. The owner retains ${rounded(major.retained)} of the ${rounded(major.loss)} repair bill.`;
- $('brief-limit').textContent=money(current.limit);$('brief-deductible').textContent=money(current.deductible);
- $('simple-examples').innerHTML=[45,50].map(s=>{
-  const e=M.event(current,config,s);
-  const title=e.depth>0?`${e.depth.toFixed(1)} ft above living floor`:'Water below living floor';
-  return `<div class="example-card"><span class="example-label">${s} ft at Guerneville</span><h3>${title}</h3><div class="comparison"><div><span>Without insurance</span><strong>${rounded(e.loss)}</strong></div><div class="insured"><span>With insurance</span><strong>${rounded(e.retained)}</strong></div></div></div>`;
- }).join('');
- $('simple-premium').textContent=current.premium===null?'Awaiting quote.':`${money(current.premium)} per year.`;
+function methods(){
+ const s=selection(),g=group(),f=fit(),th=data.threshold;
+ $('fit-details').innerHTML=`<p>Selected fit: <b>${s.model==='gev'?'GEV / L-moments':'Gumbel / L-moments'}</b>. ${g.n} years; house-threshold exceedance probability ${pct(f.p)}; bootstrap 95% interval ${f.interval_95.map(pct).join('–')}. Observed: ${g.observed.k}/${g.n} (${pct(g.observed.p)}); exact binomial interval ${g.observed.interval_95.map(pct).join('–')}.</p><table><thead><tr><th>Year group</th><th>n</th><th>GEV</th><th>Gumbel</th><th>Observed</th></tr></thead><tbody>${['all','el_nino','other'].map(k=>{const a=data.groups[s.period+'_'+k];return `<tr><td>${k==='all'?'All years':k==='el_nino'?'El Niño':'Other winters'}</td><td>${a.n}</td><td>${pct(a.models.gev.p)}</td><td>${pct(a.models.gumbel.p)}</td><td>${a.observed.k}/${a.n}</td></tr>`;}).join('')}</tbody></table><p>Fit parameters (SciPy convention): ${Object.entries(f.parameters).map(([k,v])=>`${k} = ${v.toPrecision(6)}`).join('; ')}.</p>`;
+ $('threshold-details').innerHTML=`<p>Certificate living floor: <b>${th.living_floor_ft_NAVD88.toFixed(1)} ft NAVD88</b>. Modeled Guerneville gage threshold: <b>${th.gage_stage_ft.toFixed(2)} ft</b>. Working Hacienda flow threshold: <b>${Math.round(th.hacienda_flow_cfs).toLocaleString()} cfs</b>.</p><table><thead><tr><th>2019 crossing</th><th>Hacienda flow</th><th>Selected fitted probability</th></tr></thead><tbody>${th.crossings.map((c,i)=>`<tr><td>${c.limb} · ${c.start.slice(0,16).replace('T',' ')}</td><td>${Math.round(c.flow_cfs).toLocaleString()} cfs</td><td>${pct(f.threshold_limb_probabilities[i])}</td></tr>`).join('')}</tbody></table>`;
 }
 function render(){
- current=read();const errors=M.validate(current);$('simple-examples').hidden=!!errors.length;$('error').hidden=!errors.length;$('error').textContent=errors.join(' ');for(const id of ['export','print','save'])$(id).disabled=!!errors.length;
- $('waterOffset-value').textContent=(current.waterOffset>0?'+':'')+current.waterOffset.toFixed(2)+' ft';$('costScale-value').textContent=current.costScale.toFixed(2)+'×';
- if(errors.length){$('decision-conclusion').textContent='The assessment is unavailable until the input error below is corrected.';$('brief-limit').textContent='—';$('brief-deductible').textContent='—';$('simple-premium').textContent='Check the input error above.';for(const id of ['event-loss','event-payout','event-retained','annual-loss','annual-payout','annual-retained','claim-probability','ten-year'])$(id).textContent='—';$('event-water').textContent='Fix the highlighted assumptions to calculate.';$('event-breakdown').textContent='';$('event-bar').innerHTML='';$('premium-conclusion').textContent='Results unavailable until the assumptions are valid.';$('remaining').textContent='';$('sensitivity-rows').innerHTML='';for(let i=0;i<5;i++){$('loss-'+i).textContent='—';$('payout-'+i).textContent='—';}annualResult=null;return;}
- renderBrief();annualResult=M.annual(current,config);const e=M.event(current,config,stage);$('event-stage-number').textContent=stage;
- $('event-water').textContent=`Water here: ${e.water.toFixed(1)} ft NAVD88 · ${Math.abs(e.depth).toFixed(1)} ft ${e.depth>0?'above':'below'} the ${config.elevation_certificate.C2b_next_higher_floor_ft.toFixed(1)}-ft living-floor reference.`;
- $('event-loss').textContent=money(e.loss);$('event-payout').textContent=money(e.payout);$('event-retained').textContent=money(e.retained);$('event-bar').innerHTML=`<span style="width:${e.loss?100*e.payout/e.loss:0}%"></span>`;
- $('event-breakdown').textContent=`Living-area repairs ${money(e.upper)}; no damage below the living floor. Eligible loss ${money(e.eligible)}; deductible ${money(current.deductible)}. Teal is the insurer’s share; gray is retained loss. Premium is separate.`;
- annualResult.events.forEach((x,i)=>{$('loss-'+i).textContent=money(x.loss);$('payout-'+i).textContent=money(x.payout);});
- $('remaining').textContent=`Entered flood scenarios total ${pct(annualResult.totalWeight)} per year. The remaining ${pct(1-annualResult.totalWeight)} is assigned zero modeled damage. Floods below, between, and above these representative scenarios are not separately integrated.`;
- $('annual-loss').textContent=money(annualResult.loss);$('annual-payout').textContent=money(annualResult.payout);$('annual-retained').textContent=money(annualResult.retained);$('claim-probability').textContent=pct(annualResult.claimProbability);$('ten-year').textContent=pct(annualResult.tenYearProbability);
- $('premium-conclusion').textContent=current.premium===null?`Premium unknown. Under these assumptions, the policy transfers an average ${money(annualResult.payout)} of modeled losses per year. Enter a premium to compare annual cash costs.`:`With a ${money(current.premium)} annual premium: average modeled annual cost is ${money(annualResult.costWithInsurance)} with insurance (premium + retained loss), versus ${money(annualResult.loss)} without insurance. Premium ${current.premium<=annualResult.payout?'is below or equal to':'exceeds'} modeled average payout by ${money(Math.abs(current.premium-annualResult.payout))}. This does not measure the value of avoiding a severe loss.`;
- $('sensitivity-rows').innerHTML=M.sensitivity(current,config).map(c=>`<tr><td>${c.name}</td><td>${money(c.result.payout)}</td><td>${pct(c.result.claimProbability)}</td><td>${c.actualOffset.toFixed(2)} ft / ${c.actualCost.toFixed(2)}× / ${c.frequency.toFixed(2)}×</td></tr>`).join('');
- $('print-assumptions').textContent=`ILLUSTRATIVE STRESS TEST · not calibrated annual risk. Surveyed living floor ${config.elevation_certificate.C2b_next_higher_floor_ft} ft NAVD88; lower enclosure ${config.elevation_certificate.C2a_bottom_enclosure_floor_ft} ft. Deductible ${money(current.deductible)}; limit ${money(current.limit)}; premium ${current.premium===null?'unknown':money(current.premium)}. Water offset ${current.waterOffset} ft; cost multiplier ${current.costScale}×. No damage below living floor; ${current.upperEligible}% of living-area repairs eligible. Upstairs costs at first wetting / 1 / 3 / 6 / 10 ft: ${current.repairs.map(money).join(' / ')}. Probability inputs are assumptions; other years receive zero loss. One event per year; repeated floods and unrepresented extremes excluded. Sensitivity rows are not confidence intervals.`;
+ if(!data)return;
+ const s=selection(),g=group(),f=fit(),base=data.groups[s.period+'_all'].models[s.model].p;
+ $('sample').textContent=`${s.model==='gev'?'GEV fit':'Gumbel fit'} · ${g.n} ${s.season==='el_nino'?'El Niño winters':'years'}`;
+ $('annual-p').textContent=pct(f.p);$('annual-note').textContent=`Peak flows above threshold: ${g.observed.k} of ${g.n} years`;
+ $('ten-p').textContent=pct(1-(1-f.p)*Math.pow(1-base,9));$('ten-note').textContent=s.season==='el_nino'?'El Niño first year; all-year risk thereafter':'All-year risk repeated over 10 years';
+ $('threshold-note').textContent=`Modeled living-floor threshold: ${data.threshold.gage_stage_ft.toFixed(1)} ft at Guerneville · floor ${data.threshold.living_floor_ft_NAVD88.toFixed(1)} ft NAVD88`;
+ draw();methods();inputs=read();
+ try{
+  result=M.assess(inputs,f.p,base);$('error').hidden=true;$('export').disabled=false;
+  $('break-even').textContent=money(result.breakEven);$('break-even-note').textContent=result.payout?'Premium below this reduces expected cost':'No payout for the entered flood loss';$('payout').textContent=money(result.payout);$('retained').textContent=money(result.retained);$('without').textContent=money(result.without);$('with').textContent=result.withInsurance===null?'—':money(result.withInsurance);
+  const max=Math.max(result.without,result.withInsurance||0,1);$('without-bar').style.width=(100*result.without/max)+'%';$('with-bar').style.width=result.withInsurance===null?'0%':(100*result.withInsurance/max)+'%';
+  if(!result.payout)$('conclusion').textContent='This policy pays nothing for the entered flood loss. A positive premium increases expected annual cost.';
+  else if(result.choice==='quote')$('conclusion').textContent=`Insurance reduces expected annual cost below a premium of ${money(result.breakEven)}. Enter the annual quote to compare.`;
+  else if(result.choice==='equal')$('conclusion').textContent=`Both options have the same expected annual cost. Insurance reduces the flood-year repair bill by ${money(result.payout)}.`;
+  else $('conclusion').textContent=`${result.choice==='insure'?'Buying insurance':'Retaining the risk'} has the lower modeled annual cost, by ${money(Math.abs(result.savings))}. Insurance reduces the flood-year repair bill from ${money(inputs.damage)} to ${money(result.retained)}.`;
+  save();
+ }catch(e){result=null;$('error').hidden=false;$('error').textContent=e.message;$('conclusion').textContent='Correct the policy inputs to calculate the cost comparison.';$('export').disabled=true;for(const id of ['break-even','payout','retained','without','with'])$(id).textContent='—';for(const id of ['without-bar','with-bar'])$(id).style.width='0%';}
 }
 async function init(){
- $('assumption-panel').open=true;
- const response=await fetch('data/config.json?v=20260923-6');if(!response.ok)throw new Error('Could not load certificate and scenario data.');config=await response.json();
- $('survey-floor').textContent=config.elevation_certificate.C2b_next_higher_floor_ft+' ft';$('survey-lower').textContent=config.elevation_certificate.C2a_bottom_enclosure_floor_ft+' ft';
- $('probability-rows').innerHTML=M.stages.map((s,i)=>`<tr><td>${s} ft${s===45?' · near 2019 crest':''}</td><td><label class="sr-only" for="weight-${i}">Annual scenario probability at ${s} ft, percent</label><input id="weight-${i}" data-input type="number" min="0" max="100" step="0.5" value="${M.defaults.weights[i]}"></td><td id="loss-${i}">—</td><td id="payout-${i}">—</td></tr>`).join('');
- const print=document.createElement('p');print.id='print-assumptions';print.className='print-only';document.querySelector('#technical-details').append(print);
- set(M.defaults);try{const saved=JSON.parse(localStorage.getItem(key));if(saved&&saved.schema===1&&saved.assumptions&&M.validate(saved.assumptions).length===0){set(saved.assumptions);$('save-status').textContent='Loaded assumptions saved in this browser.';}}catch{$('save-status').textContent='Saved assumptions unavailable; using defaults.';}
- const selected=Number(new URLSearchParams(location.search).get('stage'));if(Number.isInteger(selected)&&selected>=32&&selected<=52)stage=selected;$('event-stage').value=stage;
- for(const input of document.querySelectorAll('[data-input]'))input.addEventListener('input',()=>{render();$('save-status').textContent='Unsaved changes · calculated locally.';});
- $('event-stage').oninput=e=>{stage=Number(e.target.value);render();};
- $('save').onclick=()=>{try{localStorage.setItem(key,JSON.stringify({schema:1,assumptions:current}));$('save-status').textContent='Saved on this browser/device.';}catch{$('save-status').textContent='Browser storage unavailable. Use the download instead.';}};
- $('reset').onclick=()=>{try{localStorage.removeItem(key);}catch{}set(M.defaults);render();$('save-status').textContent='Illustrative defaults restored; saved inputs removed.';};
- $('export').onclick=()=>{const record={schema:1,created:new Date().toISOString(),status:'Illustrative editable assumptions; not calibrated property risk or verified policy terms',assumptions:current,certificate:config.elevation_certificate,selectedStage:stage,selectedEvent:M.event(current,config,stage),annual:annualResult,sensitivity:M.sensitivity(current,config),method:'Five mutually exclusive annual-maximum flood scenarios; remaining probability assigned zero loss. One building deductible; no contents, inflation or repeated-event losses. Damage is zero at/below the living floor; living-area cost curve caps at10ft. Probability inputs are not observed frequencies.'};$('export-text').value=JSON.stringify(record,null,2)+'\n';$('export-status').textContent='';$('export-dialog').showModal();};
- $('export-close').onclick=()=>$('export-dialog').close();
- $('export-download').onclick=()=>{const url=URL.createObjectURL(new Blob([$('export-text').value],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='russian-river-insurance-scenario.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);$('export-status').textContent='Download requested. Copy JSON is available if your browser does not save the file.';};
- $('export-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('export-text').value);$('export-status').textContent='Copied scenario JSON.';}catch{$('export-text').focus();$('export-text').select();$('export-status').textContent='Text selected. Use your device’s Copy command.';}};
- $('history-open').onclick=()=>$('history-dialog').showModal();$('history-close').onclick=()=>$('history-dialog').close();$('model-open').onclick=()=>$('technical-details').showModal();$('model-close').onclick=()=>$('technical-details').close();
- $('print').onclick=()=>window.print();render();loadHistory();
+ const stage=Number(new URLSearchParams(location.search).get('stage'));if(Number.isInteger(stage)&&stage>=32&&stage<=52)$('atlas-link').href='./?stage='+stage;
+ const response=await fetch('data/research/flood_frequency.json?v=1');if(!response.ok)throw Error('Flood-frequency data could not be loaded.');data=await response.json();
+ set(M.defaults);try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.schema===2){M.assess(saved.inputs,.1);set(saved.inputs);if(['modern','full'].includes(saved.selection?.period))$('period').value=saved.selection.period;$('enso').checked=saved.selection?.season==='el_nino';if(['gev','gumbel'].includes(saved.selection?.model))$('model').value=saved.selection.model;}}catch{}
+ for(const id of ['limit','deductible','premium','damage'])$(id).oninput=render;
+ for(const id of ['period','enso','model'])$(id).onchange=render;
+ $('frequency-tab').onclick=()=>{view='frequency';$('frequency-tab').setAttribute('aria-pressed','true');$('history-tab').setAttribute('aria-pressed','false');draw();};
+ $('history-tab').onclick=()=>{view='history';$('history-tab').setAttribute('aria-pressed','true');$('frequency-tab').setAttribute('aria-pressed','false');draw();};
+ $('methods-open').onclick=()=>$('methods').showModal();$('methods-close').onclick=()=>$('methods').close();
+ for(const button of document.querySelectorAll('[data-method]'))button.onclick=()=>{for(const b of document.querySelectorAll('[data-method]')){const active=b===button;b.setAttribute('aria-pressed',String(active));$('method-'+b.dataset.method).hidden=!active;}};
+ $('reset').onclick=()=>{set(M.defaults);$('period').value='modern';$('enso').checked=false;$('model').value='gev';render();};
+ $('export').onclick=()=>{const record={schema:2,created:new Date().toISOString(),inputs,selection:selection(),result,frequencyFit:fit(),threshold:data.threshold,status:'Exploratory binary expected-cost scenario; provisional single-event hydraulic transfer',source:'data/research/flood_frequency.json'};$('export-text').value=JSON.stringify(record,null,2);$('copy-status').textContent='';$('export-dialog').showModal();};
+ $('export-close').onclick=()=>$('export-dialog').close();$('export-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('export-text').value);$('copy-status').textContent='Copied.';}catch{$('export-text').focus();$('export-text').select();$('copy-status').textContent='Selected; use your device’s Copy command.';}};
+ window.addEventListener('resize',draw);render();
 }
-init().catch(e=>{$('decision-conclusion').textContent='The assessment could not be loaded.';$('home-brief').hidden=true;$('error').hidden=false;$('error').textContent=e.message;for(const id of ['export','print','save'])$(id).disabled=true;});
+init().catch(e=>{$('conclusion').textContent='Assessment unavailable.';$('error').hidden=false;$('error').textContent=e.message;$('export').disabled=true;});

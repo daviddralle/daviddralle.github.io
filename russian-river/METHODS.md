@@ -2,7 +2,7 @@
 
 Prepared 2026-09-23. Published at https://daviddralle.github.io/russian-river/.
 
-This is an exploratory map of published flood scenarios and explicit floor-height assumptions. Property flood probabilities, seasonal probabilities, insurance payouts, and a new hydraulic simulation are not included. A separate research note gives descriptive annual discharge-exceedance counts.
+This is an exploratory map of published flood scenarios referenced to the supplied elevation certificate. The separate insurance assessment combines fitted annual flow probabilities, a provisional hydraulic transfer and an editable binary-loss decision model. No new hydraulic simulation has been run.
 
 ## Location and building
 
@@ -85,42 +85,51 @@ Original county depth metadata identify 2015 lidar and HEC-RAS 5.0.1. The newer 
 
 The Corps PR-100 historic marks require datum and location reconciliation before numerical comparison to the atlas. A separate published 2019 model comparison uses county inundation as its reference and therefore does not independently establish county model accuracy.
 
-## Editable insurance worksheet
+## Fitted frequency and binary insurance assessment · September 24, 2026
 
-[Insurance worksheet](insurance.html) is a separate illustrative stress test. It does not estimate measured annual property-flood probabilities. Surveyed building references remain fixed at C2.b45.6 and C2.a37.2ft NAVD88. Water-offset tests move the model surface, not the certificate floor. Model arithmetic is isolated in insurance-model.js and checked for deductible boundaries, exclusions, limits, probability weighting, missing premiums and loss conservation.
+[Insurance assessment](insurance.html) replaces the five illustrative scenario weights with fitted annual-maximum probabilities. Its objective is minimum expected annual dollar cost, conditional on the selected record, distribution, hydraulic transfer and user-entered loss. It is not a verified actuarial property assessment.
 
-Initial policy values are hypothetical: $10,000 building deductible, $250,000 building payout limit, premium unknown. Damage below the living floor is zero, as specified by the owner through the user. Above-living-floor repair costs at initial wetting/1/3/6/10ft are $5,000/$40,000/$100,000/$200,000/$350,000, initially100% eligible. Those are analyst-created editable placeholders, not validated damage functions or verified coverage. Loss is zero above the living floor until modeled water exceeds it; the initial wetting cost then applies. Costs cap at the10ft knot. Contents are excluded. There is no lower-enclosure damage component.
+### Statistical model
 
-Five mutually exclusive annual-maximum flood scenarios use gauge stages36/40/45/50/52ft and default probabilities10/6/5/2/1%. These are round illustrative scenario weights; they are neither measured frequencies nor exceedance probabilities and are not calibrated to the5/42 Hacienda discharge statistic. The remainder receives zero modeled loss. This discrete model omits unrepresented intermediate/tail events and repeated floods within a year. Ten-year probabilities assume independent stationary years. No ENSO modifier is applied.
+The default is a generalized extreme-value (GEV) distribution fitted by L-moments to Hacienda Bridge USGS11467000 annual peak discharge, water years1984–2025 (42 years). Lake Sonoma regulation began in October1983. Full-record1940–2025 (86 years), El Niño and other-winter subsets are available. The full record mixes reservoir regimes; none of the flows are naturalized. A Gumbel distribution fitted by L-moments supplies a simpler comparison. Both are supported in USACE distribution-fitting practice: [HEC-SSP parameter estimation](https://www.hec.usace.army.mil/confluence/sspdocs/sspum/2.3/distribution-fitting-analysis/distribution-fitting-and-parameter-estimation).
 
-Payout=min(limit,max(0,eligible_loss−deductible)); retained_loss=total_loss−payout. Annual outputs are probability-weighted sums. The premium is kept unknown until entered; average payout is not an insurance recommendation or complete valuation of risk transfer. Sensitivity cases vary water±1ft and costs/probabilities×0.5/1.5, clipping to supported controls and total probability100%. These are stress tests, not confidence intervals.
+This is not a Bulletin17C analysis. A preliminary LP3 fit with raw at-site log moments produced finite upper bounds below observed peaks in five of six groups. It is excluded from the decision controls and retained only as diagnostics. EMA, regional skew weighting, low-outlier treatment and historical censoring are not implemented. No uniquely best family is claimed.
 
-Inputs may be saved explicitly in localStorage on the current browser; no policy inputs are submitted. JSON export contains inputs, provenance, per-event results, annual sums and sensitivity cases. The underlying privately supplied certificate remains outside the public website.
+NOAA ERSSTv6 RONI qualified warm-episode DJF labels identify El Niño winters by ending water year; a single-season index threshold is not substituted for the episode label. Pre-1950 years lack classifications and are excluded from seasonal subsets. Modern El Niño/other groups contain14/28 winters; full classified groups contain27/49. Conditioning on El Niño is a historical comparison, not a forecast or evidence of causation.
 
-### Homeowner summary · September 24, 2026
+The shaded band and threshold-probability interval are pointwise95% nonparametric bootstrap intervals using2,000 independent-year resamples, seed24092026. They omit hydraulic-transfer, climate, operations and distribution-family uncertainty. Empirical plot positions use rank/(n+1); observed exceedance fractions use k/n. Exact binomial intervals are in Methods. The data are positive annual peaks with reviewed qualifiers, not independent high-flow events in a partial-duration series.
 
-The default insurance page shows two event examples (45 and 50 ft gauge stages), rounded to two significant digits, comparing total repairs paid by the owner with and without the assumed policy. Premium is separate. Labels follow the computed water depth when assumptions change. These are cost illustrations, not historical reconstructions or likelihood estimates. All annual probabilities, sensitivity tables and editable technical assumptions are behind a closed disclosure. No buy/no-buy verdict is computed from the hypothetical probability weights. The print view includes only the homeowner summary.
+### Working house-flood threshold
 
-### Observed flow history and ENSO filter · September 24, 2026
+The living floor remains45.6ft NAVD88 from certificate C2.b. Interpolating atlas reconstructed WSE between43ft (45.085ft NAVD88) and44ft (45.697ft NAVD88) gives a Guerneville/Johnsons Beach gage threshold of43.8415ft. This is a model threshold, not an observed interior-flood stage. County original terrain is2015; atlas reconstruction uses2013 terrain.
 
-The insurance summary now includes the measured Hacienda Bridge annual-peak record. Default period1984–2025 has5 of42 peaks at or above the2019 discharge of72,000cfs. The El Niño checkbox subsets winters using NOAA CPC's historical ERSSTv6 Relative Oceanic Niño Index (RONI) warm-episode label for DJF of the ending water year. It uses the source's episode classification (at least five consecutive overlapping seasons), not a single-season threshold. DJF1997 is not El Niño; DJF1998 is. Grouping is by winter, not ENSO at the exact annual peak date. The source was archived September24,2026.
+Paired simultaneous USGS observations in February2019 give Hacienda discharge69,197cfs on the rising crossing and66,054cfs on the falling crossing of that stage. Linear interpolation in time gives the crossings; their mean67,625cfs is the working discharge threshold. This single-event transfer assumes other annual peak hydrographs reach the same local stage at comparable Hacienda flow. It is not an official rating curve, county flow profile, or independently validated mapping. Hydrograph travel time, hysteresis, backwater and channel change are unresolved. The endpoints are sensitivity scenarios, not confidence bounds.
 
-The El Niño subset has2 of14 threshold exceedances (1995,2019), compared with3 of28 other winters (1986,1997,2006). Exact95% Clopper–Pearson intervals are1.8–42.8% and2.3–28.2%, respectively (all years4.0–25.6%). These small samples do not establish higher large-flood frequency in El Niño winters; they do not establish equivalence either. A two-sided Fisher exact comparison gives p=1.0. Both calculations assume independent years; regulation, climate trends and serial dependence are not resolved. The longer1950–2025 join and full1940–2025 peak record are retained in the downloadable data.
+The earlier owner recollection of a dry living floor in2019 remains unresolved; confirmation of high street water does not establish interior inundation. The certificate fixes the building reference but does not validate modeled water elevation. CNRFC's estimated2019 discharge differs from USGS's72,000cfs; this analysis consistently uses USGS values.
 
-The historical filter does not alter the hydraulic surfaces, damage amounts or illustrative financial probability weights. Discharge at Hacienda Bridge is not interchangeable with Guerneville gauge stage. There is not yet a verified discharge-stage-property-loss mapping; measured river-flow threshold fractions must not be presented as insurance claim probabilities. The conclusion describes conditional protection against a large modeled repair bill, not a calibrated actuarial buy/no-buy recommendation. Public joined data: data/research/flood_enso_history.json and.csv. Reproduction script: local scripts/analyze_enso_history.py.
+Default modern GEV threshold probability is11.40%; modern El Niño11.29%; full-record18.46%. Modern observed threshold exceedances are5/42; full-record18/86. These counts use the new67,625-cfs threshold, not the older research note's72,000-cfs event threshold. Hydraulics remain provisional, so these are conditional modeled house-flood probabilities.
 
-### Fixed certificate elevations · September 24, 2026
+### Binary decision model
 
-The map floor-offset slider and reset control have been removed. Map calculations read the living-floor elevation directly from certificate field C2.b (45.6 ft NAVD88); the lower enclosure remains C2.a37.2 ft. Gage height controls the water scenario. The insurance worksheet water-surface sensitivity test, behind its technical disclosure, varies modeled water rather than the surveyed building.
+Editable inputs: building coverage limit(default$250,000), deductible(default$10,000), annual premium(blank until entered), and fixed covered damage per house flood(default$100,000). All four are unverified assumptions. Damage is zero at or below the living floor, including under-house water. The above-floor damage input is a fixed binary scenario, not a calibrated depth–damage curve. If interpreted as the mean of variable losses, payout at the mean need not equal expected payout through nonlinear deductible/limit terms.
 
-### Living-floor damage only · September 24, 2026
+For probability p and damage D:
 
-At the user’s explicit direction, damage is zero whenever water is at or below the surveyed living floor. The lower-enclosure repair allowance and coverage controls were removed; old saved lowerMax/lowerEligible values are ignored by the loss calculation. Cost examples now use45 and50ft gauge stages. At defaults, losses are$29,325 and$114,033; payouts$19,325 and$104,033; owner-paid repairs$10,000 in both examples, plus premiums. This is the adopted damage scope, not a physical assertion that all lower-enclosure equipment is immune to floods.
+- Payout B = min(limit, max(0, D − deductible)).
+- Expected annual cost without insurance = pD.
+- Expected annual cost with insurance = premium + p(D − B).
+- Break-even annual premium = pB.
 
-### Executive presentation
+A premium below pB minimizes expected dollars by buying; a higher premium minimizes expected dollars by retaining risk. Risk aversion, liquidity, policy exclusions, contents, taxes, financing, inflation and repeated floods in one year are excluded. This is a decision objective, not a claim that risk-neutral preferences fit every homeowner. The default payout is$90,000 and break-even premium is approximately$10,261/year.
 
-The main page shows the conditional protection conclusion, observed flow history, modeled owner costs and policy scenario. Calibration status, probability interpretation, uncertainty, assumptions and expected-cost/risk-aversion decision rules are retained in closed Data and methods / Model and decision methods disclosures. A missing premium is represented by the quote input. No buy recommendation is derived from the illustrative annual weights.
+The10-year probability assumes independent stationary years. Normally it is1−(1−p)^10. With El Niño selected it is1−(1−p_EN)(1−p_all)^9: only the first year is conditioned, rather than assuming ten consecutive El Niño years.
 
-### Laptop layout · September 24, 2026
+### Reproduction and presentation
 
-The insurance assessment uses a two-column desktop dashboard with separate modal panels for methods. The atlas keeps stage and house-water controls in a fixed sidebar and compacts all layer switches into a palette without internal scrolling. Survey and terrain details open in a dialog. Browser checks at a 1023 × 640 CSS viewport confirmed no page or primary-panel overflow, including the El Niño comparison and all five detailed-map selections. Phone layouts remain vertically arranged. Financial and hydraulic calculations are unchanged.
+Run `python analysis/fit_frequency.py` with NumPy and SciPy. Public inputs are `data/research/flood_enso_history.json`, `2019_stage_flow.csv`, and `data/config.json`. Output `flood_frequency.json` records fits, bands, bootstrap seed, crossings, parameters, LP3 rejection diagnostics and SHA256 input hashes. Tests recover known GEV/Gumbel parameters, check support against observed peaks, verify subset membership, monotonic probabilities and threshold sensitivity. `decision-model.js` tests cover payout caps, deductible boundaries, missing versus zero premium, loss conservation and expected-cost decisions.
+
+The page is a single-screen desktop dashboard, with distribution/history plot selection, editable policy inputs, annual-cost comparison and a short conclusion. Scientific details reside in a tabbed Model & methods dialog. Inputs save only in localStorage under binary schema2 and can be exported as JSON. Earlier schema1 placeholder probabilities and depth–damage curves are not imported or used. `insurance-model.js` is retained only as legacy code; the assessment loads `decision-model.js`.
+
+The atlas is unchanged: gage height controls flooding, certificate floor elevations stay fixed, and no damage below the living floor is added. Desktop layout checks include1024×640; phone layouts stack vertically.
+
+Matching Flood atlas / Insurance assessment navigation tabs highlight the current page on desktop and phone. The atlas passes the selected integer stage to the assessment; its return tab restores that stage. Insurance inputs are independent of the exploratory atlas stage.
