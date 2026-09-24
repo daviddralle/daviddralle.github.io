@@ -120,3 +120,7 @@ At the user’s explicit direction, damage is zero whenever water is at or below
 ### Executive presentation
 
 The main page shows the conditional protection conclusion, observed flow history, modeled owner costs and policy scenario. Calibration status, probability interpretation, uncertainty, assumptions and expected-cost/risk-aversion decision rules are retained in closed Data and methods / Model and decision methods disclosures. A missing premium is represented by the quote input. No buy recommendation is derived from the illustrative annual weights.
+
+### Laptop layout · September 24, 2026
+
+The insurance assessment uses a two-column desktop dashboard with separate modal panels for methods. The atlas keeps stage and house-water controls in a fixed sidebar and compacts all layer switches into a palette without internal scrolling. Survey and terrain details open in a dialog. Browser checks at a 1023 × 640 CSS viewport confirmed no page or primary-panel overflow, including the El Niño comparison and all five detailed-map selections. Phone layouts remain vertically arranged. Financial and hydraulic calculations are unchanged.

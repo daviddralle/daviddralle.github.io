@@ -69,6 +69,7 @@ async function init(){
  $('export-close').onclick=()=>$('export-dialog').close();
  $('export-download').onclick=()=>{const url=URL.createObjectURL(new Blob([$('export-text').value],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='russian-river-insurance-scenario.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);$('export-status').textContent='Download requested. Copy JSON is available if your browser does not save the file.';};
  $('export-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('export-text').value);$('export-status').textContent='Copied scenario JSON.';}catch{$('export-text').focus();$('export-text').select();$('export-status').textContent='Text selected. Use your device’s Copy command.';}};
+ $('history-open').onclick=()=>$('history-dialog').showModal();$('history-close').onclick=()=>$('history-dialog').close();$('model-open').onclick=()=>$('technical-details').showModal();$('model-close').onclick=()=>$('technical-details').close();
  $('print').onclick=()=>window.print();render();loadHistory();
 }
 init().catch(e=>{$('decision-conclusion').textContent='The assessment could not be loaded.';$('home-brief').hidden=true;$('error').hidden=false;$('error').textContent=e.message;for(const id of ['export','print','save'])$(id).disabled=true;});
