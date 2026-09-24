@@ -96,3 +96,7 @@ Five mutually exclusive annual-maximum flood scenarios use gauge stages36/40/45/
 Payout=min(limit,max(0,eligible_loss−deductible)); retained_loss=total_loss−payout. Annual outputs are probability-weighted sums. The premium is kept unknown until entered; average payout is not an insurance recommendation or complete valuation of risk transfer. Sensitivity cases vary water±1ft and costs/probabilities×0.5/1.5, clipping to supported controls and total probability100%. These are stress tests, not confidence intervals.
 
 Inputs may be saved explicitly in localStorage on the current browser; no policy inputs are submitted. JSON export contains inputs, provenance, per-event results, annual sums and sensitivity cases. The underlying privately supplied certificate remains outside the public website.
+
+### Homeowner summary · September 24, 2026
+
+The default insurance page shows two event examples (40 and 50 ft gauge stages), rounded to two significant digits, comparing total repairs paid by the owner with and without the assumed policy. Premium is separate. Labels follow the computed water depth when assumptions change. These are cost illustrations, not historical reconstructions or likelihood estimates. All annual probabilities, sensitivity tables and editable technical assumptions are behind a closed disclosure. No buy/no-buy verdict is computed from the hypothetical probability weights. The print view includes only the homeowner summary.

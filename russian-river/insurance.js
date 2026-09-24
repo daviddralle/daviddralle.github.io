@@ -6,11 +6,22 @@ let config,stage=45,current,annualResult;
 const key='russian-river-insurance-assumptions-v1';
 function read(){const number=id=>$(id).value.trim()===''?NaN:Number($(id).value);return{deductible:number('deductible'),limit:number('limit'),premium:$('premium').value.trim()===''?null:number('premium'),waterOffset:number('waterOffset'),costScale:number('costScale'),lowerMax:number('lowerMax'),lowerEligible:number('lowerEligible'),upperEligible:number('upperEligible'),repairs:[0,1,2,3,4].map(i=>number('repair-'+i)),weights:[0,1,2,3,4].map(i=>number('weight-'+i))};}
 function set(a){for(const k of ['deductible','limit','premium','waterOffset','costScale','lowerMax','lowerEligible','upperEligible'])$(k).value=a[k]===null?'':a[k];a.repairs.forEach((v,i)=>$('repair-'+i).value=v);a.weights.forEach((v,i)=>$('weight-'+i).value=v);}
+// Keep the homeowner view about event protection, not invented annual odds.
+function renderBrief(){
+ const rounded=x=>x===0?'$0':'~'+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumSignificantDigits:2}).format(x);
+ $('brief-limit').textContent=money(current.limit);$('brief-deductible').textContent=money(current.deductible);
+ $('simple-examples').innerHTML=[40,50].map((s,i)=>{
+  const e=M.event(current,config,s);
+  const title=e.depth>0?'Water reaches living areas':e.lowerDepth>0?'Water under the house':'Water stays below both floors';
+  return `<div class="example-card"><span class="example-label">${i?'Larger flood example':'Smaller flood example'}</span><h3>${title}</h3><div class="comparison"><div><span>You pay without insurance</span><strong>${rounded(e.loss)}</strong></div><div class="insured"><span>You pay with insurance</span><strong>${rounded(e.retained)}</strong></div></div></div>`;
+ }).join('');
+ $('simple-premium').textContent=current.premium===null?'Enter it when you have the quote.':`${money(current.premium)} per year, in addition to your share of any repairs. Price alone does not confirm coverage.`;
+}
 function render(){
- current=read();const errors=M.validate(current);$('error').hidden=!errors.length;$('error').textContent=errors.join(' ');for(const id of ['export','print','save'])$(id).disabled=!!errors.length;
+ current=read();const errors=M.validate(current);$('simple-examples').hidden=!!errors.length;$('error').hidden=!errors.length;$('error').textContent=errors.join(' ');for(const id of ['export','print','save'])$(id).disabled=!!errors.length;
  $('waterOffset-value').textContent=(current.waterOffset>0?'+':'')+current.waterOffset.toFixed(2)+' ft';$('costScale-value').textContent=current.costScale.toFixed(2)+'×';
- if(errors.length){for(const id of ['event-loss','event-payout','event-retained','annual-loss','annual-payout','annual-retained','claim-probability','ten-year'])$(id).textContent='—';$('event-water').textContent='Fix the highlighted assumptions to calculate.';$('event-breakdown').textContent='';$('event-bar').innerHTML='';$('premium-conclusion').textContent='Results unavailable until the assumptions are valid.';$('remaining').textContent='';$('sensitivity-rows').innerHTML='';for(let i=0;i<5;i++){$('loss-'+i).textContent='—';$('payout-'+i).textContent='—';}annualResult=null;return;}
- annualResult=M.annual(current,config);const e=M.event(current,config,stage);$('event-stage-number').textContent=stage;
+ if(errors.length){$('brief-limit').textContent='—';$('brief-deductible').textContent='—';$('simple-premium').textContent='Check the input error above.';for(const id of ['event-loss','event-payout','event-retained','annual-loss','annual-payout','annual-retained','claim-probability','ten-year'])$(id).textContent='—';$('event-water').textContent='Fix the highlighted assumptions to calculate.';$('event-breakdown').textContent='';$('event-bar').innerHTML='';$('premium-conclusion').textContent='Results unavailable until the assumptions are valid.';$('remaining').textContent='';$('sensitivity-rows').innerHTML='';for(let i=0;i<5;i++){$('loss-'+i).textContent='—';$('payout-'+i).textContent='—';}annualResult=null;return;}
+ renderBrief();annualResult=M.annual(current,config);const e=M.event(current,config,stage);$('event-stage-number').textContent=stage;
  $('event-water').textContent=`Water here: ${e.water.toFixed(1)} ft NAVD88 · ${Math.abs(e.depth).toFixed(1)} ft ${e.depth>0?'above':'below'} the ${config.elevation_certificate.C2b_next_higher_floor_ft.toFixed(1)}-ft living-floor reference.`;
  $('event-loss').textContent=money(e.loss);$('event-payout').textContent=money(e.payout);$('event-retained').textContent=money(e.retained);$('event-bar').innerHTML=`<span style="width:${e.loss?100*e.payout/e.loss:0}%"></span>`;
  $('event-breakdown').textContent=`Downstairs ${money(e.lower)} + above-floor repairs ${money(e.upper)}. Eligible loss ${money(e.eligible)}; deductible ${money(current.deductible)}. Teal is the insurer’s share; gray is retained loss. Premium is separate.`;
@@ -22,11 +33,11 @@ function render(){
  $('print-assumptions').textContent=`ILLUSTRATIVE STRESS TEST · not calibrated annual risk. Surveyed living floor ${config.elevation_certificate.C2b_next_higher_floor_ft} ft NAVD88; lower enclosure ${config.elevation_certificate.C2a_bottom_enclosure_floor_ft} ft. Deductible ${money(current.deductible)}; limit ${money(current.limit)}; premium ${current.premium===null?'unknown':money(current.premium)}. Water offset ${current.waterOffset} ft; cost multiplier ${current.costScale}×. Downstairs allowance ${money(current.lowerMax)}, ${current.lowerEligible}% eligible; upstairs ${current.upperEligible}% eligible. Upstairs costs at first wetting / 1 / 3 / 6 / 10 ft: ${current.repairs.map(money).join(' / ')}. Probability inputs are assumptions; other years receive zero loss. One event per year; repeated floods and unrepresented extremes excluded. Sensitivity rows are not confidence intervals.`;
 }
 async function init(){
- $('assumption-panel').open=!window.matchMedia('(max-width: 700px)').matches;
+ $('assumption-panel').open=true;
  const response=await fetch('data/config.json?v=20260923-6');if(!response.ok)throw new Error('Could not load certificate and scenario data.');config=await response.json();
  $('survey-floor').textContent=config.elevation_certificate.C2b_next_higher_floor_ft+' ft';$('survey-lower').textContent=config.elevation_certificate.C2a_bottom_enclosure_floor_ft+' ft';
  $('probability-rows').innerHTML=M.stages.map((s,i)=>`<tr><td>${s} ft${s===45?' · near 2019 crest':''}</td><td><label class="sr-only" for="weight-${i}">Annual scenario probability at ${s} ft, percent</label><input id="weight-${i}" data-input type="number" min="0" max="100" step="0.5" value="${M.defaults.weights[i]}"></td><td id="loss-${i}">—</td><td id="payout-${i}">—</td></tr>`).join('');
- const print=document.createElement('p');print.id='print-assumptions';print.className='print-only';document.querySelector('.intro').append(print);
+ const print=document.createElement('p');print.id='print-assumptions';print.className='print-only';document.querySelector('#technical-details').append(print);
  set(M.defaults);try{const saved=JSON.parse(localStorage.getItem(key));if(saved&&saved.schema===1&&saved.assumptions&&M.validate(saved.assumptions).length===0){set(saved.assumptions);$('save-status').textContent='Loaded assumptions saved in this browser.';}}catch{$('save-status').textContent='Saved assumptions unavailable; using defaults.';}
  const selected=Number(new URLSearchParams(location.search).get('stage'));if(Number.isInteger(selected)&&selected>=32&&selected<=52)stage=selected;$('event-stage').value=stage;
  for(const input of document.querySelectorAll('[data-input]'))input.addEventListener('input',()=>{render();$('save-status').textContent='Unsaved changes · calculated locally.';});
@@ -39,4 +50,4 @@ async function init(){
  $('export-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('export-text').value);$('export-status').textContent='Copied scenario JSON.';}catch{$('export-text').focus();$('export-text').select();$('export-status').textContent='Text selected. Use your device’s Copy command.';}};
  $('print').onclick=()=>window.print();render();
 }
-init().catch(e=>{$('error').hidden=false;$('error').textContent=e.message;for(const id of ['export','print','save'])$(id).disabled=true;});
+init().catch(e=>{$('home-brief').hidden=true;$('error').hidden=false;$('error').textContent=e.message;for(const id of ['export','print','save'])$(id).disabled=true;});
