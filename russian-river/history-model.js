@@ -1,0 +1,10 @@
+(function(root){'use strict';
+function validThreshold(q){return Number.isFinite(q)&&q>=500&&q<=120000;}
+function summarize(rows,q,start=1940,season='all'){
+ if(!validThreshold(q))throw Error('Threshold must be between 500 and 120,000 cfs.');
+ const selected=rows.filter(r=>r.water_year>=start&&(season==='all'||r.el_nino_winter===(season==='el_nino')));
+ const k=selected.filter(r=>r.peak_cfs>=q).length,n=selected.length;return{rows:selected,k,n,p:n?k/n:null};
+}
+function interpolate(xs,ys,q){if(q<=xs[0])return ys[0];for(let i=1;i<xs.length;i++)if(q<=xs[i])return ys[i-1]+(ys[i]-ys[i-1])*(q-xs[i-1])/(xs[i]-xs[i-1]);return ys.at(-1);}
+const api={validThreshold,summarize,interpolate};if(typeof module==='object'&&module.exports)module.exports=api;else root.FloodHistory=api;
+})(globalThis);

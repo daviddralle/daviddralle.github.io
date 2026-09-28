@@ -5,8 +5,11 @@ const pct=x=>(100*x).toFixed(1)+'%';
 const key='russian-river-binary-insurance-v2';
 let data,view='frequency',result,inputs,storageAvailable=true;
 function selection(){return {period:$('period').value,season:$('enso').checked?'el_nino':'all',model:$('model').value};}
-function group(){const s=selection();return data.groups[s.period+'_'+s.season];}
-function fit(){return group().models[$('model').value];}
+function observed(g){const k=g.peaks.filter(q=>q>=flowThreshold).length;return {...g,observed:{k,p:k/g.n}};}
+function group(){const s=selection();return observed(data.groups[s.period+'_'+s.season]);}
+let flowThreshold=72000;
+function modelFor(g,name){const f=g.models[name],interp=ys=>FloodHistory.interpolate(data.grid_cfs,ys,flowThreshold);return {...f,p:interp(f.survival),interval_95:f.band_95.map(interp)};}
+function fit(){return modelFor(group(),$('model').value);}
 function read(){return Object.fromEntries(['limit','deductible','premium','damage'].map(k=>[k,$(k).value.trim()===''?(k==='premium'?null:NaN):Number($(k).value)]));}
 function set(a){for(const k of ['limit','deductible','premium','damage'])$(k).value=a[k]===null?'':a[k];}
 function save(){try{localStorage.setItem(key,JSON.stringify({schema:2,inputs,selection:selection()}));$('save-status').textContent='Inputs saved in this browser.';}catch{storageAvailable=false;$('save-status').textContent='Browser storage unavailable · use Export to keep inputs.';}}
@@ -33,7 +36,7 @@ function draw(){
   }
   const peaks=[...g.peaks].sort((a,b)=>b-a);
   peaks.forEach((q,i)=>{if(q<=120000)graphic+=`<circle cx="${x(q)}" cy="${y((i+1)/(peaks.length+1))}" r="2.4" fill="#fff" stroke="#297e76"><title>${q.toLocaleString()} cfs; empirical plotting position ${pct((i+1)/(peaks.length+1))}</title></circle>`;});
-  const q=data.threshold.hacienda_flow_cfs;
+  const q=flowThreshold;
   graphic+=line(x(q),t,x(q),h-b,'#a7783c','4 3')+`<circle cx="${x(q)}" cy="${y(f.p)}" r="4.5" fill="#a7783c" stroke="white"/>`+text(Math.min(w-r-20,x(q)+7),t+10*unit,'House threshold','start','#936932');
   graphic+=text(l+W/2,h-1,'Annual peak discharge · cfs');
   legend+='<span style="--key:#c5e1d8">95% fit interval</span>';
@@ -43,7 +46,7 @@ function draw(){
   for(const q of [0,50000,100000])graphic+=line(l,y(q),w-r,y(q))+text(l-7*unit,y(q)+4*unit,q/1000+'k','end');
   for(const yr of [start,Math.round((start+end)/2),end])graphic+=text(x(yr),h-16*unit,yr);
   all.years.forEach((yr,i)=>{const selected=g.years.includes(yr),c=selected?'#167b75':'#cad6d0';graphic+=line(x(yr),y(0),x(yr),y(all.peaks[i]),c)+`<circle cx="${x(yr)}" cy="${y(all.peaks[i])}" r="2.6" fill="${c}"><title>${yr}: ${all.peaks[i].toLocaleString()} cfs</title></circle>`;});
-  graphic+=line(l,y(data.threshold.hacienda_flow_cfs),w-r,y(data.threshold.hacienda_flow_cfs),'#a7783c','4 3')+text(w-r,y(data.threshold.hacienda_flow_cfs)-5,'House threshold','end','#936932')+text(l+W/2,h-1,'Water year');
+  graphic+=line(l,y(flowThreshold),w-r,y(flowThreshold),'#a7783c','4 3')+text(w-r,y(flowThreshold)-5,'House threshold','end','#936932')+text(l+W/2,h-1,'Water year');
   legend=`<span style="--key:#167b75">${label(s.season)}</span><span style="--key:#a7783c">Modeled threshold</span>`;
  }
  $('plot').innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${$('plot-title').textContent}; ${g.n} years; fitted house flood probability ${pct(f.p)}"><g font-family="system-ui,sans-serif" font-size="${fontSize}">${graphic}</g></svg>`;
@@ -51,16 +54,16 @@ function draw(){
 }
 function methods(){
  const s=selection(),g=group(),f=fit(),th=data.threshold;
- $('fit-details').innerHTML=`<p>Selected fit: <b>${s.model==='gev'?'GEV / L-moments':'Gumbel / L-moments'}</b>. ${g.n} years; house-threshold exceedance probability ${pct(f.p)}; bootstrap 95% interval ${f.interval_95.map(pct).join('–')}. Observed: ${g.observed.k}/${g.n} (${pct(g.observed.p)}); exact binomial interval ${g.observed.interval_95.map(pct).join('–')}.</p><table><thead><tr><th>Year group</th><th>n</th><th>GEV</th><th>Gumbel</th><th>Observed</th></tr></thead><tbody>${['all','el_nino','other'].map(k=>{const a=data.groups[s.period+'_'+k];return `<tr><td>${k==='all'?'All years':k==='el_nino'?'El Niño':'Other winters'}</td><td>${a.n}</td><td>${pct(a.models.gev.p)}</td><td>${pct(a.models.gumbel.p)}</td><td>${a.observed.k}/${a.n}</td></tr>`;}).join('')}</tbody></table><p>Fit parameters (SciPy convention): ${Object.entries(f.parameters).map(([k,v])=>`${k} = ${v.toPrecision(6)}`).join('; ')}.</p>`;
+ $('fit-details').innerHTML=`<p>Selected fit: <b>${s.model==='gev'?'GEV / L-moments':'Gumbel / L-moments'}</b>. ${g.n} years; house-threshold exceedance probability ${pct(f.p)}; bootstrap 95% interval ${f.interval_95.map(pct).join('–')}. Observed: ${g.observed.k}/${g.n} (${pct(g.observed.p)}).</p><table><thead><tr><th>Year group</th><th>n</th><th>GEV</th><th>Gumbel</th><th>Observed</th></tr></thead><tbody>${['all','el_nino','other'].map(k=>{const a=observed(data.groups[s.period+'_'+k]);return `<tr><td>${k==='all'?'All years':k==='el_nino'?'El Niño':'Other winters'}</td><td>${a.n}</td><td>${pct(modelFor(a,'gev').p)}</td><td>${pct(modelFor(a,'gumbel').p)}</td><td>${a.observed.k}/${a.n}</td></tr>`;}).join('')}</tbody></table><p>Fit parameters (SciPy convention): ${Object.entries(f.parameters).map(([k,v])=>`${k} = ${v.toPrecision(6)}`).join('; ')}.</p>`;
  $('threshold-details').innerHTML=`<p>Certificate living floor: <b>${th.living_floor_ft_NAVD88.toFixed(1)} ft NAVD88</b>. Modeled Guerneville gage threshold: <b>${th.gage_stage_ft.toFixed(2)} ft</b>. Working Hacienda flow threshold: <b>${Math.round(th.hacienda_flow_cfs).toLocaleString()} cfs</b>.</p><table><thead><tr><th>2019 crossing</th><th>Hacienda flow</th><th>Selected fitted probability</th></tr></thead><tbody>${th.crossings.map((c,i)=>`<tr><td>${c.limb} · ${c.start.slice(0,16).replace('T',' ')}</td><td>${Math.round(c.flow_cfs).toLocaleString()} cfs</td><td>${pct(f.threshold_limb_probabilities[i])}</td></tr>`).join('')}</tbody></table>`;
 }
 function render(){
  if(!data)return;
- const s=selection(),g=group(),f=fit(),base=data.groups[s.period+'_all'].models[s.model].p;
+ const s=selection(),g=group(),f=fit(),base=modelFor(data.groups[s.period+'_all'],s.model).p;
  $('sample').textContent=`${s.model==='gev'?'GEV fit':'Gumbel fit'} · ${g.n} ${s.season==='el_nino'?'El Niño winters':'years'}`;
  $('annual-p').textContent=pct(f.p);$('annual-note').textContent=`Peak flows above threshold: ${g.observed.k} of ${g.n} years`;
  $('ten-p').textContent=pct(1-(1-f.p)*Math.pow(1-base,9));$('ten-note').textContent=s.season==='el_nino'?'El Niño first year; all-year risk thereafter':'All-year risk repeated over 10 years';
- $('threshold-note').textContent=`Modeled living-floor threshold: ${data.threshold.gage_stage_ft.toFixed(1)} ft at Guerneville · floor ${data.threshold.living_floor_ft_NAVD88.toFixed(1)} ft NAVD88`;
+ $('threshold-note').textContent=`Selected damage-threshold scenario: ${Math.round(flowThreshold).toLocaleString()} cfs · 2019 reference 72,000 cfs`;const params=new URLSearchParams({threshold:String(flowThreshold),period:s.period,season:s.season});const st=new URLSearchParams(location.search).get('stage');if(st)params.set('stage',st);$('insurance-link').href='insurance.html?'+params;
  draw();methods();inputs=read();
  try{
   result=M.assess(inputs,f.p,base);$('error').hidden=true;$('export').disabled=false;
@@ -75,8 +78,12 @@ function render(){
 }
 async function init(){
  const stage=Number(new URLSearchParams(location.search).get('stage'));if(Number.isInteger(stage)&&stage>=32&&stage<=52)$('atlas-link').href='./?stage='+stage;
+ const requested=Number(new URLSearchParams(location.search).get('threshold'));if(FloodHistory.validThreshold(requested))flowThreshold=requested;$('science-threshold').value=flowThreshold;
  const response=await fetch('data/research/flood_frequency.json?v=1');if(!response.ok)throw Error('Flood-frequency data could not be loaded.');data=await response.json();
  set(M.defaults);try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.schema===2){M.assess(saved.inputs,.1);set(saved.inputs);if(['modern','full'].includes(saved.selection?.period))$('period').value=saved.selection.period;$('enso').checked=saved.selection?.season==='el_nino';if(['gev','gumbel'].includes(saved.selection?.model))$('model').value=saved.selection.model;}}catch{}
+ const period=new URLSearchParams(location.search).get('period');if(['modern','full'].includes(period))$('period').value=period;const season=new URLSearchParams(location.search).get('season');if(season)$('enso').checked=season==='el_nino';
+ $('science-threshold').oninput=e=>{const q=Number(e.target.value);if(FloodHistory.validThreshold(q)){flowThreshold=q;render();}};
+ $('science-threshold').onblur=e=>{if(!FloodHistory.validThreshold(Number(e.target.value)))e.target.value=flowThreshold;};
  for(const id of ['limit','deductible','premium','damage'])$(id).oninput=render;
  for(const id of ['period','enso','model'])$(id).onchange=render;
  $('frequency-tab').onclick=()=>{view='frequency';$('frequency-tab').setAttribute('aria-pressed','true');$('history-tab').setAttribute('aria-pressed','false');draw();};
@@ -84,8 +91,8 @@ async function init(){
  $('methods-open').onclick=()=>$('methods').showModal();$('methods-close').onclick=()=>$('methods').close();
  for(const button of document.querySelectorAll('[data-method]'))button.onclick=()=>{for(const b of document.querySelectorAll('[data-method]')){const active=b===button;b.setAttribute('aria-pressed',String(active));$('method-'+b.dataset.method).hidden=!active;}};
  $('reset').onclick=()=>{set(M.defaults);$('period').value='modern';$('enso').checked=false;$('model').value='gev';render();};
- $('export').onclick=()=>{const record={schema:2,created:new Date().toISOString(),inputs,selection:selection(),result,frequencyFit:fit(),threshold:data.threshold,status:'Exploratory binary expected-cost scenario; provisional single-event hydraulic transfer',source:'data/research/flood_frequency.json'};$('export-text').value=JSON.stringify(record,null,2);$('copy-status').textContent='';$('export-dialog').showModal();};
+ $('export').onclick=()=>{const record={schema:2,created:new Date().toISOString(),inputs,selection:selection(),result,frequencyFit:fit(),threshold:{selected_flow_cfs:flowThreshold,earlier_living_floor_transfer:data.threshold},status:'Exploratory binary expected-cost scenario with user-selected discharge threshold',source:'data/research/flood_frequency.json'};$('export-text').value=JSON.stringify(record,null,2);$('copy-status').textContent='';$('export-dialog').showModal();};
  $('export-close').onclick=()=>$('export-dialog').close();$('export-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('export-text').value);$('copy-status').textContent='Copied.';}catch{$('export-text').focus();$('export-text').select();$('copy-status').textContent='Selected; use your device’s Copy command.';}};
- new ResizeObserver(draw).observe($('plot'));render();
+ new ResizeObserver(draw).observe($('plot'));render();if(location.hash==='#methods')$('methods').showModal();
 }
 init().catch(e=>{$('conclusion').textContent='Assessment unavailable.';$('error').hidden=false;$('error').textContent=e.message;$('export').disabled=true;});

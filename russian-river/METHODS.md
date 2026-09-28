@@ -85,9 +85,11 @@ Original county depth metadata identify 2015 lidar and HEC-RAS 5.0.1. The newer 
 
 The Corps PR-100 historic marks require datum and location reconciliation before numerical comparison to the atlas. A separate published 2019 model comparison uses county inundation as its reference and therefore does not independently establish county model accuracy.
 
-## Fitted frequency and binary insurance assessment · September 24, 2026
+## Original fitted frequency and binary insurance assessment · September 24, 2026
 
-[Insurance assessment](insurance.html) replaces the five illustrative scenario weights with fitted annual-maximum probabilities. Its objective is minimum expected annual dollar cost, conditional on the selected record, distribution, hydraulic transfer and user-entered loss. It is not a verified actuarial property assessment.
+This section records the original model. The September28 section below supersedes its living-floor damage threshold and homeowner interface.
+
+[Technical assessment](hydrology.html) replaces the five illustrative scenario weights with fitted annual-maximum probabilities. Its objective is minimum expected annual dollar cost, conditional on the selected record, distribution, hydraulic transfer and user-entered loss. It is not a verified actuarial property assessment.
 
 ### Statistical model
 
@@ -133,3 +135,13 @@ The page is a single-screen desktop dashboard, with distribution/history plot se
 The atlas is unchanged: gage height controls flooding, certificate floor elevations stay fixed, and no damage below the living floor is added. Desktop layout checks include1024×640; phone layouts stack vertically.
 
 Matching Flood atlas / Insurance assessment navigation tabs highlight the current page on desktop and phone. The atlas passes the selected integer stage to the assessment; its return tab restores that stage. Insurance inputs are independent of the exploratory atlas stage.
+
+## Homeowner flood history · September 28, 2026
+
+The main homeowner view at insurance.html is now Flood history: annual peak observations, a flow-threshold slider, and empirical annual exceedance fractions for all years, El Niño years, and other classified years. GEV/Gumbel fitting, uncertainty and the financial calculator have moved to hydrology.html, labelled “David’s dorky hydrology stuff.” Shared tabs connect all three pages.
+
+The owner now reports approximately $15,000 damage in 2019 with water in the carport ceiling beneath the main floor and a reportedly dry living room. This replaces the prior blanket zero-damage-below-living-floor assumption. It is a reported loss, not proof of policy coverage or payout. Certificate C2.b remains45.6ft NAVD88, the top of the living-floor reference; no ceiling elevation has been surveyed here. Neither the map nor the certificate has been shifted.
+
+The homeowner threshold starts at72,000cfs, the USGS2019 peak, as a reference event known to have caused reported damage. It is adjustable from500 to120,000cfs. This does not establish the onset of damage at72,000cfs or turn a flow into a surveyed building elevation. Exceedance counts use annual peaks greater than or equal to the threshold. The displayed annual probability is k/n; no fitted probability is used on this page. Default record1940–2025; optional1984–2025 subset. El Niño/other subsets exclude unclassified pre-1950 years, while all-years retains them. Chart subset buttons highlight years; all three probability cards retain their respective denominators.
+
+Threshold and period selections carry into the technical page. There, fitted probabilities and bootstrap bands are interpolated on the precomputed500-cfs grid; empirical counts are recalculated from the actual peaks. The earlier43.84-ft living-floor /67,625-cfs transfer is retained in Methods as a historical comparison, not the homeowner damage threshold. The optional binary calculator now assigns zero loss below the user-selected flow threshold, not below a fixed living-floor elevation.
