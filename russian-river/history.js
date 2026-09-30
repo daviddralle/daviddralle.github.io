@@ -4,8 +4,20 @@ const fmt=n=>Math.round(n).toLocaleString('en-US'),pct=p=>(p*100).toFixed(1)+'%'
 let rows=[],threshold=72000,start=1940,season='all';const storeKey='russian-river-flood-history-v1';
 const query=new URLSearchParams(location.search),stage=Number(query.get('stage'));
 function links(){const params=new URLSearchParams({threshold:String(threshold),period:start===1984?'modern':'full',season});if(Number.isInteger(stage)&&stage>=32&&stage<=52){params.set('stage',stage);$('atlas-link').href='./?stage='+stage;}$('hydrology-link').href='hydrology.html?'+params;$('data-link').href='hydrology.html?'+params+'#methods';}
+const peakDate=date=>new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
+function showPeak(target){
+ const row=rows.find(r=>r.water_year===Number(target.dataset.year)),tip=$('peak-tooltip');
+ tip.replaceChildren();
+ const date=document.createElement('strong'),detail=document.createElement('span');
+ date.textContent=peakDate(row.peak_date);detail.textContent=`${fmt(row.peak_cfs)} cfs · Water year ${row.water_year}`;
+ tip.append(date,detail);tip.hidden=false;
+ const dot=target.querySelector('circle').getBoundingClientRect(),box=tip.getBoundingClientRect();
+ tip.style.left=Math.max(8,Math.min(innerWidth-box.width-8,dot.left+dot.width/2-box.width/2))+'px';
+ tip.style.top=(dot.top-box.height-12>8?dot.top-box.height-12:dot.bottom+12)+'px';
+}
 function draw(){
  if(!rows.length)return;
+ $('peak-tooltip').hidden=true;
  const host=$('history-chart'),w=Math.max(host.clientWidth,760),h=host.clientHeight,fs=parseFloat(getComputedStyle(host).fontSize),left=fs*4.6,right=24,top=38;
  const step=(w-left-right)/(2025-start),stagger=step<14,bottom=stagger?94:56;
  const x=yr=>left+(yr-start)*step,y=q=>top+(1-q/120000)*(h-top-bottom);
@@ -15,12 +27,12 @@ function draw(){
  for(const row of record){
   const yr=row.water_year,px=x(yr),offset=stagger?(yr-start)%2*36:0,active=selected.has(yr);
   svg+=`<path d="M${px} ${top}V${y(0)+6+offset}" stroke="${yr%10===0?'#cbd9d1':'#edf1ee'}"/>`;
-  svg+=`<text class="year-label" transform="translate(${px+4},${y(0)+10+offset}) rotate(90)" fill="${active?'#274f4c':'#8b9b95'}" font-size="12" font-weight="${yr%10===0?700:500}">${yr}</text>`;
+  svg+=`<text class="year-label" transform="translate(${px},${y(0)+10+offset}) rotate(90)" dominant-baseline="central" fill="${active?'#274f4c':'#8b9b95'}" font-size="12" font-weight="${yr%10===0?700:500}">${yr}</text>`;
  }
  for(const q of [0,30000,60000,90000,120000])svg+=`<path d="M${left} ${y(q)}H${w-right}" stroke="#dce6df"/>`+text(left-8,y(q)+4,q/1000+'k','end');
  for(const row of record){
   const active=selected.has(row.water_year),color=row.el_nino_winter===true?'#a67b38':row.el_nino_winter===false?'#267972':'#aab7b2';
-  svg+=`<g opacity="${active?1:.14}"><title>${row.water_year}: ${fmt(row.peak_cfs)} cfs · peak ${row.peak_date} · ${row.el_nino_winter===true?'El Niño':row.el_nino_winter===false?'other winter':'unclassified'} · ${row.peak_cfs>=threshold?'at or above':'below'} threshold</title><path d="M${x(row.water_year)} ${y(0)}V${y(row.peak_cfs)}" stroke="${color}" stroke-width="${active&&row.peak_cfs>=threshold?2.5:1.2}"/><circle cx="${x(row.water_year)}" cy="${y(row.peak_cfs)}" r="${row.water_year===2019?5:3}" fill="${color}" ${row.water_year===2019?'stroke="#fff" stroke-width="1.5"':''}/></g>`;
+  svg+=`<g opacity="${active?1:.14}"><path d="M${x(row.water_year)} ${y(0)}V${y(row.peak_cfs)}" stroke="${color}" stroke-width="${active&&row.peak_cfs>=threshold?2.5:1.2}"/><circle cx="${x(row.water_year)}" cy="${y(row.peak_cfs)}" r="${row.water_year===2019?5:3}" fill="${color}" ${row.water_year===2019?'stroke="#fff" stroke-width="1.5"':''}/></g>`;
  }
  svg+=`<path d="M${left} ${y(threshold)}H${w-right}" stroke="#996c2c" stroke-width="2" stroke-dasharray="7 4"/>`;
  // Label the largest selected peaks, keeping the 2019 reference visible in its subset.
@@ -43,7 +55,18 @@ function draw(){
   svg+=`<g class="peak-label"><path d="M${px} ${py}L${bx} ${by+labelH/2}" stroke="${color}" stroke-width="1"/><rect x="${box.x}" y="${by}" width="${labelW}" height="${labelH}" rx="4" fill="white" fill-opacity=".94"/><text x="${bx}" y="${by+13}" text-anchor="middle" fill="${color}" font-size="13" font-weight="700">${row.water_year}</text><text x="${bx}" y="${by+28}" text-anchor="middle" fill="${color}" font-size="11">${fmt(row.peak_cfs)} cfs</text></g>`;
  }
  svg+=text(left,14,'cfs','start')+text(w-right,14,'House damage threshold · '+fmt(threshold)+' cfs','end','#8c6026')+text(left+(w-left-right)/2,h-3,'Water year');
- host.innerHTML=`<svg style="min-width:${w}px" viewBox="0 0 ${w} ${h}" role="img" aria-label="Annual peak flow, ${start} to 2025; every water year labeled; ${season==='all'?'all years':season==='el_nino'?'El Niño years':'other years'} highlighted; threshold ${fmt(threshold)} cfs"><g font-family="system-ui,sans-serif" font-size="${fs}">${svg}</g></svg>`;
+ // Wide transparent hit areas make the small peaks easy to inspect with mouse or touch.
+ for(const row of record){
+  const px=x(row.water_year),py=y(row.peak_cfs),label=`${peakDate(row.peak_date)} · ${fmt(row.peak_cfs)} cfs · Water year ${row.water_year}`;
+  svg+=`<g class="peak-hit" data-year="${row.water_year}" tabindex="0" role="button" aria-label="${label}" aria-describedby="peak-tooltip"><path d="M${px} ${y(0)}V${py}" stroke="transparent" stroke-width="${Math.max(8,step*.8)}"/><circle cx="${px}" cy="${py}" r="${Math.max(5,Math.min(9,step*.45))}" fill="transparent"/></g>`;
+ }
+ host.innerHTML=`<svg style="min-width:${w}px" viewBox="0 0 ${w} ${h}" role="group" aria-label="Annual peak flow, ${start} to 2025; every water year labeled; ${season==='all'?'all years':season==='el_nino'?'El Niño years':'other years'} highlighted; threshold ${fmt(threshold)} cfs"><g font-family="system-ui,sans-serif" font-size="${fs}">${svg}</g></svg>`;
+ for(const target of host.querySelectorAll('.peak-hit')){
+  target.onpointerenter=()=>showPeak(target);target.onfocus=()=>showPeak(target);target.onclick=()=>showPeak(target);
+  target.onpointerleave=target.onblur=()=>{$('peak-tooltip').hidden=true;};
+  target.onkeydown=e=>{if(e.key==='Escape')$('peak-tooltip').hidden=true;else if(e.key==='Enter'||e.key===' '){e.preventDefault();showPeak(target);}};
+ }
+ host.onscroll=()=>{$('peak-tooltip').hidden=true;};
 }
 function render(){
  $('threshold-slider').value=threshold;$('threshold-number').value=threshold;$('error').hidden=true;
@@ -60,6 +83,7 @@ async function init(){
  $('threshold-slider').oninput=e=>{threshold=Number(e.target.value);render();};
  $('threshold-number').oninput=e=>{const n=e.target.value.trim()===''?NaN:Number(e.target.value);if(H.validThreshold(n)){threshold=n;render();}else{$('error').textContent='Enter a threshold from 500 to 120,000 cfs.';$('error').hidden=false;for(const name of ['all','el_nino','other']){$(name+'-rate').textContent='—';$(name+'-count').textContent='';}}};
  $('reference').onclick=()=>{threshold=rows.find(r=>r.water_year===2019).peak_cfs;render();};for(const b of document.querySelectorAll('[data-season]'))b.onclick=()=>{season=b.dataset.season;render();};
+ window.addEventListener('scroll',()=>{$('peak-tooltip').hidden=true;},true);
  new ResizeObserver(draw).observe($('history-chart'));render();
 }
 init().catch(e=>{$('error').hidden=false;$('error').textContent=e.message;});
