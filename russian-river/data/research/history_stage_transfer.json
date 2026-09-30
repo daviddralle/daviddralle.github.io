@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "prepared": "2026-09-30",
+  "gage": "Guerneville / Johnsons Beach",
+  "units": "ft gage height; not NAVD88 elevation or water depth at the house",
+  "kind": "estimated_stage_display_transfer",
+  "nodes": [
+    {
+      "flow_cfs": 500,
+      "stage_ft": 6.722801
+    },
+    {
+      "flow_cfs": 5000,
+      "stage_ft": 10.398125
+    },
+    {
+      "flow_cfs": 10000,
+      "stage_ft": 14.481818
+    },
+    {
+      "flow_cfs": 15000,
+      "stage_ft": 18.5
+    },
+    {
+      "flow_cfs": 20000,
+      "stage_ft": 21.975833
+    },
+    {
+      "flow_cfs": 25000,
+      "stage_ft": 25.306
+    },
+    {
+      "flow_cfs": 30000,
+      "stage_ft": 28.12
+    },
+    {
+      "flow_cfs": 35000,
+      "stage_ft": 30.681
+    },
+    {
+      "flow_cfs": 40000,
+      "stage_ft": 32.978
+    },
+    {
+      "flow_cfs": 45000,
+      "stage_ft": 35.165
+    },
+    {
+      "flow_cfs": 50000,
+      "stage_ft": 37.333333
+    },
+    {
+      "flow_cfs": 55000,
+      "stage_ft": 39.481667
+    },
+    {
+      "flow_cfs": 60000,
+      "stage_ft": 41.04
+    },
+    {
+      "flow_cfs": 65000,
+      "stage_ft": 42.315119
+    },
+    {
+      "flow_cfs": 72000,
+      "stage_ft": 45.38
+    },
+    {
+      "flow_cfs": 102000,
+      "stage_ft": 49.5
+    },
+    {
+      "flow_cfs": 120000,
+      "stage_ft": 51.972
+    }
+  ],
+  "method": "Piecewise linear monotone transfer. At each 5,000-cfs knot from 5,000 to 65,000 cfs, average interpolated simultaneous Johnsons stage at all flow crossings in the paired February 2019 record. Anchor 72,000 cfs to the 2019 stage crest 45.38 ft and 102,000 cfs to the published 1986 crest 49.50 ft. Extend the first and last segments to the input bounds 500 and 120,000 cfs.",
+  "limitations": "Not an official rating curve or observed annual stage series. Different gauges and peak timing, hysteresis, channel change and cross-event variability are unresolved. Both views use the same discharge exceedance counts. Tooltip dates are measured discharge-peak dates, not inferred stage-crest times. The small house depicts threshold status only, not surveyed architecture or flood depth.",
+  "sources": [
+    {
+      "url": "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=11467000,11467002&startDT=2019-02-24&endDT=2019-03-02&parameterCd=00060,00065&siteStatus=all",
+      "local": "2019_stage_flow.csv",
+      "sha256": "502a6b205aa2f0506194730f5a07692a16bcbe3f04ceb1bc536359c9f5e9934a"
+    },
+    {
+      "url": "https://www.cnrfc.noaa.gov/obsRiver_hc.php?id=GUEC1",
+      "accessed": "2026-09-30",
+      "used": "1986 stage 49.50 ft; 2019 stage 45.38 ft. CNRFC estimated discharges for 2019 and recent years differ from this app USGS record and are not substituted."
+    }
+  ]
+}
