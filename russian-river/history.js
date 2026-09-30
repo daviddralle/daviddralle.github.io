@@ -28,8 +28,8 @@ function draw(){
  if(!rows.length)return;
  $('peak-tooltip').hidden=true;
  const host=$('history-chart'),w=Math.max(host.clientWidth,760),h=host.clientHeight,fs=parseFloat(getComputedStyle(host).fontSize),left=fs*4.6,right=24,top=38;
- const step=(w-left-right)/(2025-start),stagger=step<14,bottom=stagger?94:56;
- const x=yr=>left+(yr-start)*step,y=q=>top+(1-(q===0?0:displayValue(q))/(view==='stage'?55:120000))*(h-top-bottom);
+ const step=(w-left-right)/(2025-start),stagger=step<14,bottom=stagger?94:56,axisMax=view==='stage'?70:120000;
+ const x=yr=>left+(yr-start)*step,y=q=>top+(1-(q===0?0:displayValue(q))/axisMax)*(h-top-bottom);
  const text=(x,y,s,anchor='middle',color='#55736b')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" fill="${color}">${s}</text>`;
  const record=rows.filter(r=>r.water_year>=start),selected=new Set(H.summarize(rows,threshold,start,season).rows.map(r=>r.water_year));
  let svg='';
@@ -38,7 +38,7 @@ function draw(){
   svg+=`<path d="M${px} ${top}V${y(0)+6+offset}" stroke="${yr%10===0?'#cbd9d1':'#edf1ee'}"/>`;
   svg+=`<text class="year-label" transform="translate(${px},${y(0)+10+offset}) rotate(90)" dominant-baseline="central" fill="${active?'#274f4c':'#8b9b95'}" font-size="12" font-weight="${yr%10===0?700:500}">${yr}</text>`;
  }
- for(const tick of view==='stage'?[0,10,20,30,40,50]:[0,30000,60000,90000,120000]){const py=top+(1-tick/(view==='stage'?55:120000))*(h-top-bottom);svg+=`<path d="M${left} ${py}H${w-right}" stroke="#dce6df"/>`+text(left-8,py+4,view==='stage'?tick:tick/1000+'k','end');}
+ for(const tick of view==='stage'?[0,10,20,30,40,50,60,70]:[0,30000,60000,90000,120000]){const py=top+(1-tick/axisMax)*(h-top-bottom);svg+=`<path class="grid-line" d="M${left} ${py}H${w-right}" stroke="#dce6df"/>`+text(left-8,py+4,view==='stage'?tick:tick/1000+'k','end');}
  for(const row of record){
   const active=selected.has(row.water_year),color=row.el_nino_winter===true?'#a67b38':row.el_nino_winter===false?'#267972':'#aab7b2';
   svg+=`<g opacity="${active?1:.14}"><path d="M${x(row.water_year)} ${y(0)}V${y(row.peak_cfs)}" stroke="${color}" stroke-width="${active&&row.peak_cfs>=threshold?2.5:1.2}"/><circle cx="${x(row.water_year)}" cy="${y(row.peak_cfs)}" r="${row.water_year===2019?5:3}" fill="${color}" ${row.water_year===2019?'stroke="#fff" stroke-width="1.5"':''}/></g>`;
@@ -53,7 +53,8 @@ function draw(){
   let box;
   for(const dy of [-labelH-9,-labelH-46,12,48]){
    for(const dx of [-labelW/2,-labelW-12,12]){
-    const candidate={x:Math.max(left,Math.min(w-right-labelW,px+dx)),y:Math.max(20,Math.min(y(0)-labelH,py+dy))};
+    const candidate={x:Math.max(left,Math.min(w-right-labelW,px+dx)),y:py+dy};
+    if(candidate.y<top+5||candidate.y+labelH>y(0)-5)continue;
     if(!placed.some(p=>candidate.x<p.x+labelW+6&&candidate.x+labelW+6>p.x&&candidate.y<p.y+labelH+4&&candidate.y+labelH+4>p.y)){box=candidate;break;}
    }
    if(box)break;
@@ -61,7 +62,7 @@ function draw(){
   if(!box)continue;
   placed.push(box);
   const color=row.water_year===2019?'#8c6026':'#244e49',bx=box.x+labelW/2,by=box.y;
-  svg+=`<g class="peak-label"><path d="M${px} ${py}L${bx} ${by+labelH/2}" stroke="${color}" stroke-width="1"/><rect x="${box.x}" y="${by}" width="${labelW}" height="${labelH}" rx="4" fill="white" fill-opacity=".94"/><text x="${bx}" y="${by+13}" text-anchor="middle" fill="${color}" font-size="13" font-weight="700">${row.water_year}</text><text x="${bx}" y="${by+28}" text-anchor="middle" fill="${color}" font-size="11">${valueLabel(row.peak_cfs)}</text></g>`;
+  svg+=`<g class="peak-label" data-year="${row.water_year}"><path d="M${px} ${py}L${bx} ${by+labelH/2}" stroke="${color}" stroke-width="1"/><rect x="${box.x}" y="${by}" width="${labelW}" height="${labelH}" rx="4" fill="white" fill-opacity=".94"/><text x="${bx}" y="${by+13}" text-anchor="middle" fill="${color}" font-size="13" font-weight="700">${row.water_year}</text><text x="${bx}" y="${by+28}" text-anchor="middle" fill="${color}" font-size="11">${valueLabel(row.peak_cfs)}</text></g>`;
  }
  svg+=text(left,14,view==='stage'?'Estimated Guerneville stage · ft':'Flow · cfs','start')+text(w-right,14,'House damage threshold · '+valueLabel(threshold),'end','#8c6026')+text(left+(w-left-right)/2,h-3,'Water year');
  // Wide transparent hit areas make the small peaks easy to inspect with mouse or touch.
