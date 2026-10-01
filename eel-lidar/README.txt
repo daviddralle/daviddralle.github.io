@@ -1,52 +1,63 @@
 Eel lidar map and profiles
 
-Open eel_lidar_viewer.html in Chrome. The single 65 MB HTML file contains the
-original bathymetry and support TIFFs, river geometry, roughness summaries,
-and JavaScript dependencies. No server or installation is required.
-Only basemap tiles require internet. Choose None for offline work.
+Open eel_lidar_viewer.html in Chrome. The standalone HTML contains the bed and
+bank GeoTIFFs, support flags, river geometry, roughness summaries and libraries.
+No server or installation is required. Only basemaps require internet.
 
 Controls
-- Pan/zoom the map: the roughness profile follows visible river intervals.
-- Hover either profile/map to locate the corresponding interval. Click a
-  roughness point to center the map. Drag a box in the roughness plot to zoom
-  the map to that chainage range. Orange shading marks the selected interval.
-- Radius selects the 1, 2, or 5 m point-cloud roughness neighborhood. All radii
-  overlays the three profiles. Statistic selects median or 90th percentile
-  among roughness estimates within each 100 m interval.
-- Click within 150 m of the mainstem for a perpendicular bed section centered
-  on the mapped river line. More distant clicks leave the section unchanged. Use Draw A–B for a custom
-  section, including along-channel bed profiles. Drag endpoints to adjust.
-  Width and rotation apply to perpendicular sections; after manually moving
-  endpoints, click the channel again in Perpendicular mode to re-enable them.
-- Section samples use the original 1 m TIFF, even when the map uses an overview.
-  Fit plot to supported bed crops the plotted distance range; CSV retains the
-  full transect and missing values. Blue = cell with a source point;
-  orange = interpolated cell. Missing cells remain gaps.
-- CSV buttons export the selected section or all intervals in the map view.
-- Angelo and River km provide direct navigation. Chainage increases downstream
-  from the upstream survey edge, not upstream from the river mouth.
+- Map zoom/pan updates the roughness plot. Hover either view to locate the same
+  interval. Click a roughness point to center the map; drag a plot box to zoom.
+- Radius selects 1, 2 or 5 m point-cloud neighborhoods. All radii overlays them.
+  Median or 90th percentile summarizes estimates within each 100 m interval.
+- Perpendicular mode snaps clicks within 150 m to the mapped mainstem.
+  More distant clicks preserve the current section. Draw A–B allows free
+  placement, including longitudinal profiles. Drag endpoints to adjust.
+- Include ground / banks adds the brown 2 m class-2 ground surface to sections.
+  Blue and orange points remain the original 1 m candidate bathymetry.
+- Focus on bed and low banks zooms to ground within 30 m of the sampled bed
+  edges and at most 5 m above the highest bed sample. Uncheck to see the full
+  transect. Include ground / banks can be unchecked for bed-only inspection.
+- CSV exports retain the whole section, including missing values and separate
+  ground/bed elevation and support fields, regardless of plot zoom or toggles.
+- River km increases downstream from the upstream survey edge, not the mouth.
+
+Banks
+The source is terrestrial class 2 in the existing CA14_Dietrich_B green-lidar
+survey, not a newly downloaded infrared acquisition. This retains the same
+survey and source GEOID12A vertical reference as the bathymetry.
+
+Ground returns are represented by mean XYZ within 2 m bins. A linear TIN is
+sampled on a 2 m grid, with triangle edges <=8 m and nearest centroid <=3 m.
+A 40 m tile halo includes neighbors. The narrow domain extends 75 m from the
+river guide or 30 m from class-14 return footprints. Cells containing class 9,
+14 or 15 returns plus a 2 m margin are excluded from ground. This is not a
+complete water polygon: classifications and gaps remain uncertain.
+
+The bank raster is separate from the bed raster. Sections give bed precedence
+where both are available and preserve gaps between sources. They do not fit a
+vertical offset or fill an unsupported underwater bed with terrestrial ground.
+Source classification errors can remain. The bed raster and roughness values
+have not been changed.
 
 Scientific scope
-The route spans South Fork Eel and the lower Eel to the mouth (214.1 km).
-Bed elevation is a provisional class-14-derived surface, not water depth.
-Classification, channel alignment, vegetation, interpolation, depth-dependent
-sampling and missing returns can affect interpretation. A cross-sectional
-trough alone does not establish that a site is a longitudinal pool.
-Roughness is detrended point-cloud elevation variability, not calibrated grain
-size. Summaries and coverage apply to supported bed data, not the full wetted
-channel. Methods & data in the viewer provides details and provenance.
+This is provisional 2014 elevation, not water depth. Sparse returns, vegetation,
+classification and channel position can affect interpretation. A cross-sectional
+trough alone does not establish a longitudinal pool. Roughness is detrended
+point-cloud variability, not calibrated grain size. Coverage refers to supported
+bed data, not the complete wetted channel. See Methods & data in the viewer.
 
-Verification
-- Standalone file opened directly in Chrome and read embedded TIFFs.
-- 2,764 numerical section samples across nine sections matched Rasterio
-  elevations and support flags exactly, including missing and boundary cells.
-- 21 visible-interval selections matched independent Shapely intersections.
-- Embedded TIFF bytes matched source SHA-256 hashes.
-- Map zoom/profile linking, plot drag/map zoom, custom A–B sections,
-  imagery/topography switching, and all-radii display checked in the UI.
-- Chrome-exported CSV (201 rows) matched the source TIFF exactly.
+Local QGIS products
+../full_mainstem/qgis_full_mainstem/eel_mainstem_banks_2m.tif
+../full_mainstem/qgis_full_mainstem/eel_mainstem_banks_2m_support.tif
+../full_mainstem/qgis_full_mainstem/eel_mainstem_bathymetry_banks.qgz
+The new project includes ground and bed as separate elevation-enabled layers.
 
-Rebuild with the lab Python environment:
-  python viewer/build_viewer.py
-Source: template.html, app.js, build_viewer.py, vendor/.
-Numerical verification: test_numerics.cjs, verify_numerics.py.
+Reproduction and checks
+../full_mainstem/banks/build_banks.py creates bank tiles and mosaics from
+existing clipped LAZs. finish_banks.py creates overviews and runs the checks.
+build_viewer.py embeds all four source TIFFs.
+Numerical tests compare JavaScript samples with Rasterio, including 2 m ground,
+1 m bed, support codes, gaps and raster boundaries. Independent geometry tests
+check visible river intervals. Embedded files are checked by SHA-256.
+See numerical_verification.json, placement_verification.json, and
+../full_mainstem/banks/validation.json for measured results.

@@ -1,5 +1,5 @@
 {
-  "html_bytes": 64874194,
+  "html_bytes": 99588270,
   "rows": 2142,
   "source": {
     "source": "CA14_Dietrich_B, NCALM / OpenTopography",
@@ -16,7 +16,20 @@
     ],
     "raster_resolution_m": 1,
     "nodata": -9999,
-    "bed_sha256": "fda19e0fe00ad542820596964aadffdcd5c972080eb0eded59e8447e1f90164e"
+    "bed_sha256": "fda19e0fe00ad542820596964aadffdcd5c972080eb0eded59e8447e1f90164e",
+    "bank_sha256": "7ecd184ebe7ce71276549a0cd834cfd15732e26166ce6f183fd42e60f86f16b9",
+    "bank_method": {
+      "source": "CA14_Dietrich_B class 2 terrestrial ground; same survey as bathymetry",
+      "vertical_reference": "Source GEOID12A meters",
+      "method": "2 m mean XYZ ground bins; linear TIN; triangle edge <=8 m; nearest ground-bin centroid <=3 m; 40 m tile halo",
+      "extent": "Within 75 m of mapped river or 30 m of class 14 return footprint",
+      "water_mask": "Exclude 2 m cells containing class 9,14,15 and 2 m margin; water footprint is incomplete, not a wetted polygon",
+      "warning": "Provisional bank/terrain surface, not bathymetry or a filled channel. Retain separately from candidate bed.",
+      "valid_cells": 6403578,
+      "direct_cells": 5890981,
+      "tiles": 362,
+      "seconds": 649
+    }
   },
   "libraries": {
     "leaflet.js": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
