@@ -1,0 +1,312 @@
+{
+  "route": {
+    "method": "4 m least-cost path through lidar water/bed footprints (classes 9/14/15); 5 km approximate NHD branch anchors; 10 m smoothing capped at 5 m displacement; loops removed",
+    "route_version": "lidar2014-v2",
+    "route_length_m": 216255.32355498947,
+    "old_route_length_m": 214134.74478157822,
+    "loop_retrace_removed_m": 169.63618707287242,
+    "simple": true,
+    "intervals": 2163,
+    "automatic_sections_enabled": 1812,
+    "flagged_intervals": 351,
+    "reference_to_water": {
+      "within_4m_fraction": 0.5474583790599388,
+      "median_m": 4.0,
+      "p90_m": 59.464274989274024,
+      "p95_m": 127.05904139414872,
+      "max_m": 528.0151512977634
+    },
+    "new_to_water": {
+      "within_4m_fraction": 0.9783809964115096,
+      "median_m": 0.0,
+      "p90_m": 0.0,
+      "p95_m": 0.0,
+      "max_m": 101.82337649086284
+    },
+    "warning": "Water-return footprint is incomplete and class interpretation provisional. Supported means lidar-aligned, not a surveyed thalweg or independently validated channel center. Ambiguous/sparse spans remain flagged."
+  },
+  "recovery": {
+    "affected_tiles": [
+      "ot_EelRiver_Aq_000111",
+      "ot_EelRiver_Aq_000045",
+      "ot_EelRiver_Aq_000040",
+      "ot_EelRiver_Aq_000351",
+      "ot_EelRiver_Aq_000350"
+    ],
+    "added_pixels": {
+      "eel_mainstem_bathy_v2_1m.tif": 74909,
+      "eel_mainstem_bathy_v2_1m_support.tif": 74909,
+      "eel_roughness_rms_radius1m_v2_1m.tif": 23639,
+      "eel_roughness_rms_radius2m_v2_1m.tif": 24385,
+      "eel_roughness_rms_radius5m_v2_1m.tif": 24391,
+      "eel_bed_return_density_v2_1m.tif": 74909,
+      "eel_roughness_neighbors_radius1m_v2_1m.tif": 24391
+    },
+    "old_valid_pixel_equality_checks": 35,
+    "old_valid_pixels_unchanged": true,
+    "corridor_m_each_side": 160,
+    "method": "Same original class-14 TIN and raw-point PCA algorithms; only newly recovered bed cells added. Existing valid values are unchanged. Full source tiles already present locally. Bank extension is documented separately."
+  },
+  "bank_recovery": {
+    "added_pixels_2m": {
+      "eel_mainstem_banks_v2_2m.tif": 61429,
+      "eel_mainstem_banks_v2_2m_support.tif": 61429
+    },
+    "affected_tiles": [
+      "ot_EelRiver_Aq_000040",
+      "ot_EelRiver_Aq_000045",
+      "ot_EelRiver_Aq_000111",
+      "ot_EelRiver_Aq_000350",
+      "ot_EelRiver_Aq_000351"
+    ],
+    "source_neighbor_tiles": 25,
+    "original_valid_values_preserved": true,
+    "equality_checks": 10,
+    "method": "Original 2 m class-2 bank algorithm, 40 m halo, class9/14/15 water exclusion plus 2 m margin. Only new supported cells within 100 m of corrected route in recovered bed tiles added. No water gaps filled.",
+    "whole_mosaic_verification": {
+      "elevation": {
+        "preserved_cells": 6403578,
+        "added_cells": 61429,
+        "result": "PASS"
+      },
+      "support": {
+        "preserved_cells": 6403578,
+        "added_cells": 61429,
+        "result": "PASS"
+      }
+    }
+  },
+  "assignment": {
+    "route_version": "lidar2014-v2",
+    "source_bed_cells": 9033332,
+    "assigned_mainstem_cells": 7689016,
+    "outside_selected_corridor_cells": 1344316,
+    "all_cells_accounted_for": true,
+    "exact_projection_checks": 1013,
+    "max_chainage_error_m": 0.0,
+    "roughness_assigned_cells": {
+      "1": 4669024,
+      "2": 4714194,
+      "5": 4714467
+    },
+    "flagged_interval_values_retained_with_quality_fields": true,
+    "note": "Original supported raster values are preserved; newly recovered class-14 bed cells were added using the original methods. Interval assignment follows the v2 route. Uncertain interval statistics remain available with flags but are omitted from the default viewer profile."
+  },
+  "independent_checks": {
+    "route_simple_and_contiguous": true,
+    "route_length_m": 216255.32355498947,
+    "interval_assignment_count_checks": 2163,
+    "independent_roughness_aggregate_checks": 9,
+    "original_bed_cells_exactly_preserved": 8958423,
+    "recovered_bed_cells": 74909,
+    "normal_section_geometry_checks": 739,
+    "result": "PASS"
+  },
+  "viewer_sampling": {
+    "sections": [
+      {
+        "name": "km3.7",
+        "samples": 201,
+        "valid": 0,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 118,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km11.6",
+        "samples": 201,
+        "valid": 8,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 133,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km12",
+        "samples": 201,
+        "valid": 18,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 124,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km90.4",
+        "samples": 201,
+        "valid": 38,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 82,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km100",
+        "samples": 201,
+        "valid": 30,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 111,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km123.5",
+        "samples": 201,
+        "valid": 38,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 100,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km124.5",
+        "samples": 201,
+        "valid": 34,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 68,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km175",
+        "samples": 601,
+        "valid": 69,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 57,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km200",
+        "samples": 601,
+        "valid": 101,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 67,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "km213",
+        "samples": 601,
+        "valid": 10,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 136,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "empty_sparse",
+        "samples": 129,
+        "valid": 0,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 0,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "outside_boundary",
+        "samples": 72,
+        "valid": 0,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 0,
+        "exact_ground_elevation_and_support_match": true
+      },
+      {
+        "name": "manual_diagonal",
+        "samples": 157,
+        "valid": 21,
+        "exact_elevation_and_support_match": true,
+        "ground_valid": 107,
+        "exact_ground_elevation_and_support_match": true
+      }
+    ],
+    "map_extent_tests": 21,
+    "eel_mainstem_bathy_v2_1m.tif_embedded_sha256": "7f2c50d42e823f58e3cb87ddfb9770461f7fc047e9c5ddac9a48af835cdbd2c5",
+    "eel_mainstem_bathy_v2_1m_support.tif_embedded_sha256": "2725e39fc2396c60ac8706d2c89cd097dff085d77b90ddc9e71f304e549706df",
+    "eel_mainstem_banks_v2_2m.tif_embedded_sha256": "16ec5cfad58631687b16df4ba4c28f0f0827e71f6616cb21bf0c05dfb693250e",
+    "eel_mainstem_banks_v2_2m_support.tif_embedded_sha256": "726a5de83bc0987b6288452973b9baed8dff0edc62c81385304409982bf3b3ea",
+    "total_cross_section_samples": 3568,
+    "result": "PASS"
+  },
+  "viewer_placement": {
+    "snapped_and_normal_cases": 30,
+    "flagged_route_cases": 18,
+    "distant_click_preserves_section": true,
+    "manual_endpoints_preserved": true,
+    "result": "PASS"
+  },
+  "viewer_display": {
+    "passed": true,
+    "checks": [
+      "source-transition joins",
+      "30 m limit",
+      "same-source gaps remain open",
+      "raw samples unchanged",
+      "flat surface illumination",
+      "NW-facing slope",
+      "metric gradient signs and spacing",
+      "NoData and raster edges"
+    ],
+    "real": [
+      {
+        "name": "km3.7",
+        "joins": 0
+      },
+      {
+        "name": "km11.6",
+        "joins": 2
+      },
+      {
+        "name": "km12",
+        "joins": 2
+      },
+      {
+        "name": "km90.4",
+        "joins": 2
+      },
+      {
+        "name": "km100",
+        "joins": 2
+      },
+      {
+        "name": "km123.5",
+        "joins": 2
+      },
+      {
+        "name": "km124.5",
+        "joins": 2
+      },
+      {
+        "name": "km175",
+        "joins": 2
+      },
+      {
+        "name": "km200",
+        "joins": 2
+      },
+      {
+        "name": "km213",
+        "joins": 2
+      },
+      {
+        "name": "empty_sparse",
+        "joins": 0
+      },
+      {
+        "name": "outside_boundary",
+        "joins": 0
+      },
+      {
+        "name": "manual_diagonal",
+        "joins": 2
+      }
+    ]
+  },
+  "qgis_project_reopened_valid_layers": 16,
+  "html_sha256": "f57644d79251074aa21ce523cbfcf4252e38af1028d711cadb0d4e65b8af63c6",
+  "atlas_review": "Full route reviewed in 2 km panels; recovered bend and estuary panels checked after final mask expansion.",
+  "browser_checks": {
+    "supported_example_km": 90.4,
+    "bed_samples": 37,
+    "ground_samples": 81,
+    "bank_bed_joins": 2,
+    "recovered_example_km": 123.5,
+    "recovered_bed_samples": 39,
+    "recovered_ground_samples": 100,
+    "uncertain_estuary_km": 213,
+    "automatic_section_blocked": true,
+    "manual_section_available": true,
+    "main_side_resized_px": 533,
+    "map_zoom_updates_profile": true,
+    "console_errors": 0
+  }
+}

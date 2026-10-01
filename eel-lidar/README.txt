@@ -1,3 +1,51 @@
+Route correction v2 — October 1, 2026
+
+The former NHD/NLDI guide was a regional routing line, not a lidar-derived
+channel center. It crossed bars and cut across some 2014 bends. It has been
+replaced by a 216.255 km provisional axis following observed 2014 classes
+9/14/15 water/bed footprints. Old and new river kilometres differ.
+
+Route construction: 4 m cells, 5 km reference-route branch anchors, geometric
+least-cost routing favoring broad water interiors, 10 m Gaussian smoothing
+capped at 5 m displacement, and removal of self-intersection loops. This is a
+channel guide, not a surveyed thalweg. Classes and incomplete footprints can
+still misidentify channel position. The water-alignment score uses the same
+footprints used to build the route; it is not independent validation.
+
+Of 2,163 intervals, 1,812 allow automatic sections; 351 are amber/dashed and
+require manual Draw A–B. Flags identify sparse water support, multiple channels,
+ambiguous station order, unresolved width, and complex estuary routing. The
+last estuarine reaches do not have a uniquely supported main-channel axis.
+Flagged values remain in CSV/GPKG with quality fields but are omitted from the
+default profile. Automatic sections use a normal to a 40 m route secant.
+The Original NHD guide checkbox allows direct comparison.
+
+Roughness values are reassigned to new 100 m intervals using nearest-segment
+projection, limited laterally to half the footprint width + 12 m (20–300 m).
+This is an approximate mainstem association, not a mapped habitat boundary.
+Use route quality and density/coverage covariates in downstream analysis.
+
+Full source tiles recovered 74,909 additional 1 m bed cells. TIN and raw-point
+roughness rules are identical to the original processing; all previously
+valid bed elevations and roughness values are unchanged. Banks are also extended at the five recovered bed tiles, within 100 m of the
+corrected route, using full-source class-2 returns and the same bank algorithm.
+All original supported ground values are preserved. No elevations were inferred merely to make a continuous
+channel. Expanded source masks were processed for targeted clip-edge areas,
+not as a new complete survey download.
+
+Primary QGIS project: eel_mainstem_lidar_v2.qgz in qgis_full_mainstem.
+Primary bed raster: eel_mainstem_bathy_v2_1m.tif; support file ends _support.tif.
+Corrected geometry/sections: river_centerline_v2.gpkg.
+Corrected predictors: roughness_predictors_100m_v2.csv.
+Spatial assignment: eel_mainstem_interval_ids_v2_1m.tif (1-based interval ID).
+The original files are retained for comparison.
+
+Reproduction: full_mainstem/centerline_v2 contains route construction, audit,
+targeted source recovery, reassignment, and independent verification scripts.
+The QA atlas covers the entire route in 2 km panels. New interval counts,
+roughness summaries, raster preservation, and normal-section geometries are
+checked independently. Viewer raster sampling is compared against Rasterio.
+
 Eel lidar map and profiles
 
 Open eel_lidar_viewer.html in Chrome. The standalone HTML contains the bed and
@@ -9,11 +57,11 @@ Controls
   interval. Click a roughness point to center the map; drag a plot box to zoom.
 - Radius selects 1, 2 or 5 m point-cloud neighborhoods. All radii overlays them.
   Median or 90th percentile summarizes estimates within each 100 m interval.
-- Perpendicular mode snaps clicks within 150 m to the mapped mainstem.
+- Perpendicular mode snaps clicks within 150 m to the lidar-aligned mainstem where route support is adequate.
   More distant clicks preserve the current section. Draw A–B allows free
   placement, including longitudinal profiles. Drag endpoints to adjust.
 - Include ground / banks adds the brown 2 m class-2 ground surface to sections.
-  Blue and orange points remain the original 1 m candidate bathymetry.
+  Blue and orange points show 1 m candidate bathymetry.
 - Focus on bed and low banks zooms to ground within 30 m of the sampled bed
   edges and at most 5 m above the highest bed sample. Uncheck to see the full
   transect. Include ground / banks can be unchecked for bed-only inspection.
@@ -36,8 +84,8 @@ complete water polygon: classifications and gaps remain uncertain.
 The bank raster is separate from the bed raster. Sections give bed precedence
 where both are available and preserve gaps between sources. They do not fit a
 vertical offset or fill an unsupported underwater bed with terrestrial ground.
-Source classification errors can remain. The bed raster and roughness values
-have not been changed.
+Source classification errors can remain. Route v2 preserves every previously supported bed cell and adds measured bed
+returns that the displaced original guide clip had excluded.
 
 Scientific scope
 This is provisional 2014 elevation, not water depth. Sparse returns, vegetation,
@@ -47,9 +95,9 @@ point-cloud variability, not calibrated grain size. Coverage refers to supported
 bed data, not the complete wetted channel. See Methods & data in the viewer.
 
 Local QGIS products
-../full_mainstem/qgis_full_mainstem/eel_mainstem_banks_2m.tif
-../full_mainstem/qgis_full_mainstem/eel_mainstem_banks_2m_support.tif
-../full_mainstem/qgis_full_mainstem/eel_mainstem_bathymetry_banks.qgz
+../full_mainstem/qgis_full_mainstem/eel_mainstem_banks_v2_2m.tif
+../full_mainstem/qgis_full_mainstem/eel_mainstem_banks_v2_2m_support.tif
+../full_mainstem/qgis_full_mainstem/eel_mainstem_lidar_v2.qgz
 The new project includes ground and bed as separate elevation-enabled layers.
 
 Reproduction and checks

@@ -1,12 +1,12 @@
 {
-  "html_bytes": 99604084,
-  "rows": 2142,
+  "html_bytes": 86871776,
+  "rows": 2163,
   "source": {
     "source": "CA14_Dietrich_B, NCALM / OpenTopography",
     "doi": "https://doi.org/10.5069/G9MP517V",
     "crs": "EPSG:26910",
     "vertical": "Source GEOID12A elevations, meters",
-    "route_km": 214.1347447815785,
+    "route_km": 216.25532355498947,
     "date": "July 2014",
     "raster_bounds": [
       388000,
@@ -16,8 +16,8 @@
     ],
     "raster_resolution_m": 1,
     "nodata": -9999,
-    "bed_sha256": "fda19e0fe00ad542820596964aadffdcd5c972080eb0eded59e8447e1f90164e",
-    "bank_sha256": "7ecd184ebe7ce71276549a0cd834cfd15732e26166ce6f183fd42e60f86f16b9",
+    "bed_sha256": "7f2c50d42e823f58e3cb87ddfb9770461f7fc047e9c5ddac9a48af835cdbd2c5",
+    "bank_sha256": "16ec5cfad58631687b16df4ba4c28f0f0827e71f6616cb21bf0c05dfb693250e",
     "bank_method": {
       "source": "CA14_Dietrich_B class 2 terrestrial ground; same survey as bathymetry",
       "vertical_reference": "Source GEOID12A meters",
@@ -29,6 +29,100 @@
       "direct_cells": 5890981,
       "tiles": 362,
       "seconds": 649
+    },
+    "bank_recovery_qa": {
+      "added_pixels_2m": {
+        "eel_mainstem_banks_v2_2m.tif": 61429,
+        "eel_mainstem_banks_v2_2m_support.tif": 61429
+      },
+      "affected_tiles": [
+        "ot_EelRiver_Aq_000040",
+        "ot_EelRiver_Aq_000045",
+        "ot_EelRiver_Aq_000111",
+        "ot_EelRiver_Aq_000350",
+        "ot_EelRiver_Aq_000351"
+      ],
+      "source_neighbor_tiles": 25,
+      "original_valid_values_preserved": true,
+      "equality_checks": 10,
+      "method": "Original 2 m class-2 bank algorithm, 40 m halo, class9/14/15 water exclusion plus 2 m margin. Only new supported cells within 100 m of corrected route in recovered bed tiles added. No water gaps filled.",
+      "whole_mosaic_verification": {
+        "elevation": {
+          "preserved_cells": 6403578,
+          "added_cells": 61429,
+          "result": "PASS"
+        },
+        "support": {
+          "preserved_cells": 6403578,
+          "added_cells": 61429,
+          "result": "PASS"
+        }
+      }
+    },
+    "route_version": "lidar2014-v2",
+    "recovery_qa": {
+      "affected_tiles": [
+        "ot_EelRiver_Aq_000111",
+        "ot_EelRiver_Aq_000045",
+        "ot_EelRiver_Aq_000040",
+        "ot_EelRiver_Aq_000351",
+        "ot_EelRiver_Aq_000350"
+      ],
+      "added_pixels": {
+        "eel_mainstem_bathy_v2_1m.tif": 74909,
+        "eel_mainstem_bathy_v2_1m_support.tif": 74909,
+        "eel_roughness_rms_radius1m_v2_1m.tif": 23639,
+        "eel_roughness_rms_radius2m_v2_1m.tif": 24385,
+        "eel_roughness_rms_radius5m_v2_1m.tif": 24391,
+        "eel_bed_return_density_v2_1m.tif": 74909,
+        "eel_roughness_neighbors_radius1m_v2_1m.tif": 24391
+      },
+      "old_valid_pixel_equality_checks": 35,
+      "old_valid_pixels_unchanged": true,
+      "corridor_m_each_side": 160,
+      "method": "Same original class-14 TIN and raw-point PCA algorithms; only newly recovered bed cells added. Existing valid values are unchanged. Full source tiles already present locally. Bank extension is documented separately."
+    },
+    "route_qa": {
+      "method": "4 m least-cost path through lidar water/bed footprints (classes 9/14/15); 5 km approximate NHD branch anchors; 10 m smoothing capped at 5 m displacement; loops removed",
+      "route_version": "lidar2014-v2",
+      "route_length_m": 216255.32355498947,
+      "old_route_length_m": 214134.74478157822,
+      "loop_retrace_removed_m": 169.63618707287242,
+      "simple": true,
+      "intervals": 2163,
+      "automatic_sections_enabled": 1812,
+      "flagged_intervals": 351,
+      "reference_to_water": {
+        "within_4m_fraction": 0.5474583790599388,
+        "median_m": 4.0,
+        "p90_m": 59.464274989274024,
+        "p95_m": 127.05904139414872,
+        "max_m": 528.0151512977634
+      },
+      "new_to_water": {
+        "within_4m_fraction": 0.9783809964115096,
+        "median_m": 0.0,
+        "p90_m": 0.0,
+        "p95_m": 0.0,
+        "max_m": 101.82337649086284
+      },
+      "warning": "Water-return footprint is incomplete and class interpretation provisional. Supported means lidar-aligned, not a surveyed thalweg or independently validated channel center. Ambiguous/sparse spans remain flagged."
+    },
+    "assignment_qa": {
+      "route_version": "lidar2014-v2",
+      "source_bed_cells": 9033332,
+      "assigned_mainstem_cells": 7689016,
+      "outside_selected_corridor_cells": 1344316,
+      "all_cells_accounted_for": true,
+      "exact_projection_checks": 1013,
+      "max_chainage_error_m": 0.0,
+      "roughness_assigned_cells": {
+        "1": 4669024,
+        "2": 4714194,
+        "5": 4714467
+      },
+      "flagged_interval_values_retained_with_quality_fields": true,
+      "note": "Original supported raster values are preserved; newly recovered class-14 bed cells were added using the original methods. Interval assignment follows the v2 route. Uncertain interval statistics remain available with flags but are omitted from the default viewer profile."
     }
   },
   "libraries": {
