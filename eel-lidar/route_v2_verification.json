@@ -292,7 +292,7 @@
     ]
   },
   "qgis_project_reopened_valid_layers": 16,
-  "html_sha256": "f57644d79251074aa21ce523cbfcf4252e38af1028d711cadb0d4e65b8af63c6",
+  "html_sha256": "3f3d816147774efd2007067d28625eab2370108a3eaea87125fabb54ccdf62a4",
   "atlas_review": "Full route reviewed in 2 km panels; recovered bend and estuary panels checked after final mask expansion.",
   "browser_checks": {
     "supported_example_km": 90.4,
@@ -308,5 +308,22 @@
     "main_side_resized_px": 533,
     "map_zoom_updates_profile": true,
     "console_errors": 0
+  },
+  "map_styling": {
+    "result": "PASS",
+    "analytic_plane_contour_endpoints": 224,
+    "nodata_gaps_preserved": true,
+    "flat_surface_no_false_contours": true,
+    "saddle_cells_resolved": true,
+    "color_lightness_monotonic": true,
+    "local_percentile_range_verified": true,
+    "requested_default_layers_verified": true,
+    "browser_check": {
+      "river_km": 135.6,
+      "zoom": 16,
+      "auto_interval_m": 1,
+      "contour_toggle_verified": true,
+      "console_errors": 0
+    }
   }
 }

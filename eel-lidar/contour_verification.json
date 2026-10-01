@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "analytic_plane_contour_endpoints": 224,
+  "nodata_gaps_preserved": true,
+  "flat_surface_no_false_contours": true,
+  "saddle_cells_resolved": true,
+  "color_lightness_monotonic": true,
+  "local_percentile_range_verified": true,
+  "requested_default_layers_verified": true
+}

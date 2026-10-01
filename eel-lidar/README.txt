@@ -115,3 +115,19 @@ Resizable panels and map layers (October 1, 2026)
 - Map toggles independently control roughness, bed elevation, bank elevation, and each raster hillshade. Color plus hillshade produces shaded elevation; hillshade alone is gray. Opacity applies to the rasters.
 - Hillshade uses metric east/north central gradients with NW (315 degree) illumination at 45 degrees, no vertical exaggeration or cast shadows. Center and four neighbors must be supported; NoData remains unshaded. Map overviews may be used.
 - Connect banks to bed adds dashed straight display-only joins between adjacent supported samples from different sources, at most 30 m apart. Internal bed/ground gaps and longer gaps stay open. Raw TIFFs and exported elevations are unchanged.
+
+Map styling and contours — October 1, 2026
+Defaults: imagery, roughness, bed elevation, bed hillshade, bank hillshade and
+contours on; bank elevation color and original NHD guide off; opacity 90%.
+Dark blue indicates lower bed; pale aqua/sand indicates higher bed. The local
+2nd–98th percentile elevation stretch limits extreme-value color compression;
+endpoint colors include values beyond those percentiles. This is absolute bed
+elevation, not water depth, and the colors change with the visible extent.
+Bed hillshade is weaker than bank hillshade to retain tonal separation.
+Contours appear with the enabled lidar surfaces at zoom 13+. Auto spacing is
+10 m at zoom 13, 5 m at 14, 2 m at 15, and 1 m at 16+. Fixed 0.5–10 m spacing
+can be selected. Every fifth contour is an index contour, sparsely labeled.
+Marching squares uses each displayed raster separately; all four corners must
+be valid, and NoData gaps and bed/bank boundaries are not bridged. Map contours
+may use overview rasters. Source TIFFs, roughness values, and section samples
+are unchanged. See contour_verification.json for analytic geometry tests.
