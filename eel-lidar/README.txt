@@ -61,3 +61,9 @@ Numerical tests compare JavaScript samples with Rasterio, including 2 m ground,
 check visible river intervals. Embedded files are checked by SHA-256.
 See numerical_verification.json, placement_verification.json, and
 ../full_mainstem/banks/validation.json for measured results.
+
+Resizable panels and map layers (October 1, 2026)
+- Drag the main/side divider, map/profile divider, or bar beneath the cross section. Arrow keys adjust focused dividers; double-click resets one divider. Reset layout restores all defaults. Sizes persist in this browser.
+- Map toggles independently control roughness, bed elevation, bank elevation, and each raster hillshade. Color plus hillshade produces shaded elevation; hillshade alone is gray. Opacity applies to the rasters.
+- Hillshade uses metric east/north central gradients with NW (315 degree) illumination at 45 degrees, no vertical exaggeration or cast shadows. Center and four neighbors must be supported; NoData remains unshaded. Map overviews may be used.
+- Connect banks to bed adds dashed straight display-only joins between adjacent supported samples from different sources, at most 30 m apart. Internal bed/ground gaps and longer gaps stay open. Raw TIFFs and exported elevations are unchanged.
