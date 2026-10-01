@@ -1,0 +1,28 @@
+{
+  "html_bytes": 64874194,
+  "rows": 2142,
+  "source": {
+    "source": "CA14_Dietrich_B, NCALM / OpenTopography",
+    "doi": "https://doi.org/10.5069/G9MP517V",
+    "crs": "EPSG:26910",
+    "vertical": "Source GEOID12A elevations, meters",
+    "route_km": 214.1347447815785,
+    "date": "July 2014",
+    "raster_bounds": [
+      388000,
+      4391000,
+      447000,
+      4501000
+    ],
+    "raster_resolution_m": 1,
+    "nodata": -9999,
+    "bed_sha256": "fda19e0fe00ad542820596964aadffdcd5c972080eb0eded59e8447e1f90164e"
+  },
+  "libraries": {
+    "leaflet.js": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "leaflet.css": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "plotly.min.js": "https://cdn.plot.ly/plotly-2.35.2.min.js",
+    "proj4.js": "https://unpkg.com/proj4@2.12.1/dist/proj4.js",
+    "geotiff.js": "https://unpkg.com/geotiff@2.1.3/dist-browser/geotiff.js"
+  }
+}
