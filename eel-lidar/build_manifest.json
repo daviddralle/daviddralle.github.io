@@ -1,5 +1,5 @@
 {
-  "html_bytes": 91728988,
+  "html_bytes": 86877595,
   "rows": 2163,
   "source": {
     "source": "CA14_Dietrich_B, NCALM / OpenTopography",
@@ -16,7 +16,7 @@
     ],
     "raster_resolution_m": 1,
     "nodata": -9999,
-    "bed_sha256": "c204be2ef1069fa4aa6decda4eb8b1ca84487c5d513d2e212e3e81d63c8e9c2a",
+    "bed_sha256": "7f2c50d42e823f58e3cb87ddfb9770461f7fc047e9c5ddac9a48af835cdbd2c5",
     "bank_sha256": "16ec5cfad58631687b16df4ba4c28f0f0827e71f6616cb21bf0c05dfb693250e",
     "bank_method": {
       "source": "CA14_Dietrich_B class 2 terrestrial ground; same survey as bathymetry",
@@ -60,59 +60,6 @@
       }
     },
     "route_version": "lidar2014-v2",
-    "bed_quality_version": "source-screen-v3",
-    "quality_method": {
-      "version": "source-screen-v3",
-      "source_classes": "14 candidate bed; 15 candidate water surface; interpretations provisional",
-      "surface_bin_m": 10,
-      "surface_bin_min_points": 10,
-      "surface_bin_max_scaled_MAD_m": 0.2,
-      "surface_interpolation_max_gap_m": 60,
-      "surface_max_XY_distance_m": 40,
-      "minimum_surface_separation_m": 0.35,
-      "separation_MAD_multiplier": 3,
-      "coherence_ellipsoid_XY_radius_m": 2,
-      "coherence_ellipsoid_Z_radius_m": 0.3,
-      "coherence_min_distinct_points_including_self": 5,
-      "classes": {
-        "1": "Coherent and below estimated surface by more than tolerance; provisional bed",
-        "2": "Within surface tolerance: shallow bed or surface return, unresolved",
-        "3": "Above estimated surface by more than tolerance",
-        "4": "Coherent candidate bed, local surface check unavailable",
-        "5": "Insufficient local 3D support (isolated or steep/rough), unresolved"
-      },
-      "retained_point_classes": [
-        1,
-        4
-      ],
-      "roughness_warning": "Screen changes sampled depths and coverage. Near-surface/shallow returns excluded rather than declared erroneous. Not a calibrated classifier or field validation."
-    },
-    "quality_summary": {
-      "tiles": 362,
-      "original_supported_cells": 9033332,
-      "screened_supported_cells": 5322768,
-      "direct_cells": 4983394,
-      "quality_cells": {
-        "1": 1827537,
-        "2": 3581620,
-        "3": 32557,
-        "4": 3495231,
-        "5": 96387
-      },
-      "point_screen": {
-        "completed_tiles": 362,
-        "source_distinct_points": 50926953,
-        "retained_points": 26364985,
-        "point_classes": {
-          "1": 10497041,
-          "2": 24334892,
-          "3": 111049,
-          "4": 15867944,
-          "5": 116027
-        },
-        "elapsed_s": 137.05379700660706
-      }
-    },
     "recovery_qa": {
       "affected_tiles": [
         "ot_EelRiver_Aq_000111",
@@ -163,26 +110,19 @@
     },
     "assignment_qa": {
       "route_version": "lidar2014-v2",
-      "source_bed_cells": 5322768,
-      "assigned_mainstem_cells": 4015824,
-      "outside_selected_corridor_cells": 1306944,
+      "source_bed_cells": 9033332,
+      "assigned_mainstem_cells": 7689016,
+      "outside_selected_corridor_cells": 1344316,
       "all_cells_accounted_for": true,
-      "exact_projection_checks": 1004,
+      "exact_projection_checks": 1013,
       "max_chainage_error_m": 0.0,
       "roughness_assigned_cells": {
-        "1": 2100197,
-        "2": 2129608,
-        "5": 2129717
+        "1": 4669024,
+        "2": 4714194,
+        "5": 4714467
       },
       "flagged_interval_values_retained_with_quality_fields": true,
-      "note": "Bed and all PCA neighborhoods rebuilt from screened points. Geometry remains route v2. Original v2 files preserved separately. Quality areas are fractions of original supported candidate bed, not full channel.",
-      "quality_assigned_cells": {
-        "1": 1822753,
-        "2": 3569161,
-        "3": 32100,
-        "4": 2193071,
-        "5": 71931
-      }
+      "note": "Original supported raster values are preserved; newly recovered class-14 bed cells were added using the original methods. Interval assignment follows the v2 route. Uncertain interval statistics remain available with flags but are omitted from the default viewer profile."
     }
   },
   "libraries": {
