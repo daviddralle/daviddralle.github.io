@@ -1,0 +1,76 @@
+{
+  "result": "PASS",
+  "files": {
+    "eel_mainstem_bathy_v2p1_1m.tif": {
+      "changed_cells": 5712,
+      "original_valid_cells": 9033332,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 2248,
+      "sha256": "316b24f0fab9348d81195afad7412e2b85d5f318e98bcaa1b051e37b4e293b0c"
+    },
+    "eel_mainstem_bathy_v2p1_1m_support.tif": {
+      "changed_cells": 5712,
+      "original_valid_cells": 9033332,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 2248,
+      "sha256": "1eb1573ab434522f94ff8c2deb1a1eeff5c1e01ed72cc0558525c706fed1229b"
+    },
+    "eel_bed_return_density_v2p1_1m.tif": {
+      "changed_cells": 5712,
+      "original_valid_cells": 9033332,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 1334,
+      "sha256": "11bf4b726c8371c0eec65b59c8b8ff2ff54ec7bb55e70ab87c2e974c4928b572"
+    },
+    "eel_mainstem_interval_ids_v2p1_1m.tif": {
+      "changed_cells": 5712,
+      "original_valid_cells": 7689016,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 1183,
+      "sha256": "dd81a7bb5c1ea23c709f71d2160d6a4d3c13f2b357a60142f117d8cfdce984b0"
+    },
+    "eel_roughness_rms_radius1m_v2p1_1m.tif": {
+      "changed_cells": 163,
+      "original_valid_cells": 4926810,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 1310,
+      "sha256": "6832114f717d5afdaef45187838ae565eef1924bfc290e6067a6dd4bec4e99be"
+    },
+    "eel_roughness_rms_radius2m_v2p1_1m.tif": {
+      "changed_cells": 260,
+      "original_valid_cells": 4981957,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 1317,
+      "sha256": "2ca356d04c903fd4fb4ace842a16fdf6d62ae76eca697fb0091568e8ce44ffcd"
+    },
+    "eel_roughness_rms_radius5m_v2p1_1m.tif": {
+      "changed_cells": 589,
+      "original_valid_cells": 4982287,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 1317,
+      "sha256": "eb86c1973a1277925c39a4bbb4b172488d2b8c9f077fd8ae483bcbb4eb78d6e5"
+    },
+    "eel_roughness_neighbors_radius1m_v2p1_1m.tif": {
+      "changed_cells": 208,
+      "original_valid_cells": 4982312,
+      "all_other_pixels_exactly_equal": true,
+      "changed_cells_all_nodata": true,
+      "allocated_blocks_checked": 1317,
+      "sha256": "ccf862e437c7fa0975f7ed20d93920489080a7cea0fcc752575e52126cfef841"
+    }
+  },
+  "unchanged_interval_records": 2161,
+  "changed_interval_ids": [
+    1524,
+    1525
+  ],
+  "all_route_and_transect_geometries_unchanged": true,
+  "retained_bed_fraction": 0.9993676751834207
+}

@@ -1,0 +1,25 @@
+{
+  "release": "v2p1-local-pool-edit",
+  "withdrawn_release": "screen-v3-7a4062c",
+  "restored_baseline_commit": "283b65c",
+  "bed_coverage_retained_fraction": 0.9993676751834207,
+  "files": {
+    "contour_verification.json": "96f7478bbd34db7481c71dc5b2a63e6adf2b7a5ef8390fae646c6ff211b4943c",
+    "roughness_predictors_100m_v2p1.csv": "51405c0dc421182d55fea875aa71caa351204d794a05a4be69fb65141d5d6606",
+    "index.html": "c81ed4228a812b3766e7a5973fb4b13f2cbdb500f74df0921e2065882fdc1a2c",
+    "river_centerline_v2.gpkg": "754abd3f07198deccb6bcee5bd6a6e2d9b14ce2e727723ca25047674ebaf7bed",
+    "local_pool_edit_code.zip": "f53b8c4ffb5295b38715e231a6563cc6c4fbc0d8605935406150ef57cc30cec0",
+    "build_manifest.json": "e6eb599aac0fe907312cdafa7002994358565ac590e3554bd39dc8a7363d167a",
+    "eel_mainstem_bathy_v2p1_1m.tif": "316b24f0fab9348d81195afad7412e2b85d5f318e98bcaa1b051e37b4e293b0c",
+    "numerical_verification.json": "49fccaa02faa31df7f76c1e8f4b23dade8a92caea4136ba776ed169572afcb76",
+    "section_exclusion_verification.json": "1995240f15e777906e96b4f2f64498e9bb4fdcf553e1b875c33eff411c16323f",
+    "eel_mainstem_bathy_v2p1_1m_support.tif": "1eb1573ab434522f94ff8c2deb1a1eeff5c1e01ed72cc0558525c706fed1229b",
+    "river_centerline_v2p1.gpkg": "7e460e66ff800d2dec5dd9059d763aa2651085e9b9d64c55ad53ae439f57af3c",
+    "route_v2_verification.json": "d1755451ff6f8f4aac5711af4439943960cfe33bd1284b15aacf2224752eceed",
+    "roughness_predictors_100m_v2.csv": "0c685e6e88a703381ba459d58a63c6d7c99092105fe400eada9652c1a2f67f1a",
+    "README.txt": "a71004b25f0abd3a8550ef5c14920dd18f404c6ca1dd16230d62f10857bbeddf",
+    "preservation_verification.json": "daf889de12cbbaabfb55f3aa7d500724fa78e8d5340d92a19147b94b98ef2eac",
+    "edit_report.json": "bc63e7429f5c74f333d8f9efb13a6826b4f9ac9825e97994a28ced7a00afb926",
+    "pool_exclusion.geojson": "973576d504cea4a96ad6798253f97884306ed01426a6b632f682a51148a08561"
+  }
+}

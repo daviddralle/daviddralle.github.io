@@ -1,0 +1,49 @@
+{
+  "release": "v2p1-local-pool-edit",
+  "baseline": "v2",
+  "excluded_bed_cells": 5712,
+  "review_polygon_area_m2": 6906.0,
+  "files": {
+    "eel_mainstem_bathy_v2p1_1m.tif": {
+      "changed_cells": 5712,
+      "source": "eel_mainstem_bathy_v2_1m.tif"
+    },
+    "eel_mainstem_bathy_v2p1_1m_support.tif": {
+      "changed_cells": 5712,
+      "source": "eel_mainstem_bathy_v2_1m_support.tif"
+    },
+    "eel_bed_return_density_v2p1_1m.tif": {
+      "changed_cells": 5712,
+      "source": "eel_bed_return_density_v2_1m.tif"
+    },
+    "eel_mainstem_interval_ids_v2p1_1m.tif": {
+      "changed_cells": 5712,
+      "source": "eel_mainstem_interval_ids_v2_1m.tif"
+    },
+    "eel_roughness_rms_radius1m_v2p1_1m.tif": {
+      "changed_cells": 163,
+      "source": "eel_roughness_rms_radius1m_v2_1m.tif"
+    },
+    "eel_roughness_rms_radius2m_v2p1_1m.tif": {
+      "changed_cells": 260,
+      "source": "eel_roughness_rms_radius2m_v2_1m.tif"
+    },
+    "eel_roughness_rms_radius5m_v2p1_1m.tif": {
+      "changed_cells": 589,
+      "source": "eel_roughness_rms_radius5m_v2_1m.tif"
+    },
+    "eel_roughness_neighbors_radius1m_v2p1_1m.tif": {
+      "changed_cells": 208,
+      "source": "eel_roughness_neighbors_radius1m_v2_1m.tif"
+    }
+  },
+  "no_global_water_surface_filter": true,
+  "no_reconstructed_depths": true,
+  "affected_interval_ids": [
+    1524,
+    1525
+  ],
+  "original_total_bed_cells": 9033332,
+  "retained_fraction_of_v2": 0.9993676751834207,
+  "roughness_policy": "Values are unchanged outside a radius-specific exclusion halo (radius + 1.5 m). Halo prevents neighborhoods containing flagged returns from remaining in summaries; no whole-river recalculation."
+}

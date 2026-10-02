@@ -1,3 +1,35 @@
+Local pool edit v2p1 — October 1, 2026
+
+The broad v3 water-surface screening has been withdrawn. It removed legitimate
+shallow bed. The original v2 bed and roughness are restored everywhere except
+a manually reviewed upper-band patch in the scoured pool near river km 152.4.
+
+The exact 1 m exclusion footprint is pool_exclusion.geojson (WGS84). Within a
+hand-delineated interior boundary, only original bed elevations >=32.30 m are
+excluded: 5,712 cells, 0.0632% of the original 9,033,332 supported bed cells.
+This absolute cutoff belongs ONLY to this audited pool. It is not a depth
+threshold and is never applied to shallow water elsewhere. Lower elevations
+within the boundary are preserved. Other false returns may remain, including
+mixed cells at the edge; this is a conservative, localized correction.
+
+Roughness is omitted where neighborhoods could include removed returns: each
+radius plus 1.5 m from excluded cell centers. Original numerical roughness
+values elsewhere remain unchanged. Only affected 100 m summaries are updated.
+No bottom elevation is filled or inferred. Banks are unchanged and are not used
+to fill the reviewed exclusion in sections. Dashed bank joins cannot cross it.
+The map can toggle the orange exclusion outline; that does not restore the
+excluded elevations. Original v2 rasters remain available locally for comparison.
+
+Current bed: eel_mainstem_bathy_v2p1_1m.tif and matching _support.tif.
+Current summaries: roughness_predictors_100m_v2p1.csv, river_centerline_v2p1.gpkg.
+Current QGIS project: eel_mainstem_lidar_v2p1.qgz.
+The route, banks, UI controls, colors, hillshades and contours remain at v2.
+The earlier screened v3 imagery pilot is also withdrawn as the active pilot;
+the original imagery/depth_pilot is preserved and remains experimental.
+
+The sections below document the underlying v2 processing before this one-pool
+exclusion. See edit_report.json and preservation_verification.json for changes.
+
 Route correction v2 — October 1, 2026
 
 The former NHD/NLDI guide was a regional routing line, not a lidar-derived

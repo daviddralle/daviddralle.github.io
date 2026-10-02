@@ -1,0 +1,163 @@
+{
+  "sections": [
+    {
+      "name": "km3.7",
+      "samples": 201,
+      "valid": 0,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 118,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km11.6",
+      "samples": 201,
+      "valid": 8,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 133,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km12",
+      "samples": 201,
+      "valid": 18,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 124,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km40",
+      "samples": 201,
+      "valid": 20,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 88,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km70",
+      "samples": 201,
+      "valid": 28,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 118,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km90.4",
+      "samples": 201,
+      "valid": 38,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 82,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km100",
+      "samples": 201,
+      "valid": 30,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 111,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km123.5",
+      "samples": 201,
+      "valid": 38,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 100,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km124.5",
+      "samples": 201,
+      "valid": 34,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 68,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km135.6",
+      "samples": 201,
+      "valid": 51,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 97,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km152.4",
+      "samples": 201,
+      "valid": 61,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 74,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km175",
+      "samples": 601,
+      "valid": 69,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 57,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km200",
+      "samples": 601,
+      "valid": 101,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 67,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "km213",
+      "samples": 601,
+      "valid": 10,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 136,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "pool_interior",
+      "samples": 151,
+      "valid": 26,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 45,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "pool_tail",
+      "samples": 151,
+      "valid": 98,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 31,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "empty_sparse",
+      "samples": 129,
+      "valid": 0,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 0,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "outside_boundary",
+      "samples": 72,
+      "valid": 0,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 0,
+      "exact_ground_elevation_and_support_match": true
+    },
+    {
+      "name": "manual_diagonal",
+      "samples": 157,
+      "valid": 21,
+      "exact_elevation_and_support_match": true,
+      "ground_valid": 107,
+      "exact_ground_elevation_and_support_match": true
+    }
+  ],
+  "map_extent_tests": 21,
+  "eel_mainstem_bathy_v2p1_1m.tif_embedded_sha256": "316b24f0fab9348d81195afad7412e2b85d5f318e98bcaa1b051e37b4e293b0c",
+  "eel_mainstem_bathy_v2p1_1m_support.tif_embedded_sha256": "1eb1573ab434522f94ff8c2deb1a1eeff5c1e01ed72cc0558525c706fed1229b",
+  "eel_mainstem_banks_v2_2m.tif_embedded_sha256": "16ec5cfad58631687b16df4ba4c28f0f0827e71f6616cb21bf0c05dfb693250e",
+  "eel_mainstem_banks_v2_2m_support.tif_embedded_sha256": "726a5de83bc0987b6288452973b9baed8dff0edc62c81385304409982bf3b3ea",
+  "total_cross_section_samples": 4674,
+  "result": "PASS"
+}
