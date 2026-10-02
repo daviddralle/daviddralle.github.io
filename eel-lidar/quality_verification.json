@@ -1,0 +1,35 @@
+{
+  "checks": [],
+  "point_files_checked": 362,
+  "source_points": 50926953,
+  "point_flag_counts": [
+    10497041,
+    24334892,
+    111049,
+    15867944,
+    116027
+  ],
+  "surface_model_points": 34967101,
+  "no_surface_model_points": 15959852,
+  "separation_sensitivity": {
+    "note": "Pre-coherence count at fixed offsets; does not reproduce adaptive 3*MAD screen or establish optimal threshold",
+    "threshold_m": [
+      0.2,
+      0.35,
+      0.5
+    ],
+    "points_deeper_than_offset": [
+      19068574,
+      12780551,
+      8943017
+    ]
+  },
+  "false_plateau_point_count": 1196,
+  "false_plateau_all_unresolved_near_surface": true,
+  "false_plateau_raster_all_nodata": true,
+  "shallow_category_preserved_in_source_flags": 24334892,
+  "shallow_bed_accuracy": "Unknown; no independent surveyed riffle elevations. Original comparison retained; shallow exclusion is explicit.",
+  "independent_raw_point_SVD_checks": 36,
+  "maximum_PCA_error_m": 6.260341550712312e-09,
+  "result": "PASS"
+}

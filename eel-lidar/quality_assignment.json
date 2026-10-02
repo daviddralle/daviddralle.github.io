@@ -1,0 +1,23 @@
+{
+  "route_version": "lidar2014-v2",
+  "source_bed_cells": 5322768,
+  "assigned_mainstem_cells": 4015824,
+  "outside_selected_corridor_cells": 1306944,
+  "all_cells_accounted_for": true,
+  "exact_projection_checks": 1004,
+  "max_chainage_error_m": 0.0,
+  "roughness_assigned_cells": {
+    "1": 2100197,
+    "2": 2129608,
+    "5": 2129717
+  },
+  "flagged_interval_values_retained_with_quality_fields": true,
+  "note": "Bed and all PCA neighborhoods rebuilt from screened points. Geometry remains route v2. Original v2 files preserved separately. Quality areas are fractions of original supported candidate bed, not full channel.",
+  "quality_assigned_cells": {
+    "1": 1822753,
+    "2": 3569161,
+    "3": 32100,
+    "4": 2193071,
+    "5": 71931
+  }
+}

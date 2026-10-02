@@ -1,0 +1,24 @@
+{
+  "result": "PASS",
+  "normal_viewport": [
+    1280,
+    720
+  ],
+  "responsive_viewport": [
+    950,
+    800
+  ],
+  "responsive_document_overflow": false,
+  "side_splitter_keyboard_adjustment_verified": true,
+  "viewport_and_splitter_restored": true,
+  "pool_river_km": 152.4,
+  "pool_interval_original_bed_area_m2": 9522,
+  "pool_interval_screened_bed_area_m2": 4883,
+  "section_positions": 201,
+  "section_screened_bed_positions": 40,
+  "section_unresolved_positions": 62,
+  "section_no_surface_check_positions": 0,
+  "original_comparison_toggle_verified": true,
+  "no_bank_joins_over_flagged_gaps": true,
+  "console_errors": []
+}

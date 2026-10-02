@@ -1,0 +1,5 @@
+{
+  "result": "PASS",
+  "bank_bed_joins_do_not_bridge_flagged_bed": true,
+  "internal_bed_gaps_remain_open": true
+}

@@ -1,0 +1,26 @@
+{
+  "tiles": 362,
+  "original_supported_cells": 9033332,
+  "screened_supported_cells": 5322768,
+  "direct_cells": 4983394,
+  "quality_cells": {
+    "1": 1827537,
+    "2": 3581620,
+    "3": 32557,
+    "4": 3495231,
+    "5": 96387
+  },
+  "point_screen": {
+    "completed_tiles": 362,
+    "source_distinct_points": 50926953,
+    "retained_points": 26364985,
+    "point_classes": {
+      "1": 10497041,
+      "2": 24334892,
+      "3": 111049,
+      "4": 15867944,
+      "5": 116027
+    },
+    "elapsed_s": 137.05379700660706
+  }
+}

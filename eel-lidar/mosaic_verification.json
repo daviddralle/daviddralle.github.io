@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "exact_tile_mosaic_windows_checked": 780,
+  "counts": {
+    "eel_mainstem_bathy_v3_1m.tif": 5322768,
+    "eel_mainstem_bathy_v3_1m_support.tif": 5322768,
+    "eel_mainstem_bed_quality_v3_1m.tif": 9033332
+  },
+  "original_v2_bed_and_banks_unchanged_sha256": {
+    "eel_mainstem_bathy_v2_1m.tif": "7f2c50d42e823f58e3cb87ddfb9770461f7fc047e9c5ddac9a48af835cdbd2c5",
+    "eel_mainstem_banks_v2_2m.tif": "16ec5cfad58631687b16df4ba4c28f0f0827e71f6616cb21bf0c05dfb693250e"
+  }
+}
