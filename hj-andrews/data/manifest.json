@@ -1,0 +1,566 @@
+{
+  "retrieved": "2026-10-06",
+  "site_url": "https://daviddralle.github.io/hj-andrews/",
+  "sources": [
+    {
+      "id": "GI010",
+      "url": "https://andrewsforest.oregonstate.edu/sites/default/files/lter/data/studies/spatialdata/gi01001.zip",
+      "citation": "Spies, T. 2016. LiDAR data (August 2008) for the Andrews Experimental Forest and Willamette National Forest study areas. GI010 v7.",
+      "doi": "https://doi.org/10.6073/pasta/c47128d6c63dff39ee48604ecc6fabfc",
+      "license": "CC BY 4.0 per download registration page",
+      "local": "data/source/gi01001.zip",
+      "status": "downloaded",
+      "acquired": "2008-08-10/2008-08-11",
+      "crs": "EPSG:26910",
+      "vertical_datum": "NAVD88 (Geoid03)",
+      "units": "metres",
+      "resolution_m": 1
+    },
+    {
+      "id": "public-hydrology-layer-5",
+      "url": "https://services1.arcgis.com/CD5mKowwN6nIaqd8/arcgis/rest/services/HJ_Andrews_Hydrology__2018_/FeatureServer/5",
+      "query": {
+        "where": "1=1",
+        "outFields": "*",
+        "outSR": 4326,
+        "f": "geojson"
+      },
+      "local": "data/source/layer-5.geojson",
+      "status": "downloaded",
+      "credit": "USFS PNW Research Station; Oregon State University College of Forestry; HJ Andrews LTER",
+      "license": "No explicit license string in ArcGIS item metadata; retain source attribution."
+    },
+    {
+      "id": "public-hydrology-layer-8",
+      "url": "https://services1.arcgis.com/CD5mKowwN6nIaqd8/arcgis/rest/services/HJ_Andrews_Hydrology__2018_/FeatureServer/8",
+      "query": {
+        "where": "1=1",
+        "outFields": "*",
+        "outSR": 4326,
+        "f": "geojson"
+      },
+      "local": "data/source/layer-8.geojson",
+      "status": "downloaded",
+      "credit": "USFS PNW Research Station; Oregon State University College of Forestry; HJ Andrews LTER",
+      "license": "No explicit license string in ArcGIS item metadata; retain source attribution."
+    },
+    {
+      "id": "public-hydrology-layer-1",
+      "url": "https://services1.arcgis.com/CD5mKowwN6nIaqd8/arcgis/rest/services/HJ_Andrews_Hydrology__2018_/FeatureServer/1",
+      "query": {
+        "where": "1=1",
+        "outFields": "*",
+        "outSR": 4326,
+        "f": "geojson"
+      },
+      "local": "data/source/layer-1.geojson",
+      "status": "downloaded",
+      "credit": "USFS PNW Research Station; Oregon State University College of Forestry; HJ Andrews LTER",
+      "license": "No explicit license string in ArcGIS item metadata; retain source attribution."
+    },
+    {
+      "id": "histories",
+      "url": "https://andrewsforest.oregonstate.edu/sites/default/files/2026-02/HJA_HF004_GAGE_WS_DESCRIPTIONS_INSTRUMENTATION.pdf",
+      "local": "data/source/watershed-histories-2026.pdf",
+      "status": "downloaded"
+    },
+    {
+      "id": "GI013",
+      "url": "https://andlter.forestry.oregonstate.edu/data/abstract.aspx?dbcode=GI013",
+      "status": "metadata only; no lidar products downloaded",
+      "years": [
+        2008,
+        2011,
+        2014,
+        2016,
+        2020,
+        2021
+      ]
+    },
+    {
+      "id": "HF014",
+      "url": "https://andlter.forestry.oregonstate.edu/data/abstract.aspx?dbcode=HF014",
+      "status": "not used; catalog flagged Restricted: QA/QC issues"
+    }
+  ],
+  "processing": [
+    "Original raster retained unchanged as ZIP; uncompressed E00 grid converted to GeoTIFF with record-width, row-padding, dimension and elevation-range checks.",
+    "Native 1 m masks from 2018 gauged catchment polygons; NoData=-9999; DEFLATE GeoTIFF.",
+    "2018 catchment boundaries independently derived from 2016 lidar; 2008 clips do not reproduce their delineation.",
+    "Full source footprint aggregated to approximately 10 m by average resampling.",
+    "Hillshade at 315 degree azimuth, 45 degree altitude, unit vertical exaggeration; warped to EPSG:4326 only for display.",
+    "Stream geometries simplified at 3 m in EPSG:26910 and exported to WGS84.",
+    "Surveyed areas from HF004 histories retained separately from polygon areas."
+  ],
+  "excluded": [
+    "discharge time series",
+    "climate time series",
+    "chemistry time series",
+    "temperature time series",
+    "raw LAS/LAZ clouds",
+    "later lidar rasters"
+  ],
+  "coverage": [
+    {
+      "id": "Mack",
+      "gis_area_ha": 574.70987493,
+      "dem_valid_fraction": 0.9999693775109136,
+      "min_m": 755.6799926757812,
+      "max_m": 1620.3800048828125
+    },
+    {
+      "id": "1",
+      "gis_area_ha": 97.23003886,
+      "dem_valid_fraction": 1.0,
+      "min_m": 438.44000244140625,
+      "max_m": 1012.6699829101562
+    },
+    {
+      "id": "3",
+      "gis_area_ha": 96.86911447,
+      "dem_valid_fraction": 1.0,
+      "min_m": 471.19000244140625,
+      "max_m": 1077.9200439453125
+    },
+    {
+      "id": "2",
+      "gis_area_ha": 60.97005954,
+      "dem_valid_fraction": 1.0,
+      "min_m": 544.5499877929688,
+      "max_m": 1077.5
+    },
+    {
+      "id": "8",
+      "gis_area_ha": 21.26899412,
+      "dem_valid_fraction": 1.0,
+      "min_m": 961.1599731445312,
+      "max_m": 1201.06005859375
+    },
+    {
+      "id": "7",
+      "gis_area_ha": 14.53630341,
+      "dem_valid_fraction": 1.0,
+      "min_m": 918.3300170898438,
+      "max_m": 1099.4200439453125
+    },
+    {
+      "id": "6",
+      "gis_area_ha": 12.54995418,
+      "dem_valid_fraction": 1.0,
+      "min_m": 878.2899780273438,
+      "max_m": 1027.25
+    },
+    {
+      "id": "10",
+      "gis_area_ha": 10.11836816,
+      "dem_valid_fraction": 1.0,
+      "min_m": 459.82000732421875,
+      "max_m": 692.47998046875
+    },
+    {
+      "id": "9",
+      "gis_area_ha": 7.9110403,
+      "dem_valid_fraction": 1.0,
+      "min_m": 425.739990234375,
+      "max_m": 700.7899780273438
+    }
+  ],
+  "files": [
+    {
+      "path": "README.txt",
+      "bytes": 1728,
+      "sha256": "5893b6888a302e02d48779ffccb0cd00b6e4e48a4dd5b574d5b48e85718e5e82",
+      "published": false
+    },
+    {
+      "path": "data/processed/1-dem-2008-1m.tif",
+      "bytes": 1761069,
+      "sha256": "584d24650eec2756c4eba5dfd89280c7d3ee5f56cd3a4ede3d9e39e92af6ca01",
+      "published": false
+    },
+    {
+      "path": "data/processed/10-dem-2008-1m.tif",
+      "bytes": 194261,
+      "sha256": "d57a016e1df0a8c9d9a04276d45d26c7d121094fb6c5d1f8acc5a088990d5fe9",
+      "published": false
+    },
+    {
+      "path": "data/processed/2-dem-2008-1m.tif",
+      "bytes": 1095453,
+      "sha256": "2cf085379f90338a8586fe1eb0de4d6a754825a365769d8a12057758c99d360d",
+      "published": false
+    },
+    {
+      "path": "data/processed/3-dem-2008-1m.tif",
+      "bytes": 1764439,
+      "sha256": "5b987c1419c268eb6b340f902cc37feba50a2aa239eb028940456378ab8277b3",
+      "published": false
+    },
+    {
+      "path": "data/processed/6-dem-2008-1m.tif",
+      "bytes": 225377,
+      "sha256": "5cffb7e65e42698edd33d98a82c15ca154e86d8370cbf00aa0157206b82d64a2",
+      "published": false
+    },
+    {
+      "path": "data/processed/7-dem-2008-1m.tif",
+      "bytes": 247703,
+      "sha256": "76d90e874d511b9748024c9dd329e5772e512e2c13e367221d9c90606aec6723",
+      "published": false
+    },
+    {
+      "path": "data/processed/8-dem-2008-1m.tif",
+      "bytes": 357767,
+      "sha256": "451970207bf399e6b6df01567012acb5ece1c9d7452b54e6a86e5fca19058ea8",
+      "published": false
+    },
+    {
+      "path": "data/processed/9-dem-2008-1m.tif",
+      "bytes": 155239,
+      "sha256": "ab98a9e19550224c9f25d21fddfc9e44d9fd304d215e32bb9b51cdc564f2aa4e",
+      "published": false
+    },
+    {
+      "path": "data/processed/catchments.gpkg",
+      "bytes": 819200,
+      "sha256": "13d485fab832c659fc5545dc7e4c5878ccb0d69133a15f9a07d309a0f293578a",
+      "published": false
+    },
+    {
+      "path": "data/processed/dem-coverage.json",
+      "bytes": 1352,
+      "sha256": "f4ec4ab242997dd267306b472262ced37a72120e2fc64db11d6487c2b5293196",
+      "published": false
+    },
+    {
+      "path": "data/processed/e00-validation.json",
+      "bytes": 363,
+      "sha256": "96ffdfc9b1122498c7f636622e0f5241a6e8fcfee7a5f446b554b1f99a4a3cac",
+      "published": false
+    },
+    {
+      "path": "data/processed/hja-dem-2008-1m.tif",
+      "bytes": 115853237,
+      "sha256": "f08660cca1e43c57ee3b1bd5f30f5cd7946bebaed6401612f7f8e3fd82e506ef",
+      "published": false
+    },
+    {
+      "path": "data/processed/mack-dem-2008-1m.tif",
+      "bytes": 9022867,
+      "sha256": "8c385527ca7ad1e4032de336997d8bcdbef979bb50b9fbd75fc51a2d9bdc565c",
+      "published": false
+    },
+    {
+      "path": "data/processed/terrain-source.json",
+      "bytes": 313,
+      "sha256": "b678484ae97efa9325e539b5b6fbb9d6368f83280a0868ed7a57b73717906ac6",
+      "published": false
+    },
+    {
+      "path": "data/source/gi010-full.html",
+      "bytes": 38424,
+      "sha256": "5d4516e62f849f91bc204e107d9ff90fe431e3db9aa6a5703fe480054b85ec0b",
+      "published": false
+    },
+    {
+      "path": "data/source/gi01001/gi01001.prj",
+      "bytes": 135,
+      "sha256": "96aa9878d980973a4a5a578aeb15242215c764159bb3decdf6cd368f040a1399",
+      "published": false
+    },
+    {
+      "path": "data/source/gi01001/gi01001_fgdc.xml",
+      "bytes": 21949,
+      "sha256": "1305d9d2643daf82188370fda591b2aed518aba10fa2fc29a09afb98a9e045e0",
+      "published": false
+    },
+    {
+      "path": "data/source/gi01001/gi01001_readme.txt",
+      "bytes": 401,
+      "sha256": "25f3caed116fc54f71422ceca6c836d6a1ff5f668ef69665b9ea22aea77240d9",
+      "published": false
+    },
+    {
+      "path": "data/source/gi01001.zip",
+      "bytes": 167121055,
+      "sha256": "13ecc6b739a8c44a139e46779b4b6e9d4941b22b2c14282fa2b0f7a2c5a2c81a",
+      "published": false
+    },
+    {
+      "path": "data/source/gi013-full.html",
+      "bytes": 24918,
+      "sha256": "08124258f1feee48fd473d0562471879d44ab11d9371a017a5bed2bbb3c05689",
+      "published": false
+    },
+    {
+      "path": "data/source/gi013-methods.html",
+      "bytes": 25237,
+      "sha256": "e18535667d7b773d04ebe08f0958ecf378aff3aeeb7c5b23bb3db1870be5538e",
+      "published": false
+    },
+    {
+      "path": "data/source/hf014-full.html",
+      "bytes": 26228,
+      "sha256": "a2399b2473b983209e160f26798f1f5022d64233f0bded0e2301d9d69fea5a6f",
+      "published": false
+    },
+    {
+      "path": "data/source/histories.txt",
+      "bytes": 77946,
+      "sha256": "4f3c9c0ec1ac16b614af9e95c15f6b8a53f71dc4d00e54d92a4dfddd90c3815d",
+      "published": false
+    },
+    {
+      "path": "data/source/jones-post-2004.pdf",
+      "bytes": 2505603,
+      "sha256": "7b744a57cd9af74ad80ca7f1a551ee548421ecc9822b2c78eb3c1cf1553683de",
+      "published": false
+    },
+    {
+      "path": "data/source/layer-1-metadata.json",
+      "bytes": 15339,
+      "sha256": "d8953fc584a4405107fd9f8668b6a29e73ce64eb53a6ee01d05f3837212db155",
+      "published": false
+    },
+    {
+      "path": "data/source/layer-1.geojson",
+      "bytes": 3848423,
+      "sha256": "0362591fa745089be0ccf33c520a7549c28184c381515639edd5b8323f18a7ae",
+      "published": false
+    },
+    {
+      "path": "data/source/layer-5-metadata.json",
+      "bytes": 25137,
+      "sha256": "8a253078f9f6b00a778b64047e240a307b29b05120bee3514f53a0ed2c62310c",
+      "published": false
+    },
+    {
+      "path": "data/source/layer-5.geojson",
+      "bytes": 1734667,
+      "sha256": "3a665c5217e1825017a0077ef70393e7a91ee2a5098fb3c51f2f4d581d827280",
+      "published": false
+    },
+    {
+      "path": "data/source/layer-8-metadata.json",
+      "bytes": 15880,
+      "sha256": "9139f0ebd325f133f65abd07a71e0f966ff3131dc763fc57b96b862667c165f4",
+      "published": false
+    },
+    {
+      "path": "data/source/layer-8.geojson",
+      "bytes": 38681,
+      "sha256": "02d62737c1dde0a37850ebb9d0a87be85cac72600782b05c4ecadd1f3083d78a",
+      "published": false
+    },
+    {
+      "path": "data/source/lidar-acquisition-report-2008.pdf",
+      "bytes": 1544031,
+      "sha256": "27b0525d1d0277b45e7ec6c25715c35edf68f10f287f86c0ac15a1b29b26d294",
+      "published": false
+    },
+    {
+      "path": "data/source/lidar-eml.txt",
+      "bytes": 29080,
+      "sha256": "9bf44a39dc1593df67bf235f1b66c722a70469d5621f830fde0a3a1dfcb936d9",
+      "published": false
+    },
+    {
+      "path": "data/source/perry-jones-2017.pdf",
+      "bytes": 1136121,
+      "sha256": "6f242c06343bdb896eded9b4fb716b84752bc448c689e97ccc5e961c7c9e011d",
+      "published": false
+    },
+    {
+      "path": "data/source/raster-meta-clean.txt",
+      "bytes": 32927,
+      "sha256": "f24a3fcdc8818b25456fc9154a140323592c34c4da0ef8b9b158ad56ab713207",
+      "published": false
+    },
+    {
+      "path": "data/source/watershed-histories-2026.pdf",
+      "bytes": 344643,
+      "sha256": "fd2f63c55548293c777661c1b68419f18ba607fb365d81a43cda32f1ec383987",
+      "published": false
+    },
+    {
+      "path": "data/source/watersheds.html",
+      "bytes": 76312,
+      "sha256": "f57732be4e048ada2b659bde3d89c6c83d8e767ec3efd92c97515a0092f3dde7",
+      "published": false
+    },
+    {
+      "path": "scripts/catalog.py",
+      "bytes": 5717,
+      "sha256": "b3ece7619d4e90ad1f92fcc99073ad4104569373434d29ab3963517348c0efec",
+      "published": false
+    },
+    {
+      "path": "scripts/convert_e00.py",
+      "bytes": 2578,
+      "sha256": "f3a1248e510fbce5aad43df281360ba9edf7350be97d04722d67bab3cec8c61a",
+      "published": false
+    },
+    {
+      "path": "scripts/package.py",
+      "bytes": 3779,
+      "sha256": "18025bf752cd560cb42fd07807d7d20a6b46ee9cde07483e18bc2aa961191f15",
+      "published": false
+    },
+    {
+      "path": "scripts/prepare.py",
+      "bytes": 4326,
+      "sha256": "58abc3c7d005f2dc79ff0ab0fc04985f575ffb4bb7848c54ce37ed9746cec042",
+      "published": false
+    },
+    {
+      "path": "site/app.js",
+      "bytes": 4487,
+      "sha256": "ccd8f9a951efc922d1d5498a4c57e40a529ee80abfffbb16b0d944ca8c69cf1b",
+      "published": true
+    },
+    {
+      "path": "site/data/1-dem-2008-1m.tif",
+      "bytes": 1761069,
+      "sha256": "584d24650eec2756c4eba5dfd89280c7d3ee5f56cd3a4ede3d9e39e92af6ca01",
+      "published": true
+    },
+    {
+      "path": "site/data/10-dem-2008-1m.tif",
+      "bytes": 194261,
+      "sha256": "d57a016e1df0a8c9d9a04276d45d26c7d121094fb6c5d1f8acc5a088990d5fe9",
+      "published": true
+    },
+    {
+      "path": "site/data/2-dem-2008-1m.tif",
+      "bytes": 1095453,
+      "sha256": "2cf085379f90338a8586fe1eb0de4d6a754825a365769d8a12057758c99d360d",
+      "published": true
+    },
+    {
+      "path": "site/data/3-dem-2008-1m.tif",
+      "bytes": 1764439,
+      "sha256": "5b987c1419c268eb6b340f902cc37feba50a2aa239eb028940456378ab8277b3",
+      "published": true
+    },
+    {
+      "path": "site/data/6-dem-2008-1m.tif",
+      "bytes": 225377,
+      "sha256": "5cffb7e65e42698edd33d98a82c15ca154e86d8370cbf00aa0157206b82d64a2",
+      "published": true
+    },
+    {
+      "path": "site/data/7-dem-2008-1m.tif",
+      "bytes": 247703,
+      "sha256": "76d90e874d511b9748024c9dd329e5772e512e2c13e367221d9c90606aec6723",
+      "published": true
+    },
+    {
+      "path": "site/data/8-dem-2008-1m.tif",
+      "bytes": 357767,
+      "sha256": "451970207bf399e6b6df01567012acb5ece1c9d7452b54e6a86e5fca19058ea8",
+      "published": true
+    },
+    {
+      "path": "site/data/9-dem-2008-1m.tif",
+      "bytes": 155239,
+      "sha256": "ab98a9e19550224c9f25d21fddfc9e44d9fd304d215e32bb9b51cdc564f2aa4e",
+      "published": true
+    },
+    {
+      "path": "site/data/bundle.js",
+      "bytes": 2321061,
+      "sha256": "63e3bae8c1a32c9a3ef8ba54462d5e4e36c3bc929f6dce231df732c743a1de0e",
+      "published": true
+    },
+    {
+      "path": "site/data/catchment-summary.csv",
+      "bytes": 6103,
+      "sha256": "f7002cd5782cc3a39d71f4572c6889420236bb7550545483ce39b1ee1c625d8d",
+      "published": true
+    },
+    {
+      "path": "site/data/catchment-summary.json",
+      "bytes": 9397,
+      "sha256": "95fa31c814ad4d1319a99b8e4a10cc0429a8656c861717c0ba9fb783fbce5846",
+      "published": true
+    },
+    {
+      "path": "site/data/catchments.geojson",
+      "bytes": 2033229,
+      "sha256": "96526d68c997029a84fb94f7e817f3585b0782649c189c0b2b937d4ebd83a37b",
+      "published": true
+    },
+    {
+      "path": "site/data/dem-coverage.json",
+      "bytes": 1352,
+      "sha256": "f4ec4ab242997dd267306b472262ced37a72120e2fc64db11d6487c2b5293196",
+      "published": true
+    },
+    {
+      "path": "site/data/hja-dem-2008-10m.tif",
+      "bytes": 1700622,
+      "sha256": "80a15ebc70817d11a9db2cfd9795bdb669f2c5c309686e15e35fc49b03a5f822",
+      "published": true
+    },
+    {
+      "path": "site/data/streams.geojson",
+      "bytes": 758774,
+      "sha256": "0593b47e92526fbba58553a4f053b9355cccb4045e2bb46eb562ad939832929f",
+      "published": true
+    },
+    {
+      "path": "site/data/terrain-bounds.json",
+      "bytes": 83,
+      "sha256": "cbcaaff0ebcc9e223d56d106c33f1929a6b23536fb8701568bb8e673867d0106",
+      "published": true
+    },
+    {
+      "path": "site/index.html",
+      "bytes": 10632,
+      "sha256": "c9a05656435097a345c22ea3ee4816f9644fd7df6984a4f60b0e74761738e3d5",
+      "published": true
+    },
+    {
+      "path": "site/style.css",
+      "bytes": 5538,
+      "sha256": "84a3de7e646057b47ba4b7a90ec7b3e17ec92f86b8fe33d8f0a94bdf2c70b675",
+      "published": true
+    },
+    {
+      "path": "site/terrain.png",
+      "bytes": 464883,
+      "sha256": "f706cbebf07343bc98c204c7a696b0786bbc964c98bace789c871a445670e4e2",
+      "published": true
+    },
+    {
+      "path": "site/vendor/LICENSE.txt",
+      "bytes": 1395,
+      "sha256": "53e8dc25862014e4324741ca18fbe3611e11d42ef69f59f86ea8c5389647d4cb",
+      "published": true
+    },
+    {
+      "path": "site/vendor/images/layers-2x.png",
+      "bytes": 1259,
+      "sha256": "066daca850d8ffbef007af00b06eac0015728dee279c51f3cb6c716df7c42edf",
+      "published": true
+    },
+    {
+      "path": "site/vendor/images/layers.png",
+      "bytes": 696,
+      "sha256": "1dbbe9d028e292f36fcba8f8b3a28d5e8932754fc2215b9ac69e4cdecf5107c6",
+      "published": true
+    },
+    {
+      "path": "site/vendor/leaflet.css",
+      "bytes": 14806,
+      "sha256": "a7837102824184820dfa198d1ebcd109ff6d0ff9a2672a074b9a1b4d147d04c6",
+      "published": true
+    },
+    {
+      "path": "site/vendor/leaflet.js",
+      "bytes": 147552,
+      "sha256": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
+      "published": true
+    }
+  ]
+}
