@@ -3,6 +3,13 @@
   "site_url": "https://daviddralle.github.io/hj-andrews/",
   "sources": [
     {
+      "id": "OpenStreetMap",
+      "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "status": "live basemap tiles; not archived",
+      "credit": "OpenStreetMap contributors",
+      "license": "https://www.openstreetmap.org/copyright"
+    },
+    {
       "id": "GI010",
       "url": "https://andrewsforest.oregonstate.edu/sites/default/files/lter/data/studies/spatialdata/gi01001.zip",
       "citation": "Spies, T. 2016. LiDAR data (August 2008) for the Andrews Experimental Forest and Willamette National Forest study areas. GI010 v7.",
@@ -168,8 +175,8 @@
   "files": [
     {
       "path": "README.txt",
-      "bytes": 1728,
-      "sha256": "5893b6888a302e02d48779ffccb0cd00b6e4e48a4dd5b574d5b48e85718e5e82",
+      "bytes": 1846,
+      "sha256": "98eaf06a55f073a6489e850a322dac3c48ee0799a29cdacca60d21a0bd3cc4d5",
       "published": false
     },
     {
@@ -402,8 +409,8 @@
     },
     {
       "path": "scripts/package.py",
-      "bytes": 3779,
-      "sha256": "18025bf752cd560cb42fd07807d7d20a6b46ee9cde07483e18bc2aa961191f15",
+      "bytes": 3992,
+      "sha256": "f61d47d2339ca0da0639f524ffe0f3cbad2cf65188fac3b592fa97ccc8030ebe",
       "published": false
     },
     {
@@ -414,8 +421,8 @@
     },
     {
       "path": "site/app.js",
-      "bytes": 4487,
-      "sha256": "ccd8f9a951efc922d1d5498a4c57e40a529ee80abfffbb16b0d944ca8c69cf1b",
+      "bytes": 5373,
+      "sha256": "703ea66b10e2f1f1e506f853e84d0991ed81cd76a82221f871a218baa9d7886f",
       "published": true
     },
     {
@@ -516,8 +523,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 10632,
-      "sha256": "c9a05656435097a345c22ea3ee4816f9644fd7df6984a4f60b0e74761738e3d5",
+      "bytes": 10657,
+      "sha256": "a056bd175152ec7ea2f25e49aa3b1bdb86338fedb0ef20a70caac5734a5067fd",
       "published": true
     },
     {
