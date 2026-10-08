@@ -1,0 +1,210 @@
+[
+  {
+    "focus": [
+      44.20356443458269,
+      -122.24707957884577
+    ],
+    "id": "1",
+    "file": "terrain-1m/ws1.png",
+    "bounds": [
+      [
+        44.198882005867986,
+        -122.25842067341344
+      ],
+      [
+        44.208258248808576,
+        -122.23692398866446
+      ]
+    ],
+    "width": 2393,
+    "height": 1456,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  },
+  {
+    "focus": [
+      44.21385290321439,
+      -122.23210055900628
+    ],
+    "id": "3",
+    "file": "terrain-1m/ws3.png",
+    "bounds": [
+      [
+        44.20753757752007,
+        -122.24329243097044
+      ],
+      [
+        44.220195868319145,
+        -122.22505663070282
+      ]
+    ],
+    "width": 2030,
+    "height": 1966,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  },
+  {
+    "focus": [
+      44.20949192321028,
+      -122.24024676858896
+    ],
+    "id": "2",
+    "file": "terrain-1m/ws2.png",
+    "bounds": [
+      [
+        44.20566677540764,
+        -122.24655836359507
+      ],
+      [
+        44.21330352509579,
+        -122.23158344780877
+      ]
+    ],
+    "width": 1667,
+    "height": 1186,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  },
+  {
+    "focus": [
+      44.27002711705225,
+      -122.17171247029644
+    ],
+    "id": "8",
+    "file": "terrain-1m/ws8.png",
+    "bounds": [
+      [
+        44.266171348457256,
+        -122.17471039589492
+      ],
+      [
+        44.27388386600802,
+        -122.16763167145606
+      ]
+    ],
+    "width": 788,
+    "height": 1199,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  },
+  {
+    "focus": [
+      44.26699610163811,
+      -122.17759426548834
+    ],
+    "id": "7",
+    "file": "terrain-1m/ws7.png",
+    "bounds": [
+      [
+        44.26440660290006,
+        -122.18067359007841
+      ],
+      [
+        44.269578566462734,
+        -122.17456504614638
+      ]
+    ],
+    "width": 680,
+    "height": 804,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  },
+  {
+    "focus": [
+      44.26413273894251,
+      -122.18155181634793
+    ],
+    "id": "6",
+    "file": "terrain-1m/ws6.png",
+    "bounds": [
+      [
+        44.26140219769687,
+        -122.18504990493925
+      ],
+      [
+        44.266863902509265,
+        -122.17894136100725
+      ]
+    ],
+    "width": 680,
+    "height": 849,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  },
+  {
+    "focus": [
+      44.21814096376653,
+      -122.25875560007924
+    ],
+    "id": "10",
+    "file": "terrain-1m/ws10.png",
+    "bounds": [
+      [
+        44.216184347096714,
+        -122.2613592768464
+      ],
+      [
+        44.22009873273074,
+        -122.2554034465127
+      ]
+    ],
+    "width": 663,
+    "height": 608,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  },
+  {
+    "focus": [
+      44.20240120323677,
+      -122.25596331050076
+    ],
+    "id": "9",
+    "file": "terrain-1m/ws9.png",
+    "bounds": [
+      [
+        44.20084554463803,
+        -122.25893539170563
+      ],
+      [
+        44.20399463276727,
+        -122.2531502412759
+      ]
+    ],
+    "width": 644,
+    "height": 489,
+    "source_resolution_m": 1,
+    "display_crs": "EPSG:3857",
+    "display_pixel_projected_m": 1,
+    "azimuth_deg": 315,
+    "altitude_deg": 45,
+    "vertical_exaggeration": 1
+  }
+]

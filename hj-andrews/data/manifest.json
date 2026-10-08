@@ -96,6 +96,7 @@
     "2018 catchment boundaries independently derived from 2016 lidar; 2008 clips do not reproduce their delineation.",
     "Full source footprint aggregated to approximately 10 m by average resampling.",
     "Hillshade at 315 degree azimuth, 45 degree altitude, unit vertical exaggeration; warped to EPSG:4326 only for display.",
+    "Small-catchment hillshade computed directly from native 1 m elevations with buffered edges, 315 degree azimuth, 45 degree altitude and unit vertical exaggeration; bilinear reprojection to 1 projected metre EPSG:3857 display pixels (about 0.72 m on the ground); transparent outside 2018 boundaries.",
     "Stream geometries simplified at 3 m in EPSG:26910 and exported to WGS84.",
     "Surveyed areas from HF004 histories retained separately from polygon areas."
   ],
@@ -175,8 +176,8 @@
   "files": [
     {
       "path": "README.txt",
-      "bytes": 1846,
-      "sha256": "98eaf06a55f073a6489e850a322dac3c48ee0799a29cdacca60d21a0bd3cc4d5",
+      "bytes": 2331,
+      "sha256": "2dc2514d85aa4570d70e3c03889c6b249b413cce82eb30d40c2b596b933d6b89",
       "published": false
     },
     {
@@ -402,6 +403,12 @@
       "published": false
     },
     {
+      "path": "scripts/catchment_hillshade.py",
+      "bytes": 3496,
+      "sha256": "0588198db1eb8a8565a87dbcdc1ce0f83eb081d43e7479defc47234410452113",
+      "published": false
+    },
+    {
       "path": "scripts/convert_e00.py",
       "bytes": 2578,
       "sha256": "f3a1248e510fbce5aad43df281360ba9edf7350be97d04722d67bab3cec8c61a",
@@ -409,8 +416,8 @@
     },
     {
       "path": "scripts/package.py",
-      "bytes": 3992,
-      "sha256": "f61d47d2339ca0da0639f524ffe0f3cbad2cf65188fac3b592fa97ccc8030ebe",
+      "bytes": 4359,
+      "sha256": "aa2d5cb66b358fca2a66808c96c3cfbf6fea04e1865ebdbf6c90fd1ec81891c4",
       "published": false
     },
     {
@@ -421,8 +428,8 @@
     },
     {
       "path": "site/app.js",
-      "bytes": 5373,
-      "sha256": "703ea66b10e2f1f1e506f853e84d0991ed81cd76a82221f871a218baa9d7886f",
+      "bytes": 6087,
+      "sha256": "7f2209185980ff8b140e592acfc94635d95afa1a9cd18825da0147e8f190514f",
       "published": true
     },
     {
@@ -475,8 +482,8 @@
     },
     {
       "path": "site/data/bundle.js",
-      "bytes": 2321061,
-      "sha256": "63e3bae8c1a32c9a3ef8ba54462d5e4e36c3bc929f6dce231df732c743a1de0e",
+      "bytes": 2323852,
+      "sha256": "1d6557b6d502669e8a65fad0bd7171b9a0d1415b3df9e2f128d0552b25904ca8",
       "published": true
     },
     {
@@ -516,6 +523,12 @@
       "published": true
     },
     {
+      "path": "site/data/terrain-1m.json",
+      "bytes": 4103,
+      "sha256": "ed1905104093ce4893da688a44900351e7eb64158cc82627e63b9d7bae23eb8a",
+      "published": true
+    },
+    {
       "path": "site/data/terrain-bounds.json",
       "bytes": 83,
       "sha256": "cbcaaff0ebcc9e223d56d106c33f1929a6b23536fb8701568bb8e673867d0106",
@@ -523,14 +536,62 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 10670,
-      "sha256": "e32f5a012c2394fad9b6fb49e1569f02c036340818778d5a547f7b82f0abfcba",
+      "bytes": 11027,
+      "sha256": "5e6b73e96348918a199b1cd25ec2f3ed03cf1963f619a9606f631867ba2666cc",
       "published": true
     },
     {
       "path": "site/style.css",
-      "bytes": 5538,
-      "sha256": "84a3de7e646057b47ba4b7a90ec7b3e17ec92f86b8fe33d8f0a94bdf2c70b675",
+      "bytes": 5542,
+      "sha256": "402d87103859927ab490f51e1aab5386bfa2137dee8830334dd1d2b8101e62d4",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws1.png",
+      "bytes": 1532420,
+      "sha256": "83e40a7211bf0272283a22dfda91e4bff4d13856702d89f3cffe1a87a2e9ec99",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws10.png",
+      "bytes": 183847,
+      "sha256": "f9b0e270239f1777e34b9e95e5b84b8cb7618d8a425ef447b6d723f068fe8a16",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws2.png",
+      "bytes": 902989,
+      "sha256": "abda90e57ed4568a49b6b67c4ca16f00be23784c3549385ed5e21e62fa6725ea",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws3.png",
+      "bytes": 1549769,
+      "sha256": "bbba996cd315ac617000cd6c5d62d13ebc5bc12c8ff72f617366422502c173c2",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws6.png",
+      "bytes": 239901,
+      "sha256": "a1cf4eee48e9821832d230b8304a035b6b251f9572d356ce16dea18b2b3197d0",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws7.png",
+      "bytes": 269553,
+      "sha256": "2cd00cd1820ba8ff944af729ed76f409929baf90fdf59c2231649bb6b7994402",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws8.png",
+      "bytes": 383608,
+      "sha256": "9cd915af8d7234b41e3fafa5a3d7c4ca1b293bff18448e2164f077ad075c670a",
+      "published": true
+    },
+    {
+      "path": "site/terrain-1m/ws9.png",
+      "bytes": 153826,
+      "sha256": "6c19301d07445346eb5167978d41e343563ac428fb8b5ada9e5148b78d0fa929",
       "published": true
     },
     {
