@@ -1,0 +1,118 @@
+{
+  "site": "maguire-ridge",
+  "crs": "EPSG:26910",
+  "vertical_datum": "NAVD88 meters",
+  "vertical_exaggeration": 1,
+  "bounds_utm": [
+    601047.0,
+    4155948.0,
+    602208.0,
+    4156962.0
+  ],
+  "terrain": {
+    "width": 581,
+    "height": 507,
+    "x0": 601047.5,
+    "y0": 4156961.5,
+    "step": 2,
+    "min_m": 117.39093780517578,
+    "max_m": 389.4810791015625,
+    "url": "terrain.f32",
+    "source_resolution_m": 1
+  },
+  "canopy": {
+    "url": "canopy.u16",
+    "count": 650000,
+    "encoding": "uint16 little endian interleaved easting,northing,elevation,height above ground; value * scale + offset",
+    "scale": 0.02,
+    "offset": [
+      601047.0,
+      4155948.0,
+      0,
+      0
+    ],
+    "classes": [
+      1,
+      3,
+      4,
+      5
+    ],
+    "height_range_m": [
+      0.5,
+      85
+    ],
+    "eligible_returns": 9496202,
+    "after_40cm_voxel": 6344055,
+    "display_limit": 650000,
+    "sampling_seed": 42,
+    "color_stops": [
+      [
+        0,
+        "#c3a675"
+      ],
+      [
+        2,
+        "#c5bb76"
+      ],
+      [
+        7,
+        "#91b34e"
+      ],
+      [
+        20,
+        "#4d973b"
+      ],
+      [
+        65,
+        "#206038"
+      ]
+    ]
+  },
+  "source": {
+    "url": "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/CA_AlamedaCo_1_2021/ept.json",
+    "ept_resolution": 0.75,
+    "retrieval_pipeline": [
+      {
+        "type": "readers.ept",
+        "filename": "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/CA_AlamedaCo_1_2021/ept.json",
+        "bounds": "([-13564963.489799105,-13563485.14292389],[4515328.316992291,4516629.918724441])",
+        "resolution": 0.75,
+        "threads": 6
+      },
+      {
+        "type": "filters.reprojection",
+        "out_srs": "EPSG:26910"
+      },
+      {
+        "type": "writers.las",
+        "filename": "maguire-ridge.laz",
+        "compression": "laszip",
+        "minor_version": 4,
+        "dataformat_id": 6
+      }
+    ],
+    "class_counts_in_crop": {
+      "1": 22920613,
+      "2": 3869533
+    },
+    "returns_in_crop": 26790146,
+    "ground_minus_dem_m": {
+      "sample_count": 77407,
+      "median": -0.017896118164060226,
+      "p05": -0.10098693847655227,
+      "p95": 0.052597412109389535
+    }
+  },
+  "notes": [
+    "Actual measured returns, not reconstructed crowns. Class 1 is unclassified and may include structures.",
+    "EPT level of detail 0.75 Web Mercator meters; additional 0.4 m voxel thinning retains one original return per voxel, then seeded random display limit.",
+    "Height above ground uses bilinear interpolation of the 1 m DEM. Terrain mesh uses every second DEM cell.",
+    "Both sites use a common horizontal coordinate reference and true meter scale; no terrain is supplied between the cutouts.",
+    "Inventory markers inherit plot GPS error and have not been snapped to canopy returns."
+  ],
+  "sha256": {
+    "canopy.u16": "2c0ca7e5392761cd9a0c0b09e5b8d57f3d2fc50ea65360e0543d7a50491f3274",
+    "terrain.f32": "49db5bc8ce83afb30eda417a47abceb286ea5c33918ed6d598403be963f8fa45",
+    "features.json": "f1407ad276159dec60cf0576e1290fc196c20a6215b1fe3216ef309414300537"
+  }
+}
