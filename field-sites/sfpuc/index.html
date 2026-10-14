@@ -11,12 +11,12 @@
   <script defer src="app.js"></script>
 </head>
 <body>
-  <nav class="site-nav" aria-label="Field sites"><a href="/field-sites/">← Field sites</a><div role="group" aria-label="Zoom to location"><button data-site="sheep-camp">↗ Sheep Camp</button><button data-site="maguire-ridge">↗ Maguire Ridge</button></div></nav>
+  <nav class="site-nav" aria-label="Field sites"><a href="/field-sites/">← Field sites</a></nav>
   <header><div class="brand"><div class="eyebrow">SFPUC · ALAMEDA CREEK WATERSHED</div><h1>SFPUC <span>Field Atlas</span></h1></div><div class="header-actions"><button id="mobile-layers" aria-expanded="false" aria-controls="sidebar">Layers</button><button id="sources">Sources & notes</button><button id="export" class="accent">Export trees ↗</button></div></header>
   <main id="site-map" aria-label="Field atlas">
     <aside id="sidebar" aria-label="Map controls">
       <section class="side-section"><label class="eyebrow" for="search">FIND A TREE OR PLOT</label><div class="search-wrap"><input id="search" type="search" placeholder="Tree ID, plot, or tag…" autocomplete="off"><button id="clear-search" aria-label="Clear search">×</button></div><div id="search-results" aria-live="polite"></div></section>
-      <section class="side-section"><div class="section-heading"><h2>Explore</h2><span class="muted" id="site-code"></span></div><div class="presets"><button id="fit-site" class="selected">All plots</button><button id="landscape">Landscape</button><button id="both-sites">Both sites</button></div><p id="summary" class="small"></p><label for="plot">Go to plot</label><select id="plot"><option value="">All plots</option></select></section>
+      <section class="side-section"><div class="section-heading"><h2>Explore</h2><span class="muted" id="site-code"></span></div><div class="site-jumps" role="group" aria-label="Zoom to location"><button data-site="sheep-camp">↗ Sheep Camp</button><button data-site="maguire-ridge">↗ Maguire Ridge</button></div><div class="presets"><button id="fit-site" class="selected">All plots</button><button id="landscape">Landscape</button><button id="both-sites">Both sites</button></div><p id="summary" class="small"></p><label for="plot">Go to plot</label><select id="plot"><option value="">All plots</option></select></section>
       <section class="side-section"><div class="section-heading"><h2>Map layers</h2><span class="muted small">2022 inventory</span></div>
         <label class="layer-row"><input id="layer-trees" type="checkbox" checked><i class="dot" style="--c:#b5ec86"></i><span>Recorded trees</span><small id="tree-count"></small></label>
         <label class="layer-row"><input id="layer-plots" type="checkbox" checked><i class="dot" style="--c:#63dbea"></i><span>Plot centers & labels</span><small>20</small></label>

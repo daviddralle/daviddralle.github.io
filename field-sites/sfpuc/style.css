@@ -12,3 +12,5 @@
 .scene-active #map{visibility:hidden}.scene-active #notice{display:none}
 
 .ramp-labels{position:relative;height:12px}.ramp-labels span{position:absolute}.ramp-labels span:nth-child(1){left:0}.ramp-labels span:nth-child(2){left:10.77%}.ramp-labels span:nth-child(3){left:30.77%}.ramp-labels span:nth-child(4){right:0}
+
+.site-jumps{display:flex;gap:6px;margin-bottom:10px}.site-jumps button{flex:1;white-space:nowrap;padding:10px 6px;font-size:12px}.site-jumps button:hover{border-color:var(--accent)}
