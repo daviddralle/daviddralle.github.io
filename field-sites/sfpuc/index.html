@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#11262d">
+  <meta name="description" content="Sheep Camp and Maguire Ridge field maps: tree inventories, study plots, sampling plans, aerial imagery, and one-meter LiDAR terrain.">
+  <title>SFPUC Field Atlas · Sheep Camp & Maguire Ridge</title>
+  <link rel="stylesheet" href="../rivendell/atlas/vendor/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="../rivendell/atlas/vendor/leaflet.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Field sites"><a href="/field-sites/">← Field sites</a><div role="tablist" aria-label="Study location"><button id="tab-sheep-camp" role="tab" aria-selected="true" aria-controls="site-map" data-site="sheep-camp">Sheep Camp</button><button id="tab-maguire-ridge" role="tab" aria-selected="false" aria-controls="site-map" tabindex="-1" data-site="maguire-ridge">Maguire Ridge</button></div></nav>
+  <header><div class="brand"><div class="eyebrow">SFPUC · ALAMEDA CREEK WATERSHED</div><h1>Sheep Camp <span>Field Atlas</span></h1></div><div class="header-actions"><button id="mobile-layers" aria-expanded="false" aria-controls="sidebar">Layers</button><button id="sources">Sources & notes</button><button id="export" class="accent">Export trees ↗</button></div></header>
+  <main id="site-map" role="tabpanel" aria-labelledby="tab-sheep-camp">
+    <aside id="sidebar" aria-label="Map controls">
+      <section class="side-section"><label class="eyebrow" for="search">FIND A TREE OR PLOT</label><div class="search-wrap"><input id="search" type="search" placeholder="Tree ID, plot, or tag…" autocomplete="off"><button id="clear-search" aria-label="Clear search">×</button></div><div id="search-results" aria-live="polite"></div></section>
+      <section class="side-section"><div class="section-heading"><h2>Explore</h2><span class="muted" id="site-code"></span></div><div class="presets"><button id="fit-site" class="selected">All plots</button><button id="landscape">Landscape</button><button id="both-sites">Both sites</button></div><p id="summary" class="small"></p><label for="plot">Go to plot</label><select id="plot"><option value="">All plots</option></select></section>
+      <section class="side-section"><div class="section-heading"><h2>Map layers</h2><span class="muted small">2022 inventory</span></div>
+        <label class="layer-row"><input id="layer-trees" type="checkbox" checked><i class="dot" style="--c:#b5ec86"></i><span>Recorded trees</span><small id="tree-count"></small></label>
+        <label class="layer-row"><input id="layer-plots" type="checkbox" checked><i class="dot" style="--c:#63dbea"></i><span>Plot centers & labels</span><small>10</small></label>
+        <label class="layer-row"><input id="layer-boundaries" type="checkbox" checked><i class="ring" style="--c:#63dbea"></i><span>12.6 m plot circles</span><small>10</small></label>
+        <label class="layer-row"><input id="layer-plan" type="checkbox" checked><i class="ring" style="--c:#f5b8ed"></i><span>Sampling-plan trees</span><small>18</small></label>
+        <label class="layer-row"><input id="layer-regen" type="checkbox"><i class="dot" style="--c:#e9cc8b"></i><span>Regeneration records</span><small id="regen-count"></small></label>
+        <label class="layer-row"><input id="layer-accuracy" type="checkbox"><i class="ring dashed" style="--c:#e7ac6a"></i><span>Reported GPS accuracy</span></label>
+        <label class="layer-row"><input id="tree-labels" type="checkbox"><span class="label-icon">T</span><span>Tree tags at close zoom</span></label>
+        <label class="layer-row"><input id="layer-coverage" type="checkbox"><i class="ring dashed" style="--c:#dce9e1"></i><span>LiDAR coverage</span></label>
+        <div class="mobile-opacity"><label for="opacity-small">LiDAR opacity</label><input id="opacity-small" type="range" min="0" max="100" value="90"></div>
+      </section>
+      <section class="side-section"><h2>Tree inventory</h2><label for="species">Species</label><select id="species"><option value="">All species</option></select><label for="status">Recorded status</label><select id="status"><option value="">All records</option><option value="live">Recorded live</option><option value="dead">Recorded dead</option></select><label class="check-line"><input id="plan-only" type="checkbox"> Sampling-plan trees only</label><button id="reset-filters" class="text-button">Reset filters</button><div id="species-legend"></div><p class="small muted">Circle size shows DBH, not canopy extent. Orange outlines mark trees recorded dead. Status is from 2022.</p></section>
+      <section class="side-section footnote"><div class="eyebrow">POSITION & COVERAGE</div><p>Tree locations are calculated from plot GPS, azimuth, and distance. This is the sampled-tree inventory, not a census of every tree across the landscape.</p><p id="position-note"></p><a id="download-all" download>Download all site trees · CSV ↗</a></section>
+    </aside>
+    <section class="map-shell" aria-label="Interactive site map">
+      <div id="map" aria-label="Map of field plots and trees"></div>
+      <div class="map-top"><div class="map-title"><div class="eyebrow">OAK WOODLAND · NORTH PLOTS</div><strong id="map-title">Sheep Camp</strong><span id="map-subtitle"></span></div>
+        <div class="map-tools"><label for="basemap">Basemap<select id="basemap"><option value="satellite">Imagery</option><option value="topo">USGS Topo</option><option value="streets">Streets</option></select></label><div class="segmented" role="group" aria-label="LiDAR hillshade"><button id="terrain-on" class="selected" aria-pressed="true">LiDAR</button><button id="terrain-off" aria-pressed="false">Off</button></div><label class="opacity-label" for="opacity">Opacity<input id="opacity" type="range" min="0" max="100" value="90" aria-label="LiDAR opacity"></label><label for="contours">Contours<select id="contours"><option value="2">2 m</option><option value="10">10 m</option><option value="0">Off</option></select></label><button id="measure" aria-pressed="false">Measure</button></div>
+      </div>
+      <div id="notice" role="status" hidden></div>
+      <section id="inspector" aria-label="Feature details" hidden><button id="close-inspector" aria-label="Close feature details">×</button><div id="feature-details"></div></section>
+      <div class="map-bottom"><span id="map-legend">1 m LiDAR · USGS 3DEP</span><span id="coordinates">Elevations · m NAVD88</span></div>
+      <div id="loading" role="status">Opening the field atlas…</div>
+    </section>
+  </main>
+  <dialog id="methods"><div class="dialog-header"><div><div class="eyebrow">SOURCES & POSITION</div><h2>About these maps</h2></div><button id="close-sources" aria-label="Close sources and notes">×</button></div><div id="methods-content"></div></dialog>
+  <noscript>This map requires JavaScript. <a href="data/sheep-camp/trees.csv">Sheep Camp trees</a> · <a href="data/maguire-ridge/trees.csv">Maguire Ridge trees</a></noscript>
+</body></html>

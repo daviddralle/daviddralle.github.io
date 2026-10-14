@@ -1,0 +1,37 @@
+{
+  "resolution_m": 1,
+  "crs": "EPSG:26910",
+  "vertical_datum": "NAVD88; meters",
+  "project": "CA_AlamedaCounty_2021_B21",
+  "acquisition_note": "Alameda County 2019\u20132021 collections; exact acquisition date at each site not established.",
+  "image_bounds": [
+    [
+      37.595861708668096,
+      -121.87312137765406
+    ],
+    [
+      37.60413965464836,
+      -121.8588728948357
+    ]
+  ],
+  "valid_fraction": 1.0,
+  "elevation_range_m": [
+    77.3071517944336,
+    167.01466369628906
+  ],
+  "contour_interval_m": 2,
+  "contour_smoothing_sigma_m": 1,
+  "contour_simplification_m": 0.4,
+  "sources": [
+    {
+      "title": "USGS 1 Meter 10 x59y417 CA_AlamedaCounty_2021_B21",
+      "downloadURL": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/CA_AlamedaCounty_2021_B21/TIFF/USGS_1M_10_x59y417_CA_AlamedaCounty_2021_B21.tif",
+      "metaUrl": "https://www.sciencebase.gov/catalog/item/62f5dec4d34eacf53973ab5c"
+    },
+    {
+      "title": "USGS 1 Meter 10 x60y417 CA_AlamedaCounty_2021_B21",
+      "downloadURL": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/CA_AlamedaCounty_2021_B21/TIFF/USGS_1M_10_x60y417_CA_AlamedaCounty_2021_B21.tif",
+      "metaUrl": "https://www.sciencebase.gov/catalog/item/62f5debbd34eacf53973ab52"
+    }
+  ]
+}

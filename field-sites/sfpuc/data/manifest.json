@@ -1,0 +1,149 @@
+{
+  "built": "2026-10-14",
+  "inventory_year": 2022,
+  "sites": [
+    {
+      "id": "sheep-camp",
+      "code": "SCN",
+      "name": "Sheep Camp",
+      "full_name": "Sheep Camp North",
+      "counts": {
+        "trees": 139,
+        "plots": 10,
+        "boundaries": 10,
+        "regeneration": 9,
+        "sampling_plan": 18,
+        "recorded_dead": 19
+      },
+      "bounds": [
+        [
+          37.59888405,
+          -121.86962335
+        ],
+        [
+          37.60081496,
+          -121.86238114
+        ]
+      ],
+      "terrain": {
+        "resolution_m": 1,
+        "crs": "EPSG:26910",
+        "vertical_datum": "NAVD88; meters",
+        "project": "CA_AlamedaCounty_2021_B21",
+        "acquisition_note": "Alameda County 2019\u20132021 collections; exact acquisition date at each site not established.",
+        "image_bounds": [
+          [
+            37.595861708668096,
+            -121.87312137765406
+          ],
+          [
+            37.60413965464836,
+            -121.8588728948357
+          ]
+        ],
+        "valid_fraction": 1.0,
+        "elevation_range_m": [
+          77.3071517944336,
+          167.01466369628906
+        ],
+        "contour_interval_m": 2,
+        "contour_smoothing_sigma_m": 1,
+        "contour_simplification_m": 0.4,
+        "sources": [
+          {
+            "title": "USGS 1 Meter 10 x59y417 CA_AlamedaCounty_2021_B21",
+            "downloadURL": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/CA_AlamedaCounty_2021_B21/TIFF/USGS_1M_10_x59y417_CA_AlamedaCounty_2021_B21.tif",
+            "metaUrl": "https://www.sciencebase.gov/catalog/item/62f5dec4d34eacf53973ab5c"
+          },
+          {
+            "title": "USGS 1 Meter 10 x60y417 CA_AlamedaCounty_2021_B21",
+            "downloadURL": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/CA_AlamedaCounty_2021_B21/TIFF/USGS_1M_10_x60y417_CA_AlamedaCounty_2021_B21.tif",
+            "metaUrl": "https://www.sciencebase.gov/catalog/item/62f5debbd34eacf53973ab52"
+          }
+        ]
+      }
+    },
+    {
+      "id": "maguire-ridge",
+      "code": "MN",
+      "name": "Maguire Ridge",
+      "full_name": "Maguire Ridge North",
+      "counts": {
+        "trees": 95,
+        "plots": 10,
+        "boundaries": 10,
+        "regeneration": 10,
+        "sampling_plan": 18,
+        "recorded_dead": 10
+      },
+      "bounds": [
+        [
+          37.54839809,
+          -121.85254216
+        ],
+        [
+          37.55109996,
+          -121.84666464
+        ]
+      ],
+      "terrain": {
+        "resolution_m": 1,
+        "crs": "EPSG:26910",
+        "vertical_datum": "NAVD88; meters",
+        "project": "CA_AlamedaCounty_2021_B21",
+        "acquisition_note": "Alameda County 2019\u20132021 collections; exact acquisition date at each site not established.",
+        "image_bounds": [
+          [
+            37.544863519839325,
+            -121.85614031409818
+          ],
+          [
+            37.554133640932506,
+            -121.84286009816583
+          ]
+        ],
+        "valid_fraction": 1.0,
+        "elevation_range_m": [
+          117.39093780517578,
+          389.4810791015625
+        ],
+        "contour_interval_m": 2,
+        "contour_smoothing_sigma_m": 1,
+        "contour_simplification_m": 0.4,
+        "sources": [
+          {
+            "title": "USGS 1 Meter 10 x60y416 CA_AlamedaCounty_2021_B21",
+            "downloadURL": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/CA_AlamedaCounty_2021_B21/TIFF/USGS_1M_10_x60y416_CA_AlamedaCounty_2021_B21.tif",
+            "metaUrl": "https://www.sciencebase.gov/catalog/item/62f5debed34eacf53973ab54"
+          }
+        ]
+      }
+    }
+  ],
+  "source_files": [
+    {
+      "name": "SFPUC_tree_plot_map.kml",
+      "sha256": "a9983c21aeca048b1c5cb312b54c4efa0d1fcedd8aa772dd9a843be627e6e581"
+    },
+    {
+      "name": "tree_data_drought_study.xls",
+      "sha256": "b5d98ce1be395818589419ada7c1750bbaec2d6a22c5aea23eba990d9a864749"
+    },
+    {
+      "name": "plot_data_drought_study.xls",
+      "sha256": "f0988cdfa8f60403fbaca9014a198d2411108092e485140d2235fe2b41f65638"
+    },
+    {
+      "name": "regeneration_data_drought_study.xls",
+      "sha256": "9110a90f6aa111ff0043b1e41f2be69384cf3ddebe164bdd1e29ddead9f02f5b"
+    },
+    {
+      "name": "SFPUC_Tree_Sampling_Measurement_Plan.xlsx",
+      "sha256": "ac8bbde6da2107891009efcb480c2946909e200b3583eda8c98fe89f51da61ae"
+    },
+    {
+      "name": "SFPUC_DROUGHT_REPORT_2022.pdf",
+      "sha256": "f072cb107bbb89657100bb6c3db99fedaa33b791fa2cb4cbd632d9ba464d0a59"
+    }
+  ]
+}

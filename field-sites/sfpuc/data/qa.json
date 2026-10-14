@@ -1,0 +1,48 @@
+{
+  "tree_count": 234,
+  "sampling_plan_count": 36,
+  "max_geodesic_check_difference_m": 0.03757917152642422,
+  "sites": {
+    "SCN": {
+      "counts": {
+        "trees": 139,
+        "plots": 10,
+        "boundaries": 10,
+        "regeneration": 9,
+        "sampling_plan": 18,
+        "recorded_dead": 19
+      },
+      "missing_regeneration": [
+        "SCN.10"
+      ],
+      "outside_nominal_plot_radius": [
+        "T-106",
+        "T-202"
+      ],
+      "gps_accuracy_m": {
+        "10.0": 7,
+        "50.0": 1,
+        "5.0": 2
+      }
+    },
+    "MN": {
+      "counts": {
+        "trees": 95,
+        "plots": 10,
+        "boundaries": 10,
+        "regeneration": 10,
+        "sampling_plan": 18,
+        "recorded_dead": 10
+      },
+      "missing_regeneration": [],
+      "outside_nominal_plot_radius": [
+        "T-442",
+        "T-346"
+      ],
+      "gps_accuracy_m": {
+        "10.0": 9,
+        "5.0": 1
+      }
+    }
+  }
+}
