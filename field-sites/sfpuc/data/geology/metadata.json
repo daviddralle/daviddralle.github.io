@@ -1,0 +1,214 @@
+{
+  "title": "Preliminary geologic map emphasizing bedrock formations in Alameda County, California",
+  "authors": "R. W. Graymer, D. L. Jones and E. E. Brabb",
+  "report": "USGS Open-File Report 96-252",
+  "year": 1996,
+  "source_url": "https://pubs.usgs.gov/of/1996/of96-252/",
+  "description_url": "https://pubs.usgs.gov/of/1996/of96-252/algeo.pdf",
+  "download_url": "https://ngmdb.usgs.gov/docs/gis/NGMDB_22969_shp.zip",
+  "retrieved": "2026-10-14",
+  "source_sha256": "da5b7d17ea575ec998e7dc42f843e256a31a50ea0b90c95145f8d789c30eb53d",
+  "source_detail_scale": 50000,
+  "source_crs": "EPSG:26710 (NAD27 / UTM 10N), determined from source grid controls",
+  "crs_validation": {
+    "control_file": "al_quad.e00 AL_QUAD.TIC in https://pubs.usgs.gov/of/1996/of96-252/al_g1.tar.Z",
+    "controls_e_n_lon_lat": [
+      [
+        599277,
+        4164599.8,
+        -121.875,
+        37.625
+      ],
+      [
+        610308.25,
+        4164739.5,
+        -121.75,
+        37.625
+      ],
+      [
+        599443.06,
+        4150731.2,
+        -121.875,
+        37.5
+      ]
+    ],
+    "grid_residuals_m": {
+      "26710": [
+        0.19948522347180928,
+        0.3145143248392412,
+        0.1146156049039855
+      ],
+      "26910": [
+        204.63465114872128,
+        204.52649918285223,
+        204.5643533505296
+      ]
+    }
+  },
+  "transformation": "Inverse of UTM zone 10N + NAD27 to NAD83 (1) + NAD83 to WGS 84 (43) + axis order change (2D)",
+  "transformation_accuracy_m": 2.15,
+  "output_crs": "EPSG:4326",
+  "bounds": [
+    -121.881,
+    37.537,
+    -121.835,
+    37.612
+  ],
+  "units": {
+    "QTl": {
+      "name": "Livermore gravels",
+      "age": "Pliocene\u2013Pleistocene",
+      "description": "Poorly to moderately consolidated gravel, conglomerate and coarse sand; locally siltstone and claystone.",
+      "color": "#ecd59a"
+    },
+    "Tbr": {
+      "name": "Briones Formation",
+      "age": "Miocene",
+      "description": "Marine sandstone, siltstone, conglomerate and shell-rich beds.",
+      "color": "#e7b96c"
+    },
+    "Ks": {
+      "name": "Unnamed sandstone and shale",
+      "age": "Cretaceous",
+      "description": "Bedded sandstone, siltstone and shale; sandstone is locally mica-bearing and cross-bedded.",
+      "color": "#8fbd99"
+    },
+    "Qu": {
+      "name": "Surficial deposits, undivided",
+      "age": "Holocene\u2013Pleistocene",
+      "description": "Undifferentiated young surface deposits. This bedrock map does not resolve their detailed sediment types.",
+      "color": "#f4edc4"
+    },
+    "Qar": {
+      "name": "Artificial rock fill",
+      "age": "Modern",
+      "description": "Sand, gravel, cobbles and boulders used in dam construction.",
+      "color": "#c8b8c1"
+    },
+    "Qls": {
+      "name": "Landslide deposits",
+      "age": "Holocene\u2013Pleistocene",
+      "description": "Selected large landslide deposits. The source intentionally omits most landslides.",
+      "color": "#d7c3a0"
+    },
+    "H2O": {
+      "name": "Water",
+      "age": "Not applicable",
+      "description": "Water area in the source map.",
+      "color": "#8ec7dc"
+    },
+    "Tt": {
+      "name": "Tice Shale",
+      "age": "Miocene",
+      "description": "Shale and claystone, locally with siltstone, mudstone and siliceous beds.",
+      "color": "#bdb8d8"
+    },
+    "To": {
+      "name": "Oursan Sandstone",
+      "age": "Miocene",
+      "description": "Sandstone with siltstone and mudstone or claystone; lithology varies among mapped assemblages.",
+      "color": "#c4ceaa"
+    },
+    "Tcs": {
+      "name": "Claremont siliceous rocks",
+      "age": "Miocene",
+      "description": "Chert and siliceous shale; described as Claremont Shale or a member of the Claremont Formation.",
+      "color": "#c5a8ce"
+    },
+    "Tccs": {
+      "name": "Claremont sandstone and siltstone",
+      "age": "Miocene",
+      "description": "Fine-grained quartz sandstone and siltstone within the Claremont unit.",
+      "color": "#d8b8a4"
+    },
+    "Ts": {
+      "name": "Sobrante Sandstone",
+      "age": "Miocene",
+      "description": "White quartz sandstone, locally calcareous.",
+      "color": "#e7cd8c"
+    },
+    "Tss": {
+      "name": "Unnamed sandstone",
+      "age": "Late Miocene\u2013Pliocene",
+      "description": "Poorly consolidated sandstone and siltstone with diatomite, diatomaceous chert and freshwater limestone.",
+      "color": "#d9d1a1"
+    },
+    "Tlp": {
+      "name": "Unnamed freshwater limestone",
+      "age": "Pliocene(?)",
+      "description": "Freshwater limestone; age uncertain in the source description.",
+      "color": "#cddcc0"
+    },
+    "Tn": {
+      "name": "Neroly Sandstone",
+      "age": "Late Miocene",
+      "description": "Volcanic-rich sandstone with minor siltstone, shale, tuff and conglomerate.",
+      "color": "#b4c5a8"
+    },
+    "Tgvt": {
+      "name": "Green Valley and Tassajara formations, undivided",
+      "age": "Miocene\u2013Pliocene",
+      "description": "Nonmarine sandstone, siltstone and conglomerate, with local tuff beds.",
+      "color": "#e1c3a0"
+    },
+    "Tsv": {
+      "name": "Silicic volcanic rocks",
+      "age": "Miocene or younger",
+      "description": "Rhyolite and dacite plugs, dikes and sills.",
+      "color": "#d99899"
+    },
+    "Ku": {
+      "name": "Unnamed sedimentary rocks",
+      "age": "Late Cretaceous",
+      "description": "Mudstone, siltstone and sandstone; proportions vary among mapped assemblages.",
+      "color": "#9bc9b9"
+    },
+    "KJfm": {
+      "name": "Franciscan m\u00e9lange",
+      "age": "Late Jurassic\u2013Early Cretaceous",
+      "description": "A heterogeneous mixture of blocks in a sheared matrix.",
+      "color": "#a4b6c7"
+    },
+    "sp": {
+      "name": "Serpentinite",
+      "age": "Mesozoic association; unit age unspecified",
+      "description": "Sheared serpentinite and serpentinized ultramafic rock, locally altered to silica-carbonate rock.",
+      "color": "#9bad94"
+    }
+  },
+  "plot_center_intersections": {
+    "sheep-camp": {
+      "SCN.1": "QTl",
+      "SCN.2": "QTl",
+      "SCN.3": "QTl",
+      "SCN.4": "QTl",
+      "SCN.5": "QTl",
+      "SCN.6": "QTl",
+      "SCN.7": "QTl",
+      "SCN.8": "QTl",
+      "SCN.9": "QTl",
+      "SCN.10": "QTl"
+    },
+    "maguire-ridge": {
+      "MN.1": "Tbr",
+      "MN.2": "Tbr",
+      "MN.3": "Tbr",
+      "MN.4": "Ks",
+      "MN.5": "Tbr",
+      "MN.6": "Tbr",
+      "MN.7": "Tbr",
+      "MN.8": "Ks",
+      "MN.9": "Ks",
+      "MN.10": "Tbr"
+    }
+  },
+  "notes": [
+    "General geologic context at approximately 1:50,000 source detail. Contacts are not surveyed plot-scale boundaries.",
+    "Source mapped in 1996; newer mapping may exist. NGMDB shapefile conversion preserves the original data.",
+    "Geology is clipped to a rectangle surrounding both study sites. No simplification or imagery alignment was applied.",
+    "Most Quaternary deposits are combined into Qu. Most landslides are omitted.",
+    "Fault line type and location certainty are preserved; this layer does not describe present fault activity.",
+    "Descriptions summarize the original report and combine variation among assemblages; colors are atlas display colors, not official map symbols.",
+    "Mapped rock units do not measure soil depth, weathered-bedrock thickness or water-storage capacity."
+  ]
+}

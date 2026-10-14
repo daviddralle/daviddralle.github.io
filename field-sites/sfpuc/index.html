@@ -6,9 +6,9 @@
   <meta name="description" content="Sheep Camp and Maguire Ridge field maps: tree inventories, study plots, sampling plans, aerial imagery, and one-meter LiDAR terrain.">
   <title>SFPUC Field Atlas · Sheep Camp & Maguire Ridge</title>
   <link rel="stylesheet" href="../rivendell/atlas/vendor/leaflet.css">
-  <link rel="stylesheet" href="style.css?v=20261014-site-controls">
+  <link rel="stylesheet" href="style.css?v=20261014-geology">
   <script defer src="../rivendell/atlas/vendor/leaflet.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="app.js?v=20261014-geology"></script>
 </head>
 <body>
   <nav class="site-nav" aria-label="Field sites"><a href="/field-sites/">← Field sites</a></nav>
@@ -27,6 +27,11 @@
         <label class="layer-row"><input id="tree-labels" type="checkbox"><span class="label-icon">T</span><span>Tree tags at close zoom</span></label>
         <label class="layer-row"><input id="layer-coverage" type="checkbox"><i class="ring dashed" style="--c:#dce9e1"></i><span>LiDAR coverage</span></label>
         <div class="mobile-opacity"><label for="opacity-small">LiDAR opacity</label><input id="opacity-small" type="range" min="0" max="100" value="90"></div>
+      </section>
+      <section class="side-section" id="geology-section"><div class="section-heading"><h2>Geology</h2><span class="muted small">2D map</span></div>
+        <label class="layer-row"><input id="layer-geology" type="checkbox" disabled><i class="geology-swatch"></i><span>Geologic units & contacts</span></label>
+        <p id="geology-status" class="small muted" role="status" hidden></p>
+        <div id="geology-options" hidden><label for="geology-opacity">Geology opacity</label><input id="geology-opacity" type="range" min="0" max="100" value="55"><label class="check-line"><input id="geology-faults" type="checkbox" checked> Mapped faults</label><p class="small muted">USGS · 1996 · approximately 1:50,000 detail. Click a unit to read its description.</p><div id="geology-legend" aria-label="Geologic units in view"></div><p id="geology-fault-key" class="small muted"><span class="fault-key"></span> Fault · dashed where uncertain or concealed</p><button id="geology-extent" class="text-button">Geology extent ↗</button><p class="small muted">Regional context; contacts are not surveyed plot boundaries. Colors are display colors.</p></div>
       </section>
       <section class="side-section"><h2>Tree inventory</h2><label for="species">Species</label><select id="species"><option value="">All species</option></select><label for="status">Recorded status</label><select id="status"><option value="">All records</option><option value="live">Recorded live</option><option value="dead">Recorded dead</option></select><label class="check-line"><input id="plan-only" type="checkbox"> Sampling-plan trees only</label><button id="reset-filters" class="text-button">Reset filters</button><div id="species-legend"></div><p class="small muted">2D circle size shows DBH, not canopy extent. Orange outlines mark trees recorded dead. Status is from 2022.</p></section>
       <section class="side-section footnote"><div class="eyebrow">POSITION & COVERAGE</div><p>Tree locations are calculated from plot GPS, azimuth, and distance. This is the sampled-tree inventory, not a census of every tree across the landscape.</p><p id="position-note"></p><a id="download-all" href="#">Download both sites’ trees · CSV ↗</a></section>

@@ -62,3 +62,31 @@ browser subsets and terrain assets. Metadata records counts and sampled
 ground-point minus DEM residuals, without shifting the points or terrain.
 Both patches occupy one shared scene in meters, without filling the gap
 between them. Color stops match Rivendell exactly.
+
+### Regional geology
+
+Run `python scripts/sfpuc/prepare_geology.py` with `SFPUC_WORK` set as above
+(add geopandas to the Python dependencies). It caches the NGMDB shapefile
+conversion of USGS OFR 96-252, transforms it to WGS84, and clips rock units,
+contacts, and faults around both sites. Output is `data/geology/`.
+
+The converted shapefiles omit a CRS. The original report specifies UTM zone 10
+meters; three original `al_quad.e00` grid controls identify NAD27, with less
+than 1 m residual versus approximately 205 m under NAD83. The script asserts
+those checks, records the coordinate transformation and archive checksum, and
+checks that all 20 plot centers intersect exactly one source unit. Geometries
+are not simplified or adjusted to imagery. Keep the source cache private;
+only the clipped GeoJSON and scientific provenance are published.
+
+Source: Graymer, Jones and Brabb (1996),
+<https://pubs.usgs.gov/of/1996/of96-252/>;
+NGMDB conversion <https://ngmdb.usgs.gov/Prodesc/proddesc_22969.htm>.
+The database has approximately 1:50,000 effective detail, regardless of the
+atlas zoom. Most young surface deposits are lumped into Qu and most landslides
+are omitted. Colors are atlas display colors. Rock units do not directly
+measure soil depth or subsurface water storage. Fault line certainty is
+retained without interpreting current activity.
+
+The optional overlay loads only when enabled. Check unit/line popups, opacity,
+fault visibility, changing sites, extent navigation, measurement, field-record
+selection, and phone layout. Geology controls are hidden in the 3D view.
