@@ -151,3 +151,11 @@ Perkins has no reported restriction. In the browser check both site drapes,
 layer/opacity/fault controls, ground picking, plot summaries, Close/Escape,
 all-off, returning to 2D, and mobile layout. Hide above-ground returns when
 inspecting the terrain colors.
+
+Inventory symbols: plot centers use white crosses with dark outlines in both
+views. Tree diameters in both views use twice the shared `treeRadius` helper
+(square-root DBH scale, radius clamped to 3.5–10 CSS pixels). The 3D point shader
+applies each record's diameter with device-pixel scaling; outline diameters
+follow the same sizes. This changes inventory markers, not LiDAR return sizes.
+Screen-space picking matches those marker sizes, with plot crosses above trees.
+Check tree/plot selection, filtering, layer switches and zoom after symbol edits.

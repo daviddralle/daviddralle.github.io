@@ -101,7 +101,7 @@ function renderFields(){
   });
   if(checked('#layer-regen')) d.regeneration.features.filter(plotMatch).forEach(f=>addClick(L.circleMarker(ll(f),{radius:10,color:'#e9cc8b',weight:3,fill:false,pane:'plotPoints'}).bindTooltip('Regeneration · '+esc(f.properties.plot)),f).addTo(field));
   if(checked('#layer-plots')) d.plots.features.filter(plotMatch).forEach(f=>{
-    const m=L.circleMarker(ll(f),{radius:4.5,color:'#0c3541',weight:1.5,fillColor:'#63dbea',fillOpacity:1,pane:'plotPoints'});
+    const m=L.marker(ll(f),{pane:'plotPoints',title:'Plot center · '+f.properties.plot,icon:L.divIcon({className:'plot-cross',iconSize:[20,20],iconAnchor:[10,10],html:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M3 10h14" stroke="#11262d" stroke-width="5"/><path d="M10 3v14M3 10h14" stroke="white" stroke-width="2.5"/></svg>'})});
     m.bindTooltip(esc(f.properties.plot),{permanent:true,direction:'top',offset:[0,-9],className:'plot-label'});
     addClick(m,f).addTo(field);
   });
@@ -242,7 +242,7 @@ async function boot(){
     closeLayers();closeInspector();map.closePopup();
     const button=$('#view-3d');button.disabled=true;button.textContent='Opening 3D…';
     try{
-      if(!scene3d){const {createScene}=await import('./scene3d.js?v=20261014-context3d');scene3d=await createScene({showContext:(title,html)=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent=title;$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;},manifest,data:dataset(),filteredTrees,colors,inspect,currentSite:()=>state.site});}
+      if(!scene3d){const {createScene}=await import('./scene3d.js?v=20261014-markers');scene3d=await createScene({showContext:(title,html)=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent=title;$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;},manifest,data:dataset(),filteredTrees,treeRadius,colors,inspect,currentSite:()=>state.site});}
       scene3d.open();
     }catch(e){console.error(e);notice('3D could not load. The 2D map remains available; try 3D again.');}
     finally{button.disabled=false;button.textContent='3D view';}

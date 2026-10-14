@@ -33,7 +33,13 @@ export async function createScene(api){
   scene.add(new THREE.HemisphereLight('#ffffff','#7c8580',2.1));
   const light=new THREE.DirectionalLight('#ffffff',2);light.position.set(-300,600,250);scene.add(light);
   const dotCanvas=document.createElement('canvas');dotCanvas.width=dotCanvas.height=32;const ctx=dotCanvas.getContext('2d');ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(16,16,15,0,Math.PI*2);ctx.fill();const dotTexture=new THREE.CanvasTexture(dotCanvas);
-  const terrainMeshes=[],contextMeshes=[],clouds=[],contourGroups=[],fieldGroup=new THREE.Group();scene.add(fieldGroup);
+  const crossCanvas=document.createElement('canvas');crossCanvas.width=crossCanvas.height=64;const crossCtx=crossCanvas.getContext('2d');
+  for(const [color,width]of [['#11262d',16],['#ffffff',8]]){crossCtx.strokeStyle=color;crossCtx.lineWidth=width;crossCtx.beginPath();crossCtx.moveTo(32,10);crossCtx.lineTo(32,54);crossCtx.moveTo(10,32);crossCtx.lineTo(54,32);crossCtx.stroke();}
+  const crossTexture=new THREE.CanvasTexture(crossCanvas);crossTexture.colorSpace=THREE.SRGBColorSpace;
+  // PointsMaterial supplies device-pixel scaling; the per-record diameter is
+  // the same CSS-pixel diameter used by the 2D inventory symbols.
+  function inventoryMaterial(){const material=new THREE.PointsMaterial({map:dotTexture,alphaTest:.2,size:1,sizeAttenuation:false,vertexColors:true,depthTest:false,transparent:true,depthWrite:false});material.onBeforeCompile=shader=>{shader.vertexShader='attribute float markerDiameter;\n'+shader.vertexShader.replace('gl_PointSize = size;','gl_PointSize = size * markerDiameter;');};material.customProgramCacheKey=()=> 'inventory-dbh-size';return material;}
+  const terrainMeshes=[],plotMeshes=[],contextMeshes=[],clouds=[],contourGroups=[],fieldGroup=new THREE.Group();scene.add(fieldGroup);
   const coordinates=new Map(),plotLabels=[],treeLabels=[];
   let active=false,focusId=api.currentSite(),frame=0,treePoints,pointFeatures=[];
   const rampHeights=[0,2,7,20,65],ramp=['#c3a675','#c5bb76','#91b34e','#4d973b','#206038'].map(c=>new THREE.Color(c));
@@ -67,7 +73,7 @@ export async function createScene(api){
     for(const [lines,color,layer] of [[accuracy,'#e7ac6a','layer-accuracy'],[regen,'#e9cc8b','layer-regen']]){const obj=new THREE.LineSegments(lineGeometry(lines),new THREE.LineBasicMaterial({color,depthTest:false,transparent:true,depthWrite:false}));obj.renderOrder=5;obj.userData.layer=layer;fieldGroup.add(obj);}
     const corners=[[0,0],[w-1,0],[w-1,h-1],[0,h-1],[0,0]].map(([x,y])=>[tm.x0+x*tm.step,tm.y0-y*tm.step,heights[y*w+x]+.5]);const border=new THREE.LineSegments(lineGeometry([corners]),new THREE.LineBasicMaterial({color:'#dce9e1',transparent:true,opacity:.8}));border.userData.layer='layer-coverage';fieldGroup.add(border);
     const centers=features.plots.map(f=>world([f.coordinates[0][0],f.coordinates[0][1],f.coordinates[0][2]+1]).toArray()).flat();
-    const plots=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(centers,3)),new THREE.PointsMaterial({color:'#63dbea',map:dotTexture,alphaTest:.2,size:7,sizeAttenuation:false,depthTest:false,transparent:true,depthWrite:false}));plots.renderOrder=3;plots.userData.layer='layer-plots';fieldGroup.add(plots);
+    const plots=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(centers,3)),new THREE.PointsMaterial({color:'#ffffff',map:crossTexture,alphaTest:.2,size:20,sizeAttenuation:false,depthTest:false,transparent:true,depthWrite:false}));plots.renderOrder=6;plots.userData={layer:'layer-plots',features:features.plots.map(f=>api.data.plots.features.find(t=>t.properties.id===f.id))};fieldGroup.add(plots);plotMeshes.push(plots);
     const cs=features.plots.map(f=>f.coordinates[0]);p.target=world([cs.reduce((s,c)=>s+c[0],0)/cs.length,cs.reduce((s,c)=>s+c[1],0)/cs.length,cs.reduce((s,c)=>s+c[2],0)/cs.length]);
     const siteLabel=document.createElement('button');siteLabel.className='scene-label';siteLabel.textContent=p.site.name;siteLabel.onclick=()=>focus(p.site.id);$('scene-labels').append(siteLabel);plotLabels.push({label:siteLabel,point:p.target,site:true});
     const ex=cs.map(c=>c[0]),ny=cs.map(c=>c[1]);p.span=Math.max(Math.max(...ex)-Math.min(...ex),Math.max(...ny)-Math.min(...ny));
@@ -77,14 +83,14 @@ export async function createScene(api){
     if(treePoints){fieldGroup.remove(treePoints);treePoints.geometry.dispose();treePoints.material.dispose();}
     pointFeatures=api.filteredTrees();const pos=[],col=[];
     for(const f of pointFeatures){const c=coordinates.get(f.properties.id);world([c[0],c[1],c[2]+1]).toArray(pos,pos.length);new THREE.Color(api.colors[f.properties.species]||'#ddd').toArray(col,col.length);if(checked('tree-labels')){const label=document.createElement('button');label.className='scene-label';label.textContent=f.properties.plot+' · '+f.properties.tree_tag_number;label.onclick=()=>api.inspect(f);$('scene-labels').append(label);treeLabels.push({label,point:world([c[0],c[1],c[2]+2]),tree:true});}}
-    treePoints=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(pos,3)).setAttribute('color',new THREE.Float32BufferAttribute(col,3)),new THREE.PointsMaterial({map:dotTexture,alphaTest:.2,size:8,sizeAttenuation:false,vertexColors:true,depthTest:false,transparent:true,depthWrite:false}));treePoints.userData.layer='layer-trees';treePoints.renderOrder=4;fieldGroup.add(treePoints);
+    treePoints=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(pos,3)).setAttribute('color',new THREE.Float32BufferAttribute(col,3)).setAttribute('markerDiameter',new THREE.Float32BufferAttribute(pointFeatures.map(f=>2*api.treeRadius(f.properties)),1)),inventoryMaterial());treePoints.userData.layer='layer-trees';treePoints.renderOrder=4;fieldGroup.add(treePoints);
     // Separate pink rings identify proposed sampling trees without changing species colors.
     const old=fieldGroup.children.find(o=>o.userData.layer==='layer-plan');if(old){fieldGroup.remove(old);old.geometry.dispose();old.material.dispose();}
     const rings=[];for(const f of pointFeatures.filter(f=>f.properties.in_sampling_plan)){const c=coordinates.get(f.properties.id),ring=[];for(let i=0;i<=24;i++){const a=i*Math.PI/12;ring.push([c[0]+3*Math.cos(a),c[1]+3*Math.sin(a),c[2]+1.2]);}rings.push(ring);}
     const plan=new THREE.LineSegments(lineGeometry(rings),new THREE.LineBasicMaterial({color:'#f5b8ed',depthTest:false,transparent:true,depthWrite:false}));plan.renderOrder=5;plan.userData.layer='layer-plan';fieldGroup.add(plan);
     const oldOutline=fieldGroup.children.find(o=>o.userData.outline);if(oldOutline){fieldGroup.remove(oldOutline);oldOutline.geometry.dispose();oldOutline.material.dispose();}
     const outlineColors=pointFeatures.flatMap(f=>new THREE.Color(f.properties.status==='dead'?'#ec884e':'#253b31').toArray());
-    const outline=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(pos,3)).setAttribute('color',new THREE.Float32BufferAttribute(outlineColors,3)),new THREE.PointsMaterial({map:dotTexture,alphaTest:.2,size:12,sizeAttenuation:false,vertexColors:true,depthTest:false,transparent:true,depthWrite:false}));outline.renderOrder=3.5;outline.userData={layer:'layer-trees',outline:true};fieldGroup.add(outline);
+    const outline=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(pos,3)).setAttribute('color',new THREE.Float32BufferAttribute(outlineColors,3)).setAttribute('markerDiameter',new THREE.Float32BufferAttribute(pointFeatures.map(f=>2*api.treeRadius(f.properties)+(f.properties.status==='dead'?4:2)),1)),inventoryMaterial());outline.renderOrder=3.5;outline.userData={layer:'layer-trees',outline:true};fieldGroup.add(outline);
     fieldGroup.children.forEach(o=>o.visible=checked(o.userData.layer));
   }
   function cameraAt(target,distance,top=false){controls.autoRotate=false;$('spin-3d').setAttribute('aria-pressed','false');controls.target.copy(target);camera.position.copy(target).add(top?new THREE.Vector3(0,distance,.01):new THREE.Vector3(distance*.2,distance*.72,distance*.85));controls.update();}
@@ -93,16 +99,19 @@ export async function createScene(api){
   function focusFeature(f){let c=coordinates.get(f.properties.id);if(!c){const p=packages.flatMap(p=>p.features.plots).find(p=>p.id===f.properties.id);c=p?.coordinates[0];}if(c){const site=api.manifest.sites.find(s=>s.id===f.properties.site||s.code===f.properties.site);if(site){focusId=site.id;contextLegend(site.id);}cameraAt(world(c),100);$('scene-title').textContent=f.properties.plot+' · 3D';}}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
   function draw(){if(!active)return;frame=requestAnimationFrame(draw);controls.update();const distance=controls.target.distanceTo(camera.position);fieldGroup.visible=distance<3000;renderer.render(scene,camera);const w=host.clientWidth,h=host.clientHeight,used=[];
-    for(const item of [...plotLabels,...treeLabels]){const v=item.point.clone().project(camera),x=(v.x*.5+.5)*w,y=(-v.y*.5+.5)*h;const show=(item.site?distance>=3000:item.tree?checked('layer-trees')&&checked('tree-labels')&&controls.target.distanceTo(camera.position)<220:checked('layer-plots'))&&v.z>=-1&&v.z<=1&&x>20&&x<w-20&&y>70&&y<h-25&&(item.site||distance<3000)&&!used.some(([a,b])=>Math.abs(a-x)<60&&Math.abs(b-y)<22);item.label.hidden=!show;if(show){item.label.style.left=x+'px';item.label.style.top=y+'px';used.push([x,y]);}}
+    for(const item of [...plotLabels,...treeLabels]){const v=item.point.clone().project(camera),x=(v.x*.5+.5)*w,y=(-v.y*.5+.5)*h;const show=(item.site?distance>=3000:item.tree?checked('layer-trees')&&checked('tree-labels')&&controls.target.distanceTo(camera.position)<220:checked('layer-plots'))&&v.z>=-1&&v.z<=1&&x>20&&x<w-20&&y>70&&y<h-25&&(item.site||distance<3000)&&!used.some(([a,b])=>Math.abs(a-x)<60&&Math.abs(b-y)<22);item.label.hidden=!show;if(show){item.label.style.left=x+'px';item.label.style.top=(y-(!item.site&&!item.tree?12:0))+'px';used.push([x,y]);}}
   }
   const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let down;
   renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
   renderer.domElement.addEventListener('pointerup',e=>{
     if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5||e.button!==0)return;
     const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);
-    ray.params.Points.threshold=Math.max(.5,controls.target.distanceTo(camera.position)/r.height*4);
-    const treeHit=treePoints.visible&&fieldGroup.visible?ray.intersectObject(treePoints)[0]:null;
-    if(treeHit){api.inspect(pointFeatures[treeHit.index]);return;}
+    // Pick in screen pixels so hit areas track DBH sizes at any camera angle.
+    function pick(points,radius){if(!points.visible||!fieldGroup.visible)return null;let best=null,distance=Infinity;const positions=points.geometry.attributes.position;
+      for(let i=0;i<positions.count;i++){const v=new THREE.Vector3().fromBufferAttribute(positions,i).project(camera);if(v.z< -1||v.z>1)continue;const d=Math.hypot((v.x-pointer.x)*r.width/2,(v.y-pointer.y)*r.height/2);if(d<=radius(i)&&d<distance){best=i;distance=d;}}return best;}
+    for(const plots of plotMeshes){const i=pick(plots,()=>9);if(i!==null){api.inspect(plots.userData.features[i]);return;}}
+    const treeHit=pick(treePoints,i=>api.treeRadius(pointFeatures[i].properties)+2);
+    if(treeHit!==null){api.inspect(pointFeatures[treeHit]);return;}
     const kind=checked('layer-soils')?'soils':checked('layer-geology')?'geology':null;if(!kind)return;
     const hit=ray.intersectObjects(terrainMeshes)[0];if(!hit)return;
     const p=hit.object.userData.package,tm=p.context.meta,col=Math.round((hit.point.x+origin[0]-tm.x0)/tm.step),row=Math.round((tm.y0-(origin[1]-hit.point.z))/tm.step);
