@@ -1,3 +1,4 @@
+import {soilDetails,geologyDetails} from './soil-details.js?v=20261014-context3d';
 import * as THREE from '../rivendell/atlas/vendor/three/three.module.js';
 import {OrbitControls} from '../rivendell/atlas/vendor/three/OrbitControls.js';
 
@@ -16,6 +17,15 @@ export async function createScene(api){
     const [terrain,canopy,features]=await Promise.all([binary(base+meta.terrain.url),binary(base+meta.canopy.url),json(base+'features.json')]);
     return {site,meta,heights:new Float32Array(terrain),points:new Uint16Array(canopy),features};
   }));
+  const [geologyMeta,soilMeta,soilProperties]=await Promise.all([json('data/geology/metadata.json'),json('data/soils/metadata.json'),json('data/soils/properties.json?v=20261014-context3d')]);
+  const textureLoader=new THREE.TextureLoader();
+  await Promise.all(packages.map(async p=>{
+    const base=`data/${p.site.id}/3d/context/`,meta=await json(base+'manifest.json');
+    p.context={meta,ids:{},textures:{}};
+    await Promise.all(['geology','soils'].map(async kind=>{const [ids,texture]=await Promise.all([binary(base+meta.layers[kind].ids),textureLoader.loadAsync(base+meta.layers[kind].texture)]);p.context.ids[kind]=new Uint16Array(ids);p.context.textures[kind]=texture;}));
+    p.context.textures.faults=await textureLoader.loadAsync(base+'faults.png');
+    for(const t of Object.values(p.context.textures)){t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearFilter;t.magFilter=THREE.NearestFilter;}
+  }));
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor('#11262d');host.replaceChildren(renderer.domElement);
   const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(43,1,.2,40000);
@@ -23,7 +33,7 @@ export async function createScene(api){
   scene.add(new THREE.HemisphereLight('#ffffff','#7c8580',2.1));
   const light=new THREE.DirectionalLight('#ffffff',2);light.position.set(-300,600,250);scene.add(light);
   const dotCanvas=document.createElement('canvas');dotCanvas.width=dotCanvas.height=32;const ctx=dotCanvas.getContext('2d');ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(16,16,15,0,Math.PI*2);ctx.fill();const dotTexture=new THREE.CanvasTexture(dotCanvas);
-  const clouds=[],contourGroups=[],fieldGroup=new THREE.Group();scene.add(fieldGroup);
+  const terrainMeshes=[],contextMeshes=[],clouds=[],contourGroups=[],fieldGroup=new THREE.Group();scene.add(fieldGroup);
   const coordinates=new Map(),plotLabels=[],treeLabels=[];
   let active=false,focusId=api.currentSite(),frame=0,treePoints,pointFeatures=[];
   const rampHeights=[0,2,7,20,65],ramp=['#c3a675','#c5bb76','#91b34e','#4d973b','#206038'].map(c=>new THREE.Color(c));
@@ -34,7 +44,12 @@ export async function createScene(api){
     for(let y=0;y<h;y++)for(let x=0;x<w;x++)world([tm.x0+x*tm.step,tm.y0-y*tm.step,heights[y*w+x]]).toArray(verts,(y*w+x)*3);
     for(let y=0;y<h-1;y++)for(let x=0;x<w-1;x++){const a=y*w+x,b=a+1,c=a+w,d=c+1;indices.push(a,c,b,b,c,d);}
     const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(verts,3));geometry.setIndex(indices);geometry.computeVertexNormals();
-    scene.add(new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#8b8b8b',roughness:1,metalness:0,side:THREE.DoubleSide})));
+    const uv=new Float32Array(w*h*2);for(let y=0;y<h;y++)for(let x=0;x<w;x++){uv[(y*w+x)*2]=(x+.5)/w;uv[(y*w+x)*2+1]=1-(y+.5)/h;}geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+    const ground=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#8b8b8b',roughness:1,metalness:0,side:THREE.DoubleSide}));ground.userData.package=p;scene.add(ground);terrainMeshes.push(ground);
+    for(const [kind,order]of [['geology',.1],['faults',.2],['soils',.3]]){
+      const material=new THREE.MeshBasicMaterial({map:p.context.textures[kind],transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
+      const overlay=new THREE.Mesh(geometry,material);overlay.renderOrder=order;overlay.userData.kind=kind;scene.add(overlay);contextMeshes.push(overlay);
+    }
     const pos=new Float32Array(meta.canopy.count*3),col=new Float32Array(meta.canopy.count*3),scale=meta.canopy.scale,offset=meta.canopy.offset;
     for(let i=0;i<meta.canopy.count;i++){world([points[i*4]*scale+offset[0],points[i*4+1]*scale+offset[1],points[i*4+2]*scale+offset[2]]).toArray(pos,i*3);heightColor(points[i*4+3]*scale).toArray(col,i*3);}
     const cloudGeo=new THREE.BufferGeometry();cloudGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));cloudGeo.setAttribute('color',new THREE.BufferAttribute(col,3));
@@ -73,16 +88,36 @@ export async function createScene(api){
     fieldGroup.children.forEach(o=>o.visible=checked(o.userData.layer));
   }
   function cameraAt(target,distance,top=false){controls.autoRotate=false;$('spin-3d').setAttribute('aria-pressed','false');controls.target.copy(target);camera.position.copy(target).add(top?new THREE.Vector3(0,distance,.01):new THREE.Vector3(distance*.2,distance*.72,distance*.85));controls.update();}
-  function focus(id,landscape=false){focusId=id;const p=packages.find(p=>p.site.id===id);if(p){cameraAt(p.target,landscape?1550:Math.max(440,p.span*1.25));$('scene-title').textContent=p.site.name+' · 3D';}else{const center=packages[0].target.clone().add(packages[1].target).multiplyScalar(.5);cameraAt(center,8000);$('scene-title').textContent='Both sites · 3D';}}
-  function focusFeature(f){let c=coordinates.get(f.properties.id);if(!c){const p=packages.flatMap(p=>p.features.plots).find(p=>p.id===f.properties.id);c=p?.coordinates[0];}if(c){const site=api.manifest.sites.find(s=>s.id===f.properties.site||s.code===f.properties.site);if(site)focusId=site.id;cameraAt(world(c),100);$('scene-title').textContent=f.properties.plot+' · 3D';}}
+  function contextLegend(id){const selected=packages.filter(p=>!id||p.site.id===id),detail={};for(const kind of ['geology','soils'])detail[kind]=[...new Set(selected.flatMap(p=>p.context.meta.layers[kind].unit_codes))];document.dispatchEvent(new CustomEvent('context-view',{detail}));}
+  function focus(id,landscape=false){focusId=id;contextLegend(packages.some(p=>p.site.id===id)?id:null);const p=packages.find(p=>p.site.id===id);if(p){cameraAt(p.target,landscape?1550:Math.max(440,p.span*1.25));$('scene-title').textContent=p.site.name+' · 3D';}else{const center=packages[0].target.clone().add(packages[1].target).multiplyScalar(.5);cameraAt(center,8000);$('scene-title').textContent='Both sites · 3D';}}
+  function focusFeature(f){let c=coordinates.get(f.properties.id);if(!c){const p=packages.flatMap(p=>p.features.plots).find(p=>p.id===f.properties.id);c=p?.coordinates[0];}if(c){const site=api.manifest.sites.find(s=>s.id===f.properties.site||s.code===f.properties.site);if(site){focusId=site.id;contextLegend(site.id);}cameraAt(world(c),100);$('scene-title').textContent=f.properties.plot+' · 3D';}}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
   function draw(){if(!active)return;frame=requestAnimationFrame(draw);controls.update();const distance=controls.target.distanceTo(camera.position);fieldGroup.visible=distance<3000;renderer.render(scene,camera);const w=host.clientWidth,h=host.clientHeight,used=[];
     for(const item of [...plotLabels,...treeLabels]){const v=item.point.clone().project(camera),x=(v.x*.5+.5)*w,y=(-v.y*.5+.5)*h;const show=(item.site?distance>=3000:item.tree?checked('layer-trees')&&checked('tree-labels')&&controls.target.distanceTo(camera.position)<220:checked('layer-plots'))&&v.z>=-1&&v.z<=1&&x>20&&x<w-20&&y>70&&y<h-25&&(item.site||distance<3000)&&!used.some(([a,b])=>Math.abs(a-x)<60&&Math.abs(b-y)<22);item.label.hidden=!show;if(show){item.label.style.left=x+'px';item.label.style.top=y+'px';used.push([x,y]);}}
   }
   const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let down;
   renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
-  renderer.domElement.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5||!treePoints.visible)return;const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);ray.params.Points.threshold=Math.max(.5,controls.target.distanceTo(camera.position)/r.height*4);const hit=ray.intersectObject(treePoints)[0];if(hit)api.inspect(pointFeatures[hit.index]);});
-  $('close-3d').onclick=()=>{active=false;cancelAnimationFrame(frame);panel.hidden=true;$('map').removeAttribute('aria-hidden');document.body.classList.remove('scene-active');};
+  renderer.domElement.addEventListener('pointerup',e=>{
+    if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5||e.button!==0)return;
+    const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);
+    ray.params.Points.threshold=Math.max(.5,controls.target.distanceTo(camera.position)/r.height*4);
+    const treeHit=treePoints.visible&&fieldGroup.visible?ray.intersectObject(treePoints)[0]:null;
+    if(treeHit){api.inspect(pointFeatures[treeHit.index]);return;}
+    const kind=checked('layer-soils')?'soils':checked('layer-geology')?'geology':null;if(!kind)return;
+    const hit=ray.intersectObjects(terrainMeshes)[0];if(!hit)return;
+    const p=hit.object.userData.package,tm=p.context.meta,col=Math.round((hit.point.x+origin[0]-tm.x0)/tm.step),row=Math.round((tm.y0-(origin[1]-hit.point.z))/tm.step);
+    if(col<0||row<0||col>=tm.width||row>=tm.height)return;
+    const code=tm.layers[kind].lookup[p.context.ids[kind][row*tm.width+col]];if(!code)return;
+    api.showContext(kind==='soils'?'Mapped soil properties':'Mapped geology',kind==='soils'?soilDetails(soilMeta.units[code],code,soilProperties):geologyDetails(geologyMeta.units[code],code));
+  });
+  function refreshContext(){
+    for(const mesh of contextMeshes){const kind=mesh.userData.kind;mesh.visible=kind==='faults'?checked('layer-geology')&&checked('geology-faults'):checked('layer-'+kind);mesh.material.opacity=Number($(kind==='soils'?'soils-opacity':'geology-opacity').value)/100;}
+  }
+  for(const id of ['layer-geology','layer-soils','geology-faults'])$(id).addEventListener('change',refreshContext);
+  for(const id of ['geology-opacity','soils-opacity'])$(id).addEventListener('input',refreshContext);
+  refreshContext();
+
+  $('close-3d').onclick=()=>{active=false;cancelAnimationFrame(frame);panel.hidden=true;$('map').removeAttribute('aria-hidden');document.body.classList.remove('scene-active');document.dispatchEvent(new CustomEvent('context-view',{detail:null}));};
   $('reset-3d').onclick=()=>focus(focusId);
   $('top-3d').onclick=()=>cameraAt(controls.target.clone(),camera.position.distanceTo(controls.target),true);
   $('spin-3d').onclick=()=>{controls.autoRotate=!controls.autoRotate;$('spin-3d').setAttribute('aria-pressed',String(controls.autoRotate));};
@@ -93,7 +128,7 @@ export async function createScene(api){
   new ResizeObserver(resize).observe(host);
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();$('scene-status').textContent='3D graphics interrupted. Return to 2D and reload to restore.';});
   $('scene-count').textContent=packages.reduce((n,p)=>n+p.meta.canopy.count,0).toLocaleString()+' measured returns · both sites';
-  $('scene-status').textContent='USGS 3DEP · 2 m display mesh · 2022 field inventory';
+  $('scene-status').textContent='USGS 3DEP · 2 m mesh · geology & soils draped on terrain · click ground for details';
   refresh();
-  return {focus,focusFeature,refresh,open(){panel.hidden=false;$('map').setAttribute('aria-hidden','true');document.body.classList.add('scene-active');active=true;resize();focus(api.currentSite());refresh();cancelAnimationFrame(frame);draw();}};
+  return {focus,focusFeature,refresh,open(){panel.hidden=false;$('map').setAttribute('aria-hidden','true');document.body.classList.add('scene-active');active=true;resize();focus(api.currentSite());refresh();refreshContext();cancelAnimationFrame(frame);draw();}};
 }

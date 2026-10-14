@@ -89,7 +89,7 @@ retained without interpreting current activity.
 
 The optional overlay loads only when enabled. Check unit/line popups, opacity,
 fault visibility, changing sites, extent navigation, measurement, field-record
-selection, and phone layout. Geology controls are hidden in the 3D view.
+selection, and phone layout. The same controls also apply to the 3D terrain drape.
 
 ### Soil units and plot measurements
 
@@ -113,3 +113,41 @@ visible without expanding a disclosure. Check nested legends, all-off,
 secondary layer counts, filter indicators, synchronized terrain controls,
 soil-over-geology click precedence, and sticky Close buttons on long plot
 records and the sources dialog. Escape dismisses panels/popups and measurement.
+
+### Soil properties and 3D context
+
+After preparing soil polygons and the 3D terrain, run:
+
+```sh
+python scripts/sfpuc/prepare_soil_properties.py
+python scripts/sfpuc/prepare_context_3d.py
+```
+
+The first script retrieves `muaggatt`, `component`, `chorizon` and
+`corestrictions` through NRCS Soil Data Access, caching responses under
+`$SFPUC_WORK/soils/`. The published `properties.json` retains queries, response
+hashes, component proportions, averaging methods and represented percentages.
+To refresh deliberately, replace the four cached table responses and update
+the retrieval date. AWC uses soil horizons in the upper 100 cm, stopping at the
+first restriction or described soil bottom; clay and organic matter use the
+upper 30 cm. Components with unrated gaps are excluded. Means are weighted by
+representative component percentage, renormalized only over eligible components.
+NRCS water storage (cm water) is converted to mm. Restriction depth is a
+conditional mean, described profile depth is database coverage, and the NRCS
+bedrock minimum is neither of these. No missing depth is treated as zero.
+
+The second script needs geopandas, rasterio, numpy, shapely and Pillow. It
+reprojects the existing vectors to EPSG:26910 and rasterizes colors and unit
+IDs at the existing terrain vertices. The PNGs are display textures; the
+little-endian uint16 arrays support nearest-cell picking. These do not change
+the source data's spatial precision or infer subsurface geometry. Both patches
+must have full unit coverage. Context manifests record source hashes, grid
+geometry and code lookup tables. Rebuild these after changing vectors or terrain.
+
+QA: compare all 20 plot unit IDs against the source polygon intersections;
+verify Perkins AWC 0.1443 cm/cm (85% represented), Los Gatos–Los Osos AWC
+0.17251 cm/cm and restriction depth 84.33333 cm (90% represented). Verify
+Perkins has no reported restriction. In the browser check both site drapes,
+layer/opacity/fault controls, ground picking, plot summaries, Close/Escape,
+all-off, returning to 2D, and mobile layout. Hide above-ground returns when
+inspecting the terrain colors.

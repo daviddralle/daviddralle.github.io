@@ -1,16 +1,17 @@
+import {soilDetails} from './soil-details.js?v=20261014-context3d';
 // Cached NRCS polygons: no third-party request is needed while using the map.
 export function setupSoils({map,notice,isMeasuring,closeInspector}){
   const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let metadata,data,loading,polygons;
+  let metadata,data,properties,loading,polygons,sceneCodes;
   const group=L.layerGroup(),attribution='<a href="https://sdmdataaccess.sc.egov.usda.gov/">Soils: USDA NRCS SSURGO</a>';
   map.createPane('soils').style.zIndex=300;map.getPane('soils').style.pointerEvents='none';
   async function load(){
-    if(!loading)loading=Promise.all(['metadata.json','units.geojson'].map(async f=>{const r=await fetch('data/soils/'+f);if(!r.ok)throw Error('Soils: HTTP '+r.status);return r.json();})).then(([m,d])=>{metadata=m;data=d;}).catch(e=>{loading=null;throw e;});
+    if(!loading)loading=Promise.all(['metadata.json','units.geojson','properties.json'].map(async f=>{const r=await fetch('data/soils/'+f);if(!r.ok)throw Error('Soils: HTTP '+r.status);return r.json();})).then(([m,d,p])=>{metadata=m;data=d;properties=p;}).catch(e=>{loading=null;throw e;});
     return loading;
   }
   function legend(){
     if(!polygons||!map.hasLayer(group))return;
-    const keys=new Set();polygons.eachLayer(l=>{if(map.getBounds().intersects(l.getBounds()))keys.add(l.feature.properties.mukey);});
+    const keys=new Set(sceneCodes||[]);if(!sceneCodes)polygons.eachLayer(l=>{if(map.getBounds().intersects(l.getBounds()))keys.add(l.feature.properties.mukey);});
     $('soils-legend').innerHTML=[...keys].sort((a,b)=>metadata.units[a].musym.localeCompare(metadata.units[b].musym)).map(k=>{const u=metadata.units[k];return `<div><i style="background:${u.color}"></i><span><b>${esc(u.musym)}</b> ${esc(u.muname)}</span></div>`;}).join('')||'<p>Outside the soil map cutout. Select a site to return.</p>';
   }
   $('layer-soils').disabled=false;
@@ -32,8 +33,9 @@ export function setupSoils({map,notice,isMeasuring,closeInspector}){
     if(isMeasuring()||!map.hasLayer(group)||!data||e.propagatedFrom)return;
     const p=[e.latlng.lng,e.latlng.lat],f=data.features.find(f=>(f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates]).some(r=>inPolygon(p,r)));
     if(!f)return;closeInspector();const u=metadata.units[f.properties.mukey],content=document.createElement('div');content.className='geology-popup';
-    content.innerHTML=`<div class="eyebrow">SOIL MAP UNIT · ${esc(u.musym)}</div><h3>${esc(u.muname)}</h3><p>${esc(u.areaname)} · ${esc(u.areasymbol)}</p><p class="geology-scale">Mapped soil units may contain multiple soil components and local inclusions. This is not a soil measurement at a tree or plot. Slope ranges belong to the map-unit name.</p><p><a href="${metadata.source_url}" target="_blank" rel="noopener">USDA NRCS SSURGO ↗</a><br>Retrieved 14 October 2026 · map-unit key ${esc(f.properties.mukey)}</p>`;
-    L.popup({maxWidth:310}).setLatLng(e.latlng).setContent(content).openOn(map);
+    content.innerHTML=soilDetails(u,f.properties.mukey,properties);
+    L.popup({maxWidth:350,maxHeight:420}).setLatLng(e.latlng).setContent(content).openOn(map);
   });
+  document.addEventListener('context-view',e=>{sceneCodes=e.detail?.soils;legend();});
   map.on('moveend',legend);
 }

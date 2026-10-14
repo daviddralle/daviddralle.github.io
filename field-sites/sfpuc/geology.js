@@ -2,7 +2,7 @@
 export function setupGeology({map,notice,isMeasuring,closeInspector}){
   const $=id=>document.getElementById(id);
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let metadata,units,lines,loading,polygons;
+  let metadata,units,lines,loading,polygons,sceneCodes;
   const group=L.layerGroup();
   const attribution='Geology: <a href="https://pubs.usgs.gov/of/1996/of96-252/">USGS · 1996</a>';
   map.createPane('geology').style.zIndex=290;
@@ -19,7 +19,7 @@ export function setupGeology({map,notice,isMeasuring,closeInspector}){
   }
   function legend(){
     if(!metadata||!$('layer-geology').checked)return;
-    const b=map.getBounds(),visible=new Set();polygons.eachLayer(layer=>{if(b.intersects(layer.getBounds()))visible.add(layer.feature.properties.unit);});
+    const b=map.getBounds(),visible=new Set(sceneCodes||[]);if(!sceneCodes)polygons.eachLayer(layer=>{if(b.intersects(layer.getBounds()))visible.add(layer.feature.properties.unit);});
     $('geology-legend').innerHTML=[...visible].sort().map(code=>{const u=metadata.units[code];return `<div><i style="background:${u.color}"></i><span><b>${esc(code)}</b> ${esc(u.name)}</span></div>`;}).join('')||'<p>Outside the geology cutout. Use Geology extent to return.</p>';
     $('geology-fault-key').hidden=!$('geology-faults').checked;
   }
@@ -61,5 +61,6 @@ export function setupGeology({map,notice,isMeasuring,closeInspector}){
     const feature=nearest||units.features.find(f=>(f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates]).some(r=>inPolygon(point,r)));
     if(feature){closeInspector();L.popup({maxWidth:310}).setLatLng(e.latlng).setContent(details(feature)).openOn(map);}
   });
+  document.addEventListener('context-view',e=>{sceneCodes=e.detail?.geology;legend();});
   map.on('moveend',legend);
 }

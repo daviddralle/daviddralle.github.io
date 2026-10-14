@@ -1,0 +1,3008 @@
+{
+  "source_url": "https://sdmdataaccess.sc.egov.usda.gov/",
+  "retrieved": "2026-10-14",
+  "units": {
+    "456562": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 53.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 64.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.15566,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 40.5,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 82.5,
+        "aws_0_150_mm": 82.5,
+        "bedrock_min_cm": 53.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Azule",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 53.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 64.0,
+          "awc_0_100": 0.15566037735849056,
+          "clay_0_30": 40.5,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Positas",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Diablo",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Altamont",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456563": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 53.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 64.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.15566,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 40.5,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 82.5,
+        "aws_0_150_mm": 82.5,
+        "bedrock_min_cm": 53.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Azule",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 53.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 64.0,
+          "awc_0_100": 0.15566037735849056,
+          "clay_0_30": 40.5,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Altamont",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Diablo",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Positas",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456567": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 165.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.15,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 49.33333,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.6,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 150.0,
+        "aws_0_150_mm": 217.10000000000002,
+        "bedrock_min_cm": null,
+        "drainage": "Poorly drained",
+        "hydrologic_group": "C/D"
+      },
+      "components": [
+        {
+          "name": "Clear Lake",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 165.0,
+          "awc_0_100": 0.15,
+          "clay_0_30": 49.333333333333336,
+          "om_0_30": 1.6
+        },
+        {
+          "name": "Capay",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "San Ysidro",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456568": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 90.0
+        },
+        "awc_0_100": {
+          "value": 0.15,
+          "component_percent": 90.0
+        },
+        "clay_0_30": {
+          "value": 47.0,
+          "component_percent": 90.0
+        },
+        "om_0_30": {
+          "value": 1.65,
+          "component_percent": 90.0
+        },
+        "aws_0_100_mm": 150.0,
+        "aws_0_150_mm": 225.0,
+        "bedrock_min_cm": null,
+        "drainage": "Poorly drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Clear Lake",
+          "percent": 90.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.15,
+          "clay_0_30": 47.0,
+          "om_0_30": 1.65
+        },
+        {
+          "name": "Unnamed",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Campbell",
+          "percent": 3.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Sunnyvale",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456570": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 69.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 135.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.13,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 15.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 0.75,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 142.4,
+        "aws_0_150_mm": 183.2,
+        "bedrock_min_cm": 124.0,
+        "drainage": "Moderately well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Cotati",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 69.0,
+          "restriction_kind": "Abrupt textural change",
+          "described_profile_cm": 135.0,
+          "awc_0_100": 0.13,
+          "clay_0_30": 15.0,
+          "om_0_30": 0.75
+        },
+        {
+          "name": "Los Osos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Gaviota",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Millsholm",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456572": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 203.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1612,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 31.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 161.20000000000002,
+        "aws_0_150_mm": 235.7,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Danville",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 203.0,
+          "awc_0_100": 0.1612,
+          "clay_0_30": 31.0,
+          "om_0_30": 2.5
+        },
+        {
+          "name": "Los Osos",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Gatos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456573": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 203.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1612,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 31.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 161.20000000000002,
+        "aws_0_150_mm": 235.7,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Danville",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 203.0,
+          "awc_0_100": 0.1612,
+          "clay_0_30": 31.0,
+          "om_0_30": 2.5
+        },
+        {
+          "name": "Los Osos",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Gatos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456575": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 130.12632,
+          "component_percent": 95.0
+        },
+        "described_profile_cm": {
+          "value": 200.0,
+          "component_percent": 89.0
+        },
+        "awc_0_100": {
+          "value": 0.16918,
+          "component_percent": 89.0
+        },
+        "clay_0_30": {
+          "value": 51.68539,
+          "component_percent": 89.0
+        },
+        "om_0_30": {
+          "value": 2.45506,
+          "component_percent": 89.0
+        },
+        "aws_0_100_mm": 169.20000000000002,
+        "aws_0_150_mm": 229.60000000000002,
+        "bedrock_min_cm": 135.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Diablo",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 135.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 200.0,
+          "awc_0_100": 0.17000000000000004,
+          "clay_0_30": 52.0,
+          "om_0_30": 2.5
+        },
+        {
+          "name": "Alo",
+          "percent": 4.0,
+          "major": false,
+          "restriction_cm": 80.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Cropley",
+          "percent": 4.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 200.0,
+          "awc_0_100": 0.1518,
+          "clay_0_30": 45.0,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Sehorn",
+          "percent": 3.0,
+          "major": false,
+          "restriction_cm": 75.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Altamont",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": 125.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Haire",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Linne",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": 75.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Raynor",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": 142.0,
+          "restriction_kind": "Strongly contrasting textural stratification",
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456576": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 127.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 137.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.17,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 47.5,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.625,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 170.0,
+        "aws_0_150_mm": 215.9,
+        "bedrock_min_cm": 127.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Diablo",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 127.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 137.0,
+          "awc_0_100": 0.17,
+          "clay_0_30": 47.5,
+          "om_0_30": 1.625
+        },
+        {
+          "name": "Clear Lake",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pescadero",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Landslips",
+          "percent": 3.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Seeps",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456577": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 76.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 86.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.15,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 43.58333,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 0.96667,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 114.0,
+        "aws_0_150_mm": 114.0,
+        "bedrock_min_cm": 76.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Diablo",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 76.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 86.0,
+          "awc_0_100": 0.15,
+          "clay_0_30": 43.583333333333336,
+          "om_0_30": 0.9666666666666667
+        },
+        {
+          "name": "Clear Lake",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pescadero",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Landslips",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456580": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.17,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 47.5,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 170.0,
+        "aws_0_150_mm": 255.0,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Diablo",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.17,
+          "clay_0_30": 47.5,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Landslides",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Altamont",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Clear Lake",
+          "percent": 3.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pescadero",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456583": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 43.0,
+          "component_percent": 60.0
+        },
+        "described_profile_cm": {
+          "value": 53.0,
+          "component_percent": 60.0
+        },
+        "awc_0_100": {
+          "value": 0.11,
+          "component_percent": 60.0
+        },
+        "clay_0_30": {
+          "value": 14.0,
+          "component_percent": 60.0
+        },
+        "om_0_30": {
+          "value": 0.75,
+          "component_percent": 60.0
+        },
+        "aws_0_100_mm": 47.300000000000004,
+        "aws_0_150_mm": 47.300000000000004,
+        "bedrock_min_cm": 43.0,
+        "drainage": "Excessively drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Gaviota",
+          "percent": 60.0,
+          "major": true,
+          "restriction_cm": 43.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 53.0,
+          "awc_0_100": 0.11000000000000001,
+          "clay_0_30": 14.0,
+          "om_0_30": 0.75
+        },
+        {
+          "name": "Rock outcrop",
+          "percent": 25.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Osos",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Vallecitos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456584": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 95.0
+        },
+        "awc_0_100": {
+          "value": 0.02,
+          "component_percent": 95.0
+        },
+        "clay_0_30": {
+          "value": 0.0,
+          "component_percent": 95.0
+        },
+        "om_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "aws_0_100_mm": 20.0,
+        "aws_0_150_mm": 30.0,
+        "bedrock_min_cm": null,
+        "drainage": null,
+        "hydrologic_group": null
+      },
+      "components": [
+        {
+          "name": "Gravel pits",
+          "percent": 95.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.02,
+          "clay_0_30": 0.0,
+          "om_0_30": null
+        },
+        {
+          "name": "Unnamed",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456587": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 94.78723,
+          "component_percent": 94.0
+        },
+        "described_profile_cm": {
+          "value": 134.47312,
+          "component_percent": 93.0
+        },
+        "awc_0_100": {
+          "value": 0.16808,
+          "component_percent": 93.0
+        },
+        "clay_0_30": {
+          "value": 34.22043,
+          "component_percent": 93.0
+        },
+        "om_0_30": {
+          "value": 1.79749,
+          "component_percent": 93.0
+        },
+        "aws_0_100_mm": 154.2,
+        "aws_0_150_mm": 159.60000000000002,
+        "bedrock_min_cm": 91.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Linne",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 91.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 130.0,
+          "awc_0_100": 0.16890109890109892,
+          "clay_0_30": 32.3,
+          "om_0_30": 1.7666666666666666
+        },
+        {
+          "name": "Diablo",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": 135.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 200.0,
+          "awc_0_100": 0.17000000000000004,
+          "clay_0_30": 52.0,
+          "om_0_30": 2.5
+        },
+        {
+          "name": "Altamont",
+          "percent": 4.0,
+          "major": false,
+          "restriction_cm": 125.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Clear Lake",
+          "percent": 3.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.14150000000000001,
+          "clay_0_30": 59.0,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Pescadero",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Haploxerolls",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456588": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 91.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 102.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.18,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 31.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 163.79999999999998,
+        "aws_0_150_mm": 163.79999999999998,
+        "bedrock_min_cm": 91.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Linne",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 91.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 102.0,
+          "awc_0_100": 0.18,
+          "clay_0_30": 31.0,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Altamont",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Diablo",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Clear Lake",
+          "percent": 3.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pescadero",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456589": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 51.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 61.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.16,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 31.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 81.6,
+        "aws_0_150_mm": 81.6,
+        "bedrock_min_cm": 51.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Linne",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 51.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 61.0,
+          "awc_0_100": 0.16,
+          "clay_0_30": 31.0,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Altamont",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Diablo",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Clear Lake",
+          "percent": 3.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pescadero",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456590": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.0836,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.0,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 83.6,
+        "aws_0_150_mm": 113.6,
+        "bedrock_min_cm": null,
+        "drainage": "Somewhat excessively drained",
+        "hydrologic_group": "B"
+      },
+      "components": [
+        {
+          "name": "Livermore",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.0836,
+          "clay_0_30": 20.0,
+          "om_0_30": 2.0
+        },
+        {
+          "name": "Positas",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Yolo",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456591": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.0656,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 15.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.0,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 65.6,
+        "aws_0_150_mm": 95.60000000000001,
+        "bedrock_min_cm": null,
+        "drainage": "Somewhat excessively drained",
+        "hydrologic_group": "A"
+      },
+      "components": [
+        {
+          "name": "Livermore",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.0656,
+          "clay_0_30": 15.0,
+          "om_0_30": 2.0
+        },
+        {
+          "name": "Yolo",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Positas",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456596": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 76.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 86.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.15053,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 34.83333,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.58333,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 114.39999999999999,
+        "aws_0_150_mm": 114.39999999999999,
+        "bedrock_min_cm": 76.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Los Osos",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 76.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 86.0,
+          "awc_0_100": 0.1505263157894737,
+          "clay_0_30": 34.833333333333336,
+          "om_0_30": 1.5833333333333333
+        },
+        {
+          "name": "Gaviota",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Millsholm",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Gatos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456597": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 76.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 86.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.15053,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 34.83333,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.58333,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 114.39999999999999,
+        "aws_0_150_mm": 114.39999999999999,
+        "bedrock_min_cm": 76.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Los Osos",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 76.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 86.0,
+          "awc_0_100": 0.1505263157894737,
+          "clay_0_30": 34.833333333333336,
+          "om_0_30": 1.5833333333333333
+        },
+        {
+          "name": "Gaviota",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Gatos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Millsholm",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456598": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 76.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 86.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.15053,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 34.83333,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.58333,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 114.39999999999999,
+        "aws_0_150_mm": 114.39999999999999,
+        "bedrock_min_cm": 76.0,
+        "drainage": "Somewhat excessively drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Los Osos",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 76.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 86.0,
+          "awc_0_100": 0.1505263157894737,
+          "clay_0_30": 34.833333333333336,
+          "om_0_30": 1.5833333333333333
+        },
+        {
+          "name": "Gaviota",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Millsholm",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Gatos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456599": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 67.25,
+          "component_percent": 80.0
+        },
+        "described_profile_cm": {
+          "value": 77.25,
+          "component_percent": 80.0
+        },
+        "awc_0_100": {
+          "value": 0.15069,
+          "component_percent": 80.0
+        },
+        "clay_0_30": {
+          "value": 27.0625,
+          "component_percent": 80.0
+        },
+        "om_0_30": {
+          "value": 1.76562,
+          "component_percent": 80.0
+        },
+        "aws_0_100_mm": 100.7,
+        "aws_0_150_mm": 100.7,
+        "bedrock_min_cm": 56.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Los Osos",
+          "percent": 45.0,
+          "major": true,
+          "restriction_cm": 76.0,
+          "restriction_kind": "Paralithic bedrock",
+          "described_profile_cm": 86.0,
+          "awc_0_100": 0.14526315789473684,
+          "clay_0_30": 29.833333333333332,
+          "om_0_30": 1.5833333333333333
+        },
+        {
+          "name": "Millsholm",
+          "percent": 35.0,
+          "major": true,
+          "restriction_cm": 56.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 66.0,
+          "awc_0_100": 0.15767857142857142,
+          "clay_0_30": 23.5,
+          "om_0_30": 2.0
+        },
+        {
+          "name": "Gaviota",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Gatos",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456601": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 41.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 51.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.16634,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 26.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.0,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 68.2,
+        "aws_0_150_mm": 68.2,
+        "bedrock_min_cm": 41.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Millsholm",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 41.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 51.0,
+          "awc_0_100": 0.16634146341463416,
+          "clay_0_30": 26.0,
+          "om_0_30": 1.0
+        },
+        {
+          "name": "Gaviota",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Osos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Lobitos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456602": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 56.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 66.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.16,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 23.5,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.0,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 89.60000000000001,
+        "aws_0_150_mm": 89.60000000000001,
+        "bedrock_min_cm": 56.0,
+        "drainage": "Somewhat excessively drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Millsholm",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 56.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 66.0,
+          "awc_0_100": 0.16,
+          "clay_0_30": 23.5,
+          "om_0_30": 2.0
+        },
+        {
+          "name": "Gaviota",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Lobitos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Los Osos",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456606": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 165.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1443,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 21.66667,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.375,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 144.3,
+        "aws_0_150_mm": 209.3,
+        "bedrock_min_cm": null,
+        "drainage": "Somewhat excessively drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Perkins",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 165.0,
+          "awc_0_100": 0.14429999999999998,
+          "clay_0_30": 21.666666666666668,
+          "om_0_30": 1.375
+        },
+        {
+          "name": "Positas",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Azule",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456608": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 183.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1394,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 18.5,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 139.4,
+        "aws_0_150_mm": 214.4,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Pleasanton",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 183.0,
+          "awc_0_100": 0.13940000000000002,
+          "clay_0_30": 18.5,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Rincon",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Positas",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Livermore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456609": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 183.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1394,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 18.5,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.5,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 139.4,
+        "aws_0_150_mm": 214.4,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Pleasanton",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 183.0,
+          "awc_0_100": 0.13940000000000002,
+          "clay_0_30": 18.5,
+          "om_0_30": 1.5
+        },
+        {
+          "name": "Positas",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Livermore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Rincon",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456610": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 28.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.09,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.35,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 135.8,
+        "aws_0_150_mm": 209.3,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Positas",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 28.0,
+          "restriction_kind": "Abrupt textural change",
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.09,
+          "clay_0_30": 20.0,
+          "om_0_30": 1.35
+        },
+        {
+          "name": "Perkins",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Azule",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456611": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 28.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.09,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.35,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 135.8,
+        "aws_0_150_mm": 209.3,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Positas",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 28.0,
+          "restriction_kind": "Abrupt textural change",
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.09,
+          "clay_0_30": 20.0,
+          "om_0_30": 1.35
+        },
+        {
+          "name": "Azule",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Perkins",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456612": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 28.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.09,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 1.35,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 135.8,
+        "aws_0_150_mm": 209.3,
+        "bedrock_min_cm": null,
+        "drainage": "Excessively drained",
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Positas",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 28.0,
+          "restriction_kind": "Abrupt textural change",
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.09,
+          "clay_0_30": 20.0,
+          "om_0_30": 1.35
+        },
+        {
+          "name": "Azule",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Perkins",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456617": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 100.0
+        },
+        "awc_0_100": {
+          "value": null,
+          "component_percent": 0
+        },
+        "clay_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "om_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "aws_0_100_mm": null,
+        "aws_0_150_mm": null,
+        "bedrock_min_cm": null,
+        "drainage": "Excessively drained",
+        "hydrologic_group": "A"
+      },
+      "components": [
+        {
+          "name": "Riverwash",
+          "percent": 100.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456618": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "awc_0_100": {
+          "value": null,
+          "component_percent": 0
+        },
+        "clay_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "om_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "aws_0_100_mm": null,
+        "aws_0_150_mm": null,
+        "bedrock_min_cm": null,
+        "drainage": null,
+        "hydrologic_group": null
+      },
+      "components": [
+        {
+          "name": "Rock land",
+          "percent": 100.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456619": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 58.0,
+          "component_percent": 85.0
+        },
+        "described_profile_cm": {
+          "value": 163.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.18,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 0.75,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 176.1,
+        "aws_0_150_mm": 266.1,
+        "bedrock_min_cm": null,
+        "drainage": "Moderately well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "San Ysidro",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": 58.0,
+          "restriction_kind": "Abrupt textural change",
+          "described_profile_cm": 163.0,
+          "awc_0_100": 0.18,
+          "clay_0_30": 20.0,
+          "om_0_30": 0.75
+        },
+        {
+          "name": "Arbuckle",
+          "percent": 6.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Rincon",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Solano",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 2.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Pescadero",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Cropley",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Palexeralfs",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456631": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1781,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.2,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 178.1,
+        "aws_0_150_mm": 266.4,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "B"
+      },
+      "components": [
+        {
+          "name": "Yolo",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.17810000000000004,
+          "clay_0_30": 20.0,
+          "om_0_30": 2.2
+        },
+        {
+          "name": "Unnamed",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Livermore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Sycamore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456632": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1781,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.2,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 178.1,
+        "aws_0_150_mm": 266.4,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "B"
+      },
+      "components": [
+        {
+          "name": "Yolo",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.17810000000000004,
+          "clay_0_30": 20.0,
+          "om_0_30": 2.2
+        },
+        {
+          "name": "Unnamed",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Livermore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Sycamore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456633": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1492,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 21.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 3.0,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 149.2,
+        "aws_0_150_mm": 169.20000000000002,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "B"
+      },
+      "components": [
+        {
+          "name": "Yolo",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.1492,
+          "clay_0_30": 21.0,
+          "om_0_30": 3.0
+        },
+        {
+          "name": "Unnamed",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Livermore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Sycamore",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456636": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": 152.0,
+          "component_percent": 85.0
+        },
+        "awc_0_100": {
+          "value": 0.1808,
+          "component_percent": 85.0
+        },
+        "clay_0_30": {
+          "value": 20.0,
+          "component_percent": 85.0
+        },
+        "om_0_30": {
+          "value": 2.0,
+          "component_percent": 85.0
+        },
+        "aws_0_100_mm": 180.79999999999998,
+        "aws_0_150_mm": 275.79999999999995,
+        "bedrock_min_cm": null,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Zamora",
+          "percent": 85.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": 152.0,
+          "awc_0_100": 0.1808,
+          "clay_0_30": 20.0,
+          "om_0_30": 2.0
+        },
+        {
+          "name": "Pleasanton",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Rincon",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456638": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "awc_0_100": {
+          "value": null,
+          "component_percent": 0
+        },
+        "clay_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "om_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "aws_0_100_mm": null,
+        "aws_0_150_mm": null,
+        "bedrock_min_cm": null,
+        "drainage": null,
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Water",
+          "percent": 100.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "456650": {
+      "statistics": {
+        "restriction_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "described_profile_cm": {
+          "value": null,
+          "component_percent": 0
+        },
+        "awc_0_100": {
+          "value": null,
+          "component_percent": 0
+        },
+        "clay_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "om_0_30": {
+          "value": null,
+          "component_percent": 0
+        },
+        "aws_0_100_mm": null,
+        "aws_0_150_mm": null,
+        "bedrock_min_cm": null,
+        "drainage": null,
+        "hydrologic_group": "D"
+      },
+      "components": [
+        {
+          "name": "Dams",
+          "percent": 100.0,
+          "major": true,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    },
+    "2747731": {
+      "statistics": {
+        "restriction_cm": {
+          "value": 84.33333,
+          "component_percent": 90.0
+        },
+        "described_profile_cm": {
+          "value": 107.66667,
+          "component_percent": 90.0
+        },
+        "awc_0_100": {
+          "value": 0.17251,
+          "component_percent": 90.0
+        },
+        "clay_0_30": {
+          "value": 23.90741,
+          "component_percent": 90.0
+        },
+        "om_0_30": {
+          "value": 2.2213,
+          "component_percent": 90.0
+        },
+        "aws_0_100_mm": 147.79999999999998,
+        "aws_0_150_mm": 147.79999999999998,
+        "bedrock_min_cm": 76.0,
+        "drainage": "Well drained",
+        "hydrologic_group": "C"
+      },
+      "components": [
+        {
+          "name": "Los Gatos",
+          "percent": 45.0,
+          "major": true,
+          "restriction_cm": 100.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 125.0,
+          "awc_0_100": 0.1728,
+          "clay_0_30": 20.333333333333332,
+          "om_0_30": 2.85
+        },
+        {
+          "name": "Los Osos",
+          "percent": 35.0,
+          "major": true,
+          "restriction_cm": 76.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 101.0,
+          "awc_0_100": 0.19000000000000003,
+          "clay_0_30": 31.333333333333332,
+          "om_0_30": 1.8333333333333333
+        },
+        {
+          "name": "Gaviota",
+          "percent": 10.0,
+          "major": false,
+          "restriction_cm": 43.0,
+          "restriction_kind": "Lithic bedrock",
+          "described_profile_cm": 53.0,
+          "awc_0_100": 0.11000000000000001,
+          "clay_0_30": 14.0,
+          "om_0_30": 0.75
+        },
+        {
+          "name": "Henneke",
+          "percent": 5.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Millsholm",
+          "percent": 4.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        },
+        {
+          "name": "Rock outcrop",
+          "percent": 1.0,
+          "major": false,
+          "restriction_cm": null,
+          "restriction_kind": null,
+          "described_profile_cm": null,
+          "awc_0_100": null,
+          "clay_0_30": null,
+          "om_0_30": null
+        }
+      ]
+    }
+  },
+  "queries": {
+    "aggregates": "SELECT * FROM muaggatt WHERE mukey IN (456562,456563,456567,456568,456570,456572,456573,456575,456576,456577,456580,456583,456584,456587,456588,456589,456590,456591,456596,456597,456598,456599,456601,456602,456606,456608,456609,456610,456611,456612,456617,456618,456619,456631,456632,456633,456636,456638,456650,2747731)",
+    "components": "SELECT mukey,cokey,compname,compkind,comppct_r,majcompflag,drainagecl,hydgrp FROM component WHERE mukey IN (456562,456563,456567,456568,456570,456572,456573,456575,456576,456577,456580,456583,456584,456587,456588,456589,456590,456591,456596,456597,456598,456599,456601,456602,456606,456608,456609,456610,456611,456612,456617,456618,456619,456631,456632,456633,456636,456638,456650,2747731)",
+    "horizons": "SELECT c.mukey,h.cokey,h.chkey,h.hzname,h.desgnmaster,h.hzdept_r,h.hzdepb_r,h.awc_r,h.ksat_r,h.claytotal_r,h.sandtotal_r,h.om_r FROM component c INNER JOIN chorizon h ON c.cokey=h.cokey WHERE c.mukey IN (456562,456563,456567,456568,456570,456572,456573,456575,456576,456577,456580,456583,456584,456587,456588,456589,456590,456591,456596,456597,456598,456599,456601,456602,456606,456608,456609,456610,456611,456612,456617,456618,456619,456631,456632,456633,456636,456638,456650,2747731)",
+    "restrictions": "SELECT c.mukey,r.cokey,r.reskind,r.resdept_r FROM component c INNER JOIN corestrictions r ON c.cokey=r.cokey WHERE c.mukey IN (456562,456563,456567,456568,456570,456572,456573,456575,456576,456577,456580,456583,456584,456587,456588,456589,456590,456591,456596,456597,456598,456599,456601,456602,456606,456608,456609,456610,456611,456612,456617,456618,456619,456631,456632,456633,456636,456638,456650,2747731)"
+  },
+  "source_hashes": {
+    "aggregates": "61c08239106f1ee776fbd19ee734dbf159a6af2385b0b28f9831feb46d486de1",
+    "components": "a7668e80529a4710bac4bad621f9893dcba4b5151b5beb76e1cd4c121e367310",
+    "horizons": "32d480889c0d6c4a5e00a257cf808cc4914669ced41e602258035f3c8a8189b0",
+    "restrictions": "3bb3cb64a05d34f5f6f65b03a5bda1165a4c34a73db4e13fda691c11843acd9f"
+  },
+  "methods": {
+    "averages": "Representative component percentages weight the rated component values, renormalized over components with data. Every derived mean includes the sum of component percentages represented. Missing values remain null; they are never zero-filled.",
+    "restriction_cm": "First reported restriction per component; percentage-weighted mean only over components with a reported restriction. This conditional mean is not whole-unit soil thickness. No restriction record does not establish unlimited depth.",
+    "described_profile_cm": "Deepest described horizon bottom per component, including rock horizons if present. Describes database coverage, not soil thickness or bedrock depth.",
+    "awc_0_100": "Within each component, thickness-weight awc_r over described non-rock soil in the upper 100 cm, stopping at the first reported restriction or described profile bottom. Require continuous rated horizons over that interval. Then percentage-weight the component means. Units cm water / cm soil.",
+    "clay_0_30": "Same averaging as AWC over the upper 30 cm using claytotal_r, percent of the fine-earth fraction.",
+    "om_0_30": "Same averaging as AWC over the upper 30 cm using om_r, percent organic matter by weight.",
+    "aws": "NRCS muaggatt.aws0100wta and aws0150wta, multiplied by 10 to convert cm of water to mm. These are agency map-unit weighted water-storage summaries, separate from our AWC averaging. They do not include weathered-bedrock water.",
+    "bedrock_min_cm": "NRCS muaggatt.brockdepmin: shallowest bedrock depth among components comprising at least 15 percent of the map unit; not an average.",
+    "drainage": "Dominant-condition drainage and hydrologic group from NRCS muaggatt."
+  },
+  "metadata_reference": "https://www.nrcs.usda.gov/sites/default/files/2022-08/SSURGO-Metadata-Table-Column-Descriptions-Report.pdf"
+}
