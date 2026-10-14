@@ -25,7 +25,7 @@ GeoTIFFs before rerunning if intentionally replacing the terrain source. Source
 queries select the Alameda County project, avoiding mosaics between unrelated
 acquisitions. The original 1 m grid and no-data mask are retained; hillshade is
 reprojected for Leaflet, and contours use 1 m Gaussian smoothing and 0.4 m line
-simplification. No canopy-height or inferred tree-crown layer is generated.
+simplification. No inferred tree crowns are generated. Measured 3D returns are prepared separately below.
 
 The inventory builder verifies plot coordinates, tree IDs, plot/tag assignments,
 species, recorded status, DBH, distance, azimuth, sampling-plan joins and DEM
@@ -35,9 +35,9 @@ Device-reported GPS accuracy is preserved separately. No alignment correction is
 applied. See the generated `data/qa.json` and `data/manifest.json` for results.
 
 To preview, serve the repository root with a local HTTP server and open
-`/field-sites/sfpuc/`. Check both site tabs, plot/species/status/plan filters,
+`/field-sites/sfpuc/`. Check both site zoom buttons, plot navigation, species/status/plan filters,
 CSV export, layer switches, basemaps, opacity, contours, search, feature details,
-measurement, and phone layout. The data and notes describe a 2022 inventory and
+measurement, and phone layout. In 3D, check both-site navigation, canopy and contour toggles, opacity, point size, top-down view, spin, and field-record inspection. The data and notes describe a 2022 inventory and
 the sampling-plan workbook available on 14 October 2026; update that provenance
 explicitly if rebuilding from later records.
 
