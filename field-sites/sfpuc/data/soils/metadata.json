@@ -1,0 +1,325 @@
+{
+  "title": "NRCS Soil Survey Geographic Database (SSURGO)",
+  "source_url": "https://sdmdataaccess.sc.egov.usda.gov/",
+  "service_url": "https://sdmdataaccess.sc.egov.usda.gov/Tabular/post.rest",
+  "retrieved": "2026-10-14",
+  "bounds": [
+    -121.881,
+    37.537,
+    -121.835,
+    37.612
+  ],
+  "crs": "EPSG:4326",
+  "query": "SELECT p.mupolygonkey,p.mukey,m.musym,m.muname,l.areasymbol,l.areaname,\n p.mupolygongeo.STAsText() AS wkt\n FROM mupolygon p INNER JOIN mapunit m ON p.mukey=m.mukey\n INNER JOIN legend l ON m.lkey=l.lkey\n WHERE p.mupolygonkey IN (SELECT mupolygonkey FROM SDA_Get_Mupolygonkey_from_intersection_with_WktWgs84('POLYGON ((-121.835 37.537, -121.835 37.612, -121.881 37.612, -121.881 37.537, -121.835 37.537))'))",
+  "source_sha256": "59cda6fe73a9f99b6e391c33ad2f30fbdf08dd4c076fffe39210f6b58704d12b",
+  "units": {
+    "456562": {
+      "musym": "AzD",
+      "muname": "Azule clay loam, 3 to 30 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#9ebfc4"
+    },
+    "456563": {
+      "musym": "AzE2",
+      "muname": "Azule clay loam, 30 to 45 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d2cb91"
+    },
+    "456567": {
+      "musym": "Cc",
+      "muname": "Clear Lake clay, 0 to 3 percent slopes, MLRA 14",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#b1c19a"
+    },
+    "456568": {
+      "musym": "CdA",
+      "muname": "Clear Lake clay, drained, 0 to 2 percent slopes, MLRA 14",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#c0a4bf"
+    },
+    "456570": {
+      "musym": "CoC2",
+      "muname": "Cotati fine sandy loam, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#ddb293"
+    },
+    "456572": {
+      "musym": "DaA",
+      "muname": "Danville silty clay loam, 0 to 3 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#92b9aa"
+    },
+    "456573": {
+      "musym": "DaB",
+      "muname": "Danville silty clay loam, 3 to 10 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#bcb4d2"
+    },
+    "456575": {
+      "musym": "DbD",
+      "muname": "Diablo clay, 15 to 30 percent slopes, MLRA 15",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d8c0a4"
+    },
+    "456576": {
+      "musym": "DbE2",
+      "muname": "Diablo clay, 30 to 45 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#a3b7d2"
+    },
+    "456577": {
+      "musym": "DmF2",
+      "muname": "Diablo clay, moderately deep, 45to 60 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#c1cba9"
+    },
+    "456580": {
+      "musym": "DvE2",
+      "muname": "Diablo clay, very deep, 30 to 45 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d4a5aa"
+    },
+    "456583": {
+      "musym": "GaF2",
+      "muname": "Gaviota rocky sandy loam, 40 to 75 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#cba77c"
+    },
+    "456584": {
+      "musym": "Gp",
+      "muname": "Gravel pits",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#9ebfc4"
+    },
+    "456587": {
+      "musym": "LaD",
+      "muname": "Linne clay loam, 15 to 30 percent slopes, MLRA 15",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d2cb91"
+    },
+    "456588": {
+      "musym": "LaE2",
+      "muname": "Linne clay loam, 30 to 45 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#b1c19a"
+    },
+    "456589": {
+      "musym": "LcF2",
+      "muname": "Linne clay loam, shallow, 45 to 75 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#c0a4bf"
+    },
+    "456590": {
+      "musym": "Lg",
+      "muname": "Livermore gravelly loam",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#ddb293"
+    },
+    "456591": {
+      "musym": "Lm",
+      "muname": "Livermore very gravelly coarse sandy loam",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#92b9aa"
+    },
+    "456596": {
+      "musym": "LtD",
+      "muname": "Los Osos silty clay loam, 7 to 30 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#bcb4d2"
+    },
+    "456597": {
+      "musym": "LtE2",
+      "muname": "Los Osos silty clay loam, 30 to 45 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d8c0a4"
+    },
+    "456598": {
+      "musym": "LtF2",
+      "muname": "Los Osos silty clay loam, 45 to 75 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#a3b7d2"
+    },
+    "456599": {
+      "musym": "LuD",
+      "muname": "Los Osos and Millsholm soils, 7 to 30 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#c1cba9"
+    },
+    "456601": {
+      "musym": "MhE2",
+      "muname": "Millsholm silt loam, 30 to 45 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d4a5aa"
+    },
+    "456602": {
+      "musym": "MhF2",
+      "muname": "Millsholm silt loam, 45 to 75 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#cba77c"
+    },
+    "456606": {
+      "musym": "PcF2",
+      "muname": "Perkins loam, 45 to 75 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#9ebfc4"
+    },
+    "456608": {
+      "musym": "PgA",
+      "muname": "Pleasanton gravelly loam, 0 to 3 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d2cb91"
+    },
+    "456609": {
+      "musym": "PgB",
+      "muname": "Pleasanton gravelly loam, 3 to 12 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#b1c19a"
+    },
+    "456610": {
+      "musym": "PoC2",
+      "muname": "Positas gravelly loam, 2 to 20 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#c0a4bf"
+    },
+    "456611": {
+      "musym": "PoE2",
+      "muname": "Positas gravelly loam, 20 to 40 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#ddb293"
+    },
+    "456612": {
+      "musym": "PoF2",
+      "muname": "Positas gravelly loam, 40 to 60 percent slopes, eroded",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#92b9aa"
+    },
+    "456617": {
+      "musym": "Rh",
+      "muname": "Riverwash",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#bcb4d2"
+    },
+    "456618": {
+      "musym": "RoF",
+      "muname": "Rock land",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d8c0a4"
+    },
+    "456619": {
+      "musym": "Sa",
+      "muname": "San Ysidro loam, 0 to 2 percent slopes, MLRA 14",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#a3b7d2"
+    },
+    "456631": {
+      "musym": "YmA",
+      "muname": "Yolo loam, calcareous substratum,  0 to 6 percent slopes, MLRA 14",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#c1cba9"
+    },
+    "456632": {
+      "musym": "YmB",
+      "muname": "Yolo loam, 0 to 8 percent slopes, MLRA 15",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d4a5aa"
+    },
+    "456633": {
+      "musym": "Yo",
+      "muname": "Yolo loam over gravel, 0 to 3 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#cba77c"
+    },
+    "456636": {
+      "musym": "Za",
+      "muname": "Zamora silt loam, 0 to 4 percent slopes",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#9ebfc4"
+    },
+    "456638": {
+      "musym": "W",
+      "muname": "Water",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#d2cb91"
+    },
+    "456650": {
+      "musym": "DAM",
+      "muname": "Dams",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#b1c19a"
+    },
+    "2747731": {
+      "musym": "LpF2",
+      "muname": "Los Gatos-Los Osos complex, 30 to 75 percent slopes, eroded, MLRA 15",
+      "areasymbol": "CA609",
+      "areaname": "Alameda Area, California",
+      "color": "#c0a4bf"
+    }
+  },
+  "plot_center_intersections": {
+    "SCN.1": "456606",
+    "SCN.2": "456606",
+    "SCN.3": "456606",
+    "SCN.4": "456606",
+    "SCN.5": "456606",
+    "SCN.6": "456606",
+    "SCN.7": "456606",
+    "SCN.8": "456606",
+    "SCN.9": "456606",
+    "SCN.10": "456606",
+    "MN.1": "2747731",
+    "MN.2": "2747731",
+    "MN.3": "2747731",
+    "MN.4": "2747731",
+    "MN.5": "2747731",
+    "MN.6": "2747731",
+    "MN.7": "2747731",
+    "MN.8": "2747731",
+    "MN.9": "2747731",
+    "MN.10": "2747731"
+  },
+  "notes": [
+    "Map-unit polygons and names from USDA NRCS Soil Data Access, retrieved 14 October 2026.",
+    "Clipped to the same extent as geology, without simplifying or shifting boundaries.",
+    "Map units may contain multiple soil components and local inclusions; these are mapped interpretations, not soil observations at each plot.",
+    "Slope ranges in unit names describe the mapped unit, not measured plot slopes. Colors are for this atlas."
+  ]
+}

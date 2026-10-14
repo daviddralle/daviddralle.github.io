@@ -90,3 +90,26 @@ retained without interpreting current activity.
 The optional overlay loads only when enabled. Check unit/line popups, opacity,
 fault visibility, changing sites, extent navigation, measurement, field-record
 selection, and phone layout. Geology controls are hidden in the 3D view.
+
+### Soil units and plot measurements
+
+`python scripts/sfpuc/prepare_soils.py` retrieves NRCS SSURGO polygons via
+Soil Data Access using the query stored in `data/soils/metadata.json`. Set
+`SFPUC_WORK` as above. The private response cache is `soils/polygons.json`;
+remove that file only when intentionally refreshing the snapshot. Polygons
+are clipped in WGS84 without simplification. The builder checks valid geometry,
+continuous cutout coverage, and exactly one map-unit key at each plot center.
+Map-unit names are retained verbatim; their slope ranges are not plot measurements.
+
+The inventory builder now retains the selected plot workbook's litter depth,
+rock/forb cover, four shrub-cover slots, shrub species list, land-use codes,
+slope-position code, and parent-material field. Missing values remain missing.
+Slope units and slope-position code definitions are not supplied. Land-use
+codes follow the 2022 report. No association between shrub slots and individual
+species is inferred. Rebuilding the inventory regenerates these fields.
+
+Sidebar QA: primary geology/soils/tree/plot/terrain/contour toggles must remain
+visible without expanding a disclosure. Check nested legends, all-off,
+secondary layer counts, filter indicators, synchronized terrain controls,
+soil-over-geology click precedence, and sticky Close buttons on long plot
+records and the sources dialog. Escape dismisses panels/popups and measurement.

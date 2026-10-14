@@ -58,6 +58,7 @@ for folder in E.parse(SRC/'SFPUC_tree_plot_map.kml').getroot().findall('.//k:Fol
         else:
             assert abs(float(pr['latitude'])-float(d['latitude']))<1e-7 and abs(float(pr['longitude'])-float(d['longitude']))<1e-7
             d.update(radius_m=float(d['mapped_radius_m']),record_date=pr['CREATED_DATE'][:10],inventory_source='plot_data_drought_study.xls',slope_recorded=pr['slope'],aspect_degrees=pr['aspect_degrees'],gps_elevation_m=pr['elevation_m'],position_note='Recorded plot GPS; reported horizontal accuracy is a device estimate, not a validated confidence radius.')
+            d.update({k:pr[k] for k in ['slope_position', 'parent_material', 'litter_depth_cm', 'land_use', 'prockcov', 'forb_cover', 'shrub_cover1', 'shrub_cover2', 'shrub_cover3', 'shrub_cover4', 'list_4_dominant_shrub_species', 'specify_other_shrub_species', 'percent_max_radiation_input']})
             if kind=='plots' and key in regen:
                 r=regen[key]
                 rp={'id':key+' regeneration','site':site,'plot':key,'kind':'regeneration','source':'regeneration_data_drought_study.xls','record_date':r['CREATED_DATE'][:10],'notes':r['notes'],'position_note':'Plot-level regeneration record shown at plot center; individual seedlings were not positioned. Report describes a 5 square meter subplot.'}

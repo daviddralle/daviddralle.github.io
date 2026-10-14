@@ -33,6 +33,9 @@ function goFeature(f){
 function treeTooltip(p){return `${esc(p.id)} · ${esc(p.plot)} tag ${esc(p.tree_tag_number)}<br>${esc(p.species)} · ${p.dbh_cm} cm DBH${p.status==='dead'?' · recorded dead':''}`;}
 function inspect(f){
   const p=f.properties;
+  const site=manifest.sites.find(s=>s.id===p.site||s.code===p.site);
+  if(site){state.site=site.id;$('#map-title').textContent=site.name;$('#site-code').textContent=site.code+' · North';history.replaceState(null,'','#'+site.id);}
+  map.closePopup();closeLayers();
   selected.clearLayers();
   if (f.geometry.type==='Point') L.circleMarker(ll(f),{radius:p.kind==='trees'?treeRadius(p)+6:11,color:'#fff',weight:2,fill:false,interactive:false,pane:'selection'}).addTo(selected);
   let html=`<div class="eyebrow">${esc(manifest.sites.find(s=>s.id===p.site||s.code===p.site)?.name||p.site)} · ${esc(p.plot)}</div><h2>${esc(p.id)}</h2>`;
@@ -56,15 +59,20 @@ function inspect(f){
   } else {
     const trees=dataset().trees.features.filter(t=>t.properties.plot===p.plot);
     html+=`<div class="subtitle">Plot center · field tag ${esc(p.center_tree_tag)}</div><dl>${row('Plot radius',p.radius_m+' m')}${row('Recorded trees',trees.length)}${row('Reported GPS accuracy',p.gps_accuracy_m+' m')}${row('Ground elevation',p.lidar_ground_elevation_m==null?'See plot center':p.lidar_ground_elevation_m+' m NAVD88')}${row('Aspect',p.aspect_degrees+'°')}${row('Record created',p.record_date)}</dl>`;
+    const val=(v,u='')=>v===''||v==null?null:String(v)+u;
+    const land={gr:'Grazing',wf:'Wildland fire',hl:'Historical logging',fs:'Fire suppression',rt:'Recent thinning',pf:'Prescribed fire',n:'None'};
+    const landUse=p.land_use?p.land_use.split(',').map(v=>land[v]||v).join(', '):null;
+    html+=`<h3>Field measurements · ${esc(p.record_date)}</h3><dl>${row('Litter depth',val(p.litter_depth_cm,' cm'))}${row('Rock cover',val(p.prockcov,' %'))}${row('Forb cover',val(p.forb_cover,' %'))}${row('Slope (source value)',p.slope_recorded)}${row('Slope position (code)',p.slope_position)}${row('Land-use history',landUse)}${row('Parent material',p.parent_material)}</dl><p class="small muted">Slope units and slope-position code definitions were not supplied in the source workbook. Land-use history is a field observation, not a complete disturbance record.</p>`;
+    html+=`<details><summary>Shrub observations</summary><dl>${[1,2,3,4].map(i=>row('Cover · source slot '+i,val(p['shrub_cover'+i],' %'))).join('')}</dl><p>${esc(p.list_4_dominant_shrub_species?.replaceAll('_',' ').replaceAll(',',', ')||'No species recorded.')}</p>${p.specify_other_shrub_species?`<p>${esc(p.specify_other_shrub_species)}</p>`:''}<p class="small muted">Source slots and species list are retained separately; a species-to-slot match is not assumed.</p></details>`;
     if(p.plot_notes)html+=`<p>${esc(p.plot_notes)}</p>`;
     if(p.radius_note)html+=`<p class="note">${esc(p.radius_note)}</p>`;
     html+=`<p class="note">Reported GPS accuracy is a device estimate, not a validated confidence radius.${p.gps_accuracy_m>=50?' This plot has a notably larger reported uncertainty than the others.':''}</p>`;
     const regen=dataset().regeneration.features.find(r=>r.properties.plot===p.plot);
     html+=regen?`<button class="feature-link" data-regen="${esc(p.plot)}">Inspect regeneration record →</button>`:'<p class="small muted">No regeneration record found for this plot.</p>';
-    html+=`<h3>Trees in this plot</h3>${trees.sort((a,b)=>Number(a.properties.tree_tag_number)-Number(b.properties.tree_tag_number)).map(t=>`<button class="feature-link" data-tree="${esc(t.properties.id)}">Tag ${esc(t.properties.tree_tag_number)} · ${esc(t.properties.id)} · ${esc(t.properties.species)}${t.properties.in_sampling_plan?' ◇':''}</button>`).join('')}`;
+    html+=`<details><summary>Trees in this plot (${trees.length})</summary>${trees.sort((a,b)=>Number(a.properties.tree_tag_number)-Number(b.properties.tree_tag_number)).map(t=>`<button class="feature-link" data-tree="${esc(t.properties.id)}">Tag ${esc(t.properties.tree_tag_number)} · ${esc(t.properties.id)} · ${esc(t.properties.species)}${t.properties.in_sampling_plan?' ◇':''}</button>`).join('')}</details>`;
   }
-  if(f.geometry.type==='Point')html+=`<dl>${row('Latitude',f.geometry.coordinates[1].toFixed(7))}${row('Longitude',f.geometry.coordinates[0].toFixed(7))}</dl>`;
-  html+=`<p class="small muted">Source: ${esc(p.inventory_source||p.source)}${p.kind==='trees'?'<br>Position: SFPUC_tree_plot_map.kml':''}</p>`;
+  if(f.geometry.type==='Point')html+=`<details><summary>Coordinates & provenance</summary><dl>${row('Latitude',f.geometry.coordinates[1].toFixed(7))}${row('Longitude',f.geometry.coordinates[0].toFixed(7))}</dl>`;
+  html+=`<p class="small muted">Source: ${esc(p.inventory_source||p.source)}${p.kind==='trees'?'<br>Position: SFPUC_tree_plot_map.kml':''}</p>${f.geometry.type==='Point'?'</details>':''}`;
   $('#feature-details').innerHTML=html; $('#inspector').hidden=false; $('#inspector').scrollTop=0;
   $('#feature-details').querySelectorAll('[data-tree]').forEach(b=>b.onclick=()=>goFeature(dataset().trees.features.find(t=>t.properties.id===b.dataset.tree)));
   $('#feature-details').querySelectorAll('[data-regen]').forEach(b=>b.onclick=()=>goFeature(dataset().regeneration.features.find(r=>r.properties.plot===b.dataset.regen)));
@@ -75,6 +83,8 @@ function renderFields(){
   const d=dataset(), trees=filteredTrees(), plot=$('#plot').value;
   $('#summary').textContent=`${trees.length} of 234 trees · 20 plots · 36 planned study trees`;
   $('#tree-count').textContent=trees.length;
+  $('#filter-state').textContent=$('#species').value||$('#status').value||checked('#plan-only')?'Filtered':'';
+  updateLayerCount();
   $('#map-subtitle').textContent=`234 tree records · April 2022`;
   if(map.getZoom()<15){contourLabels();return;}
   const plotMatch=()=>true;
@@ -100,12 +110,15 @@ function renderTerrain(){
   if(state.terrain){hillshade=L.layerGroup(manifest.sites.map(s=>L.imageOverlay(`data/${s.id}/hillshade.webp`,s.terrain.image_bounds,{opacity:Number($('#opacity').value)/100,pane:'terrain',attribution:'Terrain: USGS 3DEP · 1 m'}))).addTo(map);}
   $('#terrain-on').classList.toggle('selected',state.terrain);$('#terrain-off').classList.toggle('selected',!state.terrain);
   $('#terrain-on').setAttribute('aria-pressed',String(state.terrain));$('#terrain-off').setAttribute('aria-pressed',String(!state.terrain));
+  $('#layer-terrain').checked=state.terrain;
+  $('#map-legend').textContent=state.terrain?'1 m LiDAR · USGS 3DEP':'Basemap · '+$('#basemap').selectedOptions[0].textContent;
   $('#opacity').disabled=!state.terrain;
   $('#opacity-small').disabled=!state.terrain;
 }
 function renderContours(){
   contours.clearLayers();
   const interval=Number($('#contours').value);
+  $('#layer-contours').checked=Boolean(interval);
   if(interval)L.geoJSON(dataset().contours,{filter:f=>interval===2||f.properties.index,interactive:false,pane:'contours',style:f=>({color:state.terrain?'#3f5146':'#f3e8c0',weight:f.properties.index?1:.55,opacity:f.properties.index?.6:.35})}).addTo(contours);
   contourLabels();
 }
@@ -125,8 +138,10 @@ function contourLabels(){
     }
   }
 }
-function renderCoverage(){scene3d?.refresh();coverage.clearLayers();if(checked('#layer-coverage'))manifest.sites.forEach(s=>L.rectangle(s.terrain.image_bounds,{color:'#e0eee3',weight:1.5,dashArray:'6 5',fill:false,interactive:false}).addTo(coverage));}
+function updateLayerCount(){$('#extra-layer-state').textContent=['layer-boundaries','layer-plan','layer-regen','layer-accuracy','tree-labels','layer-coverage'].filter(id=>checked('#'+id)).length+' on';}
+function renderCoverage(){updateLayerCount();scene3d?.refresh();coverage.clearLayers();if(checked('#layer-coverage'))manifest.sites.forEach(s=>L.rectangle(s.terrain.image_bounds,{color:'#e0eee3',weight:1.5,dashArray:'6 5',fill:false,interactive:false}).addTo(coverage));}
 function setBasemap(){
+  if(!state.terrain)$('#map-legend').textContent='Basemap · '+$('#basemap').selectedOptions[0].textContent;
   if(base)map.removeLayer(base);
   const config={satellite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','Imagery © Esri, Maxar, Earthstar Geographics & contributors',19],topo:['https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}','<a href="https://www.usgs.gov/programs/national-geospatial-program/national-map">USGS The National Map</a>',16],streets:['https://tile.openstreetmap.org/{z}/{x}/{y}.png','© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',19]}[$('#basemap').value];
   base=L.tileLayer(config[0],{maxNativeZoom:config[2],maxZoom:23,attribution:config[1]}).addTo(map);
@@ -134,7 +149,7 @@ function setBasemap(){
 }
 function setSite(id){
   if(!manifest.sites.some(s=>s.id===id))id='sheep-camp';
-  state.site=id;closeInspector();closeLayers();
+  state.site=id;closeInspector();closeLayers();map.closePopup();$('#plot').value='';
   $('#map-title').textContent=current().name;
   $('#site-code').textContent=current().code+' · North';
   fitSite();history.replaceState(null,'','#'+id);
@@ -172,11 +187,13 @@ function sourcesHTML(){return `
   ${manifest.sites.map(s=>`<h3>${s.name} downloads</h3><p><a href="data/${s.id}/trees.csv" download>All trees · CSV</a> · <a href="data/${s.id}/trees.geojson" download>Trees · GeoJSON</a> · <a href="data/${s.id}/plots.geojson" download>Plot centers</a> · <a href="data/${s.id}/boundaries.geojson" download>Plot circles</a> · <a href="data/${s.id}/regeneration.geojson" download>Regeneration</a> · <a href="data/${s.id}/contours.geojson" download>2 m contours</a> · <a href="data/${s.id}/terrain.tif" download>1 m DEM · GeoTIFF</a></p><ul>${s.terrain.sources.map(i=>`<li><a href="${esc(i.metaUrl)}" target="_blank" rel="noopener">${esc(i.title)}</a></li>`).join('')}</ul>`).join('')}
   <h3>3D LiDAR point clouds</h3><p>The 3D view uses actual USGS Alameda County returns from the public Entwine collections <code>CA_AlamedaCo_3_2021</code> (Sheep Camp) and <code>CA_AlamedaCo_1_2021</code> (Maguire Ridge). Heights are in meters NAVD88. Terrain and points have no vertical exaggeration. Above-ground returns use the same 0–65 m height color scale as Rivendell. Unclassified returns can include shrubs and structures; they are not individual identified trees. Inventory markers retain species colors and the original GPS uncertainty.</p><p>The browser display uses a spatially thinned subset of measured returns. Height above ground is calculated from the local 1 m DEM. Ground, noise, water, bridge and withheld returns are excluded from the canopy layer. See each site's <a href="data/sheep-camp/3d/scene.json">Sheep Camp metadata</a> or <a href="data/maguire-ridge/3d/scene.json">Maguire Ridge metadata</a> for counts, source URLs, thinning, and ground-elevation checks. The two terrain patches share one coordinate system; the intervening area has no local terrain data.</p>
   <h3>Geology</h3><p>The optional 2D geology overlay uses Graymer, Jones and Brabb's <a href="https://pubs.usgs.gov/of/1996/of96-252/" target="_blank" rel="noopener">USGS Open-File Report 96-252 (1996)</a>, from the <a href="https://ngmdb.usgs.gov/Prodesc/proddesc_22969.htm" target="_blank" rel="noopener">NGMDB shapefile conversion</a>. The source database's effective detail is approximately 1:50,000. It provides regional rock-unit context, not surveyed contacts at individual trees. Most young surface deposits are grouped into Qu, and most landslides are omitted. Dashed contacts and faults retain the source's approximate, inferred or concealed classifications. No present fault activity is inferred.</p><p>The original projection is UTM zone 10 in meters. Because the shapefiles omit a coordinate-reference definition, NAD27 was identified by checking original 7.5-minute grid controls: residuals are below 1 m in NAD27 versus about 205 m in NAD83. Coordinates were transformed to WGS84, then clipped around both sites without snapping or simplifying. Colors are selected for this atlas; descriptions summarize the source and preserve broad age ranges where assemblages differ.</p><p>Mapped units do not measure soil depth, weathered-bedrock thickness or water-storage capacity. <a href="data/geology/units.geojson" download>Download units</a> · <a href="data/geology/lines.geojson" download>Contacts and faults</a> · <a href="data/geology/metadata.json">Source and coordinate checks</a> · <a href="https://pubs.usgs.gov/of/1996/of96-252/algeo.pdf" target="_blank" rel="noopener">Full geologic descriptions</a>.</p>
+  <h3>Soil map units</h3><p>The optional soil layer uses USDA NRCS SSURGO map-unit polygons and names from <a href="https://sdmdataaccess.sc.egov.usda.gov/" target="_blank" rel="noopener">Soil Data Access</a>, retrieved 14 October 2026. The WGS84 polygons are clipped around both sites without simplifying or shifting boundaries. Map units may contain multiple soil components and local inclusions; names and slope ranges describe mapped units, not measured soil properties at each plot. <a href="data/soils/units.geojson" download>Download soil units</a> · <a href="data/soils/metadata.json">Source, query and provenance</a>.</p>
+  <h3>Plot measurements</h3><p>Plot details retain litter depth, rock and forb cover, shrub-cover slots, recorded species, land-use history, slope and slope-position codes from the 2022 plot workbook. Missing values remain missing. Slope units and slope-position code definitions are not documented in that workbook. The 2022 report defines land-use codes. Shrub cover slots are not assigned to species without a documented correspondence.</p>
   <h3>Imagery and basemaps</h3><p>Imagery is the Esri World Imagery mosaic, with credits shown on the map; acquisition date and resolution vary by location and zoom and have not been independently established here. USGS Topo and OpenStreetMap provide alternative context. Basemaps require an internet connection. At tree scale, some basemap pixels are enlarged beyond native resolution. Use the LiDAR opacity slider to compare imagery and ground form.</p>
   <h3>Data and reproducibility</h3><p>Export trees downloads records from both sites using the species, recorded-status, and sampling-plan filters. It is independent of map extent and display-layer switches. The full site CSVs are always available separately. Search includes all records at both sites, including those hidden by filters.</p><p><a href="data/manifest.json">Source filenames, hashes & layer catalog</a> · <a href="data/qa.json">Inventory checks</a>. Map compiled 14 October 2026. Raw collector accounts and device identifiers are omitted from the public layers.</p>`;}
 async function boot(){
   manifest=await getJSON('data/manifest.json');
-  await Promise.all(manifest.sites.map(async s=>{const names=['trees','plots','boundaries','regeneration','contours'];const ds=await Promise.all(names.map(n=>getJSON(`data/${s.id}/${n}.geojson`)));state.data[s.id]=Object.fromEntries(names.map((n,i)=>[n,ds[i]]));}));
+  await Promise.all(manifest.sites.map(async s=>{const names=['trees','plots','boundaries','regeneration','contours'];const ds=await Promise.all(names.map(n=>getJSON(`data/${s.id}/${n}.geojson?v=20261014-polish`)));state.data[s.id]=Object.fromEntries(names.map((n,i)=>[n,ds[i]]));}));
   state.combined=Object.fromEntries(['trees','plots','boundaries','regeneration','contours'].map(n=>[n,{type:'FeatureCollection',features:manifest.sites.flatMap(s=>state.data[s.id][n].features)}]));
   map=L.map('map',{zoomControl:false,maxZoom:23,preferCanvas:true});
   for(const [name,z] of Object.entries({terrain:250,contours:320,plotAreas:350,contourLabels:370,planPoints:410,treePoints:420,plotPoints:430,pointLabels:640,selection:650})){map.createPane(name).style.zIndex=z;if(['terrain','contours','plotAreas','contourLabels','pointLabels','selection'].includes(name))map.getPane(name).style.pointerEvents='none';}
@@ -195,12 +212,20 @@ async function boot(){
   $('#fit-site').onclick=()=>{$('#plot').value='';renderFields();fitSite();closeLayers();};
   $('#landscape').onclick=()=>{scene3d?.focus(state.site,true);map.fitBounds(current().terrain.image_bounds,{padding:[35,80]});closeLayers();};
   $('#both-sites').onclick=()=>{scene3d?.focus('both');map.fitBounds(manifest.sites.map(s=>L.latLngBounds(s.bounds).getCenter()),{padding:[75,100]});closeLayers();};
-  $('#plot').onchange=()=>{closeInspector();renderFields();if($('#plot').value){const f=dataset().plots.features.find(p=>p.properties.plot===$('#plot').value);map.setView(ll(f),20);scene3d?.focusFeature(f);}else fitSite();closeLayers();};
+  $('#plot').onchange=()=>{closeInspector();renderFields();if($('#plot').value){const f=dataset().plots.features.find(p=>p.properties.plot===$('#plot').value);map.setView(ll(f),20);scene3d?.focusFeature(f);inspect(f);}else fitSite();closeLayers();};
   ['#species','#status','#plan-only'].forEach(s=>$(s).onchange=()=>{closeInspector();renderFields();});
   $('#reset-filters').onclick=()=>{$('#species').value='';$('#status').value='';$('#plot').value='';$('#plan-only').checked=false;closeInspector();renderFields();fitSite();};
   ['#layer-trees','#layer-plots','#layer-boundaries','#layer-plan','#layer-regen','#layer-accuracy','#tree-labels'].forEach(s=>$(s).onchange=()=>{closeInspector();renderFields();});
   $('#tree-labels').addEventListener('change',()=>{notice(checked('#tree-labels')&&map.getZoom()<20?'Tree tags appear at close zoom. Select a plot to see them.':'');});
   $('#layer-coverage').onchange=renderCoverage;
+  $('#layer-terrain').onchange=()=>{state.terrain=checked('#layer-terrain');renderTerrain();renderContours();};
+  $('#layer-contours').onchange=()=>{$('#contours').value=checked('#layer-contours')?'2':'0';renderContours();};
+  $('#hide-overlays').onclick=()=>{
+    document.querySelectorAll('.primary-layers input[type=checkbox],.disclosure input[id^=layer-],#tree-labels').forEach(el=>{if(el.checked){el.checked=false;el.dispatchEvent(new Event('change'));}});
+    if(state.measuring)$('#measure').click();
+    if(scene3d&&document.body.classList.contains('scene-active')){for(const id of ['cloud-3d','contours-3d']){const el=$('#'+id);if(el.checked){el.checked=false;el.dispatchEvent(new Event('change'));}}}
+    map.closePopup();closeInspector();
+  };
   $('#terrain-on').onclick=()=>{state.terrain=true;renderTerrain();renderContours();};$('#terrain-off').onclick=()=>{state.terrain=false;renderTerrain();renderContours();};
   $('#opacity').oninput=()=>{$('#opacity-small').value=$('#opacity').value;if(hillshade)hillshade.eachLayer(l=>l.setOpacity(Number($('#opacity').value)/100));};
   $('#opacity-small').oninput=()=>{$('#opacity').value=$('#opacity-small').value;if(hillshade)hillshade.eachLayer(l=>l.setOpacity(Number($('#opacity').value)/100));};
@@ -209,10 +234,10 @@ async function boot(){
   $('#close-inspector').onclick=closeInspector;$('#export').onclick=()=>exportTrees();
   $('#measure').onclick=()=>{state.measuring=!state.measuring;state.measurePoints=[];measurement.clearLayers();closeInspector();$('#measure').classList.toggle('selected',state.measuring);$('#measure').setAttribute('aria-pressed',String(state.measuring));map.doubleClickZoom[state.measuring?'disable':'enable']();notice(state.measuring?'Click points on the map to measure horizontal distance. Click Measure again to clear.':'');};
   $('#methods-content').innerHTML=sourcesHTML();$('#sources').onclick=()=>$('#methods').showModal();$('#close-sources').onclick=()=>$('#methods').close();
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLayers();closeInspector();}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLayers();closeInspector();map.closePopup();if(state.measuring)$('#measure').click();}});
   window.addEventListener('resize',()=>map.invalidateSize());
   $('#view-3d').onclick=async()=>{
-    closeLayers();closeInspector();
+    closeLayers();closeInspector();map.closePopup();
     const button=$('#view-3d');button.disabled=true;button.textContent='Opening 3D…';
     try{
       if(!scene3d){const {createScene}=await import('./scene3d.js');scene3d=await createScene({manifest,data:dataset(),filteredTrees,colors,inspect,currentSite:()=>state.site});}
@@ -220,7 +245,8 @@ async function boot(){
     }catch(e){console.error(e);notice('3D could not load. The 2D map remains available; try 3D again.');}
     finally{button.disabled=false;button.textContent='3D view';}
   };
-  import('./geology.js?v=20261014').then(({setupGeology})=>setupGeology({map,notice,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#geology-status').hidden=false;$('#geology-status').textContent='Geology controls could not load. Reload to retry.';});
+  import('./geology.js?v=20261014-polish').then(({setupGeology})=>setupGeology({map,notice,closeInspector,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#geology-status').hidden=false;$('#geology-status').textContent='Geology controls could not load. Reload to retry.';});
+  import('./soils.js?v=20261014-polish').then(({setupSoils})=>setupSoils({map,notice,closeInspector,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#soils-status').hidden=false;$('#soils-status').textContent='Soil controls could not load. Reload to retry.';});
   $('#loading').hidden=true;
 }
 boot().catch(e=>{console.error(e);$('#loading').innerHTML='The field atlas could not load. Reload to retry.<p>Inventory downloads: <a href="data/sheep-camp/trees.csv">Sheep Camp CSV</a> · <a href="data/maguire-ridge/trees.csv">Maguire Ridge CSV</a>.</p>';});

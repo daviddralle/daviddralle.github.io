@@ -1,5 +1,5 @@
 // Regional geology is a separate, optional 2D overlay; field layers stay above it.
-export function setupGeology({map,notice,isMeasuring}){
+export function setupGeology({map,notice,isMeasuring,closeInspector}){
   const $=id=>document.getElementById(id);
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let metadata,units,lines,loading,polygons;
@@ -47,7 +47,7 @@ export function setupGeology({map,notice,isMeasuring}){
   function inRing([x,y],ring){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const [xi,yi]=ring[i],[xj,yj]=ring[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)inside=!inside;}return inside;}
   function inPolygon(point,rings){return inRing(point,rings[0])&&!rings.slice(1).some(r=>inRing(point,r));}
   map.on('click',e=>{
-    if(isMeasuring()||!map.hasLayer(group)||!metadata||e.propagatedFrom)return;
+    if(isMeasuring()||!map.hasLayer(group)||!metadata||e.propagatedFrom||$('layer-soils').checked)return;
     const point=[e.latlng.lng,e.latlng.lat],pixel=map.latLngToLayerPoint(e.latlng);
     let nearest=null,distance=6;
     for(const f of lines.features){
@@ -59,7 +59,7 @@ export function setupGeology({map,notice,isMeasuring}){
       }
     }
     const feature=nearest||units.features.find(f=>(f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates]).some(r=>inPolygon(point,r)));
-    if(feature)L.popup({maxWidth:310}).setLatLng(e.latlng).setContent(details(feature)).openOn(map);
+    if(feature){closeInspector();L.popup({maxWidth:310}).setLatLng(e.latlng).setContent(details(feature)).openOn(map);}
   });
   map.on('moveend',legend);
 }
