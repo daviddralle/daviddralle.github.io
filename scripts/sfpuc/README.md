@@ -159,3 +159,8 @@ applies each record's diameter with device-pixel scaling; outline diameters
 follow the same sizes. This changes inventory markers, not LiDAR return sizes.
 Screen-space picking matches those marker sizes, with plot crosses above trees.
 Check tree/plot selection, filtering, layer switches and zoom after symbol edits.
+
+The shared map legend is open on desktop and starts collapsed on phones.
+It uses the inventory species palette and DBH sizing helper, and distinguishes
+field markers, plot circles, planned trees, contour intervals, and additional
+line styles. Check Hide/Show, Escape, 2D/3D contour labels, and mobile scrolling.

@@ -6,9 +6,9 @@
   <meta name="description" content="Sheep Camp and Maguire Ridge field maps: tree inventories, study plots, sampling plans, aerial imagery, and one-meter LiDAR terrain.">
   <title>SFPUC Field Atlas · Sheep Camp & Maguire Ridge</title>
   <link rel="stylesheet" href="../rivendell/atlas/vendor/leaflet.css">
-  <link rel="stylesheet" href="style.css?v=20261014-markers">
+  <link rel="stylesheet" href="style.css?v=20261014-legend">
   <script defer src="../rivendell/atlas/vendor/leaflet.js"></script>
-  <script defer src="app.js?v=20261014-south"></script>
+  <script defer src="app.js?v=20261014-legend"></script>
 </head>
 <body>
   <nav class="site-nav" aria-label="Field sites"><a href="/field-sites/">← Field sites</a></nav>
@@ -25,7 +25,7 @@
       </section>
       <details class="side-section disclosure"><summary>More field layers <span class="summary-meta" id="extra-layer-state">2 on</span></summary><div class="disclosure-body"><label class="layer-row"><input id="layer-boundaries" type="checkbox" checked><i class="ring" style="--c:#63dbea"></i><span>12.6 m plot circles</span><small>20</small></label><label class="layer-row"><input id="layer-plan" type="checkbox" checked><i class="ring" style="--c:#f5b8ed"></i><span>Sampling-plan trees</span><small>36</small></label><label class="layer-row"><input id="layer-regen" type="checkbox"><i class="dot" style="--c:#e9cc8b"></i><span>Regeneration records</span><small id="regen-count"></small></label><label class="layer-row"><input id="layer-accuracy" type="checkbox"><i class="ring dashed" style="--c:#e7ac6a"></i><span>Reported GPS accuracy</span></label><label class="layer-row"><input id="tree-labels" type="checkbox"><span class="label-icon">T</span><span>Tree tags at close zoom</span></label><label class="layer-row"><input id="layer-coverage" type="checkbox"><i class="ring dashed" style="--c:#dce9e1"></i><span>LiDAR coverage</span></label><div class="mobile-opacity"><label for="opacity-small">LiDAR opacity</label><input id="opacity-small" type="range" min="0" max="100" value="90"></div></div></details>
       <details class="side-section disclosure"><summary>Find & filter trees <span class="summary-meta" id="filter-state"></span></summary><div class="disclosure-body">      <div><label class="eyebrow" for="search">FIND A TREE OR PLOT</label><div class="search-wrap"><input id="search" type="search" placeholder="Tree ID, plot, or tag…" autocomplete="off"><button id="clear-search" aria-label="Clear search">×</button></div><div id="search-results" aria-live="polite"></div></div>
-<label for="species">Species</label><select id="species"><option value="">All species</option></select><label for="status">Recorded status</label><select id="status"><option value="">All records</option><option value="live">Recorded live</option><option value="dead">Recorded dead</option></select><label class="check-line"><input id="plan-only" type="checkbox"> Sampling-plan trees only</label><button id="reset-filters" class="text-button">Reset filters</button><div id="species-legend"></div><p class="small muted">Tree circle size shows DBH in both views, using the same square-root scale. White crosses mark plot centers. Marker sizes do not show canopy extent. Orange outlines mark trees recorded dead. Status is from 2022.</p><p id="summary" class="small"></p></div></details>
+<label for="species">Species</label><select id="species"><option value="">All species</option></select><label for="status">Recorded status</label><select id="status"><option value="">All records</option><option value="live">Recorded live</option><option value="dead">Recorded dead</option></select><label class="check-line"><input id="plan-only" type="checkbox"> Sampling-plan trees only</label><button id="reset-filters" class="text-button">Reset filters</button><p class="small muted">Tree circle size shows DBH in both views, using the same square-root scale. White crosses mark plot centers. Marker sizes do not show canopy extent. Orange outlines mark trees recorded dead. Status is from 2022.</p><p id="summary" class="small"></p></div></details>
       <details class="side-section disclosure footnote"><summary>Position, coverage & downloads</summary><div class="disclosure-body"><p>Tree locations are calculated from plot GPS, azimuth, and distance. This is the sampled-tree inventory, not a census of every tree across the landscape.</p><p id="position-note"></p><a id="download-all" href="#">Download both sites’ trees · CSV ↗</a></div></details>
     </aside>
     <section class="map-shell" aria-label="Interactive site map">
@@ -39,6 +39,29 @@
         <div class="scene-settings"><strong id="scene-title">LiDAR · 3D</strong><label><input type="checkbox" id="cloud-3d" checked> Above-ground returns</label><label><input type="checkbox" id="contours-3d" checked> 2 m contours</label><label>Canopy opacity<input type="range" id="cloud-opacity" min="0" max="100" value="85"></label><label>Point size<input type="range" id="point-size" min="0.5" max="4" step="0.1" value="1.5"></label><div class="height-ramp"></div><div class="ramp-labels"><span>0</span><span>7</span><span>20</span><span>65 m</span></div><p>Height above ground · Rivendell colors</p><p>Drag to orbit · scroll to zoom<br>Right-drag to pan · meters, no vertical exaggeration</p><p id="scene-count"></p></div>
         <div id="scene-status" role="status"></div>
       </section>
+      <details id="map-key" open aria-label="Map legend">
+        <summary>Map legend <span class="key-hide">Hide −</span><span class="key-show">Show +</span></summary>
+        <div class="map-key-body">
+          <h3>Tree species</h3><div id="species-legend"></div>
+          <div class="dbh-key" id="dbh-key" aria-label="Example tree sizes by DBH"></div><p class="key-note">Circle size = DBH in both views.</p>
+          <div class="key-row"><i class="key-dead" aria-hidden="true"></i><span>Orange edge · recorded dead</span></div>
+          <h3>Plots & lines</h3>
+          <div class="key-row"><i class="key-cross" aria-hidden="true">+</i><span>Plot center</span></div>
+          <div class="key-row"><i class="key-ring" style="--key-color:#63dbea" aria-hidden="true"></i><span>Plot circle · 12.6 m radius</span></div>
+          <div class="key-row"><i class="key-ring" style="--key-color:#f5b8ed" aria-hidden="true"></i><span>Sampling-plan tree</span></div>
+          <div class="key-row"><i class="key-line key-contour" aria-hidden="true"></i><span>Elevation contour <span id="key-contour-interval"></span></span></div>
+          <details class="key-more"><summary>More lines & symbols</summary>
+            <div class="key-row"><i class="key-ring" style="--key-color:#e9cc8b" aria-hidden="true"></i><span>Regeneration record</span></div>
+            <div class="key-row"><i class="key-ring key-gps" style="--key-color:#e7ac6a" aria-hidden="true"></i><span>Reported plot GPS accuracy</span></div>
+            <div class="key-row"><i class="key-line key-coverage" aria-hidden="true"></i><span>LiDAR cutout edge</span></div>
+            <div class="key-row"><i class="key-line key-fault" aria-hidden="true"></i><span>Mapped fault</span></div>
+            <div class="key-row"><i class="key-line key-contact" aria-hidden="true"></i><span>Geologic contact / soil boundary</span></div>
+            <p class="key-note">Geologic lines are dashed where uncertain or concealed. GPS and cutout outlines are dashed in 2D and solid in 3D.</p>
+            <p class="key-note">Rock and soil fill colors are listed under each layer’s “legend & opacity” control. The 3D canopy has a separate height color scale.</p>
+          </details>
+          <p class="key-note">Symbols appear when their layers are on. Tree status is from 2022; sizes do not show canopy extent.</p>
+        </div>
+      </details>
       <div id="notice" role="status" hidden></div>
       <section id="inspector" aria-label="Feature details" hidden><div class="inspector-header"><span>Field record · 2022</span><button id="close-inspector" aria-label="Close feature details">Close ×</button></div><div id="feature-details"></div></section>
       <div class="map-bottom"><span id="map-legend">1 m LiDAR · USGS 3DEP</span><span id="coordinates">Elevations · m NAVD88</span></div>

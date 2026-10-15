@@ -162,6 +162,12 @@ function initInventory(){
   $('#regen-count').textContent=dataset().regeneration.features.length;
   $('#position-note').textContent='Plot GPS reports 5–10 m accuracy, except SCN.3: 50 m. Tree bearing and distance add unquantified error.';
   $('#download-all').onclick=e=>{e.preventDefault();exportTrees(true);};
+  $('#map-key').open=!window.matchMedia('(max-width:760px)').matches;
+  $('#dbh-key').innerHTML=[10,50,100].map(dbh=>`<span><i style="width:${2*treeRadius({dbh_cm:dbh})}px;height:${2*treeRadius({dbh_cm:dbh})}px"></i>${dbh} cm</span>`).join('');
+  function updateContourKey(){const three=document.body.classList.contains('scene-active'),interval=three?($('#contours-3d').checked?'2':'0'):$('#contours').value;$('#key-contour-interval').textContent=interval==='0'?'· off':`· ${interval} m`;$('#map-key').classList.toggle('key-light-contours',three||!state.terrain);}
+  ['#contours','#layer-contours','#layer-terrain','#contours-3d'].forEach(id=>$(id).addEventListener('change',()=>queueMicrotask(updateContourKey)));
+  ['#terrain-on','#terrain-off'].forEach(id=>$(id).addEventListener('click',()=>queueMicrotask(updateContourKey)));
+  new MutationObserver(updateContourKey).observe(document.body,{attributes:true,attributeFilter:['class']});updateContourKey();
   $('#species-legend').innerHTML=Object.entries(colors).map(([n,c])=>`<span><i class="dot" style="--c:${c}"></i>${esc(n)}</span>`).join('');
 }
 function doSearch(){
@@ -236,7 +242,7 @@ async function boot(){
   $('#close-inspector').onclick=closeInspector;$('#export').onclick=()=>exportTrees();
   $('#measure').onclick=()=>{state.measuring=!state.measuring;state.measurePoints=[];measurement.clearLayers();closeInspector();$('#measure').classList.toggle('selected',state.measuring);$('#measure').setAttribute('aria-pressed',String(state.measuring));map.doubleClickZoom[state.measuring?'disable':'enable']();notice(state.measuring?'Click points on the map to measure horizontal distance. Click Measure again to clear.':'');};
   $('#methods-content').innerHTML=sourcesHTML();$('#sources').onclick=()=>$('#methods').showModal();$('#close-sources').onclick=()=>$('#methods').close();
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLayers();closeInspector();map.closePopup();if(state.measuring)$('#measure').click();}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#map-key').open=false;closeLayers();closeInspector();map.closePopup();if(state.measuring)$('#measure').click();}});
   window.addEventListener('resize',()=>map.invalidateSize());
   $('#view-3d').onclick=async()=>{
     closeLayers();closeInspector();map.closePopup();
