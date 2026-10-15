@@ -242,7 +242,7 @@ async function boot(){
     closeLayers();closeInspector();map.closePopup();
     const button=$('#view-3d');button.disabled=true;button.textContent='Opening 3D…';
     try{
-      if(!scene3d){const {createScene}=await import('./scene3d.js?v=20261014-markers');scene3d=await createScene({showContext:(title,html)=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent=title;$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;},manifest,data:dataset(),filteredTrees,treeRadius,colors,inspect,currentSite:()=>state.site});}
+      if(!scene3d){const {createScene}=await import('./scene3d.js?v=20261014-south');scene3d=await createScene({showContext:(title,html)=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent=title;$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;},manifest,data:dataset(),filteredTrees,treeRadius,colors,inspect,currentSite:()=>state.site});}
       scene3d.open();
     }catch(e){console.error(e);notice('3D could not load. The 2D map remains available; try 3D again.');}
     finally{button.disabled=false;button.textContent='3D view';}
