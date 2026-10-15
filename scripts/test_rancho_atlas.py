@@ -1,6 +1,8 @@
 """Scientific integrity checks for the published Rancho atlas products."""
 import json
 import math
+import hashlib
+from array import array
 import unittest
 from pathlib import Path
 
@@ -84,5 +86,39 @@ class AtlasDataTests(unittest.TestCase):
             self.assertTrue(f['properties']['major'])
             self.assertEqual(f['properties']['elevation_m']%10,0)
             self.assertIn(f['geometry']['type'],['LineString','MultiLineString'])
+
+    def test_canopy_is_a_dated_measured_cloud_with_consistent_units(self):
+        meta=json.loads((DATA/'canopy.json').read_text())
+        cloud=meta['cloud']
+        self.assertEqual(meta['survey_dates'],['2019-04-16','2019-04-17'])
+        self.assertIn('NAVD88',meta['vertical_datum'])
+        self.assertGreater(cloud['count'],500000)
+        self.assertLessEqual(cloud['count'],cloud['sample_limit'])
+        raw=(DATA/cloud['url']).read_bytes()
+        self.assertEqual(len(raw),cloud['count']*8)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),meta['sha256'][cloud['url']])
+        values=array('H',raw)
+        import sys
+        if sys.byteorder!='little':values.byteswap()
+        for i in range(0,cloud['count'],1000):
+            point=[values[i*4+j]*cloud['scale']+cloud['offset'][j] for j in range(4)]
+            self.assertTrue(555000<point[0]<558000 and 4332000<point[1]<4336000)
+            self.assertTrue(.49<=point[3]<=85.01)
+        ground=meta['qa']['ground_minus_dem_m']
+        self.assertGreater(ground['n'],10000)
+        self.assertLess(abs(ground['median']),.1)
+        self.assertLess(ground['p95']-ground['p05'],.5)
+
+    def test_canopy_coverage_and_missing_terrain_remain_explicit(self):
+        meta=json.loads((DATA/'canopy.json').read_text())
+        self.assertTrue(.97<meta['coverage']['catchment_fraction']<.98)
+        self.assertEqual(meta['raster']['cell_size_m'],1)
+        self.assertIn('transparent',meta['raster']['nodata'])
+        self.assertGreater(meta['raster']['observed_cells'],1000000)
+        terrain=json.loads((DATA/'terrain.json').read_text())
+        self.assertEqual(len(terrain['valid']),terrain['ny'])
+        self.assertTrue(any(v==0 for row in terrain['valid'] for v in row))
+        self.assertIn('CA19_Dietrich',terrain['source'])
+        self.assertEqual(terrain['vertical_datum'],meta['vertical_datum'])
 
 if __name__=='__main__': unittest.main()

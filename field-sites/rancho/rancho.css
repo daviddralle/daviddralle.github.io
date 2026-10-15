@@ -7,3 +7,5 @@
 #map.overview .catchment-label{font:11px Arial,sans-serif;padding:2px 4px;border-radius:3px}#map.terrain-mode .leaflet-tile-pane{filter:grayscale(.7) brightness(.7);opacity:.5}
 
 #inspector{z-index:1200}@media(max-width:720px){#sidebar{z-index:1300}}
+
+.canopy-key{margin-top:16px;font-size:11px;line-height:1.5;color:var(--muted)}.canopy-key strong{font-weight:400}.canopy-ramp{height:9px;margin:9px 0 3px;border-radius:3px;background:linear-gradient(90deg,#c3a675,#c5bb76 25%,#91b34e 50%,#4d973b 75%,#206038)}.canopy-ticks{display:flex;justify-content:space-between;font:10px monospace}.canopy-key label{display:block;margin:12px 0 4px}.canopy-key input{width:100%;accent-color:var(--accent)}.canopy-key p{margin-bottom:0}#map.terrain-mode{background:#203037}

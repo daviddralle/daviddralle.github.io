@@ -5,8 +5,10 @@ import json
 from pathlib import Path
 import numpy as np
 import rasterio
-from rasterio.windows import from_bounds
+from rasterio.windows import from_bounds as window_from_bounds
 from rasterio.enums import Resampling
+from rasterio.warp import reproject
+from rasterio.transform import from_bounds
 from pyproj import Transformer
 from PIL import Image, ImageDraw, ImageFont
 
@@ -21,11 +23,20 @@ cx,cy=project(-122.3475,39.1518)
 span=900
 bounds=(cx-span/2,cy-span*H/W/2,cx+span/2,cy+span*H/W/2)
 with rasterio.open(a.dem) as dem:
-    z=dem.read(1,window=from_bounds(*bounds,dem.transform),out_shape=(H,W),resampling=Resampling.bilinear)
+    z=dem.read(1,window=window_from_bounds(*bounds,dem.transform),out_shape=(H,W),resampling=Resampling.bilinear)
 gy,gx=np.gradient(z,span/W,span/W)
 light=np.clip((.65-gx*.5+gy*.5)/np.sqrt(1+gx*gx+gy*gy),.15,1)
-rgb=np.clip(np.array([165,183,158])[None,None,:]*(.35+.75*light[:,:,None]),0,255).astype('uint8')
-im=Image.fromarray(rgb).convert('RGBA')
+rgb=np.clip(np.array([180,180,180])[None,None,:]*(.35+.75*light[:,:,None]),0,255).astype('uint8')
+if (data/'canopy.json').exists():
+    meta=json.loads((data/'canopy.json').read_text())['raster']
+    (south,west),(north,east)=meta['bounds']
+    source=np.asarray(Image.open(data/meta['url']).convert('RGBA'))
+    canopy=np.zeros((H,W,4),dtype='uint8')
+    for band in range(4):
+        reproject(source[:,:,band],canopy[:,:,band],src_transform=from_bounds(west,south,east,north,source.shape[1],source.shape[0]),src_crs=4326,dst_transform=from_bounds(*bounds,W,H),dst_crs=26910,resampling=Resampling.nearest)
+    alpha=canopy[:,:,3:4]/255*.9
+    rgb=(rgb*(1-alpha)+canopy[:,:,:3]*alpha).astype('uint8')
+im=Image.fromarray(rgb)
 draw=ImageDraw.Draw(im,'RGBA')
 def xy(ll):
     x,y=project(*ll[:2]);return ((x-bounds[0])/span*W,(bounds[3]-y)/span*W)
@@ -56,7 +67,7 @@ for f in features('boreholes.geojson'):
 draw.rectangle((0,0,W,145),fill=(17,38,45,240))
 draw.text((40,24),'RANCHO VENADA',font=font(20),fill='#c0ec94')
 draw.text((38,55),'Mountain House field atlas',font=font(44,True),fill='#edf3ee')
-draw.text((40,113),'LiDAR contours · catchments · wells & piezometers',font=font(19),fill='#a6bbc0')
+draw.text((40,113),'LiDAR canopy · catchments · wells & piezometers',font=font(19),fill='#a6bbc0')
 x,y=W-80,200
 draw.line((x,y+55,x,y),fill='#edf3ee',width=3)
 draw.polygon([(x,y),(x-7,y+15),(x+7,y+15)],fill='#edf3ee')

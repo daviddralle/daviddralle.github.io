@@ -64,6 +64,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--source-root', type=Path, required=True)
     ap.add_argument('--metadata', type=Path, required=True)
+    ap.add_argument('--dem', type=Path, help='Optional matching survey DEM; elevations remain unshifted DEM values')
+    ap.add_argument('--dem-source', default='MountainHouseClip.tif')
+    ap.add_argument('--vertical-datum', default='Not specified in source metadata')
     ap.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'field-sites/rancho/atlas/data')
     args = ap.parse_args()
     out = args.output
@@ -88,7 +91,7 @@ def main():
     domain = shape(watershed[0]['geometry'])
     metric_bounds = transform(TO_UTM.transform, domain).buffer(160).bounds
     x0, y0, x1, y1 = [round(v / 10) * 10 for v in metric_bounds]
-    with rasterio.open(gis / 'elevation dem/MountainHouseClip.tif') as dem:
+    with rasterio.open(args.dem or gis / 'elevation dem/MountainHouseClip.tif') as dem:
         # Contour the native DEM, not the coarser browser mesh. Mask nodata edges.
         native = dem.read(1, masked=True)
         xx = dem.transform.c + (np.arange(dem.width) + .5) * dem.transform.a
@@ -178,15 +181,15 @@ def main():
         if missing.any():
             indices = distance_transform_edt(missing,return_distances=False,return_indices=True)
             grid[missing] = grid[tuple(indices[:,missing])]
-        save(out/'terrain.json', dict(crs='EPSG:26910',bounds=[x0,y0,x1,y1],nx=nx,ny=ny,spacing_m=10,rows='north to south',elevation_m=np.round(grid,1).tolist(),source='MountainHouseClip.tif; native approximately 1 m DEM, resampled for display',vertical_datum='Not specified in source metadata'))
+        save(out/'terrain.json', dict(crs='EPSG:26910',bounds=[x0,y0,x1,y1],nx=nx,ny=ny,spacing_m=10,rows='north to south',elevation_m=np.round(grid,1).tolist(),valid=(~missing).astype('uint8').tolist(),source=args.dem_source,vertical_datum=args.vertical_datum))
         gy3,gx3=np.gradient(grid,10,10)
         light3=np.clip((.65-gx3*.5+gy3*.5)/np.sqrt(1+gx3*gx3+gy3*gy3),.15,1)
-        rgb3=np.clip(np.array([165,183,158])[None,None,:]*(.3+.8*light3[:,:,None]),0,255).astype('uint8')
+        rgb3=np.clip(np.array([180,180,180])[None,None,:]*(.3+.8*light3[:,:,None]),0,255).astype('uint8')
         Image.fromarray(rgb3).save(out/'terrain-texture.jpg',quality=95)
 
         # Geographic hillshade for Leaflet, derived from the same DEM.
         west,south,east,north=transform_bounds(dem.crs,4326,*dem.bounds)
-        width,height=1700,round(dem.height/dem.width*1700)
+        width,height=dem.width,dem.height
         shade_grid=np.full((height,width),np.nan,dtype=np.float32)
         reproject(rasterio.band(dem,1),shade_grid,src_transform=dem.transform,src_crs=dem.crs,dst_transform=from_bounds(west,south,east,north,width,height),dst_crs='EPSG:4326',dst_nodata=np.nan,resampling=Resampling.bilinear)
         mask=~np.isfinite(shade_grid)
@@ -196,12 +199,14 @@ def main():
         gy,gx=np.gradient(shade_grid,(dem.bounds.top-dem.bounds.bottom)/height,(dem.bounds.right-dem.bounds.left)/width)
         light=(.65-gx*.5+gy*.5)/np.sqrt(1+gx*gx+gy*gy)
         light=np.clip(light,.15,1)
-        tint=np.array([165,183,158])[None,None,:]
+        tint=np.array([180,180,180])[None,None,:]
         rgb=np.clip(tint*(.35+.75*light[:,:,None]),0,255).astype('uint8')
+        rgba=np.dstack((rgb,(~mask).astype('uint8')*255))
+        Image.fromarray(rgba).save(out/'hillshade.webp',quality=92)
         Image.fromarray(rgb).save(out/'hillshade.jpg',quality=88)
         mapped=sum(f['geometry'] is not None for f in holes)
-        save(out/'qa.json', dict(metadata_records=len(holes),mapped_records=mapped,unlocated=[f['properties']['id'] for f in holes if f['geometry'] is None],unknown_depths=[f['properties']['id'] for f in holes if f['properties']['depth_m'] is None],provisional_positions=['MH7W4','MH8W1'],elevation_source='MountainHouseClip.tif DEM only; no offsets applied'))
-        save(out/'manifest.json', dict(version=2,compiled='2026-10-15',source_metadata_modified='2024-04-06',borehole_records=len(holes),mapped_boreholes=mapped,known_depths=sum(f['properties']['depth_m'] is not None for f in holes),hillshade_bounds=[[south,west],[north,east]],contours=dict(source='MountainHouseClip.tif',interval_m=2,index_interval_m=10,simplification_m=.6,minimum_length_m=8,nodata='Masked; no contours inferred across missing cells',count=len(contours),display_3d='10 m index contours clipped to the display mesh and draped on its surface'),sources=[
+        save(out/'qa.json', dict(metadata_records=len(holes),mapped_records=mapped,unlocated=[f['properties']['id'] for f in holes if f['geometry'] is None],unknown_depths=[f['properties']['id'] for f in holes if f['properties']['depth_m'] is None],provisional_positions=['MH7W4','MH8W1'],elevation_source=args.dem_source+'; DEM only, no offsets applied'))
+        save(out/'manifest.json', dict(version=2,compiled='2026-10-15',source_metadata_modified='2024-04-06',borehole_records=len(holes),mapped_boreholes=mapped,known_depths=sum(f['properties']['depth_m'] is not None for f in holes),hillshade_bounds=[[south,west],[north,east]],dem_source=args.dem_source,vertical_datum=args.vertical_datum,contours=dict(source=args.dem_source,interval_m=2,index_interval_m=10,simplification_m=.6,minimum_length_m=8,nodata='Masked; no contours inferred across missing cells',count=len(contours),display_3d='10 m index contours clipped to the display mesh and draped on its surface'),sources=[
             dict(title='Borehole metadata · Summary meta',url='https://docs.google.com/spreadsheets/d/1P59EhTR2UbpZTWIMZYkxYSYm6P2P-3Obs6523HpuX1o/edit'),
             dict(title='AVR and Rancho Venada research archive',url='https://drive.google.com/drive/folders/0B1oatSIQtIaJZkc4RXBMZl8wVDQ'),
             dict(title='Hahm et al. (2022) · Bedrock vadose zone storage dynamics under extreme drought',url='https://doi.org/10.1029/2021WR031781'),

@@ -1,1 +1,1 @@
-{"metadata_records":47,"mapped_records":46,"unlocated":["MH3P6"],"unknown_depths":["MH3P6","MH3P10","MH3P11","MH3P12","MH3P13","MH3P14","MH3P15"],"provisional_positions":["MH7W4","MH8W1"],"elevation_source":"MountainHouseClip.tif DEM only; no offsets applied"}
+{"metadata_records":47,"mapped_records":46,"unlocated":["MH3P6"],"unknown_depths":["MH3P6","MH3P10","MH3P11","MH3P12","MH3P13","MH3P14","MH3P15"],"provisional_positions":["MH7W4","MH8W1"],"elevation_source":"NCALM CA19_Dietrich 2019 bare-earth DEM, resampled from 0.25 m to 1 m; DEM only, no offsets applied"}

@@ -4,8 +4,8 @@ const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const colors = {well:'#63dbea',piezometer:'#efbf73',weather:'#f4eee0',sapflow:'#c0ec94',soil:'#b69ce9',outlet:'#ff947a'};
 const kindName = {well:'Monitoring well',piezometer:'Piezometer',weather:'Weather station',sapflow:'Sap-flow sensor',soil:'Soil-moisture sensor',outlet:'Main catchment outlet',catchment:'Subcatchment',watershed:'Archived watershed'};
-const enabled = new Set(['contour','watershed','catchment','channel','well','piezometer','weather','outlet']);
-let map, manifest, holes, catchments, instruments, channels, contours, features, hillshade, base, scene, selected;
+const enabled = new Set(['canopy','contour','watershed','catchment','channel','well','piezometer','weather','outlet']);
+let map, manifest, canopyMeta, canopyRaster, coverage, holes, catchments, instruments, channels, contours, features, hillshade, base, scene, selected;
 const layerGroups = {}, markers = new Map();
 let currentView = 'watershed', sceneModule;
 
@@ -26,6 +26,7 @@ function setLayer(kind, checked) {
   const checkbox = document.querySelector(`[data-layer="${kind}"]`);
   if (checkbox) checkbox.checked = checked;
   scene?.setVisible(enabled);
+  $('canopy-key').hidden=!enabled.has('canopy');
   updateStatus();
 }
 function boundsFor(view) {
@@ -37,7 +38,7 @@ function view(name) {
   currentView = name;
   document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('selected', b.dataset.view === name));
   $('view-title').textContent = name === 'watershed' ? 'Mountain House watershed' : name === 'network' ? 'The monitoring network' : `${name} · hillslope & channel`;
-  $('view-subtitle').textContent = scene?.active ? (Number($('vertical-scale').value)===3?'Terrain & boreholes · vertical scale exaggerated 3×':'Terrain & boreholes · true metric scale') : 'Terrain, catchments & field observations';
+  $('view-subtitle').textContent = scene?.active ? (Number($('vertical-scale').value)===3?'Canopy, terrain & boreholes · vertical scale exaggerated 3×':'Canopy, terrain & boreholes · true metric scale') : '2019 NCALM LiDAR · terrain & canopy';
   if (scene?.active) scene.focus(name); else map.fitBounds(boundsFor(name), {padding:[30,95],maxZoom:19});
   closeMobileLayers();
 }
@@ -118,9 +119,10 @@ function setBasemap(name) {
   if(base)map.removeLayer(base);
   if(map.hasLayer(hillshade))map.removeLayer(hillshade);
   if(name==='satellite')base=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:21,maxNativeZoom:19,attribution:'Imagery © Esri, Maxar, Earthstar Geographics'});
-  else base=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:21,maxNativeZoom:19,attribution:'Tiles © Esri · USGS, NOAA, GIS community'});
-  base.on('tileerror',()=>{$('status').textContent='Online basemap unavailable. Local terrain and field records remain available.';});
-  base.addTo(map); if(name==='terrain')hillshade.addTo(map);
+  else if(name==='topo')base=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:21,maxNativeZoom:19,attribution:'Tiles © Esri · USGS, NOAA, GIS community'});
+  if(name==='terrain')base=null;
+  base?.on('tileerror',()=>{$('status').textContent='Online basemap unavailable. Local terrain and field records remain available.';});
+  base?.addTo(map); if(name==='terrain')hillshade.addTo(map);
   document.querySelectorAll('[data-basemap]').forEach(b=>{b.classList.toggle('selected',b.dataset.basemap===name);b.setAttribute('aria-pressed',String(b.dataset.basemap===name));});
 }
 function search() {
@@ -146,33 +148,37 @@ function exportData() {
 }
 async function toggle3D() {
   if(scene?.active){scene.close();$('scene').hidden=true;$('scene-tools').hidden=true;$('basemaps').hidden=false;$('map').hidden=false;$('toggle-3d').setAttribute('aria-pressed','false');map.invalidateSize();view(currentView);return;}
-  $('toggle-3d').disabled=true;$('scene-loading').hidden=false;$('scene-loading').textContent='Opening terrain & boreholes…';
+  $('toggle-3d').disabled=true;$('scene-loading').hidden=false;$('scene-loading').textContent='Opening LiDAR canopy & terrain…';
   try{
     sceneModule??=await import('./scene.js');
-    if(!scene)scene=await sceneModule.createScene({holes,catchments,channels,instruments,enabled,inspect});
+    if(!scene)scene=await sceneModule.createScene({holes,catchments,channels,instruments,enabled,inspect,canopyMeta,coverage});
     $('scene').hidden=false;$('map').hidden=true;$('scene-tools').hidden=false;$('basemaps').hidden=true;
-    scene.open();scene.focus(currentView==='watershed'?'network':currentView);
-    $('toggle-3d').setAttribute('aria-pressed','true');$('view-subtitle').textContent=Number($('vertical-scale').value)===3?'Terrain & boreholes · vertical scale exaggerated 3×':'Terrain & boreholes · true metric scale';$('scene-loading').hidden=true;
+    scene.canopyOpacity(Number($('canopy-opacity').value));scene.open();scene.focus(currentView==='watershed'?'network':currentView);
+    $('toggle-3d').setAttribute('aria-pressed','true');$('view-subtitle').textContent=Number($('vertical-scale').value)===3?'Canopy, terrain & boreholes · vertical scale exaggerated 3×':'Canopy, terrain & boreholes · true metric scale';$('scene-loading').hidden=true;
   }catch(error){console.error(error);$('scene-loading').textContent='3D could not open. The map and depth inventory are still available. '+error.message;}
   finally{$('toggle-3d').disabled=false;}
 }
 async function init() {
-  const data=await Promise.all(['manifest.json','boreholes.geojson','catchments.geojson','instruments.geojson','channels.geojson','contours.geojson'].map(file=>getJSON('data/'+file)));
-  [manifest]=data;holes=data[1].features;catchments=data[2].features;instruments=data[3].features;channels=data[4].features;contours=data[5].features;features=[...holes,...catchments,...instruments];
+  const data=await Promise.all(['manifest.json','boreholes.geojson','catchments.geojson','instruments.geojson','channels.geojson','contours.geojson','canopy.json','canopy-coverage.geojson'].map(file=>getJSON('data/'+file)));
+  [manifest]=data;holes=data[1].features;catchments=data[2].features;instruments=data[3].features;channels=data[4].features;contours=data[5].features;canopyMeta=data[6];coverage=data[7];features=[...holes,...catchments,...instruments];
   map=L.map('map',{zoomControl:false,maxZoom:21,zoomSnap:.25,preferCanvas:true});L.control.zoom({position:'topright'}).addTo(map);L.control.scale({imperial:false}).addTo(map);
   map.createPane('terrain');map.getPane('terrain').style.zIndex=300;map.getPane('terrain').style.pointerEvents='none';
+  map.createPane('canopy');map.getPane('canopy').style.zIndex=325;map.getPane('canopy').style.pointerEvents='none';
   map.createPane('contours');map.getPane('contours').style.zIndex=350;map.getPane('contours').style.pointerEvents='none';
   layerGroups.contour=L.geoJSON(contours,{pane:'contours',interactive:false,style:f=>({color:'#39443d',weight:f.properties.major?1:.55,opacity:f.properties.major?.45:.23})}).addTo(map);
-  hillshade=L.imageOverlay('data/hillshade.jpg',manifest.hillshade_bounds,{pane:'terrain',opacity:1,attribution:'Terrain: Rancho MountainHouseClip DEM'});
+  hillshade=L.imageOverlay('data/hillshade.webp',manifest.hillshade_bounds,{pane:'terrain',opacity:1,attribution:'2019 LiDAR © NCALM / OpenTopography · <a href="https://doi.org/10.5069/G9FX77MW">CC BY 4.0</a>'});
   setBasemap('terrain');
+  canopyRaster=L.imageOverlay('data/'+canopyMeta.raster.url,canopyMeta.raster.bounds,{pane:'canopy',opacity:.9});
+  layerGroups.canopy=canopyRaster.addTo(map);
+  layerGroups.coverage=L.geoJSON(coverage,{interactive:false,style:{color:'#f2dfb1',weight:2,dashArray:'6 5',fill:false}});
   for(const kind of ['watershed','catchment']){
     layerGroups[kind]=L.geoJSON(catchments.filter(f=>f.properties.kind===kind),{style:f=>({color:kind==='watershed'?'#e0c68c':'#d1f3b2',weight:kind==='watershed'?2:1.5,fillColor:'#c0ec94',fillOpacity:kind==='watershed'?0:.07,dashArray:f.properties.id==='MH9'?'6 5':null}),onEachFeature(f,l){l.on('click',()=>inspect(f));}}).addTo(map);
     if(kind==='catchment')catchments.filter(f=>f.properties.kind==='catchment').forEach(f=>{const [lon,lat]=f.properties.label_position;L.marker([lat,lon],{icon:L.divIcon({className:'',html:`<span class="catchment-label">${esc(f.properties.id)}</span>`,iconSize:[45,24],iconAnchor:[22,12]}),keyboard:true,title:f.properties.id}).on('click',()=>inspect(f)).addTo(layerGroups[kind]);});
   }
   layerGroups.channel=L.geoJSON(channels,{style:{color:'#a1d7e2',weight:1.4,opacity:.65},interactive:false}).addTo(map);
   for(const kind of Object.keys(colors))addPoints([...holes,...instruments],kind);
-  const layers=[['Land & water',[['contour','LiDAR contours · 2 m'],['watershed','Watershed boundary'],['catchment','MH1–MH9 catchments'],['channel','Drainage network']]],['Monitoring network',[['well','Wells & moisture holes'],['piezometer','Piezometers'],['weather','Weather station'],['outlet','Main catchment outlet']]],['Field sensors · February 2024',[['sapflow','Sap-flow waypoints'],['soil','Soil-moisture waypoints']]]];
-  $('layer-list').innerHTML=layers.map(([group,list])=>`<div class="layer-group">${group}</div>`+list.map(([kind,label])=>`<label class="layer-row"><input type="checkbox" data-layer="${kind}" ${enabled.has(kind)?'checked':''}><i class="dot" style="--c:${colors[kind]||'#c0ec94'}"></i>${label}<span class="count">${kind==='contour'?'10 m index':kind==='channel'?channels.length:features.filter(f=>f.geometry&&f.properties.kind===kind).length}</span></label>`).join('')).join('');
+  const layers=[['Land & water',[['canopy','Canopy · 2019'],['coverage','LiDAR point coverage'],['contour','LiDAR contours · 2 m'],['watershed','Watershed boundary'],['catchment','MH1–MH9 catchments'],['channel','Drainage network']]],['Monitoring network',[['well','Wells & moisture holes'],['piezometer','Piezometers'],['weather','Weather station'],['outlet','Main catchment outlet']]],['Field sensors · February 2024',[['sapflow','Sap-flow waypoints'],['soil','Soil-moisture waypoints']]]];
+  $('layer-list').innerHTML=layers.map(([group,list])=>`<div class="layer-group">${group}</div>`+list.map(([kind,label])=>`<label class="layer-row"><input type="checkbox" data-layer="${kind}" ${enabled.has(kind)?'checked':''}><i class="dot" style="--c:${colors[kind]||'#c0ec94'}"></i>${label}<span class="count">${kind==='canopy'?'1 m':kind==='coverage'?'footprint':kind==='contour'?'10 m index':kind==='channel'?channels.length:features.filter(f=>f.geometry&&f.properties.kind===kind).length}</span></label>`).join('')).join('');
   document.querySelectorAll('[data-layer]').forEach(el=>el.onchange=()=>setLayer(el.dataset.layer,el.checked));
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>view(b.dataset.view));
   document.querySelectorAll('[data-basemap]').forEach(b=>b.onclick=()=>setBasemap(b.dataset.basemap));
@@ -181,14 +187,15 @@ async function init() {
   $('mobile-layers').onclick=()=>{const open=$('sidebar').classList.toggle('open');$('mobile-layers').setAttribute('aria-expanded',String(open));};
   $('hole-count').textContent=manifest.borehole_records;$('depth-count').textContent=manifest.known_depths;
   $('inventory-button').onclick=()=>{inventory();$('inventory').showModal();};$('inventory-search').oninput=inventory;
-  $('methods-content').innerHTML=`<p>Compiled ${manifest.compiled}. This first atlas covers the Mountain House research catchment within Rancho Venada; it is not a ranch property map.</p><h3>Read the subsurface carefully</h3><p>${manifest.borehole_records} borehole records · ${manifest.mapped_boreholes} mapped positions · ${manifest.known_depths} documented depths. MH3P6 was abandoned and has no mapped coordinate. All known holes remain searchable in the inventory.</p><ul>${manifest.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul><h3>Placement that needs confirmation</h3><p>MH7W4 uses its south-slope position from the retired February 2019 KML, consistent with the figures in both papers. The metadata coordinate is near MH8W1 on the north slope. MH8W1 is also located from the retired KML because its metadata coordinates are blank. Both points are marked provisional.</p><h3>LiDAR contours</h3><p>Contours follow the native approximately 1 m MountainHouseClip DEM at 2 m elevation intervals, with stronger 10 m index lines. Index contours remain visible at the overview scale; zoom in for the 2 m detail. The 3D view shows 10 m index contours draped over its display mesh. The layer switch controls both views. Missing DEM cells are masked; lines are simplified within 0.6 m and isolated segments shorter than 8 m are omitted.</p><h3>Terrain & depth</h3><p>The native approximately 1 m MountainHouseClip DEM is resampled to a 10 m display mesh. The 3D surface uses metric NAD83 / UTM zone 10N coordinates. Elevation and depth share a 1:1 scale by default; the optional 3× mode exaggerates both. Shaft widths are enlarged. Light screen segments are drawn only where a screen interval is documented. The atlas does not reconstruct a groundwater surface or geological contacts.</p><h3>Source records</h3><ul>${manifest.sources.map(s=>`<li>${s.url?`<a href="${s.url}" target="_blank" rel="noopener">${esc(s.title)} ↗</a>`:esc(s.title)}${s.note?' · '+esc(s.note):''}</li>`).join('')}</ul><p>Drive links retain their existing access permissions. This site contains compact derived map products; full drilling notes, manuscripts, raw data and credentials stay outside the public repository.</p><h3>Continue building</h3><p>Next layers: reconciled completion logs, tree mortality and crown surveys, and water-year hydrologic bundles with freshness and provenance. These observations are not yet represented here.</p><p><a href="data/manifest.json" download>Download source manifest ↗</a> · <a href="data/boreholes.geojson" download>Download the full borehole inventory ↗</a></p>`;
+  $('methods-content').innerHTML=`<p>Compiled ${manifest.compiled}. This first atlas covers the Mountain House research catchment within Rancho Venada; it is not a ranch property map.</p><h3>Read the subsurface carefully</h3><p>${manifest.borehole_records} borehole records · ${manifest.mapped_boreholes} mapped positions · ${manifest.known_depths} documented depths. MH3P6 was abandoned and has no mapped coordinate. All known holes remain searchable in the inventory.</p><ul>${manifest.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul><h3>Placement that needs confirmation</h3><p>MH7W4 uses its south-slope position from the retired February 2019 KML, consistent with the figures in both papers. The metadata coordinate is near MH8W1 on the north slope. MH8W1 is also located from the retired KML because its metadata coordinates are blank. Both points are marked provisional.</p><h3>Measured canopy · April 2019</h3><p>The 2D canopy-height raster is the maximum eligible measured-return height above the matching bare-earth DEM in each 1 m cell. Cells without returns are transparent. The 3D cloud contains ${canopyMeta.cloud.count.toLocaleString()} sampled actual returns, with the same height colors as Rivendell and SFPUC. The display uses 0.6 m voxel thinning within processing chunks, seeded sampling and a final duplicate-voxel check, then 0.1 m coordinate quantization. Source point elevations are retained, without vertical offsets.</p><p>Survey: 16–17 April 2019. The point footprint covers ${(canopyMeta.coverage.catchment_fraction*100).toFixed(1)}% of the archived Mountain House catchment; turn on LiDAR point coverage to see its edge. This historical snapshot does not establish present canopy condition, tree identity or mortality. Class 1 includes unclassified above-ground returns and can include non-vegetation objects. Ground and noise points are omitted from the cloud.</p><p>${esc(canopyMeta.attribution)} <a href="${canopyMeta.doi}" target="_blank" rel="noopener">Source survey ↗</a> · CC BY 4.0. <a href="data/canopy.json">Processing and elevation checks ↗</a></p><h3>LiDAR contours</h3><p>Contours follow the matching 2019 NCALM bare-earth DEM at 1 m resolution at 2 m elevation intervals, with stronger 10 m index lines. Index contours remain visible at the overview scale; zoom in for the 2 m detail. The 3D view shows 10 m index contours draped over its display mesh. The layer switch controls both views. Missing DEM cells are masked; lines are simplified within 0.6 m and isolated segments shorter than 8 m are omitted.</p><h3>Terrain & depth</h3><p>The 2019 NCALM bare-earth DEM (0.25 m source, resampled to 1 m) supplies ground elevations and the 10 m 3D display mesh, in NAVD88 (GEOID 12B). The 3D surface uses metric NAD83 / UTM zone 10N coordinates. Elevation and depth share a 1:1 scale by default; the optional 3× mode exaggerates both. Shaft widths are enlarged. Light screen segments are drawn only where a screen interval is documented. The atlas does not reconstruct a groundwater surface or geological contacts.</p><h3>Source records</h3><ul>${manifest.sources.map(s=>`<li>${s.url?`<a href="${s.url}" target="_blank" rel="noopener">${esc(s.title)} ↗</a>`:esc(s.title)}${s.note?' · '+esc(s.note):''}</li>`).join('')}</ul><p>Drive links retain their existing access permissions. This site contains compact derived map products; full drilling notes, manuscripts, raw data and credentials stay outside the public repository.</p><h3>Continue building</h3><p>Next layers: reconciled completion logs, tree mortality and crown surveys, and water-year hydrologic bundles with freshness and provenance. These observations are not yet represented here.</p><p><a href="data/manifest.json" download>Download source manifest ↗</a> · <a href="data/boreholes.geojson" download>Download the full borehole inventory ↗</a></p>`;
   $('methods-button').onclick=()=>$('methods').showModal();document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());
+  $('canopy-opacity').oninput=e=>{const value=Number(e.target.value);canopyRaster.setOpacity(value);scene?.canopyOpacity(value);};
   $('export').onclick=exportData;$('toggle-3d').onclick=toggle3D;
   $('scene-home').onclick=()=>scene?.focus(currentView==='watershed'?'network':currentView);$('scene-top').onclick=()=>scene?.top();
-  $('ground-opacity').oninput=e=>scene?.opacity(Number(e.target.value));$('vertical-scale').onchange=e=>{scene?.verticalScale(Number(e.target.value));$('view-subtitle').textContent=Number(e.target.value)===1?'Terrain & boreholes · true metric scale':'Terrain & boreholes · vertical scale exaggerated 3×';};
+  $('ground-opacity').oninput=e=>scene?.opacity(Number(e.target.value));$('vertical-scale').onchange=e=>{scene?.verticalScale(Number(e.target.value));$('view-subtitle').textContent=Number(e.target.value)===1?'Canopy, terrain & boreholes · true metric scale':'Canopy, terrain & boreholes · vertical scale exaggerated 3×';};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('inspector').hidden=true;closeMobileLayers();}});
   map.on('zoomend',refreshLabels);view('network');refreshLabels();updateStatus();$('loading').hidden=true;
   // Exposed read-only data and map references support reproducible browser QA.
-  window.ranchoAtlas={map,holes,catchments,instruments,contours,manifest,get scene(){return scene;}};
+  window.ranchoAtlas={map,holes,catchments,instruments,contours,manifest,canopyMeta,get scene(){return scene;}};
 }
 init().catch(error=>{console.error(error);$('loading').textContent='The atlas could not load. Reload to try again. '+error.message;});

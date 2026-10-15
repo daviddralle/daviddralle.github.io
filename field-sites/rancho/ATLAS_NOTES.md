@@ -17,14 +17,42 @@ Both use the Rivendell atlas palette, serif titles and compact field controls.
 - Terrain-derived drainage lines and February 2024 weather, sap-flow and
   soil-moisture GPS waypoints. These are historical installations, not a claim
   about current operating status or channel wetness.
-- All elevations use **MountainHouseClip.tif** directly, as requested. No metadata
-  elevations or offsets are used. The source DEM is approximately 1 m resolution;
-  the browser terrain mesh is resampled to 10 m. Borehole collars use DEM samples.
+- All elevations now use the **2019 NCALM CA19_Dietrich bare-earth DEM**,
+  resampled from its 0.25 m source raster to 1 m. No metadata elevations or
+  offsets are used. This matching DEM keeps terrain, borehole collars and
+  measured point elevations on the same NAVD88 (GEOID 12B) reference.
+  The browser terrain mesh is resampled to 10 m; invalid triangles are omitted.
 
 The `data/manifest.json` and each feature preserve provenance. The two supplied
 papers were used to check the network layout and deep-well screen descriptions.
 The Whiting manuscript and full private source records are not redistributed.
 Hahm et al. (2022): https://doi.org/10.1029/2021WR031781.
+
+## Measured canopy and coverage
+
+The 2D canopy raster and 3D point cloud come from the **16–17 April 2019 NCALM
+survey**, distributed by OpenTopography: https://doi.org/10.5069/G9FX77MW (CC BY 4.0).
+The local mortality-project files were smaller excerpts, so the public source
+was cropped to encompass Mountain House and its monitoring network.
+
+- The 1 m raster stores the maximum eligible return height above the matching
+  bare-earth DEM per cell. Cells without returns are transparent. No crowns
+  or heights are invented by interpolation.
+- The 3D layer retains actual class 1/3/4/5 returns 0.5–85 m above the DEM.
+  Class 1 is unclassified and may include non-vegetation objects. Ground,
+  noise and withheld returns are excluded.
+- Display processing uses 0.6 m voxel thinning within chunks, seeded reservoir
+  sampling to at most 1.2 million returns, and a final duplicate-voxel removal.
+  Coordinates are quantized to 0.1 m for compact delivery. Horizontal positions
+  are transformed to NAD83 UTM 10N; absolute vertical values are not shifted.
+- Raster and cloud use the Rivendell/SFPUC height color ramp. The point footprint
+  covers 97.4% of the archived watershed; the coverage layer shows the boundary.
+  Missing cells stay transparent and missing 3D terrain triangles are omitted.
+- This is a historical canopy snapshot, not a tree identification or mortality
+  classification. The 2023 excerpts are not mixed into it.
+
+`data/canopy.json` records source tile URLs and hashes, counts, ground-return
+checks, sampling and coordinate encoding. Raw LAZs and source DEMs stay external.
 
 ## LiDAR contours and thumbnail
 
@@ -36,7 +64,7 @@ layer toggle also controls the 3D index contours, clipped to the terrain extent
 and draped just above the 10 m display mesh. No elevation offsets are applied.
 
 `atlas/preview.webp` is a cartographic thumbnail rendered from the DEM and public
-vector layers using `scripts/build_rancho_thumbnail.py --dem /path/to/MountainHouseClip.tif`.
+vector layers using `scripts/build_rancho_thumbnail.py --dem /private/path/to/rancho-2019-dem.tif`.
 It illustrates MH5–MH7 and their monitoring network; it is not a photograph.
 
 ## Interpretation decisions
@@ -68,12 +96,22 @@ current Google Sheet with the connected Drive tools, saving the `values` row arr
 from `Summary meta!A1:AK85` to a private temporary JSON file. Then run:
 
 ```sh
+python scripts/prepare_rancho_lidar.py --work '/private/path/to/rancho-lidar'
+
 python scripts/build_rancho_atlas.py \
   --source-root '/path/to/AVR and Rancho Venada' \
-  --metadata '/private/path/to/summary-meta-rows.json'
+  --metadata '/private/path/to/summary-meta-rows.json' \
+  --dem '/private/path/to/rancho-2019-dem.tif' \
+  --dem-source 'NCALM CA19_Dietrich 2019 bare-earth DEM, resampled from 0.25 m to 1 m' \
+  --vertical-datum 'NAVD88 (GEOID 12B), meters'
+
+python scripts/build_rancho_canopy.py \
+  --tiles '/private/path/to/2019-laz-tiles' \
+  --dem '/private/path/to/rancho-2019-dem.tif' \
+  --survey-coverage '/private/path/to/CA19_Dietrich.geojson'
 ```
 
-Dependencies: numpy, scipy, rasterio, pyproj, shapely, contourpy and Pillow. The builder only
+Dependencies: numpy, scipy, rasterio, pyproj, shapely, contourpy, laspy, lazrs and Pillow. The builder only
 reads the specific GIS and metadata sources used here; it does not ingest raw
 hydrologic observations, manuscripts, tree surveys or credentials. `data/qa.json`
 lists unlocated holes, missing depths and provisional positions.

@@ -9,7 +9,7 @@ export async function createScene(atlas) {
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
   renderer.setClearColor('#11262d');container.prepend(renderer.domElement);
-  renderer.domElement.setAttribute('aria-label','3D terrain and boreholes; use Explore buttons and the borehole inventory for keyboard navigation');
+  renderer.domElement.setAttribute('aria-label','3D LiDAR canopy, terrain and boreholes; use Explore buttons and the borehole inventory for keyboard navigation');
   const world=new THREE.Scene(),root=new THREE.Group();world.add(root);
   const camera=new THREE.PerspectiveCamera(42,1,.5,15000);
   const controls=new OrbitControls(camera,renderer.domElement);
@@ -30,7 +30,7 @@ export async function createScene(atlas) {
     uv.push(c/(nx-1),1-r/(ny-1));
     const h=THREE.MathUtils.clamp((z-130)/400,0,1),color=new THREE.Color().lerpColors(new THREE.Color('#47695d'),new THREE.Color('#b4bc87'),h);
     vertexColors.push(color.r,color.g,color.b);
-    if(r<ny-1&&c<nx-1){const a=r*nx+c,b=a+1,d=a+nx,e2=d+1;indices.push(a,d,b,b,d,e2);}
+    if(r<ny-1&&c<nx-1&&(!terrain.valid||[terrain.valid[r][c],terrain.valid[r][c+1],terrain.valid[r+1][c],terrain.valid[r+1][c+1]].every(Boolean))){const a=r*nx+c,b=a+1,d=a+nx,e2=d+1;indices.push(a,d,b,b,d,e2);}
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();
   const texture=await new THREE.TextureLoader().loadAsync('data/terrain-texture.jpg');texture.colorSpace=THREE.SRGBColorSpace;
@@ -41,6 +41,22 @@ export async function createScene(atlas) {
   const groups={},labels=[],pickables=[],collars=new Map();
   const colors={well:'#63dbea',piezometer:'#efbf73',weather:'#ffffff',outlet:'#ff947a',sapflow:'#c0ec94',soil:'#b69ce9'};
   function group(kind){if(!groups[kind]){groups[kind]=new THREE.Group();root.add(groups[kind]);}return groups[kind];}
+  const cloudMeta=atlas.canopyMeta.cloud;
+  const cloudResponse=await fetch('data/'+cloudMeta.url);
+  if(!cloudResponse.ok)throw Error('Canopy point cloud unavailable');
+  const packed=new Uint16Array(await cloudResponse.arrayBuffer());
+  if(packed.length!==cloudMeta.count*4)throw Error('Incomplete canopy point cloud');
+  const cloudPositions=new Float32Array(cloudMeta.count*3),cloudColors=new Float32Array(cloudMeta.count*3);
+  const ramp=cloudMeta.color_stops.map(([height,color])=>[height,new THREE.Color(color)]);
+  for(let i=0;i<cloudMeta.count;i++){
+    const values=Array.from(packed.subarray(i*4,i*4+4),(v,j)=>v*cloudMeta.scale+cloudMeta.offset[j]);
+    position(...values.slice(0,3)).toArray(cloudPositions,i*3);
+    const h=values[3];let j=1;while(j<ramp.length-1&&h>ramp[j][0])j++;
+    ramp[j-1][1].clone().lerp(ramp[j][1],THREE.MathUtils.clamp((h-ramp[j-1][0])/(ramp[j][0]-ramp[j-1][0]),0,1)).toArray(cloudColors,i*3);
+  }
+  const cloudGeometry=new THREE.BufferGeometry();cloudGeometry.setAttribute('position',new THREE.BufferAttribute(cloudPositions,3));cloudGeometry.setAttribute('color',new THREE.BufferAttribute(cloudColors,3));
+  const cloudMaterial=new THREE.PointsMaterial({size:1.7,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:.9,depthWrite:false});
+  const cloud=new THREE.Points(cloudGeometry,cloudMaterial);cloud.renderOrder=2;group('canopy').add(cloud);
   function segment(points,color,dashed=false){const g=new THREE.BufferGeometry().setFromPoints(points),m=dashed?new THREE.LineDashedMaterial({color,dashSize:1,gapSize:.6,depthTest:false}):new THREE.LineBasicMaterial({color,transparent:true,opacity:.8});const l=new THREE.Line(g,m);if(dashed)l.computeLineDistances();return l;}
   function shaft(a,b,color,radius){const g=new THREE.CylinderGeometry(radius,radius,a.distanceTo(b),7),m=new THREE.MeshBasicMaterial({color,depthTest:false});const mesh=new THREE.Mesh(g,m);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.renderOrder=4;return mesh;}
   for(const f of [...atlas.holes,...atlas.instruments]){
@@ -67,6 +83,7 @@ export async function createScene(atlas) {
   if(!contourResponse.ok)throw Error('Contour data unavailable');
   const contourData=await contourResponse.json();
   for(const f of contourData.features){const paths=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];for(const path of paths)pathLine(path,'contour','#536052');}
+  for(const f of atlas.coverage.features){const polygons=f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates];for(const polygon of polygons)for(const ring of polygon)pathLine(ring,'coverage','#f2dfb1',true);}
   let active=false,frame=0,vertical=1,selectedId=null,visible=new Set(atlas.enabled),lastFocus='network';
   function resize(){const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
   new ResizeObserver(()=>{if(active)resize();}).observe(container);
@@ -112,6 +129,6 @@ export async function createScene(atlas) {
   });
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();document.getElementById('scene-loading').hidden=false;document.getElementById('scene-loading').textContent='3D graphics context lost. Return to the map or reload to reopen 3D.';});
   return {get active(){return active;},open(){active=true;resize();render();},close(){active=false;cancelAnimationFrame(frame);},focus,focusHole,highlight,setVisible,
-    opacity(value){material.opacity=value;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
+    canopyOpacity(value){cloudMaterial.opacity=value;},opacity(value){material.opacity=value;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
     top(){const d=camera.position.distanceTo(controls.target);camera.position.copy(controls.target).add(new THREE.Vector3(0,d,.01));controls.update();}};
 }
