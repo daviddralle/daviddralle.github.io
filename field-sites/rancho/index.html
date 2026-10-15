@@ -519,12 +519,22 @@
       html { scroll-behavior: auto; }
     }
   </style>
+  <link rel="stylesheet" href="rancho.css">
+  <link rel="stylesheet" href="weather-atlas.css">
+  <link rel="canonical" href="https://daviddralle.github.io/field-sites/rancho/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Rancho Venada Weather & Climate">
+  <meta property="og:description" content="Live weather and the historical meteorological record at Rancho Venada.">
+  <meta property="og:url" content="https://daviddralle.github.io/field-sites/rancho/">
+  <meta property="og:image" content="https://daviddralle.github.io/assets/rancho-venada.webp">
+  <meta name="twitter:card" content="summary_large_image">
 </head>
-<body>
+<body class="weather-page">
+<nav class="site-nav" aria-label="Rancho Venada views"><a href="/field-sites/">← Field sites</a><div><a href="./" aria-current="page">Weather</a><a href="atlas/">Field Atlas</a></div></nav>
   <div class="site-shell">
     <header>
       <nav class="topbar" aria-label="Rancho Venada navigation">
-        <a class="brand" href="/field-sites/"><span class="brand-mark">RV</span><span>Field sites</span></a>
+        <a class="brand" href="atlas/"><span class="brand-mark">RV</span><span>Rancho Venada <small>Weather</small></span></a>
         <div class="nav-links">
           <a href="#sources">Data sources</a>
           <div class="unit-toggle" id="unit-toggle" role="group" aria-label="Measurement units">
@@ -536,8 +546,8 @@
       <section class="hero">
         <div class="hero-inner">
           <div>
-            <p class="eyebrow">Rancho Venada field station</p>
-            <h1>Meteorological observations</h1>
+            <p class="eyebrow">Mountain House · California Coast Ranges</p>
+            <h1>Weather & climate</h1>
             <p class="hero-copy">Current Ambient station observations and a quality-controlled daily record using Dendra station data and PRISM precipitation.</p>
           </div>
           <aside class="live-panel" aria-live="polite">
@@ -671,7 +681,7 @@
   <script>
     const $ = (id) => document.getElementById(id);
     const sourceColors = {
-      ambient: '#2f6253',
+      ambient: '#c0ec94',
       'ambient-partial': '#789b82',
       dendra: '#78adbe',
       'dendra-partial': '#b3d0d9',
@@ -697,15 +707,15 @@
       }
     };
     const recentMetrics = {
-      temp_f: { label: 'Temperature', dimension: 'temperature', color: '#c66a3c', type: 'line', digits: { us: 1, metric: 1 } },
-      rain_in: { label: 'Rain', dimension: 'precipitation', color: '#2d7d9a', type: 'bar', digits: { us: 3, metric: 2 } },
-      humidity_pct: { label: 'Humidity', dimension: 'humidity', color: '#527f8e', type: 'line', digits: { us: 0, metric: 0 } },
-      wind_mph: { label: 'Wind', dimension: 'speed', color: '#789b82', type: 'line', digits: { us: 1, metric: 1 } }
+      temp_f: { label: 'Temperature', dimension: 'temperature', color: '#efbf73', type: 'line', digits: { us: 1, metric: 1 } },
+      rain_in: { label: 'Rain', dimension: 'precipitation', color: '#63dbea', type: 'bar', digits: { us: 3, metric: 2 } },
+      humidity_pct: { label: 'Humidity', dimension: 'humidity', color: '#b69ce9', type: 'line', digits: { us: 0, metric: 0 } },
+      wind_mph: { label: 'Wind', dimension: 'speed', color: '#c0ec94', type: 'line', digits: { us: 1, metric: 1 } }
     };
     const historyMetrics = {
-      wy_cumulative_in: { label: 'Cumulative water-year precipitation', dimension: 'precipitation', color: '#2d7d9a', type: 'line', digits: { us: 2, metric: 1 }, beginAtZero: true, cumulative: true },
-      precip_in: { label: 'Daily precipitation', dimension: 'precipitation', color: '#2d7d9a', type: 'bar', digits: { us: 2, metric: 1 } },
-      temp_mean_f: { label: 'Daily mean temperature', dimension: 'temperature', color: '#c66a3c', type: 'line', digits: { us: 1, metric: 1 } }
+      wy_cumulative_in: { label: 'Cumulative water-year precipitation', dimension: 'precipitation', color: '#63dbea', type: 'line', digits: { us: 2, metric: 1 }, beginAtZero: true, cumulative: true },
+      precip_in: { label: 'Daily precipitation', dimension: 'precipitation', color: '#63dbea', type: 'bar', digits: { us: 2, metric: 1 } },
+      temp_mean_f: { label: 'Daily mean temperature', dimension: 'temperature', color: '#efbf73', type: 'line', digits: { us: 1, metric: 1 } }
     };
 
     let weatherData;
@@ -791,12 +801,12 @@
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#65716b', maxTicksLimit: historical ? 10 : 8, maxRotation: 0 }
+            ticks: { color: '#a6bbc0', maxTicksLimit: historical ? 10 : 8, maxRotation: 0 }
           },
           y: {
             beginAtZero: metric.type === 'bar' || metric.beginAtZero === true,
-            grid: { color: 'rgba(47,98,83,.09)' },
-            ticks: { color: '#65716b', callback: (tick) => `${tick}${metric.unit}` }
+            grid: { color: 'rgba(166,187,192,.14)' },
+            ticks: { color: '#a6bbc0', callback: (tick) => `${tick}${metric.unit}` }
           }
         },
         plugins: {
@@ -1017,7 +1027,7 @@
           return;
         }
         Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, sans-serif';
-        Chart.defaults.color = '#65716b';
+        Chart.defaults.color = '#a6bbc0';
         renderRecentChart();
         renderHistoryChart();
       })

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#11262d"><title>Rancho Venada Field Atlas</title>
+  <meta name="description" content="Explore Mountain House catchments, boreholes, piezometers and subsurface monitoring at Rancho Venada.">
+  <link rel="stylesheet" href="vendor/leaflet.css"><link rel="stylesheet" href="../rancho.css">
+  <script defer src="vendor/leaflet.js"></script><script defer src="vendor/proj4.js"></script><script defer src="app.js"></script>
+  <link rel="canonical" href="https://daviddralle.github.io/field-sites/rancho/atlas/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Rancho Venada Field Atlas">
+  <meta property="og:description" content="Explore LiDAR terrain, Mountain House catchments, boreholes and the subsurface monitoring network.">
+  <meta property="og:url" content="https://daviddralle.github.io/field-sites/rancho/atlas/">
+  <meta property="og:image" content="https://daviddralle.github.io/field-sites/rancho/atlas/preview.webp">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<nav class="site-nav" aria-label="Rancho Venada views"><a href="/field-sites/">← Field sites</a><div><a href="../">Weather</a><a href="./" aria-current="page">Field Atlas</a></div></nav>
+<header class="atlas-header"><div class="brand">
+  <svg viewBox="0 0 72 60" aria-hidden="true"><path d="M3 34 18 16 34 29 52 10 69 31V53H3Z" fill="#203f42" stroke="#a6bbc0"/><path d="m3 40 15-17 16 15 18-20 17 22M3 47l15-17 16 15 18-20 17 22" fill="none" stroke="#628779"/><path d="M18 16v29m34-35v37" stroke="#63dbea" stroke-width="2"/><circle cx="18" cy="16" r="3" fill="#c0ec94"/><circle cx="52" cy="10" r="3" fill="#c0ec94"/></svg>
+  <div><div class="eyebrow">Mountain House · California Coast Ranges</div><h1>Rancho Venada <span>Field Atlas</span></h1></div></div>
+  <div class="header-actions"><button id="mobile-layers" aria-expanded="false" aria-controls="sidebar">Layers</button><button id="toggle-3d" aria-pressed="false">3D subsurface</button><button id="methods-button">Sources & notes</button><button id="export" class="accent">Export map data ↗</button></div>
+</header>
+<main class="atlas-main">
+<aside id="sidebar" aria-label="Map layers and search">
+  <div class="side-section"><label class="eyebrow" for="search">Find a field feature</label><div class="search-wrap"><input id="search" type="search" placeholder="MH7W1, piezometer, weather…" autocomplete="off"><button id="clear-search" aria-label="Clear search">×</button></div><div id="search-results" role="status"></div></div>
+  <div class="side-section"><h2>Explore Mountain House</h2><div class="presets"><button class="wide selected" data-view="watershed">Whole watershed</button><button class="wide" data-view="network">Monitoring network</button><button data-view="MH3">MH3</button><button data-view="MH7">MH7</button><button data-view="MH8">MH8</button></div><p class="small muted">A sequence of small catchments along the east side of Mountain House Creek.</p></div>
+  <div class="side-section"><h2>Map layers</h2><div id="layer-list"></div></div>
+  <div class="side-section"><div class="eyebrow">Below the oak savanna</div><div class="stats"><div><strong id="hole-count">—</strong><span>borehole records</span></div><div><strong id="depth-count">—</strong><span>known depths</span></div></div><p class="small muted">Ridge wells, moisture-monitoring holes and shallow piezometers, including the 2023 drilling campaign.</p><button id="inventory-button" class="link-button">Browse the borehole inventory →</button></div>
+  <div class="side-section"><div class="eyebrow">A growing field atlas</div><p class="small muted">Start with the terrain and monitoring network. Tree mortality, detailed drilling logs and hydrologic time series will build on this base.</p><p class="small muted">Historical installations; current operating status is not verified. Select a feature for its source and placement notes.</p></div>
+</aside>
+<section class="map-shell" aria-label="Interactive Rancho Venada field map">
+  <div id="map"></div><div id="scene" hidden><div id="scene-labels"></div></div>
+  <div class="map-top"><div class="map-title"><span class="eyebrow">Rancho Venada research site</span><strong id="view-title">Mountain House watershed</strong><small id="view-subtitle">Terrain, catchments & field observations</small></div><div class="map-tools" id="basemaps" role="group" aria-label="Map background"><button data-basemap="terrain" class="selected" aria-pressed="true">Terrain</button><button data-basemap="satellite" aria-pressed="false">Satellite</button><button data-basemap="topo" aria-pressed="false">Topo</button></div></div>
+  <section id="scene-tools" class="scene-tools" aria-label="3D controls" hidden><strong>See below the surface</strong><p>True metric geometry at 1×. Shaft widths enlarged for visibility.</p><div><button id="scene-home">Reset view</button> <button id="scene-top">Top down</button></div><label for="ground-opacity">Ground opacity</label><input id="ground-opacity" type="range" min="0" max="1" step="0.05" value="0.45"><label for="vertical-scale">Vertical scale</label><select id="vertical-scale"><option value="1">1× · true scale</option><option value="3">3× · exaggerated</option></select><p>Solid: completed depth<br>Dashed: drilled depth only<br>Collar only: depth unknown</p><p>Drag to orbit · scroll to zoom<br>Right-drag to pan</p></section>
+  <div id="scene-loading" role="status" hidden></div>
+  <aside id="inspector" aria-label="Selected field feature" hidden><button id="close-inspector" aria-label="Close feature details">×</button><div id="feature-details"></div></aside>
+  <div class="map-bottom"><div class="legend"><i class="dot" style="--c:#63dbea"></i> Wells <i class="dot" style="--c:#efbf73"></i> Piezometers <i class="dot" style="--c:#c0ec94"></i> Catchments</div><span id="status" role="status">Opening the field atlas…</span></div>
+  <div id="loading" role="status">Opening the field atlas…</div>
+</section>
+</main>
+<dialog id="methods"><div class="dialog-header"><div><div class="eyebrow">Sources, methods & coverage</div><h2>A map with a traceable foundation.</h2></div><button data-close="methods" aria-label="Close sources">×</button></div><div id="methods-content" class="dialog-content"></div></dialog>
+<dialog id="inventory"><div class="dialog-header"><div><div class="eyebrow">2018–2023 monitoring network</div><h2>Borehole inventory</h2></div><button data-close="inventory" aria-label="Close inventory">×</button></div><div class="inventory-controls"><label class="screen-reader" for="inventory-search">Filter borehole inventory</label><input id="inventory-search" type="search" placeholder="Filter by ID, type or monitoring group"><span id="inventory-count" class="small muted"></span></div><p class="small muted">Depths are below ground surface. Drilled depths do not establish final casing or screened intervals. Unlocated and abandoned records remain in this inventory.</p><div class="table-wrap"><table><thead><tr><th scope="col">Hole</th><th scope="col">Type</th><th scope="col">Depth</th><th scope="col">Depth basis</th><th scope="col">Position</th></tr></thead><tbody id="inventory-rows"></tbody></table></div></dialog>
+</body></html>
