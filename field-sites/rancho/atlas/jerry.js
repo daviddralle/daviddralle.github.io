@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three/three.module.js';
-import {createMule,createBottle} from './jerry-model.js?v=9c1657a80869';
-import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=fd6437222ac8';
+import {bindJerryCameraGestures} from './jerry-camera.js?v=66903a505cf4';
+import {createMule,createBottle} from './jerry-model.js?v=3b74120aaf54';
+import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=93a43efda54c';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 
 export function createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical}){
@@ -38,7 +39,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   <div id="jerry-library-poems"></div><details class="jerry-reading"><summary>Reading behind the poems · 10 essays</summary>${sources.map(a=>`<p><a href="${a.url}" target="_blank" rel="noopener">${a.title} ↗</a><br><small>${a.authors} · ${a.date}</small></p>`).join('')}</details>`;
   document.body.append(library);
   const $=id=>document.getElementById(id),esc=t=>t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let enabled=false,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,follow=true,arming=false,drag=null,dragged=false,lastPhase='',lastStatus='',savedCamera=null,savedTarget=null,savedMin=15,followSnap=true;
+  let enabled=false,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,follow=true,arming=false,drag=null,dragged=false,lastPhase='',lastStatus='',savedCamera=null,savedTarget=null,savedMin=15,followSnap=true,followZoom=1;
   const shadowGeometry=new THREE.BufferGeometry();shadowGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(33*3),3));
   const shadowIndices=[];for(let i=1;i<=32;i++)shadowIndices.push(0,i,i===32?1:i+1);shadowGeometry.setIndex(shadowIndices);
   const shadow=new THREE.Mesh(shadowGeometry,new THREE.MeshBasicMaterial({color:'#102326',transparent:true,opacity:.2,side:THREE.DoubleSide,depthWrite:false}));shadow.renderOrder=-2;overlay.add(shadow);
@@ -53,7 +54,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   function drop(p){if(!p||!motion.drop(...p)){$('jerry-drop-help').textContent='Choose a spot on the LiDAR terrain, away from its edge.';return;}bottle.position.copy(worldPosition(...p));bottle.visible=true;card.hidden=true;shell.classList.remove('jerry-reading-poem');lastPhase='';setPaused(false);cancelDrop();setFollow(true);}
   function showThinking(){card.classList.add('composing');card.hidden=false;shell.classList.add('jerry-reading-poem');}
   function showPoem(){card.classList.remove('composing');const poem=deck.next(),source=sources.find(a=>a.id===poem.source);$('jerry-poem-topic').textContent=poem.topic+' · '+String(poem.id).padStart(3,'0');$('jerry-poem-lines').textContent=poem.lines.join('\n');$('jerry-poem-source').textContent='Inspiration: '+source.title+' ↗';$('jerry-poem-source').href=source.url;card.hidden=false;shell.classList.add('jerry-reading-poem');}
-  function reset(){cancelDrop();motion.reset();bottle.visible=false;card.hidden=true;shell.classList.remove('jerry-reading-poem');lastPhase='';setFollow(true);}
+  function reset(){followZoom=1;cancelDrop();motion.reset();bottle.visible=false;card.hidden=true;shell.classList.remove('jerry-reading-poem');lastPhase='';setFollow(true);}
   function toggle(){
     enabled=!enabled;$('jerry-toggle').setAttribute('aria-pressed',String(enabled));$('jerry-panel').hidden=!enabled;$('jerry-quick').hidden=!enabled;shell.classList.toggle('jerry-on',enabled);mule.root.visible=homeRing.visible=enabled;label.hidden=homeLabel.hidden=!enabled;
     if(enabled){savedCamera=camera.position.clone();savedTarget=controls.target.clone();savedMin=controls.minDistance;controls.minDistance=8;reset();setPaused(matchMedia('(prefers-reduced-motion: reduce)').matches);}
@@ -79,7 +80,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   canvas.addEventListener('pointerdown',e=>{if(arming){e.preventDefault();e.stopImmediatePropagation();}},true);
   canvas.addEventListener('pointerup',e=>{if(arming&&!drag){e.preventDefault();e.stopImmediatePropagation();drop(pick(e));}},true);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&arming){cancelDrop();e.preventDefault();}});
-  controls.addEventListener('start',()=>{if(enabled&&follow&&!arming)setFollow(false);});
+  bindJerryCameraGestures({canvas,distance:()=>camera.position.distanceTo(controls.target),canInteract:()=>enabled&&follow&&!arming&&controls.enabled,onDrag:()=>setFollow(false),onZoom:ratio=>{followZoom=Math.max(.2,Math.min(200,followZoom*ratio));}});
   const dustCount=36,dustData=new Float32Array(dustCount*3),dustAge=new Float32Array(dustCount).fill(2);
   const dustGeo=new THREE.BufferGeometry();dustGeo.setAttribute('position',new THREE.BufferAttribute(dustData,3));
   const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({color:'#d8bd8e',size:1.3,transparent:true,opacity:.25,depthWrite:false}));dust.visible=false;overlay.add(dust);let dustIndex=0,dustTime=0;
@@ -93,12 +94,12 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
     if(s.phase!==lastPhase){if(s.phase==='sip')bottle.visible=false;if(s.phase==='think')showThinking();if(s.phase==='poem')showPoem();lastPhase=s.phase;}
     if(follow){
       const target=mule.root.position.clone().add(new THREE.Vector3(0,s.phase==='think'||s.phase==='poem'?6:2.9,0));
-      const offset=new THREE.Vector3(14,6,21).multiplyScalar(Math.max(1,Math.min(2,.95/camera.aspect))).applyAxisAngle(new THREE.Vector3(0,1,0),mule.root.rotation.y);
+      const offset=new THREE.Vector3(14,6,21).multiplyScalar(followZoom*Math.max(1,Math.min(2,.95/camera.aspect))).applyAxisAngle(new THREE.Vector3(0,1,0),mule.root.rotation.y);
       const desired=target.clone().add(offset),e=desired.x+(x0+x1)/2,n=(y0+y1)/2-desired.z;
       if(valid(e,n))desired.y=Math.max(desired.y,worldPosition(e,n).y+5);
       const mix=followSnap?1:1-Math.exp(-dt*3);camera.position.lerp(desired,mix);controls.target.lerp(target,mix);followSnap=false;
     }
-    const text=arming?'Choose a wine stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='visit'?`At ${s.destination} · a quick look around`:s.phase==='poem'?'A thought from the hills · parked':s.phase==='fetch'?'A fine red? Taking the scenic shortcut':s.hop>0?'A little air over the ridge!':`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
+    const text=arming?'Choose a wine stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='poem'?'A thought from the hills · parked':s.phase==='fetch'?'A fine red? Taking the scenic shortcut':s.hop>0?'A little air over the ridge!':`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
     if(text!==lastStatus){$('jerry-status').textContent=text;lastStatus=text;}
     dust.visible=running&&s.speed>5;dustTime+=elapsed;
     if(dust.visible&&dustTime>.05){dustTime=0;dustAge[dustIndex]=0;const p=mule.root.position.clone().add(new THREE.Vector3(Math.sin(s.elapsed*17)*2,.8,0));p.toArray(dustData,dustIndex*3);dustIndex=(dustIndex+1)%dustCount;}

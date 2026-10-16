@@ -67,7 +67,8 @@ export function createMule(){
   mesh(body,new THREE.PlaneGeometry(.65,.16),new THREE.MeshBasicMaterial({map:tex}),0,1.24,1.615);
   root.scale.setScalar(2.4);
   return {root,animate(s,dt){
-    body.rotation.x=-s.pitch;body.rotation.z=s.roll;
+    const air=s.hop>0?Math.min(1,s.hop/.8):0;
+    body.rotation.x=-s.pitch-air*Math.max(-.24,Math.min(.32,s.vy*.045));body.rotation.z=s.roll+air*Math.sin(s.elapsed*5)*.07;
     body.position.y=s.speed>.1?Math.sin(s.elapsed*18)*.025:0;
     wheels.forEach(w=>w.rotation.x+=s.speed*dt/1.03);
     steering.rotation.z=Math.sin(s.heading)*.16;

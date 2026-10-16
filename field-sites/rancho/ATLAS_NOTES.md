@@ -240,12 +240,16 @@ Every activation and **Start at home** resets to the approximate circle-drive
 location interpreted from the user's marked satellite screenshot: UTM 10N
 E556769, N4332702. This is not a surveyed waypoint. The roaming route is fictional. It now leaves the drive promptly and visits
 MH3, MH7, MH8 well clusters and the weather station in a repeating circuit.
-Stops use offsets within 12 m of the published collars / RVWS; the Mule pauses
-briefly at each stop. Destination buttons also send him directly to these sites.
+Pass-through targets use offsets within 12 m of the published collars / RVWS;
+the Mule keeps moving through each destination. Only wine stops park him. Destination buttons also send him directly to these sites.
 Cruising is roughly twice the original speed, with turn, grade and arrival
 braking; this is arcade motion, not a real driving route. All route points and motion steps use valid DEM terrain;
-terrain slope changes produce bounded arcade hops. There are no boosts. The
-follow camera releases when the user orbits, pans, zooms, or chooses a map view.
+terrain slope changes produce bounded arcade jumps, now around 4 m high with
+more airtime, a nose-up launch and a slight airborne bank. Cruise speed is unchanged
+from the faster monitoring-site circuit. There are no boosts. The
+follow camera keeps tracking through wheel/trackpad zoom, touch pinch and middle-button
+zoom, retaining the chosen distance. A drag to orbit or pan releases follow; a
+simple click does not. Choosing a map view also releases follow.
 Pause is available; reduced-motion preferences start the mode paused. Leaving
 3D ends Jerry Mode and restores the atlas controls. Hidden tabs do not fast-forward.
 
@@ -274,3 +278,7 @@ reference links, start/reset coordinates, route coverage on valid terrain,
 visits to all four destinations within three simulated minutes, direct destination
 commands, bounded jumps, wine pickup/stop/thinking/poem progression, and resumption. The existing
 `test_rancho_atlas.py` checks scientific products independently.
+
+`test_rancho_jerry_camera.mjs` checks retained zoom distance, click versus drag,
+and pinch versus pan gestures. Route tests require nonzero speed through each
+destination and verify the larger jumps remain below 5 m.
