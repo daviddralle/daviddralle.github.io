@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three/three.module.js';
-import {createStreamLines} from './stream-lines.js?v=97850d2a2390';
+import {createStreamLines} from './stream-lines.js?v=8ffea0bf3f7c';
 import {createRanchLandmarks} from './ranch-landmarks.js?v=9aa807ac9261';
 import {HOME} from './jerry-motion.js?v=f32f73c78e62';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
@@ -41,7 +41,7 @@ export async function createScene(atlas) {
     if(r<ny-1&&c<nx-1&&(!terrain.valid||[terrain.valid[r][c],terrain.valid[r][c+1],terrain.valid[r+1][c],terrain.valid[r+1][c+1]].every(Boolean))){const a=r*nx+c,b=a+1,d=a+nx,e2=d+1;indices.push(a,d,b,b,d,e2);}
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();
-  const texture=await new THREE.TextureLoader().loadAsync(atlas.dataURL('data/terrain-texture.jpg'));texture.colorSpace=THREE.SRGBColorSpace;
+  const texture=await new THREE.TextureLoader().loadAsync('./data/terrain-texture.jpg?v=lidar-1m-20261016');texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
   const material=new THREE.MeshStandardMaterial({map:texture,color:'#ffffff',roughness:1,metalness:0,transparent:true,opacity:1,side:THREE.DoubleSide,depthWrite:true});
   const surface=new THREE.Mesh(geometry,material);surface.renderOrder=1;root.add(surface);
   world.add(new THREE.HemisphereLight('#ffffff','#656565',2.1));

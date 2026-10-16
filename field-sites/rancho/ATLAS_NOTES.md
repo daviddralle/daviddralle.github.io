@@ -343,7 +343,10 @@ responsive.
 
 Drainage uses brighter cyan strokes with a dark outline in both map views.
 The 3D strokes are screen-space ribbons (3 px center, 5.5 px outline), drawn
-above the terrain and canopy so the network remains legible when zoomed out.
+after the terrain and canopy so the network remains legible when zoomed out.
+Streams test against terrain depth and disappear behind intervening ridges;
+well collars, shafts, screens and monitoring markers remain visible through
+the landscape. Reducing ground opacity retains the existing see-through view.
 These widths are cartographic symbols, not measured channel widths. Stream
 coordinates and all scientific layers remain unchanged.
 
@@ -360,3 +363,17 @@ Motion checks exercise the complete pool sequence from home and all four
 monitoring destinations, two laps with the vehicle stationary, interruption,
 and wine afterward. Browser checks cover the stream rendering, side-by-side
 treat controls, eating animation, swimmer, parked dogs and return to cruising.
+
+## Detailed 3D hillshade · 16 October 2026
+
+The 3D hillshade texture is now computed independently from the 1 m composite
+LiDAR DEM, at 1460 × 3300 pixels over the current scene extent. Previously it
+was shaded from the 147 × 331 vertex display mesh, losing small landforms.
+The 10 m terrain geometry remains unchanged, as do its DEM elevations,
+monitoring collars, motion surface, canopy points and 2D hillshade. The latter
+already uses the 1 m composite; native survey DEMs are 0.25 m (2019) and
+0.5 m (2017). Texture filtering now uses up to 8× anisotropy to preserve detail
+at oblique angles. Both rebuild scripts call the independent texture builder.
+
+Rebuild only the detailed texture with:
+`python scripts/build_rancho_terrain_texture.py --dem /external/rancho-composite-dem.tif`

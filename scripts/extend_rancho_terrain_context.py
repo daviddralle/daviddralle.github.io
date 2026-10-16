@@ -23,7 +23,6 @@ filled=np.where(valid,rows,np.array(t['elevation_m'][-1])[None,:])
 t['elevation_m']+=np.round(filled,1).tolist();t['valid']+=valid.astype('uint8').tolist();t['ny']+=extra;t['bounds'][1]=bottom
 t['context_note']='Southern display margin extended 10 m for photo-modeled ranch buildings; same composite DEM and 10 m sampling.'
 file.write_text(json.dumps(t,separators=(',',':'))+'\n')
-grid=np.array(t['elevation_m']);gy,gx=np.gradient(grid,10,10);light=np.clip((.65-gx*.5+gy*.5)/np.sqrt(1+gx*gx+gy*gy),.15,1)
-rgb=np.clip(np.array([180,180,180])[None,None,:]*(.3+.8*light[:,:,None]),0,255).astype('uint8')
-Image.fromarray(rgb).save(a.data/'terrain-texture.jpg',quality=95)
+from build_rancho_terrain_texture import build_texture
+build_texture(a.dem,a.data)
 print(f'Added {extra} DEM row(s); {valid.sum()} measured vertices. Existing elevations retained.')

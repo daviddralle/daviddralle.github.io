@@ -1,6 +1,8 @@
 import * as THREE from './vendor/three/three.module.js';
 // Screen-space ribbons keep drainage legible on WebGL implementations whose
 // native lines are fixed at one pixel. Widths are display symbols, not channels.
+// Test against terrain depth: unlike monitoring symbols, streams disappear
+// behind ridges. Draw after the terrain so its depth buffer is available.
 export function createStreamLines(paths){
   const positions=[],others=[],sides=[],indices=[];
   for(const points of paths)for(let i=1;i<points.length;i++){
@@ -13,7 +15,7 @@ export function createStreamLines(paths){
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('other',new THREE.Float32BufferAttribute(others,3));g.setAttribute('side',new THREE.Float32BufferAttribute(sides,1));g.setIndex(indices);
   const resolution=new THREE.Vector2(1,1),group=new THREE.Group();
   for(const [width,color,opacity,order] of [[5.5,'#123f50',.78,4],[3,'#a6edff',.98,5]]){
-    const m=new THREE.ShaderMaterial({uniforms:{resolution:{value:resolution},width:{value:width},color:{value:new THREE.Color(color)},opacity:{value:opacity}},transparent:true,depthTest:false,depthWrite:false,side:THREE.DoubleSide,
+    const m=new THREE.ShaderMaterial({uniforms:{resolution:{value:resolution},width:{value:width},color:{value:new THREE.Color(color)},opacity:{value:opacity}},transparent:true,depthTest:true,depthWrite:false,side:THREE.DoubleSide,
       vertexShader:`attribute vec3 other; attribute float side; uniform vec2 resolution; uniform float width;
       void main(){vec4 a=modelViewMatrix*vec4(position,1.0), b=modelViewMatrix*vec4(other,1.0);
         if(a.z>-.51&&b.z>-.51){gl_Position=vec4(2.,2.,2.,1.);return;}

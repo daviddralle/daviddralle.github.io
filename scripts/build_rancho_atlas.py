@@ -183,10 +183,8 @@ def main():
             indices = distance_transform_edt(missing,return_distances=False,return_indices=True)
             grid[missing] = grid[tuple(indices[:,missing])]
         save(out/'terrain.json', dict(crs='EPSG:26910',bounds=[x0,y0,x1,y1],nx=nx,ny=ny,spacing_m=10,rows='north to south',elevation_m=np.round(grid,1).tolist(),valid=(~missing).astype('uint8').tolist(),source=args.dem_source,vertical_datum=args.vertical_datum))
-        gy3,gx3=np.gradient(grid,10,10)
-        light3=np.clip((.65-gx3*.5+gy3*.5)/np.sqrt(1+gx3*gx3+gy3*gy3),.15,1)
-        rgb3=np.clip(np.array([180,180,180])[None,None,:]*(.3+.8*light3[:,:,None]),0,255).astype('uint8')
-        Image.fromarray(rgb3).save(out/'terrain-texture.jpg',quality=95)
+        from build_rancho_terrain_texture import build_texture
+        build_texture(args.dem, out)
 
         # Geographic hillshade for Leaflet, derived from the same DEM.
         west,south,east,north=transform_bounds(dem.crs,4326,*dem.bounds)
