@@ -15,9 +15,9 @@ export const ROUTE = [HOME,[556781,4332730],[556678,4332870],[556616,4333060],
   [556678,4332870],[556781,4332730],HOME];
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
-export function createMotion({height,valid}) {
-  const s={e:HOME[0],n:HOME[1],heading:0,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null};
-  function reset(){Object.assign(s,{e:HOME[0],n:HOME[1],heading:0,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null});}
+export function createMotion({height,valid,ridgeAt=()=>null}) {
+  const s={e:HOME[0],n:HOME[1],heading:0,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null,lastJump:null};
+  function reset(){Object.assign(s,{e:HOME[0],n:HOME[1],heading:0,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null,lastJump:null});}
   function drop(e,n){if(!valid(e,n))return false;s.wine=[e,n];s.phase='fetch';s.wait=0;return true;}
   function resume(){s.phase='drive';s.wine=null;let nearest=1;for(let i=2;i<ROUTE.length;i++)if(Math.hypot(ROUTE[i][0]-s.e,ROUTE[i][1]-s.n)<Math.hypot(ROUTE[nearest][0]-s.e,ROUTE[nearest][1]-s.n))nearest=i;s.waypoint=nearest;updateDestination();}
   function advance(){s.waypoint=(s.waypoint+1)%ROUTE.length;updateDestination();}
@@ -48,9 +48,10 @@ export function createMotion({height,valid}) {
     s.speed+=(desired-s.speed)*Math.min(1,dt*4);
     const e=s.e+se*s.speed*dt,n=s.n+sn*s.speed*dt;
     if(valid(e,n)){s.e=e;s.n=n;}else{ s.speed=0;if(s.wine){s.wine=null;}advance();s.heading+=Math.PI*.55; }
-    // Crest-triggered, bounded arcade hops; never changes the terrain or route data.
-    const slope=Math.atan(grade),crest=s.pitch>.015&&slope<s.pitch-.002;
-    if(!onDrive&&s.speed>8&&s.hop===0&&s.cooldown<=0&&crest){s.vy=8+Math.min(1.5,s.speed/20);s.hop=.001;s.cooldown=5;s.jumps++;}
+    // Take off only at a mapped MH divide with a DEM crest in the travel direction.
+    const slope=Math.atan(grade);
+    const ridge=!onDrive&&s.speed>8&&s.hop===0&&s.cooldown<=0?ridgeAt(s.e,s.n,s.heading):null;
+    if(ridge){s.vy=8+Math.min(1.5,s.speed/20);s.hop=.001;s.cooldown=5;s.jumps++;s.lastJump={...ridge,e:s.e,n:s.n,heading:s.heading};}
     if(s.hop>0){s.vy-=9.81*dt;s.hop=Math.max(0,s.hop+s.vy*dt);if(s.hop===0)s.vy=0;}
     s.pitch+=(slope-s.pitch)*Math.min(1,dt*6);
     s.roll+=(-change/Math.max(dt,.001)*.12-s.roll)*Math.min(1,dt*5);

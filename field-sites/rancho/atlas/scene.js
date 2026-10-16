@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three/three.module.js';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {createJerry} from './jerry.js?v=3ed069f023b7';
+import {createJerry} from './jerry.js?v=b65d1b243f89';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));
@@ -96,7 +96,7 @@ export async function createScene(atlas) {
   for(const f of contourData.features){const paths=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];for(const path of paths)pathLine(path,'contour','#536052');}
   for(const f of atlas.coverage.features){const polygons=f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates];for(const polygon of polygons)for(const ring of polygon)pathLine(ring,'coverage','#f2dfb1',true);}
   let active=false,frame=0,vertical=1,selectedId=null,visible=new Set(atlas.enabled),lastFocus='network';
-  const jerry=createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical:()=>vertical});
+  const jerry=createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical:()=>vertical,catchments:atlas.catchments,project});
   let lastFrame=0;
   function resize(){const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
   new ResizeObserver(()=>{if(active)resize();}).observe(container);

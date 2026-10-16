@@ -1,10 +1,11 @@
 import * as THREE from './vendor/three/three.module.js';
+import {createRidgeDetector} from './jerry-ridges.js?v=9f01013b7f16';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
 import {createMule,createBottle} from './jerry-model.js?v=63f1b3239458';
-import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=93a43efda54c';
+import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=22ad2cec931b';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 
-export function createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical}){
+export function createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical,catchments,project}){
   const host=document.getElementById('scene'),shell=host.parentElement,canvas=renderer.domElement;
   const overlay=new THREE.Scene();for(const light of world.children.filter(o=>o.isLight))overlay.add(light.clone());
   const mule=createMule(),bottle=createBottle();overlay.add(mule.root,bottle);mule.root.visible=bottle.visible=false;
@@ -14,7 +15,8 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
     const c=Math.floor((e-x0)/(x1-x0)*(terrain.nx-1)),r=Math.floor((y1-n)/(y1-y0)*(terrain.ny-1));
     return !terrain.valid||[terrain.valid[r][c],terrain.valid[r][c+1],terrain.valid[r+1][c],terrain.valid[r+1][c+1]].every(Boolean);
   }
-  const motion=createMotion({height:ground,valid}),s=motion.state,deck=createDeck();
+  const ridgeAt=createRidgeDetector({catchments,project,height:ground,valid});
+  const motion=createMotion({height:ground,valid,ridgeAt}),s=motion.state,deck=createDeck();
   const toolbar=document.createElement('section');toolbar.className='jerry-toolbar';toolbar.setAttribute('aria-label','Jerry Mode controls');
   toolbar.innerHTML=`<button id="jerry-toggle" aria-pressed="false"><span aria-hidden="true">↟</span> Jerry Mode</button>
   <div class="jerry-quick" id="jerry-quick" hidden><button id="jerry-quick-wine" aria-label="Drop a bottle of red wine" title="Choose a wine stop">🍷</button><button id="jerry-quick-library">Haikus</button><button id="jerry-options" aria-expanded="false" aria-controls="jerry-panel">Controls</button></div>
@@ -101,7 +103,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
       if(valid(e,n))desired.y=Math.max(desired.y,worldPosition(e,n).y+5);
       const mix=followSnap?1:1-Math.exp(-dt*3);camera.position.lerp(desired,mix);controls.target.lerp(target,mix);followSnap=false;
     }
-    const text=arming?'Choose a wine stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='poem'?'A thought from the hills · parked':s.phase==='fetch'?'A fine red? Taking the scenic shortcut':s.hop>0?'A little air over the ridge!':`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
+    const text=arming?'Choose a wine stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='poem'?'A thought from the hills · parked':s.phase==='fetch'?'A fine red? Taking the scenic shortcut':s.hop>0?`Air over ${s.lastJump?.id||'the ridge'}!`:`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
     if(text!==lastStatus){$('jerry-status').textContent=text;lastStatus=text;}
     dust.visible=running&&s.speed>5;dustTime+=elapsed;
     if(dust.visible&&dustTime>.05){dustTime=0;dustAge[dustIndex]=0;const p=mule.root.position.clone().add(new THREE.Vector3(Math.sin(s.elapsed*17)*2,.8,0));p.toArray(dustData,dustIndex*3);dustIndex=(dustIndex+1)%dustCount;}

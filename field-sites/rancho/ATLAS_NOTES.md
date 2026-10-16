@@ -244,8 +244,15 @@ Pass-through targets use offsets within 12 m of the published collars / RVWS;
 the Mule keeps moving through each destination. Only wine stops park him. Destination buttons also send him directly to these sites.
 Cruising is roughly twice the original speed, with turn, grade and arrival
 braking; this is arcade motion, not a real driving route. All route points and motion steps use valid DEM terrain;
-terrain slope changes produce bounded arcade jumps, now around 4 m high with
-more airtime, a nose-up launch and a slight airborne bank. Cruise speed is unchanged
+jumps occur only at divides between adjacent mapped MH subcatchments.
+`jerry-ridges.js` projects the existing catchment polygons to UTM and requires
+points 15 m behind/ahead to fall in different neighboring MH areas, both polygon
+boundaries to be within 6 m of takeoff, and the displayed DEM to rise behind and
+fall ahead (grades above +0.025 and below −0.025). The 6 m tolerance accommodates
+the 10 m scene mesh and simplified polygons. Outer watershed edges, travel along
+a divide, and isolated slope bumps do not trigger jumps. The status names the
+crossed divide. Arcade jumps remain around 4 m high with a nose-up launch and
+a slight airborne bank. Cruise speed is unchanged
 from the faster monitoring-site circuit. There are no boosts. The
 follow camera keeps tracking through wheel/trackpad zoom, touch pinch and middle-button
 zoom, retaining the chosen distance. Click-drag rotation keeps follow and retains the chosen viewing angle;
@@ -283,3 +290,7 @@ commands, bounded jumps, wine pickup/stop/thinking/poem progression, and resumpt
 `test_rancho_jerry_camera.mjs` checks retained zoom distance, rotation versus modified pan drags,
 and pinch versus pan gestures. Route tests require nonzero speed through each
 destination and verify the larger jumps remain below 5 m.
+
+Jump regressions check every takeoff against the mapped divide and DEM crest,
+exercise six divides on the monitoring circuit, and reject isolated crests,
+outer edges, along-divide travel and monotonic slopes.
