@@ -37,7 +37,7 @@ export function createRanchHome({ground,position,home}) {
     const length=Math.hypot(b[0]-a[0],b[1]-a[1]);
     for(let f=.6/length;f<1;f+=.65/length){for(const side of [-1,1]){const r=a.map((v,j)=>v+(b[j]-v)*f),p=edge(i,5.3*side),q=edge(i+1,5.3*side);const g=new THREE.BufferGeometry().setFromPoints([position(...r,peak+.015),position(p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f,eave+.015)]);group.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:'#bfcaca',transparent:true,opacity:.45})));}}
   }
-  for(const i of [0,2]){const a=edge(i,4.5),b=edge(i,-4.5),c=HOUSE_RIDGE[i];quad([...a,floor],[...b,floor],[...b,eave],[...a,eave],wall);mesh([[...a,eave],[...b,eave],[...c,peak]],[[0,1,2]],timber);const m=box(c[0],c[1],floor+.15,5,2.8,.12,glass);m.rotation.y=Math.atan2(-normals[i===0?0:1][1],normals[i===0?0:1][0]);}
+  for(const i of [0,2]){const a=edge(i,4.5),b=edge(i,-4.5),c=HOUSE_RIDGE[i];quad([...a,floor],[...b,floor],[...b,eave],[...a,eave],wall);mesh([[...a,eave],[...b,eave],[...c,peak]],[[0,1,2]],timber);const m=box(c[0],c[1],floor+.15,5,2.8,.12,glass);m.rotation.y=Math.atan2(normals[i===0?0:1][1],normals[i===0?0:1][0]);}
   box(556744,4332706,floor,1.8,6.6,1.5,stone);box(556744,4332706,floor+6.6,.65,1,.65,material('#ac7158'));box(556744,4332706,floor+7.6,.9,.2,.9,glass);
   // Gravel loop on the convex/east side, draped over the unmodified DEM.
   const center=[556775,4332715];

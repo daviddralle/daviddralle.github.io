@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three/three.module.js';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {createJerry} from './jerry.js?v=3ebff2650c5f';
+import {createJerry} from './jerry.js?v=3f510c091bbd';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));

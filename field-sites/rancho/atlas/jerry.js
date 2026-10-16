@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three/three.module.js';
-import {createRanchHome} from './jerry-home.js?v=5aae35db2d4d';
+import {createRanchHome} from './jerry-home.js?v=785405aefeab';
 import {createRidgeDetector} from './jerry-ridges.js?v=9f01013b7f16';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
 import {createMule,createBottle} from './jerry-model.js?v=63f1b3239458';
