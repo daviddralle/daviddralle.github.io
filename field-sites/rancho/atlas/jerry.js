@@ -1,9 +1,8 @@
 import * as THREE from './vendor/three/three.module.js';
-import {createRanchHome} from './jerry-home.js?v=785405aefeab';
 import {createRidgeDetector} from './jerry-ridges.js?v=9f01013b7f16';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
 import {createMule,createBottle} from './jerry-model.js?v=63f1b3239458';
-import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=a19a0b335342';
+import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=1244c24ca1e8';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 
 export function createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical,catchments,project}){
@@ -49,7 +48,6 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   const shadowIndices=[];for(let i=1;i<=32;i++)shadowIndices.push(0,i,i===32?1:i+1);shadowGeometry.setIndex(shadowIndices);
   const shadow=new THREE.Mesh(shadowGeometry,new THREE.MeshBasicMaterial({color:'#102326',transparent:true,opacity:.2,side:THREE.DoubleSide,depthWrite:false}));shadow.renderOrder=-2;overlay.add(shadow);
   const marker=new THREE.Mesh(new THREE.RingGeometry(2,2.6,32),new THREE.MeshBasicMaterial({color:'#efbf73',side:THREE.DoubleSide,transparent:true,opacity:.9,depthTest:false}));marker.rotation.x=-Math.PI/2;marker.visible=false;overlay.add(marker);
-  root.add(createRanchHome({ground,position,home:HOME}));
   function worldPosition(e,n,lift=0){const p=position(e,n,ground(e,n));p.y=p.y*getVertical()+lift;return p;}
   function pick(event){const rect=canvas.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)return null;const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),camera);surface.updateWorldMatrix(true,false);const hit=ray.intersectObject(surface)[0];if(!hit)return null;const e=hit.point.x+(x0+x1)/2,n=(y0+y1)/2-hit.point.z;return valid(e,n)?[e,n]:null;}
   function setFollow(value){follow=value;controls.enableDamping=enabled&&value?false:savedDamping;$('jerry-follow').setAttribute('aria-pressed',String(value));followSnap=value;}

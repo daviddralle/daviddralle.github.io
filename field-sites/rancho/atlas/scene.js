@@ -1,6 +1,8 @@
 import * as THREE from './vendor/three/three.module.js';
+import {createRanchLandmarks} from './ranch-landmarks.js?v=9aa807ac9261';
+import {HOME} from './jerry-motion.js?v=1244c24ca1e8';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {createJerry} from './jerry.js?v=3f510c091bbd';
+import {createJerry} from './jerry.js?v=d3856241c2e7';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));
@@ -97,20 +99,29 @@ export async function createScene(atlas) {
   for(const f of atlas.coverage.features){const polygons=f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates];for(const polygon of polygons)for(const ring of polygon)pathLine(ring,'coverage','#f2dfb1',true);}
   let active=false,frame=0,vertical=1,selectedId=null,visible=new Set(atlas.enabled),lastFocus='network';
   const jerry=createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical:()=>vertical,catchments:atlas.catchments,project});
+  const landmarks=createRanchLandmarks({ground,position,home:HOME});root.add(landmarks.group);
+  const landmarkLabels=landmarks.features.map(f=>{
+    const button=document.createElement('button');button.textContent=f.label;button.className='ranch-landmark';
+    button.title='Approximate photo model · DEM ground elevation';button.onclick=()=>focus(f.id);labelLayer.append(button);
+    return {button,feature:f,position:position(...f.center,ground(...f.center)+f.height)};
+  });
   let lastFrame=0;
   function resize(){const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
   new ResizeObserver(()=>{if(active)resize();}).observe(container);
   function setVisible(value){visible=new Set(value);for(const [kind,g] of Object.entries(groups))g.visible=visible.has(kind);}
   setVisible(atlas.enabled);
-  function fly(target,span){
+  function fly(target,span,minDistance=100){
     target.y*=vertical;controls.target.copy(target);
-    const d=Math.max(span*1.25,100);camera.position.copy(target).add(new THREE.Vector3(-d*.6,d*.7,d*.85));controls.update();
+    const d=Math.max(span*1.25,minDistance);camera.position.copy(target).add(new THREE.Vector3(-d*.6,d*.7,d*.85));controls.update();
   }
   function focus(name){
     jerry.releaseFollow();
     lastFocus=name;
+    const landmark=landmarks.features.find(f=>f.id===name);
+    if(landmark){const [e,n]=landmark.center;fly(position(e,n,ground(e,n)+landmark.height/2),landmark.span,landmark.id==='ridge-shack'?24:50);return;}
     let points;
-    if(name==='watershed')points=[[x0,y0],[x1,y1]];
+    if(name==='ranch-buildings')points=[[556670,4332500],[556800,4332740]];
+    else if(name==='watershed')points=[[x0,y0],[x1,y1]];
     else if(name==='network')points=atlas.holes.filter(f=>f.geometry).map(f=>project(f.geometry.coordinates));
     else {const f=atlas.catchments.find(f=>f.properties.id===name);points=f?f.geometry.coordinates[0].map(project):[[x0,y0],[x1,y1]];}
     const minE=Math.min(...points.map(p=>p[0])),maxE=Math.max(...points.map(p=>p[0])),minN=Math.min(...points.map(p=>p[1])),maxN=Math.max(...points.map(p=>p[1]));
@@ -133,6 +144,13 @@ export async function createScene(atlas) {
       item.button.hidden=!show;
       if(show){occupied.push(rect);item.button.style.left=x+'px';item.button.style.top=y+'px';}
     }
+    for(const item of landmarkLabels){
+      const p=item.position.clone();p.y*=vertical;const distance=camera.position.distanceTo(p);p.project(camera);
+      const x=(p.x*.5+.5)*width,y=(-p.y*.5+.5)*height;
+      const rect=[x-55,y-20,x+55,y+2];
+      const show=landmarks.group.visible&&p.z>-1&&p.z<1&&x>60&&x<width-60&&y>110&&y<height-45&&distance<(item.feature.id==='ridge-shack'?160:500)&&!occupied.some(r=>!(rect[2]<r[0]||rect[0]>r[2]||rect[3]<r[1]||rect[1]>r[3]));
+      item.button.hidden=!show;if(show){occupied.push(rect);item.button.style.left=x+'px';item.button.style.top=y+'px';}
+    }
     frame=requestAnimationFrame(render);
   }
   let pointerStart;
@@ -145,6 +163,6 @@ export async function createScene(atlas) {
   });
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();document.getElementById('scene-loading').hidden=false;document.getElementById('scene-loading').textContent='3D graphics context lost. Return to the map or reload to reopen 3D.';});
   return {get active(){return active;},open(){active=true;lastFrame=0;resize();render();},close(){active=false;jerry.suspend();cancelAnimationFrame(frame);},focus,focusHole,highlight,setVisible,
-    canopyOpacity(value){cloudMaterial.opacity=value;},opacity(value){material.opacity=value;material.depthWrite=value>=.99;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
+    landmarksVisible(value){landmarks.group.visible=value;},canopyOpacity(value){cloudMaterial.opacity=value;},opacity(value){material.opacity=value;material.depthWrite=value>=.99;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
     top(){jerry.releaseFollow();const d=camera.position.distanceTo(controls.target);camera.position.copy(controls.target).add(new THREE.Vector3(0,d,.01));controls.update();}};
 }

@@ -1,0 +1,5 @@
+#scene-labels .ranch-landmark{color:#edddbb;border-color:#a58c625c;background:#1b3030ed;font-size:10px;white-space:nowrap;max-width:150px}
+.scene-tools .ranch-views{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+.scene-tools .ranch-views button{font-size:11px;padding:7px 9px}
+.scene-tools .ranch-model-toggle{display:flex;align-items:center;gap:7px;margin:12px 0;font-size:11px;line-height:1.4}
+.scene-tools .ranch-model-toggle input{width:auto;margin:0;accent-color:var(--accent)}

@@ -1,6 +1,6 @@
 // Fictional game motion. UTM coordinates stay separate from research features.
-export const HOME = Object.freeze([556769, 4332702]);
-export const HOME_NOTE = 'Approximate circle-drive position interpreted from the user’s marked satellite image, 16 October 2026; not surveyed.';
+export const HOME = Object.freeze([556776, 4332695]);
+export const HOME_NOTE = 'Approximate road-facing parking position refined from the user’s labeled aerial image, 16 October 2026; not surveyed.';
 // Pass-through targets are within 12 m of published well collars / RVWS, with room for the Mule.
 export const DESTINATIONS = [
   {id:'mh3',label:'MH3 wells',point:[556590,4333356],waypoint:5,feature:'MH3W1'},

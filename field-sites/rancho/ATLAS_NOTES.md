@@ -298,3 +298,43 @@ outer edges, along-divide travel and monotonic slopes.
 ### Ranch house and Mule parking (16 October 2026)
 
 The simple 3D house is an interpretive model from the supplied ground and oblique aerial photographs, positioned using the marked north-up satellite image. Its bent two-wing footprint has the convex side toward the road and circle drive to the east; pale metal gables, a garden-side porch, and a stone chimney recall the photographs. Dimensions and placement are approximate, not surveyed research features. Foundations and the gravel drive use the existing DEM elevations without changing the terrain. Jerry starts at the marked parking spot facing east toward the road. The model remains visible outside Jerry Mode.
+
+### Ranch landmarks and MH7 ridge shack (16 October 2026)
+
+The 3D viewer now includes seven labeled, optional photo models: ranch house,
+guest house, roadside barn, south barn, pool, ground solar arrays, and the small
+MH7 ridge shack. The user's labeled aerial image supplies the relative layout;
+the supplied photographs and November 2024 Google Street View from Leesville
+Road supply visible materials, roof shapes, porches, and the roadside barn's
+sliding doors/skylights. These models are approximate visual context, not
+surveyed buildings, scientific measurements, or additional LiDAR returns.
+Concealed interiors and uncertain small structures are not reconstructed.
+
+The aerial image was registered approximately to visible 2019 LiDAR building
+clusters (several-meter placement uncertainty); the house's bent ridge and
+road-facing porch were refined accordingly. The Mule starts on the road-facing
+arc of the drive, whose center/extent were refined from the labeled image. The
+pool is represented with the muted cover visible in that image. The ridge-shack
+X was registered using five labeled MH7 well collars in the supplied map image;
+the resulting approximate center is E 556279.8, N 4333890.7 (EPSG:26910).
+Its roughly 2.3 × 2.6 m footprint, steep metal gable, vertical timber siding,
+small divided windows and stone footing are interpreted from IMG_5573; the
+photo does not establish a surveyed size or orientation.
+
+All models rest on the displayed DEM facets. No building is used to alter a
+catchment, well location, elevation datum, or canopy return. One 10 m row of the
+same composite DEM was appended to the southern 3D display margin so the south
+barn does not overhang the mesh edge. Every existing terrain elevation and
+validity flag was retained exactly. The margin is reproducible with
+`scripts/extend_rancho_terrain_context.py --dem /external/rancho-composite-dem.tif`
+after rebuilding the main atlas. The ground texture was refreshed for the
+extended extent. Models can be hidden using “Photo-based building models”; the
+“Ranch buildings” and “MH7 ridge shack” buttons frame the two areas.
+
+Street View references inspected (November 2024 capture):
+- [House / road-facing porch](https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=39.1416547,-122.3427388&heading=270&pitch=0&fov=80)
+- [Roadside barn](https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=39.140286,-122.342914&heading=270&pitch=0&fov=80)
+
+No supplied photos or Google imagery are redistributed as site textures. Static
+model geometry is batched by material (32 draw calls) to keep the LiDAR viewer
+responsive.

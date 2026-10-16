@@ -2,7 +2,7 @@ import * as THREE from './vendor/three/three.module.js';
 
 // Interpretive photo model, not a surveyed building footprint. Coordinates are
 // matched to the user's north-up satellite image; elevations come from the DEM.
-export const HOUSE_RIDGE = [[556734,4332696],[556750,4332709],[556750,4332724]];
+export const HOUSE_RIDGE = [[556739,4332699],[556754,4332710],[556755,4332725]];
 export function createRanchHome({ground,position,home}) {
   const group=new THREE.Group();group.name='Ranch house & circle drive (approximate)';
   const material=(color)=>new THREE.MeshStandardMaterial({color,roughness:.88,side:THREE.DoubleSide});
@@ -29,19 +29,21 @@ export function createRanchHome({ground,position,home}) {
         quad([c[0]-u[0]*1.05,c[1]-u[1]*1.05,floor+.5],[c[0]+u[0]*1.05,c[1]+u[1]*1.05,floor+.5],[c[0]+u[0]*1.05,c[1]+u[1]*1.05,eave-.45],[c[0]-u[0]*1.05,c[1]-u[1]*1.05,eave-.45],glass);
       }
     }
-    const p=edge(i,4.5),q=edge(i+1,4.5),op=edge(i,7.5),oq=edge(i+1,7.5);
-    quad([...p,floor],[...q,floor],[...oq,floor],[...op,floor],stone);
-    quad([...p,eave],[...q,eave],[...oq,floor+2.65],[...op,floor+2.65],roof);
-    for(const f of [0,.5,1])box(op[0]+(oq[0]-op[0])*f,op[1]+(oq[1]-op[1])*f,floor,.18,2.65,.18,timber);
+    for(const side of [-1,1]){
+      const p=edge(i,4.5*side),q=edge(i+1,4.5*side),op=edge(i,7.5*side),oq=edge(i+1,7.5*side);
+      quad([...p,floor],[...q,floor],[...oq,floor],[...op,floor],stone);
+      quad([...p,eave],[...q,eave],[...oq,floor+2.65],[...op,floor+2.65],roof);
+      for(const f of [0,.33,.67,1])box(op[0]+(oq[0]-op[0])*f,op[1]+(oq[1]-op[1])*f,floor,.18,2.65,.18,timber);
+    }
     // Subtle standing seams across the pale metal roof.
     const length=Math.hypot(b[0]-a[0],b[1]-a[1]);
     for(let f=.6/length;f<1;f+=.65/length){for(const side of [-1,1]){const r=a.map((v,j)=>v+(b[j]-v)*f),p=edge(i,5.3*side),q=edge(i+1,5.3*side);const g=new THREE.BufferGeometry().setFromPoints([position(...r,peak+.015),position(p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f,eave+.015)]);group.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:'#bfcaca',transparent:true,opacity:.45})));}}
   }
   for(const i of [0,2]){const a=edge(i,4.5),b=edge(i,-4.5),c=HOUSE_RIDGE[i];quad([...a,floor],[...b,floor],[...b,eave],[...a,eave],wall);mesh([[...a,eave],[...b,eave],[...c,peak]],[[0,1,2]],timber);const m=box(c[0],c[1],floor+.15,5,2.8,.12,glass);m.rotation.y=Math.atan2(normals[i===0?0:1][1],normals[i===0?0:1][0]);}
-  box(556744,4332706,floor,1.8,6.6,1.5,stone);box(556744,4332706,floor+6.6,.65,1,.65,material('#ac7158'));box(556744,4332706,floor+7.6,.9,.2,.9,glass);
+  box(556747,4332706,floor,1.8,6.6,1.5,stone);box(556747,4332706,floor+6.6,.65,1,.65,material('#ac7158'));box(556747,4332706,floor+7.6,.9,.2,.9,glass);
   // Gravel loop on the convex/east side, draped over the unmodified DEM.
-  const center=[556775,4332715];
-  for(let i=0;i<96;i++){const point=(angle,r)=>{const e=center[0]+Math.cos(angle)*14*r,n=center[1]+Math.sin(angle)*21*r;return [e,n,ground(e,n)+.16];};const a=i/96*Math.PI*2,b=(i+1)/96*Math.PI*2;quad(point(a,.58),point(b,.58),point(b,1),point(a,1),gravel);}
+  const center=[556769,4332701];
+  for(let i=0;i<96;i++){const point=(angle,r)=>{const e=center[0]+Math.cos(angle)*12*r,n=center[1]+Math.sin(angle)*11*r;return [e,n,ground(e,n)+.16];};const a=i/96*Math.PI*2,b=(i+1)/96*Math.PI*2;quad(point(a,.58),point(b,.58),point(b,1),point(a,1),gravel);}
   const pad=[[-4,-3],[4,-3],[4,3],[-4,3]].map(([e,n])=>[home[0]+e,home[1]+n,ground(home[0]+e,home[1]+n)+.19]);quad(...pad,gravel);
   // A small timber parking stop makes the start position legible without paint.
   const stop=box(home[0]-4,home[1],ground(home[0]-4,home[1])+.22,.28,.25,5,timber);stop.name='Mule parking spot';

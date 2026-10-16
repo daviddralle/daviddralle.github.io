@@ -1,6 +1,6 @@
 /* Rancho atlas: static, processed research products only. */
 'use strict';
-const dataURL = path => path+'?v=valley-outlet-20261016';
+const dataURL = path => path+'?v='+(path.includes('terrain')?'ranch-context-20261016':'valley-outlet-20261016');
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const colors = {well:'#83edff',piezometer:'#efbf73',weather:'#f4eee0',sapflow:'#c0ec94',soil:'#b69ce9',outlet:'#ff947a'};
@@ -151,7 +151,7 @@ async function toggle3D() {
   if(scene?.active){scene.close();$('scene').hidden=true;$('scene-tools').hidden=true;$('basemaps').hidden=false;$('lidar-controls').hidden=!map.hasLayer(hillshade);$('map').hidden=false;$('toggle-3d').setAttribute('aria-pressed','false');map.invalidateSize();view(currentView);return;}
   $('toggle-3d').disabled=true;$('scene-loading').hidden=false;$('scene-loading').textContent='Opening LiDAR canopy & terrain…';
   try{
-    sceneModule??=await import('./scene.js?v=488c8a8ca240');
+    sceneModule??=await import('./scene.js?v=19f685584f22');
     if(!scene)scene=await sceneModule.createScene({holes,catchments,channels,instruments,enabled,inspect,canopyMeta,coverage,dataURL});
     $('scene').hidden=false;$('map').hidden=true;$('scene-tools').hidden=false;$('basemaps').hidden=true;$('lidar-controls').hidden=true;
     scene.canopyOpacity(Number($('canopy-opacity').value));scene.open();scene.focus(currentView==='watershed'?'network':currentView);
@@ -194,6 +194,7 @@ async function init() {
   $('lidar-opacity').oninput=e=>{const value=Number(e.target.value);hillshade.setOpacity(value);$('lidar-opacity-value').value=Math.round(value*100)+'%';};
   $('canopy-opacity').oninput=e=>{const value=Number(e.target.value);canopyRaster.setOpacity(value);scene?.canopyOpacity(value);};
   $('export').onclick=exportData;$('toggle-3d').onclick=toggle3D;
+  $('scene-ranch').onclick=()=>scene?.focus('ranch-buildings');$('scene-shack').onclick=()=>scene?.focus('ridge-shack');$('landmark-models').onchange=()=>scene?.landmarksVisible($('landmark-models').checked);
   $('scene-home').onclick=()=>scene?.focus(currentView==='watershed'?'network':currentView);$('scene-top').onclick=()=>scene?.top();
   $('ground-opacity').oninput=e=>scene?.opacity(Number(e.target.value));$('vertical-scale').onchange=e=>{scene?.verticalScale(Number(e.target.value));$('view-subtitle').textContent=Number(e.target.value)===1?'Canopy, terrain & boreholes · true metric scale':'Canopy, terrain & boreholes · vertical scale exaggerated 3×';};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('inspector').hidden=true;closeMobileLayers();}});
