@@ -238,8 +238,12 @@ dust, home ring, wine bottle, and poems never enter scientific GeoJSON exports.
 
 Every activation and **Start at home** resets to the approximate circle-drive
 location interpreted from the user's marked satellite screenshot: UTM 10N
-E556769, N4332702. This is not a surveyed waypoint. The initial loop and roaming
-route are fictional. All route points and motion steps use valid DEM terrain;
+E556769, N4332702. This is not a surveyed waypoint. The roaming route is fictional. It now leaves the drive promptly and visits
+MH3, MH7, MH8 well clusters and the weather station in a repeating circuit.
+Stops use offsets within 12 m of the published collars / RVWS; the Mule pauses
+briefly at each stop. Destination buttons also send him directly to these sites.
+Cruising is roughly twice the original speed, with turn, grade and arrival
+braking; this is arcade motion, not a real driving route. All route points and motion steps use valid DEM terrain;
 terrain slope changes produce bounded arcade hops. There are no boosts. The
 follow camera releases when the user orbits, pans, zooms, or chooses a map view.
 Pause is available; reduced-motion preferences start the mode paused. Leaving
@@ -247,7 +251,10 @@ Pause is available; reduced-motion preferences start the mode paused. Leaving
 
 Drag **Drop a fine red** to terrain, or click it and then choose a point. Keyboard
 and touch users can use **Serve beside Jerry**. Escape cancels placement. Jerry
-drives to the bottle, stops, takes a sip, then reveals a poem. He remains parked
+drives to the bottle, stops, takes a sip, then thinks for three seconds before
+revealing a poem. A warm-paper thought bubble follows his head in screen space
+and resolves from “Jerry is thinking…” into the haiku, matching Bill’s treatment.
+The bubble stays within the viewport and supports reduced-motion preferences. He remains parked
 until **Back to roaming**. **100 ranch haikus** opens the full searchable library,
 with ten theme filters and primary-source reading links. The shuffled deck shows
 each poem once before recycling; it avoids an immediate repeat across decks.
@@ -264,5 +271,6 @@ manually checked for the missing compounds “unmake,” “unhooks,” and “l
 
 Validation: `node --test scripts/test_rancho_jerry.mjs` checks the complete deck,
 reference links, start/reset coordinates, route coverage on valid terrain,
-bounded jumps, wine pickup/stop/poem progression, and resumption. The existing
+visits to all four destinations within three simulated minutes, direct destination
+commands, bounded jumps, wine pickup/stop/thinking/poem progression, and resumption. The existing
 `test_rancho_atlas.py` checks scientific products independently.

@@ -17,3 +17,11 @@
  .jerry-placing #jerry-panel .jerry-heading,.jerry-placing #jerry-panel .jerry-actions,.jerry-placing #jerry-panel .jerry-wine,.jerry-placing #jerry-panel #jerry-status,.jerry-placing #jerry-panel .jerry-fiction{display:none}
  .jerry-placing #jerry-panel #jerry-drop-help{margin:0 0 9px}
 }
+
+/* Head-anchored thought bubble, matching Bill's warm paper and hillside verse. */
+.jerry-destinations{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}.jerry-destinations span{width:100%;font-size:10px;color:var(--muted)}.jerry-destinations button{font-size:11px;padding:7px 9px}
+.jerry-poem{left:auto;bottom:auto;width:max-content;max-width:calc(100% - 24px);max-height:none;overflow:visible;padding:14px 19px 16px;border-radius:16px;background:#fcf4e2f5;color:#37483e;border:1px solid #c6b488;box-shadow:0 5px 22px #081d2b40;transform:translate(-50%,-100%);text-align:center}
+.jerry-poem:after,.jerry-poem:before{content:"";position:absolute;border:1px solid #c6b488;border-radius:50%;background:#fcf4e2;pointer-events:none}.jerry-poem:after{width:13px;height:13px;bottom:-18px;left:calc(var(--thought-tail,50%) - 7px)}.jerry-poem:before{width:6px;height:6px;bottom:-29px;left:calc(var(--thought-tail,50%) - 1px)}
+#jerry-poem-lines{font:italic 17px/1.65 Georgia,serif;white-space:pre;margin:0 0 7px}.jerry-poem .jerry-fiction{color:#75684a;font-size:9px;margin:6px 0}.jerry-poem small{font-size:9px;color:#75684a}#jerry-poem-source{font-size:9px;color:#556342;max-width:280px;margin:6px auto;line-height:1.4}.jerry-poem .jerry-actions{justify-content:center;margin-top:8px}.jerry-poem button{background:#ede4cd;color:#37483e;border-color:#c6b488;font-size:10px;padding:6px 8px}.jerry-thinking{display:none;font:12px/1.6 Arial,sans-serif;color:#75684a}.jerry-poem.composing .jerry-thinking{display:block}.jerry-poem.composing .jerry-verse,.jerry-poem.composing .jerry-poem-footer{display:none}.jerry-dots{display:inline-block;animation:jerry-think 1.2s ease-in-out infinite}@keyframes jerry-think{50%{opacity:.25;transform:translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){.jerry-dots{animation:none}}
+@media(max-width:720px){.jerry-poem{padding:11px 13px 13px;width:max-content;max-width:calc(100% - 24px);max-height:none;bottom:auto}.jerry-poem #jerry-poem-lines{font-size:14px}.jerry-placing .jerry-destinations{display:none}}
