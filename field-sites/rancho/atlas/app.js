@@ -151,7 +151,7 @@ async function toggle3D() {
   if(scene?.active){scene.close();$('scene').hidden=true;$('scene-tools').hidden=true;$('basemaps').hidden=false;$('lidar-controls').hidden=!map.hasLayer(hillshade);$('map').hidden=false;$('toggle-3d').setAttribute('aria-pressed','false');map.invalidateSize();view(currentView);return;}
   $('toggle-3d').disabled=true;$('scene-loading').hidden=false;$('scene-loading').textContent='Opening LiDAR canopy & terrain…';
   try{
-    sceneModule??=await import('./scene.js?v=19f685584f22');
+    sceneModule??=await import('./scene.js?v=8b764f2c3619');
     if(!scene)scene=await sceneModule.createScene({holes,catchments,channels,instruments,enabled,inspect,canopyMeta,coverage,dataURL});
     $('scene').hidden=false;$('map').hidden=true;$('scene-tools').hidden=false;$('basemaps').hidden=true;$('lidar-controls').hidden=true;
     scene.canopyOpacity(Number($('canopy-opacity').value));scene.open();scene.focus(currentView==='watershed'?'network':currentView);
@@ -177,7 +177,7 @@ async function init() {
     layerGroups[kind]=L.geoJSON(catchments.filter(f=>f.properties.kind===kind),{style:f=>({color:kind==='watershed'?'#e0c68c':'#d1f3b2',weight:kind==='watershed'?2:1.5,fillColor:'#c0ec94',fillOpacity:kind==='watershed'?0:.07,dashArray:f.properties.id==='MH9'||f.properties.provisional?'6 5':null}),onEachFeature(f,l){l.on('click',()=>inspect(f));}}).addTo(map);
     if(kind==='catchment')catchments.filter(f=>f.properties.kind==='catchment').forEach(f=>{const [lon,lat]=f.properties.label_position;L.marker([lat,lon],{icon:L.divIcon({className:'',html:`<span class="catchment-label">${esc(f.properties.id)}</span>`,iconSize:[45,24],iconAnchor:[22,12]}),keyboard:true,title:f.properties.id}).on('click',()=>inspect(f)).addTo(layerGroups[kind]);});
   }
-  layerGroups.channel=L.geoJSON(channels,{style:{color:'#a1d7e2',weight:1.4,opacity:.65},interactive:false}).addTo(map);
+  layerGroups.channel=L.layerGroup([L.geoJSON(channels,{style:{color:'#164b5d',weight:4.6,opacity:.65},interactive:false}),L.geoJSON(channels,{style:{color:'#a6edff',weight:2.6,opacity:.95},interactive:false})]).addTo(map);
   for(const kind of Object.keys(colors))addPoints([...holes,...instruments],kind);
   const layers=[['Land & water',[['canopy','Canopy · 2019/17'],['coverage','LiDAR survey coverage'],['contour','LiDAR contours · 2 m'],['watershed','Watershed boundary'],['catchment','MH1–MH10 catchments'],['channel','Drainage network']]],['Monitoring network',[['well','Wells & moisture holes'],['piezometer','Piezometers'],['weather','Weather station'],['outlet','Main catchment outlet']]],['Field sensors · February 2024',[['sapflow','Sap-flow waypoints'],['soil','Soil-moisture waypoints']]]];
   $('layer-list').innerHTML=layers.map(([group,list])=>`<div class="layer-group">${group}</div>`+list.map(([kind,label])=>`<label class="layer-row"><input type="checkbox" data-layer="${kind}" ${enabled.has(kind)?'checked':''}><i class="dot" style="--c:${colors[kind]||'#c0ec94'}"></i>${label}<span class="count">${kind==='canopy'?'1 m':kind==='coverage'?'footprint':kind==='contour'?'10 m index':kind==='channel'?channels.length:features.filter(f=>f.geometry&&f.properties.kind===kind).length}</span></label>`).join('')).join('');

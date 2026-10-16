@@ -338,3 +338,25 @@ Street View references inspected (November 2024 capture):
 No supplied photos or Google imagery are redistributed as site textures. Static
 model geometry is batched by material (32 draw calls) to keep the LiDAR viewer
 responsive.
+
+## Stream visibility and fictional pool break · 16 October 2026
+
+Drainage uses brighter cyan strokes with a dark outline in both map views.
+The 3D strokes are screen-space ribbons (3 px center, 5.5 px outline), drawn
+above the terrain and canopy so the network remains legible when zoomed out.
+These widths are cartographic symbols, not measured channel widths. Stream
+coordinates and all scientific layers remain unchanged.
+
+“Drop an ice cream sandwich” beside the Cabernet control adds a fictional
+pool excursion: collect and eat, drive to the modeled pool, park the Mule with
+Cali and Colusa, change into orange trunks and blue fins, swim two circuits,
+return to driving gear and resume the monitoring-site route. Pool water and
+the swimmer appear only during the visit; the photographic cover model returns
+afterward. The follow camera tracks Jerry in the water; rotation and zoom keep
+tracking. Home and destination controls can interrupt the excursion. The
+existing wine/haiku behavior and cruising speed are preserved.
+
+Motion checks exercise the complete pool sequence from home and all four
+monitoring destinations, two laps with the vehicle stationary, interruption,
+and wine afterward. Browser checks cover the stream rendering, side-by-side
+treat controls, eating animation, swimmer, parked dogs and return to cruising.

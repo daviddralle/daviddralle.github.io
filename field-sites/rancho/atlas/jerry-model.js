@@ -1,3 +1,5 @@
+import {createIceCream} from './jerry-swim.js?v=6b8eb366038a';
+import {POOL_PHASES} from './jerry-pool-trip.js?v=4fa0ee8db8ec';
 import * as THREE from './vendor/three/three.module.js';
 // Hand-built, stylized illustration based on the supplied Mule / two-dog photo.
 export function createMule(){
@@ -45,6 +47,7 @@ export function createMule(){
   for(const x of [-.13,.13]){rod(driver,black,[x,.05,0],[x,-.15,.38],.09);box(driver,black,x,-.33,.41,.18,.2,.29);}
   const steering=mesh(body,new THREE.TorusGeometry(.23,.025,6,20),black,-.48,1.44,.48);steering.rotation.x=-.6;
   rod(body,black,[-.48,1.1,.7],[-.48,1.44,.48],.04);
+  const sandwich=createIceCream();arms[0].add(sandwich);sandwich.position.set(-.03,-.18,.32);sandwich.visible=false;
   const glass=new THREE.Group();arms[0].add(glass);glass.position.set(-.03,-.18,.32);glass.visible=false;
   mesh(glass,new THREE.CylinderGeometry(.065,.025,.11,12),mat('#e1d4c2'),0,.1,0);
   mesh(glass,new THREE.CylinderGeometry(.058,.024,.06,12),mat('#792b43'),0,.095,0);rod(glass,metal,[0,0,0],[0,.055,0],.008);mesh(glass,new THREE.CylinderGeometry(.045,.045,.012,12),metal);
@@ -79,7 +82,7 @@ export function createMule(){
     wheels.forEach(w=>w.rotation.x+=s.speed*dt/1.03);
     steering.rotation.z=Math.sin(s.heading)*.16;
     dogs.forEach((d,i)=>{d.tail.rotation.y=Math.sin(s.elapsed*9+i)*.6;d.group.rotation.z=Math.sin(s.elapsed*4+i)*.025;});
-    const sipping=s.phase==='sip';glass.visible=sipping;arms[0].rotation.x=sipping?-1.55-Math.sin(s.wait*2)*.15:0;
+    const sipping=s.phase==='sip',eating=s.phase==='eat';driver.visible=!POOL_PHASES.has(s.phase);glass.visible=sipping;sandwich.visible=eating;sandwich.scale.setScalar(Math.max(.15,.8-Math.floor(s.wait)*.17));arms[0].rotation.x=sipping?-1.55-Math.sin(s.wait*2)*.15:eating?-1.4-Math.sin(s.wait*5)*.16:0;
   }};
 }
 export function createBottle(){

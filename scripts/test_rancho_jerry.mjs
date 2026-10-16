@@ -32,3 +32,26 @@ test('isolated DEM crests, outer edges and along-divide travel do not launch jum
  const slope=createRidgeDetector({catchments:f,project:p=>p,height:e=>100+e*.2,valid:()=>true});assert.equal(slope(0,0,Math.PI/2),null);
  const noBoundaries=createMotion({height,valid});for(let i=0;i<3600;i++)noBoundaries.step(.05);assert.equal(noBoundaries.state.jumps,0);
 });
+
+test('ice cream trips from home and every monitoring site park, swim two laps, and resume',async()=>{
+ const {POOL,POOL_PHASES,poolPose}=await import('../field-sites/rancho/atlas/jerry-pool-trip.js');
+ for(const start of [HOME,...DESTINATIONS.map(d=>d.point)]){
+  const m=make();Object.assign(m.state,{e:start[0],n:start[1]});assert.ok(m.drop(...start,'icecream'));
+  const phases=[];let swimSeconds=0;
+  for(let i=0;i<6000;i++){
+   const s=m.step(.05);assert.ok(valid(s.e,s.n));if(phases.at(-1)!==s.phase)phases.push(s.phase);
+   if(POOL_PHASES.has(s.phase)){assert.equal(s.speed,0);assert.deepEqual([s.e,s.n],POOL.parking);assert.equal(m.drop(...HOME),false);}
+   if(s.phase==='swim'){swimSeconds+=.05;const p=poolPose(s).point;assert.ok(Math.hypot(p[0]-POOL.center[0],p[1]-POOL.center[1])<5.3);}
+   if(s.phase==='drive')break;
+  }
+  assert.deepEqual(phases,['eat','pool-drive','change-swim','walk-pool','swim','walk-back','change-drive','drive']);
+  assert.ok(Math.abs(swimSeconds-26)<.1);assert.equal(m.state.laps,2);assert.equal(m.state.wine,null);
+  for(let i=0;i<100;i++)m.step(.05);assert.ok(m.state.speed>5);
+ }
+});
+test('home and destination controls can interrupt a pool visit, and wine still works afterward',()=>{
+ for(const phase of ['eat','pool-drive','change-swim','walk-pool','swim','walk-back','change-drive']){
+  const m=make();Object.assign(m.state,{phase,item:'icecream',speed:0});m.reset();assert.equal(m.state.phase,'home');assert.equal(m.state.item,'wine');
+  Object.assign(m.state,{phase,item:'icecream'});assert.ok(m.go('mh7'));assert.equal(m.state.phase,'drive');assert.ok(m.drop(m.state.e,m.state.n));m.step(.05);assert.equal(m.state.phase,'sip');
+ }
+});

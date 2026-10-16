@@ -1,8 +1,9 @@
 import * as THREE from './vendor/three/three.module.js';
+import {createStreamLines} from './stream-lines.js?v=97850d2a2390';
 import {createRanchLandmarks} from './ranch-landmarks.js?v=9aa807ac9261';
-import {HOME} from './jerry-motion.js?v=1244c24ca1e8';
+import {HOME} from './jerry-motion.js?v=f32f73c78e62';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {createJerry} from './jerry.js?v=d3856241c2e7';
+import {createJerry} from './jerry.js?v=399eb5cba62d';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));
@@ -91,7 +92,8 @@ export async function createScene(atlas) {
     const l=segment(points,color,dashed);l.material.opacity=kind==='channel'?.5:.8;group(kind).add(l);
   }
   for(const f of atlas.catchments){const p=f.properties;for(const ring of f.geometry.coordinates)pathLine(ring,p.kind,p.kind==='watershed'?'#e0c68c':'#c0ec94',!!p.provisional);}
-  for(const f of atlas.channels){const paths=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];for(const path of paths)pathLine(path,'channel','#8dceda');}
+  const streamPaths=atlas.channels.flatMap(f=>(f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates]).map(path=>path.map(ll=>{const [e,n]=project(ll);return position(e,n,ground(e,n)+.8);})));
+  const streams=createStreamLines(streamPaths);group('channel').add(streams.group);
   const contourResponse=await fetch(atlas.dataURL('data/contours-3d.geojson'));
   if(!contourResponse.ok)throw Error('Contour data unavailable');
   const contourData=await contourResponse.json();
@@ -106,7 +108,7 @@ export async function createScene(atlas) {
     return {button,feature:f,position:position(...f.center,ground(...f.center)+f.height)};
   });
   let lastFrame=0;
-  function resize(){const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
+  function resize(){const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);streams.resize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
   new ResizeObserver(()=>{if(active)resize();}).observe(container);
   function setVisible(value){visible=new Set(value);for(const [kind,g] of Object.entries(groups))g.visible=visible.has(kind);}
   setVisible(atlas.enabled);
