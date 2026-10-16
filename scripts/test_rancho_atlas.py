@@ -48,8 +48,22 @@ class AtlasDataTests(unittest.TestCase):
         self.assertLess(self.holes['MH7W4']['geometry']['coordinates'][1],self.holes['MH7W1']['geometry']['coordinates'][1])
         self.assertIn('Provisional',self.holes['MH7W4']['properties']['position_note'])
         outlet=next(f for f in json.loads((DATA/'instruments.geojson').read_text())['features'] if f['properties']['kind']=='outlet')
-        self.assertAlmostEqual(outlet['geometry']['coordinates'][0],-122.3471339,places=6)
-        self.assertEqual(outlet['geometry']['coordinates'][1],39.143007)
+        lon,lat=outlet['geometry']['coordinates']
+        self.assertTrue(-122.343<lon<-122.342 and 39.1428<lat<39.1433)
+        self.assertIn('lowest DEM-elevation crossing',outlet['properties']['position_note'])
+        self.assertTrue(140<outlet['properties']['ground_m']<150)
+        # The outlet must lie on both the published watershed edge and a channel.
+        def distance_to_segment(a,b):
+            def xy(p):return ((p[0]-lon)*111320*math.cos(math.radians(lat)),(p[1]-lat)*111320)
+            a,b=xy(a),xy(b);dx,dy=b[0]-a[0],b[1]-a[1]
+            t=max(0,min(1,-(a[0]*dx+a[1]*dy)/(dx*dx+dy*dy))) if dx or dy else 0
+            return math.hypot(a[0]+t*dx,a[1]+t*dy)
+        ring=json.loads((DATA/'catchments.geojson').read_text())['features'][0]['geometry']['coordinates'][0]
+        self.assertLess(min(distance_to_segment(a,b) for a,b in zip(ring,ring[1:])),1)
+        paths=[]
+        for f in json.loads((DATA/'channels.geojson').read_text())['features']:
+            g=f['geometry'];paths.extend(g['coordinates'] if g['type']=='MultiLineString' else [g['coordinates']])
+        self.assertLess(min(distance_to_segment(a,b) for path in paths for a,b in zip(path,path[1:])),1)
 
     def test_terrain_and_catchments(self):
         terrain=json.loads((DATA/'terrain.json').read_text())
@@ -111,7 +125,13 @@ class AtlasDataTests(unittest.TestCase):
 
     def test_canopy_coverage_and_missing_terrain_remain_explicit(self):
         meta=json.loads((DATA/'canopy.json').read_text())
-        self.assertTrue(.97<meta['coverage']['catchment_fraction']<.98)
+        self.assertGreater(meta['coverage']['catchment_fraction'],.998)
+        self.assertEqual(meta['qa']['watershed_dem_valid_fraction'],1)
+        self.assertGreater(meta['qa']['supplement_observed_fraction_in_watershed'],.98)
+        self.assertEqual(meta['supplement']['survey_dates'],['2017-03-16','2017-03-17'])
+        self.assertGreater(meta['supplement']['point_count'],10000)
+        self.assertLess(abs(meta['supplement']['ground_minus_dem_m']['median']),.1)
+        self.assertLess(abs(meta['supplement']['dem_seam_2017_minus_2019_m']['median']),.1)
         self.assertEqual(meta['raster']['cell_size_m'],1)
         self.assertIn('transparent',meta['raster']['nodata'])
         self.assertGreater(meta['raster']['observed_cells'],1000000)

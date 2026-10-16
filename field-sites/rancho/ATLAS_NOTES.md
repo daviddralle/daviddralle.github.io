@@ -3,6 +3,8 @@
 The first atlas is static and GitHub Pages compatible. Weather remains at
 `/field-sites/rancho/`; the atlas is at `/field-sites/rancho/atlas/`.
 Both use the Rivendell atlas palette, serif titles and compact field controls.
+The shared `rancho-logo.svg` supplies both header marks and favicons; shared
+colors, navigation, focus states and chart typography connect the two views.
 
 ## Scope and data
 
@@ -12,15 +14,18 @@ Both use the Rivendell atlas palette, serif titles and compact field controls.
   completed or original drilled depth. MH3P6 was abandoned and is unlocated.
 - Archived Mountain House boundary and MH1–MH9 subcatchments. MH1–MH8 form the
   primary study sequence; MH9 is retained and drawn with a dashed boundary.
-- Main outlet supplied by David: 39.143007, -122.3471339. The archived watershed
-  has not been re-delineated at this point. It remains a separate source geometry.
+- The study watershed outlet is now **39.143027, -122.342734**: the lowest
+  DEM-elevation intersection of its archived boundary and drainage network.
+  This replaces the approximate Google Maps pin; the boundary is retained.
+  The position is map-derived, not a surveyed gauge location.
 - Terrain-derived drainage lines and February 2024 weather, sap-flow and
   soil-moisture GPS waypoints. These are historical installations, not a claim
   about current operating status or channel wetness.
-- All elevations now use the **2019 NCALM CA19_Dietrich bare-earth DEM**,
-  resampled from its 0.25 m source raster to 1 m. No metadata elevations or
-  offsets are used. This matching DEM keeps terrain, borehole collars and
-  measured point elevations on the same NAVD88 (GEOID 12B) reference.
+- Elevations use the **2019 NCALM CA19_Dietrich bare-earth DEM**, with
+  **2017 CA17_Dietrich** filling the northwestern missing portion. Source
+  rasters (0.25 m / 0.5 m) are resampled to 1 m. No metadata elevations or
+  vertical offsets are used. Both surveys use NAVD88; 2019 specifies GEOID 12B.
+  Terrain now covers every study-watershed cell at 1 m resolution.
   The browser terrain mesh is resampled to 10 m; invalid triangles are omitted.
 
 The `data/manifest.json` and each feature preserve provenance. The two supplied
@@ -34,6 +39,13 @@ The 2D canopy raster and 3D point cloud come from the **16–17 April 2019 NCALM
 survey**, distributed by OpenTopography: https://doi.org/10.5069/G9FX77MW (CC BY 4.0).
 The local mortality-project files were smaller excerpts, so the public source
 was cropped to encompass Mountain House and its monitoring network.
+The northwestern gap uses the **16–17 March 2017 NCALM survey**,
+https://doi.org/10.5069/G9QC01MQ (CC BY 4.0), and its matching bare-earth DEM.
+2017 returns are used only where the 2019 DEM is missing in the northern tiles.
+The 2017 provider raster had small nodata holes; 377 cells were reconstructed
+from a local TIN of measured class-2 ground returns, bounded by their convex hull
+and a 20 m maximum nearest-return distance. No canopy is interpolated.
+The median 2017-minus-2019 DEM difference near the seam is 0.011 m; neither is shifted.
 
 - The 1 m raster stores the maximum eligible return height above the matching
   bare-earth DEM per cell. Cells without returns are transparent. No crowns
@@ -42,13 +54,16 @@ was cropped to encompass Mountain House and its monitoring network.
   Class 1 is unclassified and may include non-vegetation objects. Ground,
   noise and withheld returns are excluded.
 - Display processing uses 0.6 m voxel thinning within chunks, seeded reservoir
-  sampling to at most 1.2 million returns, and a final duplicate-voxel removal.
+  sampling to at most 1.2 million 2019 returns, and a final duplicate-voxel removal.
+  The 2017 supplement adds up to 100,000 voxel-thinned measured returns.
   Coordinates are quantized to 0.1 m for compact delivery. Horizontal positions
   are transformed to NAD83 UTM 10N; absolute vertical values are not shifted.
 - Raster and cloud use the Rivendell/SFPUC height color ramp. The point footprint
-  covers 97.4% of the archived watershed; the coverage layer shows the boundary.
-  Missing cells stay transparent and missing 3D terrain triangles are omitted.
-- This is a historical canopy snapshot, not a tree identification or mortality
+  originally covered 97.4% of the archived watershed. The 2017 supplement fills
+  the northwestern gap in the raster, cloud, hillshade and contours. The coverage
+  layer shows both survey boundaries. All study-watershed terrain cells are valid;
+  canopy cells without returns remain transparent (98.3% of gap cells have returns).
+- This is a historical **two-date mosaic**, not a tree identification or mortality
   classification. The 2023 excerpts are not mixed into it.
 
 `data/canopy.json` records source tile URLs and hashes, counts, ground-return
@@ -64,7 +79,7 @@ layer toggle also controls the 3D index contours, clipped to the terrain extent
 and draped just above the 10 m display mesh. No elevation offsets are applied.
 
 `atlas/preview.webp` is a cartographic thumbnail rendered from the DEM and public
-vector layers using `scripts/build_rancho_thumbnail.py --dem /private/path/to/rancho-2019-dem.tif`.
+vector layers using `scripts/build_rancho_thumbnail.py --dem /private/path/to/rancho-composite-dem.tif`.
 It illustrates MH5–MH7 and their monitoring network; it is not a photograph.
 
 ## Interpretation decisions
@@ -135,3 +150,14 @@ work without a basemap service; satellite/topographic tiles need internet access
 The weather charts retain their existing Chart.js CDN dependency. Vendored
 Leaflet, proj4 and Three.js were copied from the public Rivendell atlas, retaining
 their licence headers. Publication adds Rancho atlas cards to the existing homepage and field-site collection. The existing weather data and refresh workflow are retained in the hosting repository.
+
+### Northwestern supplement rebuild
+
+Preserve the 2019 canopy products and catchments in an external baseline folder,
+then run `scripts/supplement_rancho_lidar.py --work /external/rancho-canopy
+--baseline /external/base2019`. It downloads two northern 2017 point tiles and
+the matching provider DEM, writes the composite DEM externally, and updates
+the compact canopy products. Re-run the atlas and thumbnail builders with
+`--dem /external/rancho-canopy/rancho-composite-dem.tif`, the composite source
+label in `canopy.json`, and its vertical datum. Terrain, contours and the outlet
+then share that DEM. Refresh the HTML asset versions when publishing.

@@ -86,7 +86,7 @@ def main():
                 id=label, kind='watershed' if label == 'Mountain House' else 'catchment',
                 area_ha=round(metric.area / 10000, 2), label_position=list(polygon.representative_point().coords)[0],
                 source='Data/GIS/Watershed Boundaries/' + filename,
-                note='Archived delineation; not re-delineated at the user-supplied outlet.' if label == 'Mountain House' else ('Additional MH9 polygon in source archive.' if label == 'MH9' else 'Archived catchment delineation.')))
+                note='Study watershed; outlet follows the lowest mapped drainage crossing of this boundary.' if label == 'Mountain House' else ('Additional MH9 polygon in source archive.' if label == 'MH9' else 'Archived catchment delineation.')))
     save(out / 'catchments.geojson', collection(watershed))
     domain = shape(watershed[0]['geometry'])
     metric_bounds = transform(TO_UTM.transform, domain).buffer(160).bounds
@@ -160,10 +160,23 @@ def main():
             kind = 'weather' if name.startswith('RVWS') else ('sapflow' if name.startswith('sapflow') else 'soil')
             instruments.append(feature({'type':'Point','coordinates':ll}, id='RVWS' if kind == 'weather' else name,
                 kind=kind, description=name, source='February 2024 GPS waypoints', position_note='Field GPS waypoint; positional accuracy unspecified. Current operation not verified.'))
-        instruments.append(feature({'type':'Point','coordinates':[-122.3471339,39.143007]}, id='Mountain House outlet',kind='outlet',source='David Dralle, 15 October 2026',position_note='User-supplied main catchment outlet. Archived boundary retained separately.'))
+        streams = json.loads((gis/'mh_2m_streams5000.geojson').read_text())
+        boundary = transform(TO_UTM.transform, domain).boundary
+        crossings = []
+        for f in streams['features']:
+            crossing = shape(f['geometry']).intersection(boundary)
+            for point in getattr(crossing, 'geoms', [crossing]):
+                if point.geom_type == 'Point' and not point.is_empty:
+                    lon, lat = TO_LL.transform(point.x, point.y)
+                    z = ground(lon, lat)
+                    if z is not None: crossings.append((z, lon, lat))
+        if not crossings: raise ValueError('No mapped channel crosses the study watershed boundary')
+        z, lon, lat = min(crossings)
+        instruments.append(feature({'type':'Point','coordinates':[lon,lat]}, id='Mountain House outlet',kind='outlet',ground_m=z,
+            source='Mountain_House_Watershed.kml + mh_2m_streams5000.geojson + bare-earth LiDAR DEM',
+            position_note='Study watershed outlet: lowest DEM-elevation crossing of the archived watershed boundary by the mapped drainage network. Map-derived position, not a surveyed gauge. Replaces the approximate Google Maps pin.'))
         save(out / 'instruments.geojson', collection(instruments))
 
-        streams = json.loads((gis/'mh_2m_streams5000.geojson').read_text())
         lines = []
         region = transform(TO_UTM.transform, domain).buffer(60)
         for f in streams['features']:

@@ -11,3 +11,7 @@
 .canopy-key{margin-top:16px;font-size:11px;line-height:1.5;color:var(--muted)}.canopy-key strong{font-weight:400}.canopy-ramp{height:9px;margin:9px 0 3px;border-radius:3px;background:linear-gradient(90deg,#c3a675,#c5bb76 25%,#91b34e 50%,#4d973b 75%,#206038)}.canopy-ticks{display:flex;justify-content:space-between;font:10px monospace}.canopy-key label{display:block;margin:12px 0 4px}.canopy-key input{width:100%;accent-color:var(--accent)}.canopy-key p{margin-bottom:0}#map.terrain-mode{background:#203037}
 
 .lidar-controls{margin-bottom:18px;font-size:11px;color:var(--muted)}.lidar-controls label{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px}.lidar-controls output{font-variant-numeric:tabular-nums}.lidar-controls input{width:100%;accent-color:var(--accent);margin:0}.lidar-controls p{line-height:1.5;margin:6px 0 0}
+
+.brand-logo{display:block;width:62px;height:52px;object-fit:contain;flex:none}@media(max-width:1000px){.brand-logo{width:49px}}@media(max-width:720px){.brand-logo{width:36px;height:36px}}
+
+@media(max-width:720px){.atlas-header{height:116px;padding:10px 14px;flex-direction:column;align-items:stretch;gap:8px}.atlas-header .eyebrow{display:none}.atlas-header h1{white-space:nowrap;margin:0}.atlas-header h1 span{display:inline;margin-left:8px;font-size:12px}.atlas-header .header-actions{max-width:none;flex-wrap:nowrap;justify-content:flex-start}.atlas-main{height:calc(100dvh - 158px)}#sidebar{top:158px}}

@@ -9,3 +9,9 @@
 @media(max-width:380px){.weather-page .segmented{flex-wrap:wrap}.weather-page .conditions-grid{grid-template-columns:1fr}.weather-page .condition-card:last-child{grid-column:auto}}
 
 .weather-page #pressure{font-size:clamp(24px,2.3vw,32px);white-space:nowrap}
+
+/* The same site mark and controls anchor both Rancho views. */
+.weather-page .topbar{width:100%;height:84px;padding:0 25px;margin:0;gap:16px}.weather-page .brand{gap:14px;font-weight:400}.weather-page .brand-title{font:29px var(--serif);letter-spacing:-.6px}.weather-page .nav-links a{border:1px solid var(--line);padding:9px 12px}.weather-page .nav-links a:focus-visible,.weather-page .unit-toggle button:focus-visible,.weather-page .segmented button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.weather-page .status-dot{background:var(--accent);box-shadow:0 0 0 6px #c0ec941f}.weather-page .updated-label,.weather-page .primary .metric-label,.weather-page .primary .metric-note,.weather-page footer{color:var(--muted)}.weather-page footer a{color:var(--accent)}.weather-page .unit-toggle{background:#0c2027}.weather-page .unit-toggle button{font-weight:400}
+@media(max-width:720px){.weather-page .topbar{height:96px;padding:0 14px;gap:8px}.weather-page .brand{gap:9px}.weather-page .brand-title{font-size:24px}.weather-page .brand small{display:block;margin:4px 0 0;font-size:13px}.weather-page .unit-toggle button{min-width:44px;padding:7px 8px;font-size:11px}}
+
+.weather-page .status-dot.stale{background:var(--gold);box-shadow:0 0 0 6px #efbf7324}.weather-page .status-dot.offline{background:#ff947a;box-shadow:0 0 0 6px #ff947a24}

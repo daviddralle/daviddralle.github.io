@@ -2,7 +2,7 @@ import * as THREE from './vendor/three/three.module.js';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
 
 export async function createScene(atlas) {
-  const response=await fetch('data/terrain.json');
+  const response=await fetch(atlas.dataURL('data/terrain.json'));
   if(!response.ok)throw Error('Terrain data unavailable');
   const terrain=await response.json();
   const container=document.getElementById('scene'), labelLayer=document.getElementById('scene-labels');
@@ -33,7 +33,7 @@ export async function createScene(atlas) {
     if(r<ny-1&&c<nx-1&&(!terrain.valid||[terrain.valid[r][c],terrain.valid[r][c+1],terrain.valid[r+1][c],terrain.valid[r+1][c+1]].every(Boolean))){const a=r*nx+c,b=a+1,d=a+nx,e2=d+1;indices.push(a,d,b,b,d,e2);}
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();
-  const texture=await new THREE.TextureLoader().loadAsync('data/terrain-texture.jpg');texture.colorSpace=THREE.SRGBColorSpace;
+  const texture=await new THREE.TextureLoader().loadAsync(atlas.dataURL('data/terrain-texture.jpg'));texture.colorSpace=THREE.SRGBColorSpace;
   const material=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:.45,side:THREE.DoubleSide,depthWrite:false});
   const surface=new THREE.Mesh(geometry,material);surface.renderOrder=1;root.add(surface);
   world.add(new THREE.HemisphereLight('#e0efe6','#28433e',2));
@@ -42,7 +42,7 @@ export async function createScene(atlas) {
   const colors={well:'#63dbea',piezometer:'#efbf73',weather:'#ffffff',outlet:'#ff947a',sapflow:'#c0ec94',soil:'#b69ce9'};
   function group(kind){if(!groups[kind]){groups[kind]=new THREE.Group();root.add(groups[kind]);}return groups[kind];}
   const cloudMeta=atlas.canopyMeta.cloud;
-  const cloudResponse=await fetch('data/'+cloudMeta.url);
+  const cloudResponse=await fetch(atlas.dataURL('data/'+cloudMeta.url));
   if(!cloudResponse.ok)throw Error('Canopy point cloud unavailable');
   const packed=new Uint16Array(await cloudResponse.arrayBuffer());
   if(packed.length!==cloudMeta.count*4)throw Error('Incomplete canopy point cloud');
@@ -79,7 +79,7 @@ export async function createScene(atlas) {
   }
   for(const f of atlas.catchments){const p=f.properties;for(const ring of f.geometry.coordinates)pathLine(ring,p.kind,p.kind==='watershed'?'#e0c68c':'#c0ec94');}
   for(const f of atlas.channels){const paths=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];for(const path of paths)pathLine(path,'channel','#8dceda');}
-  const contourResponse=await fetch('data/contours-3d.geojson');
+  const contourResponse=await fetch(atlas.dataURL('data/contours-3d.geojson'));
   if(!contourResponse.ok)throw Error('Contour data unavailable');
   const contourData=await contourResponse.json();
   for(const f of contourData.features){const paths=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];for(const path of paths)pathLine(path,'contour','#536052');}
