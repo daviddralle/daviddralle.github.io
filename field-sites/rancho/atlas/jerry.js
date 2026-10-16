@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three/three.module.js';
-import {bindJerryCameraGestures} from './jerry-camera.js?v=66903a505cf4';
+import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
 import {createMule,createBottle} from './jerry-model.js?v=3b74120aaf54';
 import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=93a43efda54c';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
@@ -25,6 +25,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   <p id="jerry-drop-help">Drag a bottle onto the hills, or click then choose a spot.</p>
   <div id="jerry-drop-actions" hidden><button id="jerry-serve">Serve beside Jerry</button><button id="jerry-cancel">Cancel drop</button></div>
   <div class="jerry-actions"><button id="jerry-library">100 ranch haikus ↗</button><button id="jerry-terrain" aria-expanded="false">Terrain controls</button></div>
+  <p class="jerry-fiction">Drag to rotate · Ctrl/⌘-drag to pan<br>Scroll to zoom · rotation & zoom keep tracking</p>
   <p id="jerry-status" role="status"></p><small class="jerry-fiction">Playful fiction · original poems, not Brown quotations. Vehicle enlarged 2.4×.</small></div>`;
   host.append(toolbar);
   const label=document.createElement('div');label.className='jerry-name';label.textContent='Jerry · Cali & Colusa';label.hidden=true;host.append(label);
@@ -39,7 +40,8 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   <div id="jerry-library-poems"></div><details class="jerry-reading"><summary>Reading behind the poems · 10 essays</summary>${sources.map(a=>`<p><a href="${a.url}" target="_blank" rel="noopener">${a.title} ↗</a><br><small>${a.authors} · ${a.date}</small></p>`).join('')}</details>`;
   document.body.append(library);
   const $=id=>document.getElementById(id),esc=t=>t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let enabled=false,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,follow=true,arming=false,drag=null,dragged=false,lastPhase='',lastStatus='',savedCamera=null,savedTarget=null,savedMin=15,followSnap=true,followZoom=1;
+  let enabled=false,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,follow=true,arming=false,drag=null,dragged=false,lastPhase='',lastStatus='',savedCamera=null,savedTarget=null,savedMin=15,followSnap=true,followZoom=1,savedDamping=controls.enableDamping;
+  const followOffset=new THREE.Vector3(14,6,21),followRadius=followOffset.length();
   const shadowGeometry=new THREE.BufferGeometry();shadowGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(33*3),3));
   const shadowIndices=[];for(let i=1;i<=32;i++)shadowIndices.push(0,i,i===32?1:i+1);shadowGeometry.setIndex(shadowIndices);
   const shadow=new THREE.Mesh(shadowGeometry,new THREE.MeshBasicMaterial({color:'#102326',transparent:true,opacity:.2,side:THREE.DoubleSide,depthWrite:false}));shadow.renderOrder=-2;overlay.add(shadow);
@@ -47,18 +49,18 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   const homeRing=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:65},(_,i)=>{const a=i/65*Math.PI*2,e=HOME[0]+Math.cos(a)*12,n=HOME[1]+Math.sin(a)*12;return position(e,n,ground(e,n)+.25);})),new THREE.LineBasicMaterial({color:'#e6d6b0',transparent:true,opacity:.45}));homeRing.visible=false;root.add(homeRing);
   function worldPosition(e,n,lift=0){const p=position(e,n,ground(e,n));p.y=p.y*getVertical()+lift;return p;}
   function pick(event){const rect=canvas.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)return null;const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),camera);surface.updateWorldMatrix(true,false);const hit=ray.intersectObject(surface)[0];if(!hit)return null;const e=hit.point.x+(x0+x1)/2,n=(y0+y1)/2-hit.point.z;return valid(e,n)?[e,n]:null;}
-  function setFollow(value){follow=value;$('jerry-follow').setAttribute('aria-pressed',String(value));followSnap=value;}
+  function setFollow(value){follow=value;controls.enableDamping=enabled&&value?false:savedDamping;$('jerry-follow').setAttribute('aria-pressed',String(value));followSnap=value;}
   function setPaused(value){paused=value;$('jerry-pause').textContent=value?'Resume':'Pause';$('jerry-pause').setAttribute('aria-pressed',String(value));}
   function cancelDrop(){shell.classList.remove('jerry-placing');$('jerry-options').setAttribute('aria-expanded',String(shell.classList.contains('jerry-controls-open')));arming=false;drag=null;marker.visible=false;controls.enabled=true;canvas.style.cursor='';$('jerry-wine').classList.remove('selected');$('jerry-drop-actions').hidden=true;$('jerry-drop-help').textContent='Drag a bottle onto the hills, or click then choose a spot.';}
   function arm(){if(!enabled)return;shell.classList.add('jerry-placing');$('jerry-options').setAttribute('aria-expanded','true');arming=true;controls.enabled=false;canvas.style.cursor='crosshair';$('jerry-wine').classList.add('selected');$('jerry-drop-actions').hidden=false;$('jerry-drop-help').textContent='Choose a terrain spot. Escape cancels; “Serve beside Jerry” works from the keyboard.';}
   function drop(p){if(!p||!motion.drop(...p)){$('jerry-drop-help').textContent='Choose a spot on the LiDAR terrain, away from its edge.';return;}bottle.position.copy(worldPosition(...p));bottle.visible=true;card.hidden=true;shell.classList.remove('jerry-reading-poem');lastPhase='';setPaused(false);cancelDrop();setFollow(true);}
   function showThinking(){card.classList.add('composing');card.hidden=false;shell.classList.add('jerry-reading-poem');}
   function showPoem(){card.classList.remove('composing');const poem=deck.next(),source=sources.find(a=>a.id===poem.source);$('jerry-poem-topic').textContent=poem.topic+' · '+String(poem.id).padStart(3,'0');$('jerry-poem-lines').textContent=poem.lines.join('\n');$('jerry-poem-source').textContent='Inspiration: '+source.title+' ↗';$('jerry-poem-source').href=source.url;card.hidden=false;shell.classList.add('jerry-reading-poem');}
-  function reset(){followZoom=1;cancelDrop();motion.reset();bottle.visible=false;card.hidden=true;shell.classList.remove('jerry-reading-poem');lastPhase='';setFollow(true);}
+  function reset(){followZoom=1;followOffset.set(14,6,21);cancelDrop();motion.reset();bottle.visible=false;card.hidden=true;shell.classList.remove('jerry-reading-poem');lastPhase='';setFollow(true);}
   function toggle(){
     enabled=!enabled;$('jerry-toggle').setAttribute('aria-pressed',String(enabled));$('jerry-panel').hidden=!enabled;$('jerry-quick').hidden=!enabled;shell.classList.toggle('jerry-on',enabled);mule.root.visible=homeRing.visible=enabled;label.hidden=homeLabel.hidden=!enabled;
-    if(enabled){savedCamera=camera.position.clone();savedTarget=controls.target.clone();savedMin=controls.minDistance;controls.minDistance=8;reset();setPaused(matchMedia('(prefers-reduced-motion: reduce)').matches);}
-    else{cancelDrop();bottle.visible=false;card.hidden=true;marker.visible=false;shell.classList.remove('jerry-show-tools','jerry-controls-open','jerry-reading-poem');$('jerry-options').setAttribute('aria-expanded','false');$('jerry-terrain').setAttribute('aria-expanded','false');if(savedCamera){camera.position.copy(savedCamera);controls.target.copy(savedTarget);controls.minDistance=savedMin;controls.update();}}
+    if(enabled){savedCamera=camera.position.clone();savedTarget=controls.target.clone();savedMin=controls.minDistance;savedDamping=controls.enableDamping;controls.minDistance=8;reset();setPaused(matchMedia('(prefers-reduced-motion: reduce)').matches);}
+    else{controls.enableDamping=savedDamping;cancelDrop();bottle.visible=false;card.hidden=true;marker.visible=false;shell.classList.remove('jerry-show-tools','jerry-controls-open','jerry-reading-poem');$('jerry-options').setAttribute('aria-expanded','false');$('jerry-terrain').setAttribute('aria-expanded','false');if(savedCamera){camera.position.copy(savedCamera);controls.target.copy(savedTarget);controls.minDistance=savedMin;controls.update();}}
   }
   function renderLibrary(){const topic=$('jerry-theme').value,q=$('jerry-search').value.toLowerCase();const chosen=poems.filter(p=>(!topic||p.source===topic)&&(!q||p.lines.join(' ').toLowerCase().includes(q)));$('jerry-count').textContent=`${chosen.length} / 100`;$('jerry-library-poems').innerHTML=chosen.map(p=>{const source=sources.find(a=>a.id===p.source);return `<article><span class="eyebrow">${String(p.id).padStart(3,'0')} · ${p.topic}</span><p>${p.lines.map(esc).join('<br>')}</p><a href="${source.url}" target="_blank" rel="noopener">Read the inspiration ↗</a></article>`;}).join('')||'<p>No poems match. Try another word or theme.</p>';}
   $('jerry-toggle').onclick=toggle;$('jerry-pause').onclick=()=>setPaused(!paused);$('jerry-follow').onclick=()=>setFollow(!follow);$('jerry-home').onclick=reset;
@@ -80,7 +82,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   canvas.addEventListener('pointerdown',e=>{if(arming){e.preventDefault();e.stopImmediatePropagation();}},true);
   canvas.addEventListener('pointerup',e=>{if(arming&&!drag){e.preventDefault();e.stopImmediatePropagation();drop(pick(e));}},true);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&arming){cancelDrop();e.preventDefault();}});
-  bindJerryCameraGestures({canvas,distance:()=>camera.position.distanceTo(controls.target),canInteract:()=>enabled&&follow&&!arming&&controls.enabled,onDrag:()=>setFollow(false),onZoom:ratio=>{followZoom=Math.max(.2,Math.min(200,followZoom*ratio));}});
+  bindJerryCameraGestures({canvas,distance:()=>camera.position.distanceTo(controls.target),canInteract:()=>enabled&&follow&&!arming&&controls.enabled,onPan:()=>setFollow(false),onOrbit:()=>{followOffset.copy(camera.position).sub(controls.target).applyAxisAngle(new THREE.Vector3(0,1,0),-mule.root.rotation.y).setLength(followRadius);},onZoom:ratio=>{followZoom=Math.max(.2,Math.min(200,followZoom*ratio));}});
   const dustCount=36,dustData=new Float32Array(dustCount*3),dustAge=new Float32Array(dustCount).fill(2);
   const dustGeo=new THREE.BufferGeometry();dustGeo.setAttribute('position',new THREE.BufferAttribute(dustData,3));
   const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({color:'#d8bd8e',size:1.3,transparent:true,opacity:.25,depthWrite:false}));dust.visible=false;overlay.add(dust);let dustIndex=0,dustTime=0;
@@ -94,7 +96,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
     if(s.phase!==lastPhase){if(s.phase==='sip')bottle.visible=false;if(s.phase==='think')showThinking();if(s.phase==='poem')showPoem();lastPhase=s.phase;}
     if(follow){
       const target=mule.root.position.clone().add(new THREE.Vector3(0,s.phase==='think'||s.phase==='poem'?6:2.9,0));
-      const offset=new THREE.Vector3(14,6,21).multiplyScalar(followZoom*Math.max(1,Math.min(2,.95/camera.aspect))).applyAxisAngle(new THREE.Vector3(0,1,0),mule.root.rotation.y);
+      const offset=followOffset.clone().multiplyScalar(followZoom*Math.max(1,Math.min(2,.95/camera.aspect))).applyAxisAngle(new THREE.Vector3(0,1,0),mule.root.rotation.y);
       const desired=target.clone().add(offset),e=desired.x+(x0+x1)/2,n=(y0+y1)/2-desired.z;
       if(valid(e,n))desired.y=Math.max(desired.y,worldPosition(e,n).y+5);
       const mix=followSnap?1:1-Math.exp(-dt*3);camera.position.lerp(desired,mix);controls.target.lerp(target,mix);followSnap=false;

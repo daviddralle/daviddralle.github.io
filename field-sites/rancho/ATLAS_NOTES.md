@@ -248,8 +248,9 @@ terrain slope changes produce bounded arcade jumps, now around 4 m high with
 more airtime, a nose-up launch and a slight airborne bank. Cruise speed is unchanged
 from the faster monitoring-site circuit. There are no boosts. The
 follow camera keeps tracking through wheel/trackpad zoom, touch pinch and middle-button
-zoom, retaining the chosen distance. A drag to orbit or pan releases follow; a
-simple click does not. Choosing a map view also releases follow.
+zoom, retaining the chosen distance. Click-drag rotation keeps follow and retains the chosen viewing angle;
+Ctrl/Command-drag (or right-drag) pans and releases follow. One-finger touch
+rotation keeps follow; two-finger pan releases it. Simple clicks keep follow. Choosing a map view also releases follow.
 Pause is available; reduced-motion preferences start the mode paused. Leaving
 3D ends Jerry Mode and restores the atlas controls. Hidden tabs do not fast-forward.
 
@@ -279,6 +280,6 @@ visits to all four destinations within three simulated minutes, direct destinati
 commands, bounded jumps, wine pickup/stop/thinking/poem progression, and resumption. The existing
 `test_rancho_atlas.py` checks scientific products independently.
 
-`test_rancho_jerry_camera.mjs` checks retained zoom distance, click versus drag,
+`test_rancho_jerry_camera.mjs` checks retained zoom distance, rotation versus modified pan drags,
 and pinch versus pan gestures. Route tests require nonzero speed through each
 destination and verify the larger jumps remain below 5 m.

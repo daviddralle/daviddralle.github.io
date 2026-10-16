@@ -151,7 +151,7 @@ async function toggle3D() {
   if(scene?.active){scene.close();$('scene').hidden=true;$('scene-tools').hidden=true;$('basemaps').hidden=false;$('lidar-controls').hidden=!map.hasLayer(hillshade);$('map').hidden=false;$('toggle-3d').setAttribute('aria-pressed','false');map.invalidateSize();view(currentView);return;}
   $('toggle-3d').disabled=true;$('scene-loading').hidden=false;$('scene-loading').textContent='Opening LiDAR canopy & terrain…';
   try{
-    sceneModule??=await import('./scene.js?v=146a09eacaf4');
+    sceneModule??=await import('./scene.js?v=019d71a52bf2');
     if(!scene)scene=await sceneModule.createScene({holes,catchments,channels,instruments,enabled,inspect,canopyMeta,coverage,dataURL});
     $('scene').hidden=false;$('map').hidden=true;$('scene-tools').hidden=false;$('basemaps').hidden=true;$('lidar-controls').hidden=true;
     scene.canopyOpacity(Number($('canopy-opacity').value));scene.open();scene.focus(currentView==='watershed'?'network':currentView);
