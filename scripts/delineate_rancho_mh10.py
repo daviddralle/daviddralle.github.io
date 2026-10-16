@@ -88,6 +88,10 @@ def main():
     existing = json.loads((args.output / 'catchments.geojson').read_text())
     archives = {f['properties']['id']: transform(TO_UTM.transform, shape(f['geometry']))
                 for f in existing['features'] if f['properties']['id'] != 'MH10'}
+    archive_path = args.output / 'archived-watershed.geojson'
+    if archive_path.exists():
+        archived = json.loads(archive_path.read_text())['features'][0]
+        archives['Mountain House'] = transform(TO_UTM.transform, shape(archived['geometry']))
     qa = dict(upstream_cells=int(catch.sum()), raster_area_ha=float(raw.area / 10000),
               omitted_diagonal_cells_m2=omitted, polygon_area_ha=polygon.area / 10000,
               within_archived_watershed_fraction=raw.intersection(archives['Mountain House']).area / raw.area,

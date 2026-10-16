@@ -49,8 +49,14 @@ class AtlasDataTests(unittest.TestCase):
         self.assertIn('Provisional',self.holes['MH7W4']['properties']['position_note'])
         outlet=next(f for f in json.loads((DATA/'instruments.geojson').read_text())['features'] if f['properties']['kind']=='outlet')
         lon,lat=outlet['geometry']['coordinates']
-        self.assertTrue(-122.343<lon<-122.342 and 39.1428<lat<39.1433)
-        self.assertIn('lowest DEM-elevation crossing',outlet['properties']['position_note'])
+        self.assertTrue(-122.3447<lon<-122.3444 and 39.1428<lat<39.1433)
+        self.assertIn('snapped',outlet['properties']['position_note'])
+        qa=outlet['properties']['delineation']['qa']
+        self.assertTrue(152<qa['area_ha']<153)
+        self.assertLess(outlet['properties']['delineation']['snap_distance_m'],10)
+        self.assertGreater(min(qa['subcatchment_inclusion_fraction'].values()),.99)
+        self.assertFalse(qa['touches_dem_edge'])
+        self.assertEqual(qa['nodata_cells'],0)
         self.assertTrue(140<outlet['properties']['ground_m']<150)
         # The outlet must lie on both the published watershed edge and a channel.
         def distance_to_segment(a,b):
@@ -141,7 +147,7 @@ class AtlasDataTests(unittest.TestCase):
         meta=json.loads((DATA/'canopy.json').read_text())
         self.assertGreater(meta['coverage']['catchment_fraction'],.998)
         self.assertEqual(meta['qa']['watershed_dem_valid_fraction'],1)
-        self.assertGreater(meta['qa']['supplement_observed_fraction_in_watershed'],.98)
+        self.assertGreater(meta['qa'].get('supplement_observed_fraction_in_archived_watershed',meta['qa'].get('supplement_observed_fraction_in_watershed')),.98)
         self.assertEqual(meta['supplement']['survey_dates'],['2017-03-16','2017-03-17'])
         self.assertGreater(meta['supplement']['point_count'],10000)
         self.assertLess(abs(meta['supplement']['ground_minus_dem_m']['median']),.1)

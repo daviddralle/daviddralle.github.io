@@ -86,10 +86,14 @@ def main():
                 id=label, kind='watershed' if label == 'Mountain House' else 'catchment',
                 area_ha=round(metric.area / 10000, 2), label_position=list(polygon.representative_point().coords)[0],
                 source='Data/GIS/Watershed Boundaries/' + filename,
-                note='Study watershed; outlet follows the lowest mapped drainage crossing of this boundary.' if label == 'Mountain House' else ('Additional MH9 polygon in source archive.' if label == 'MH9' else 'Archived catchment delineation.')))
+                note='Archived watershed boundary; retained separately for reference.' if label == 'Mountain House' else ('Additional MH9 polygon in source archive.' if label == 'MH9' else 'Archived catchment delineation.')))
     derived_path = out / 'derived-catchments.geojson'
     derived = json.loads(derived_path.read_text())['features'] if derived_path.exists() else []
     watershed.extend(derived)
+    study = json.loads((out / 'study-watershed.geojson').read_text())['features']
+    study_boundary = next(f for f in study if f['properties']['kind'] == 'watershed')
+    study_outlet = next(f for f in study if f['properties']['kind'] == 'outlet')
+    watershed = [study_boundary] + [f for f in watershed if f['properties']['kind'] != 'watershed']
     save(out / 'catchments.geojson', collection(watershed))
     domain = shape(watershed[0]['geometry'])
     metric_bounds = transform(TO_UTM.transform, domain).buffer(160).bounds
@@ -163,29 +167,10 @@ def main():
             kind = 'weather' if name.startswith('RVWS') else ('sapflow' if name.startswith('sapflow') else 'soil')
             instruments.append(feature({'type':'Point','coordinates':ll}, id='RVWS' if kind == 'weather' else name,
                 kind=kind, description=name, source='February 2024 GPS waypoints', position_note='Field GPS waypoint; positional accuracy unspecified. Current operation not verified.'))
-        streams = json.loads((gis/'mh_2m_streams5000.geojson').read_text())
-        boundary = transform(TO_UTM.transform, domain).boundary
-        crossings = []
-        for f in streams['features']:
-            crossing = shape(f['geometry']).intersection(boundary)
-            for point in getattr(crossing, 'geoms', [crossing]):
-                if point.geom_type == 'Point' and not point.is_empty:
-                    lon, lat = TO_LL.transform(point.x, point.y)
-                    z = ground(lon, lat)
-                    if z is not None: crossings.append((z, lon, lat))
-        if not crossings: raise ValueError('No mapped channel crosses the study watershed boundary')
-        z, lon, lat = min(crossings)
-        instruments.append(feature({'type':'Point','coordinates':[lon,lat]}, id='Mountain House outlet',kind='outlet',ground_m=z,
-            source='Mountain_House_Watershed.kml + mh_2m_streams5000.geojson + bare-earth LiDAR DEM',
-            position_note='Study watershed outlet: lowest DEM-elevation crossing of the archived watershed boundary by the mapped drainage network. Map-derived position, not a surveyed gauge. Replaces the approximate Google Maps pin.'))
+        instruments.append(study_outlet)
         save(out / 'instruments.geojson', collection(instruments))
 
-        lines = []
-        region = transform(TO_UTM.transform, domain).buffer(60)
-        for f in streams['features']:
-            clipped = shape(f['geometry']).intersection(region)
-            if clipped.is_empty or clipped.geom_type not in ('LineString','MultiLineString'): continue
-            lines.append(feature(mapping(transform(TO_LL.transform, clipped.simplify(1))), id='channel-'+str(len(lines)),kind='channel'))
+        lines = json.loads((out / 'derived-channels.geojson').read_text())['features']
         save(out / 'channels.geojson', collection(lines))
 
         # A 10 m display mesh, retaining metric UTM axes. Full-resolution DEM remains external.
@@ -222,12 +207,12 @@ def main():
         Image.fromarray(rgb).save(out/'hillshade.jpg',quality=88)
         mapped=sum(f['geometry'] is not None for f in holes)
         save(out/'qa.json', dict(metadata_records=len(holes),mapped_records=mapped,unlocated=[f['properties']['id'] for f in holes if f['geometry'] is None],unknown_depths=[f['properties']['id'] for f in holes if f['properties']['depth_m'] is None],provisional_positions=['MH7W4','MH8W1'],elevation_source=args.dem_source+'; DEM only, no offsets applied'))
-        save(out/'manifest.json', dict(version=2,compiled='2026-10-15',source_metadata_modified='2024-04-06',borehole_records=len(holes),mapped_boreholes=mapped,known_depths=sum(f['properties']['depth_m'] is not None for f in holes),hillshade_bounds=[[south,west],[north,east]],dem_source=args.dem_source,vertical_datum=args.vertical_datum,contours=dict(source=args.dem_source,interval_m=2,index_interval_m=10,simplification_m=.6,minimum_length_m=8,nodata='Masked; no contours inferred across missing cells',count=len(contours),display_3d='10 m index contours clipped to the display mesh and draped on its surface'),sources=[
+        save(out/'manifest.json', dict(version=2,compiled='2026-10-16',source_metadata_modified='2024-04-06',borehole_records=len(holes),mapped_boreholes=mapped,known_depths=sum(f['properties']['depth_m'] is not None for f in holes),hillshade_bounds=[[south,west],[north,east]],dem_source=args.dem_source,vertical_datum=args.vertical_datum,contours=dict(source=args.dem_source,interval_m=2,index_interval_m=10,simplification_m=.6,minimum_length_m=8,nodata='Masked; no contours inferred across missing cells',count=len(contours),display_3d='10 m index contours clipped to the display mesh and draped on its surface'),sources=[
             dict(title='Borehole metadata · Summary meta',url='https://docs.google.com/spreadsheets/d/1P59EhTR2UbpZTWIMZYkxYSYm6P2P-3Obs6523HpuX1o/edit'),
             dict(title='AVR and Rancho Venada research archive',url='https://drive.google.com/drive/folders/0B1oatSIQtIaJZkc4RXBMZl8wVDQ'),
             dict(title='Hahm et al. (2022) · Bedrock vadose zone storage dynamics under extreme drought',url='https://doi.org/10.1029/2021WR031781'),
             dict(title='Whiting et al. · Emergence from drought',note='User-supplied manuscript; figure 1 used to cross-check site orientation. Manuscript not redistributed.')],notes=[
-                'Map covers the archived Mountain House watershed within Rancho Venada, not a ranch property boundary.',
+                'Map covers the DEM-delineated study watershed upstream of the snapped main valley exit, not a ranch property boundary.',
                 'MH1–MH8 are the primary study sequence; the GIS archive also contains MH9.',
                 *[f"{f['properties']['id']}: {f['properties']['note']}" for f in derived],
                 'Metadata well names identify monitoring groups and do not always match the polygon containing a point.',
@@ -235,7 +220,8 @@ def main():
                 'Depth values bearing a foot mark in the nominal metre column were converted using 0.3048 m/ft.',
                 'Completed depths and original drilled depths remain distinct. Unknown depths have no invented shaft.',
                 'All ground elevations and the 3D surface use the source DEM directly, without elevation offsets.',
-                'Channel lines are terrain-derived drainage paths, not observations of current streamflow.',
+                'Channel lines are D8 drainage paths from the full 1 m LiDAR DEM at a 2 ha contributing-area threshold, not observations of current streamflow. Old clipped-DEM edge artifacts are removed.',
+                'The main outlet follows the user-marked valley exit, snapped to the DEM-derived main channel; the study boundary is its upstream contributing area. Archived MH1–MH9 and provisional MH10 are unchanged.',
                 'No groundwater levels, stratigraphic contacts, or tree mortality are inferred in this first atlas.'
             ]))
         print(json.dumps(dict(records=len(holes),mapped=mapped,depths=sum(f['properties']['depth_m'] is not None for f in holes),mesh=[nx,ny],channels=len(lines))))

@@ -12,7 +12,7 @@ colors, navigation, focus states and chart typography connect the two views.
   Google Sheet, `Summary meta`, rows 2–50 (blank and barometer rows excluded).
 - 46 located holes, including the 2023 campaign; 40 records have a documented
   completed or original drilled depth. MH3P6 was abandoned and is unlocated.
-- Archived Mountain House boundary and MH1–MH9 subcatchments. MH1–MH8 form the
+- DEM-delineated Mountain House study boundary and archived MH1–MH9 subcatchments. MH1–MH8 form the
   primary study sequence; MH9 is retained and drawn with a dashed boundary.
 - Provisional **MH10**, immediately north of MH9, is independently delineated
   from the 1 m LiDAR DEM using pysheds D8 flow routing. Its contributing area is
@@ -24,10 +24,16 @@ colors, navigation, focus states and chart typography connect the two views.
   watershed and 609 m² overlaps archived MH9. These small boundary differences
   remain explicit in feature provenance. The dashed MH10 boundary and working
   name are provisional, not field verified.
-- The study watershed outlet is now **39.143027, -122.342734**: the lowest
-  DEM-elevation intersection of its archived boundary and drainage network.
-  This replaces the approximate Google Maps pin; the boundary is retained.
-  The position is map-derived, not a surveyed gauge location.
+- The study watershed outlet is **39.143030, -122.344525**, at the main valley
+  exit indicated by the user. The approximate screenshot seed was snapped
+  **5.5 m** to the nearest DEM-derived main-channel cell with at least 100 ha
+  contributing area. The upstream watershed was redelineated with 1 m D8 routing:
+  **152.3867 ha**, with no nodata cells or DEM-edge truncation. All MH1–MH10
+  representative points and over 99% of each subcatchment are included.
+  This replaces the previous outer boundary, retained for reference in
+  `data/archived-watershed.geojson`. The position is map-derived, not surveyed.
+  Drainage paths were regenerated at a 2 ha contributing-area threshold from
+  the full DEM, removing the old clipped-DEM edge artifact at the former outlet.
 - Terrain-derived drainage lines and February 2024 weather, sap-flow and
   soil-moisture GPS waypoints. These are historical installations, not a claim
   about current operating status or channel wetness.
@@ -72,7 +78,8 @@ The median 2017-minus-2019 DEM difference near the seam is 0.011 m; neither is s
   originally covered 97.4% of the archived watershed. The 2017 supplement fills
   the northwestern gap in the raster, cloud, hillshade and contours. The coverage
   layer shows both survey boundaries. All study-watershed terrain cells are valid;
-  canopy cells without returns remain transparent (98.3% of gap cells have returns).
+  canopy cells without returns remain transparent (98.3% of gap cells within the
+  archived watershed have returns).
 - This is a historical **two-date mosaic**, not a tree identification or mortality
   classification. The 2023 excerpts are not mixed into it.
 
@@ -200,3 +207,23 @@ Their source 1 m DEM elevations remain in the inspector/data unchanged.
 Well symbols, outlined shafts and depth ticks render after terrain and canopy
 without depth occlusion, so vegetation cannot hide them. This drawing order
 does not represent a surveyed mounting height or a raised wellhead elevation.
+
+## Main valley outlet and study watershed rebuild
+
+Using the composite DEM and the same routing dependencies as MH10, run:
+
+```sh
+python scripts/delineate_rancho_watershed.py \
+  --dem /external/rancho-composite-dem.tif \
+  --seed 556644 4332848 \
+  --work /external/study-watershed-routing
+```
+
+The seed is an approximate interpretation of the user's 2026-10-16 screenshot
+red X in EPSG:26910, not a surveyed coordinate. The snap is limited to 30 m.
+`data/study-watershed.geojson` retains the derived boundary, outlet and routing
+QA; `data/derived-channels.geojson` retains the new drainage network. These files
+are inputs to subsequent atlas builds. After rebuilding the composite terrain
+or MH10, rerun this delineation before the atlas builder so coverage and
+subcatchment inclusion checks use the current watershed. Routing modifications
+are confined to flow calculations; all displayed elevations use the original DEM.
