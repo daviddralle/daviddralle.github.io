@@ -1,4 +1,4 @@
-import {soilDetails} from './soil-details.js?v=20261014-context3d';
+import {soilDetails} from './soil-details.js?v=20261016-units';
 // Cached NRCS polygons: no third-party request is needed while using the map.
 export function setupSoils({map,notice,isMeasuring,closeInspector}){
   const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

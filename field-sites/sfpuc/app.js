@@ -1,6 +1,8 @@
 'use strict';
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const U=window.SFPUCUnits;
+const qrow=(k,v,t,suffix='')=>`<dt>${esc(k)}</dt><dd>${U.html(v,t)}${suffix}</dd>`;
 const colors = {'Coast live oak':'#b5ec86','Valley oak':'#efd28d','Blue oak':'#85c7e4','California buckeye':'#d6b5ed','Other / uncertain':'#e7e4d6'};
 const state = {site:null, data:{}, views:{}, terrain:true, measuring:false, measurePoints:[], contourMarkers:[]};
 let manifest, map, base, hillshade, contours, field, coverage, labels, measurement, selected, locations;
@@ -30,7 +32,7 @@ function goFeature(f){
   scene3d?.focusFeature(f);
   inspect(f);
 }
-function treeTooltip(p){return `${esc(p.id)} · ${esc(p.plot)} tag ${esc(p.tree_tag_number)}<br>${esc(p.species)} · ${p.dbh_cm} cm DBH${p.status==='dead'?' · recorded dead':''}`;}
+function treeTooltip(p){return `${esc(p.id)} · ${esc(p.plot)} tag ${esc(p.tree_tag_number)}<br>${esc(p.species)} · ${U.html(p.dbh_cm,'depth')} DBH${p.status==='dead'?' · recorded dead':''}`;}
 function inspect(f){
   const p=f.properties;
   $('#inspector .inspector-header span').textContent='Field record · 2022';
@@ -41,7 +43,7 @@ function inspect(f){
   if (f.geometry.type==='Point') L.circleMarker(ll(f),{radius:p.kind==='trees'?treeRadius(p)+6:11,color:'#fff',weight:2,fill:false,interactive:false,pane:'selection'}).addTo(selected);
   let html=`<div class="eyebrow">${esc(manifest.sites.find(s=>s.id===p.site||s.code===p.site)?.name||p.site)} · ${esc(p.plot)}</div><h2>${esc(p.id)}</h2>`;
   if(p.kind==='trees'){
-    html+=`<div class="subtitle">${esc(p.species)} · field tag ${esc(p.tree_tag_number)}</div><span class="badge ${p.status==='dead'?'dead':''}">Recorded ${esc(p.status)} · 2022</span>${p.in_sampling_plan?'<span class="badge plan">Sampling plan</span>':''}<dl>${row('DBH',p.dbh_cm+' cm')}${row('Crown score',p.crown_condition_rating+' / 10')}${row('Crown position',p.crown_position)}${row('Azimuth',p.azimuth_degrees+'°')}${row('Distance to center',p.distance_from_center_m+' m')}${row('Ground elevation',p.lidar_ground_elevation_m+' m NAVD88')}${row('Record created',p.record_date)}</dl>`;
+    html+=`<div class="subtitle">${esc(p.species)} · field tag ${esc(p.tree_tag_number)}</div><span class="badge ${p.status==='dead'?'dead':''}">Recorded ${esc(p.status)} · 2022</span>${p.in_sampling_plan?'<span class="badge plan">Sampling plan</span>':''}<dl>${qrow('DBH',p.dbh_cm,'depth')}${row('Crown score',p.crown_condition_rating+' / 10')}${row('Crown position',p.crown_position)}${row('Azimuth',p.azimuth_degrees+'°')}${qrow('Distance to center',p.distance_from_center_m,'length')}${qrow('Ground elevation',p.lidar_ground_elevation_m,'length',' NAVD88')}${row('Record created',p.record_date)}</dl>`;
     if(p.status==='dead') html+=`<dl>${row('Recorded death year',Number(p.year_dead)>0?p.year_dead:'Not recorded')}${row('Cause',p.cause_of_death.replaceAll('_',' '))}</dl>`;
     if(p.diseases_and_pests) html+=`<h3>Recorded condition</h3><p>${esc(p.diseases_and_pests.replaceAll('_',' ').replaceAll(',',', '))}${p.specify_other_pest?'; '+esc(p.specify_other_pest):''}</p>`;
     if(p.notes) html+=`<p>${esc(p.notes)}</p>`;
@@ -50,7 +52,7 @@ function inspect(f){
       const plan=p.sampling_plan;
       html+=`<h3>Sampling plan · proposed work</h3><p>${esc(plan['Study role'])}</p><dl>${['Predawn water potential','Midday water potential','Stomatal conductance','Lab hydraulics','Tree-ring width','Tree-ring δ13C'].map(k=>row(k,plan[k])).join('')}</dl><p>${esc(plan['Field verification notes'])}</p><p class="small muted">Plan membership does not establish that measurements or installations are complete.</p>`;
     }
-    html+=`<p class="note">Position inherits plot GPS accuracy (reported ${p.gps_accuracy_m} m), plus unquantified bearing and distance error. No present-day status check is implied.</p>`;
+    html+=`<p class="note">Position inherits plot GPS accuracy (reported ${U.html(p.gps_accuracy_m,'length')}), plus unquantified bearing and distance error. No present-day status check is implied.</p>`;
   } else if(p.kind==='regeneration'){
     html+=`<div class="subtitle">Regeneration record · ${esc(p.record_date)}</div><p class="note">${esc(p.position_note)}</p>`;
     for(const c of ['sc1','sc2']){
@@ -59,11 +61,11 @@ function inspect(f){
     html+=`<p>${esc(p.notes||'No additional notes.')}</p><p class="small muted">Source categories and count order are retained; no individual seedling positions were recorded.</p>`;
   } else {
     const trees=dataset().trees.features.filter(t=>t.properties.plot===p.plot);
-    html+=`<div class="subtitle">Plot center · field tag ${esc(p.center_tree_tag)}</div><dl>${row('Plot radius',p.radius_m+' m')}${row('Recorded trees',trees.length)}${row('Reported GPS accuracy',p.gps_accuracy_m+' m')}${row('Ground elevation',p.lidar_ground_elevation_m==null?'See plot center':p.lidar_ground_elevation_m+' m NAVD88')}${row('Aspect',p.aspect_degrees+'°')}${row('Record created',p.record_date)}</dl>`;
+    html+=`<div class="subtitle">Plot center · field tag ${esc(p.center_tree_tag)}</div><dl>${qrow('Plot radius',p.radius_m,'length')}${row('Recorded trees',trees.length)}${qrow('Reported GPS accuracy',p.gps_accuracy_m,'length')}${qrow('Ground elevation',p.lidar_ground_elevation_m,'length',' NAVD88')}${row('Aspect',p.aspect_degrees+'°')}${row('Record created',p.record_date)}</dl>`;
     const val=(v,u='')=>v===''||v==null?null:String(v)+u;
     const land={gr:'Grazing',wf:'Wildland fire',hl:'Historical logging',fs:'Fire suppression',rt:'Recent thinning',pf:'Prescribed fire',n:'None'};
     const landUse=p.land_use?p.land_use.split(',').map(v=>land[v]||v).join(', '):null;
-    html+=`<h3>Field measurements · ${esc(p.record_date)}</h3><dl>${row('Litter depth',val(p.litter_depth_cm,' cm'))}${row('Rock cover',val(p.prockcov,' %'))}${row('Forb cover',val(p.forb_cover,' %'))}${row('Slope (source value)',p.slope_recorded)}${row('Slope position (code)',p.slope_position)}${row('Land-use history',landUse)}${row('Parent material',p.parent_material)}</dl><p class="small muted">Slope units and slope-position code definitions were not supplied in the source workbook. Land-use history is a field observation, not a complete disturbance record.</p>`;
+    html+=`<h3>Field measurements · ${esc(p.record_date)}</h3><dl>${qrow('Litter depth',p.litter_depth_cm,'depth')}${row('Rock cover',val(p.prockcov,' %'))}${row('Forb cover',val(p.forb_cover,' %'))}${row('Slope (source value)',p.slope_recorded)}${row('Slope position (code)',p.slope_position)}${row('Land-use history',landUse)}${row('Parent material',p.parent_material)}</dl><p class="small muted">Slope units and slope-position code definitions were not supplied in the source workbook. Land-use history is a field observation, not a complete disturbance record.</p>`;
     html+=`<details><summary>Shrub observations</summary><dl>${[1,2,3,4].map(i=>row('Cover · source slot '+i,val(p['shrub_cover'+i],' %'))).join('')}</dl><p>${esc(p.list_4_dominant_shrub_species?.replaceAll('_',' ').replaceAll(',',', ')||'No species recorded.')}</p>${p.specify_other_shrub_species?`<p>${esc(p.specify_other_shrub_species)}</p>`:''}<p class="small muted">Source slots and species list are retained separately; a species-to-slot match is not assumed.</p></details>`;
     if(soilContext){const key=soilContext.metadata.plot_center_intersections[p.plot];if(key)html+=`<details><summary>Mapped soil properties</summary>${renderSoilDetails(soilContext.metadata.units[key],key,soilContext.properties)}</details>`;}
     if(p.plot_notes)html+=`<p>${esc(p.plot_notes)}</p>`;
@@ -136,7 +138,7 @@ function contourLabels(){
       const point=L.latLng(cs[i][1],cs[i][0]);if(!bounds.contains(point))continue;
       const p=map.latLngToContainerPoint(point);
       if(p.x<30||p.y<100||p.x>size.x-60||p.y>size.y-70||used.some(([x,y])=>Math.abs(p.x-x)<105&&Math.abs(p.y-y)<65))continue;
-      used.push([p.x,p.y]);state.contourMarkers.push(L.marker(point,{icon:L.divIcon({className:'contour-label',html:`${f.properties.elevation_m} m`,iconSize:[42,16],iconAnchor:[21,8]}),interactive:false,keyboard:false,pane:'contourLabels'}).addTo(map));break;
+      used.push([p.x,p.y]);state.contourMarkers.push(L.marker(point,{icon:L.divIcon({className:'contour-label',html:U.html(f.properties.elevation_m,'length',0),iconSize:[42,16],iconAnchor:[21,8]}),interactive:false,keyboard:false,pane:'contourLabels'}).addTo(map));break;
     }
   }
 }
@@ -163,8 +165,9 @@ function initInventory(){
   $('#position-note').textContent='Plot GPS reports 5–10 m accuracy, except SCN.3: 50 m. Tree bearing and distance add unquantified error.';
   $('#download-all').onclick=e=>{e.preventDefault();exportTrees(true);};
   $('#map-key').open=!window.matchMedia('(max-width:760px)').matches;
-  $('#dbh-key').innerHTML=[10,50,100].map(dbh=>`<span><i style="width:${2*treeRadius({dbh_cm:dbh})}px;height:${2*treeRadius({dbh_cm:dbh})}px"></i>${dbh} cm</span>`).join('');
-  function updateContourKey(){const three=document.body.classList.contains('scene-active'),interval=three?($('#contours-3d').checked?'2':'0'):$('#contours').value;$('#key-contour-interval').textContent=interval==='0'?'· off':`· ${interval} m`;$('#map-key').classList.toggle('key-light-contours',three||!state.terrain);}
+  $('#dbh-key').innerHTML=[10,50,100].map(dbh=>`<span><i style="width:${2*treeRadius({dbh_cm:dbh})}px;height:${2*treeRadius({dbh_cm:dbh})}px"></i>${U.html(dbh,'depth')}</span>`).join('');
+  document.addEventListener('sfpuc-units-change',updateContourKey);
+  function updateContourKey(){const three=document.body.classList.contains('scene-active'),interval=three?($('#contours-3d').checked?'2':'0'):$('#contours').value;$('#key-contour-interval').textContent=interval==='0'?'· off':`· ${U.format(interval,'length')}`;$('#map-key').classList.toggle('key-light-contours',three||!state.terrain);}
   ['#contours','#layer-contours','#layer-terrain','#contours-3d'].forEach(id=>$(id).addEventListener('change',()=>queueMicrotask(updateContourKey)));
   ['#terrain-on','#terrain-off'].forEach(id=>$(id).addEventListener('click',()=>queueMicrotask(updateContourKey)));
   new MutationObserver(updateContourKey).observe(document.body,{attributes:true,attributeFilter:['class']});updateContourKey();
@@ -185,7 +188,7 @@ function exportTrees(all=false){
 function sourcesHTML(){return `
   <p>Two northern oak-woodland sites from the SFPUC drought study: Sheep Camp (SCN) and Maguire Ridge (MN). The original report uses the spelling <em>Maguire</em>. Other study sites are excluded.</p>
   <table><thead><tr><th>Site</th><th>Plots</th><th>Trees</th><th>Sampling plan</th></tr></thead><tbody>${manifest.sites.map(s=>`<tr><td>${s.name}</td><td>10</td><td>${s.counts.trees}</td><td>18</td></tr>`).join('')}</tbody></table>
-  <h3>Inventory and positions</h3><p>The April 2022 tree records come from <code>tree_data_drought_study.xls</code>, with plot metadata from <code>plot_data_drought_study.xls</code>. Locations are retained from <code>SFPUC_tree_plot_map.kml</code>. Each tree's plot, tag, species, DBH, status, azimuth, and distance were checked against the original table. A separate WGS84 geodesic calculation agrees with mapped positions within 0.038 m; this verifies the calculation, not the field accuracy.</p>
+  <p class="note">The unit switch changes displayed measurements. Source notes and atlas downloads retain their documented original units.</p><h3>Inventory and positions</h3><p>The April 2022 tree records come from <code>tree_data_drought_study.xls</code>, with plot metadata from <code>plot_data_drought_study.xls</code>. Locations are retained from <code>SFPUC_tree_plot_map.kml</code>. Each tree's plot, tag, species, DBH, status, azimuth, and distance were checked against the original table. A separate WGS84 geodesic calculation agrees with mapped positions within 0.038 m; this verifies the calculation, not the field accuracy.</p>
   <p class="note">Tree locations inherit plot GPS error. Device-reported horizontal accuracy is 5–10 m for 19 plots and 50 m for SCN.3. The optional circles show those reported distances; they are not statistical confidence intervals. Azimuth north reference and slope-distance correction are not documented. Trees have not been snapped to aerial crowns or LiDAR features.</p>
   <p>The report describes 500 m² plots with a nominal 12.6 m radius. Four records lie just beyond that radius (12.7–13.6 m); their measured distances are retained. Circles represent sampling geometry, not property boundaries. Symbols are enlarged for visibility and scaled by DBH, not crown diameter. Multiple stem records are retained independently. Status is historical and does not establish whether a tree is alive or standing today.</p>
   <p><a href="https://tahoe.ucdavis.edu/sites/g/files/dgvnsk4286/files/inline-files/SFPUC_DROUGHT_FINAL_REPORT_2022.pdf" target="_blank" rel="noopener">SFPUC 2022 drought report ↗</a></p>
@@ -206,14 +209,16 @@ async function boot(){
   map=L.map('map',{zoomControl:false,maxZoom:23,preferCanvas:true});
   for(const [name,z] of Object.entries({terrain:250,contours:320,plotAreas:350,contourLabels:370,planPoints:410,treePoints:420,plotPoints:430,pointLabels:640,selection:650})){map.createPane(name).style.zIndex=z;if(['terrain','contours','plotAreas','contourLabels','pointLabels','selection'].includes(name))map.getPane(name).style.pointerEvents='none';}
   field=L.layerGroup().addTo(map);coverage=L.layerGroup().addTo(map);contours=L.layerGroup().addTo(map);labels=L.layerGroup().addTo(map);measurement=L.layerGroup().addTo(map);selected=L.layerGroup().addTo(map);locations=L.layerGroup().addTo(map);
-  L.control.zoom({position:'topright'}).addTo(map);L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
+  L.control.zoom({position:'topright'}).addTo(map);const scale=L.control.scale({imperial:U.system==='imperial',metric:U.system==='metric',position:'bottomleft'}).addTo(map);
+  function updateUnits(){if($('#coordinates').textContent.startsWith('Elevations'))$('#coordinates').textContent=`Elevations · ${U.label('length')} NAVD88`;scale.remove();scale.options.metric=U.system==='metric';scale.options.imperial=U.system==='imperial';scale.addTo(map);for(const option of $('#contours').options)if(Number(option.value))option.textContent=U.format(option.value,'length');if(state.measurePoints.length>1){const distance=state.measurePoints.slice(1).reduce((a,p,i)=>a+map.distance(state.measurePoints[i],p),0);notice(`${U.format(distance,'length')} horizontal distance · ${state.measurePoints.length} points. Click Measure to clear.`);}}
+  document.addEventListener('sfpuc-units-change',updateUnits);updateUnits();
   manifest.sites.forEach(s=>{const center=L.latLngBounds(s.bounds).getCenter();L.circleMarker(center,{radius:7,color:'#e6f3dc',fillColor:'#284c4e',fillOpacity:1,weight:2}).bindTooltip(s.name,{permanent:true,direction:'right'}).on('click',()=>{setSite(s.id);fitSite();}).addTo(locations);});
   initInventory();setBasemap();setSite(location.hash.slice(1));renderTerrain();renderContours();renderFields();renderCoverage();
   map.on('zoomend',()=>{if(!state.site)return;renderFields();if(map.getZoom()<15){if(!map.hasLayer(locations))locations.addTo(map);}else map.removeLayer(locations);});
   map.removeLayer(locations);
   map.on('moveend',()=>{contourLabels();if(!state.measuring){const outside=!manifest.sites.some(s=>L.latLngBounds(s.terrain.image_bounds).contains(map.getCenter()));if(outside)notice('Outside the local LiDAR cutout. Basemap context continues; select All plots to return.');else if($('#notice').textContent.startsWith('Outside'))notice('');}});
   map.on('mousemove',e=>{$('#coordinates').textContent=`${e.latlng.lat.toFixed(5)}° N · ${Math.abs(e.latlng.lng).toFixed(5)}° W`;});
-  map.on('click',e=>{if(!state.measuring)return;state.measurePoints.push(e.latlng);L.circleMarker(e.latlng,{radius:4,color:'#fff',fillColor:'#183c43',fillOpacity:1,interactive:false}).addTo(measurement);if(state.measurePoints.length>1)L.polyline(state.measurePoints,{color:'#fff',weight:2,dashArray:'5 5',interactive:false}).addTo(measurement);const distance=state.measurePoints.slice(1).reduce((a,p,i)=>a+map.distance(state.measurePoints[i],p),0);notice(`${distance.toFixed(1)} m horizontal distance · ${state.measurePoints.length} points. Click Measure to clear.`);});
+  map.on('click',e=>{if(!state.measuring)return;state.measurePoints.push(e.latlng);L.circleMarker(e.latlng,{radius:4,color:'#fff',fillColor:'#183c43',fillOpacity:1,interactive:false}).addTo(measurement);if(state.measurePoints.length>1)L.polyline(state.measurePoints,{color:'#fff',weight:2,dashArray:'5 5',interactive:false}).addTo(measurement);const distance=state.measurePoints.slice(1).reduce((a,p,i)=>a+map.distance(state.measurePoints[i],p),0);notice(`${U.format(distance,'length')} horizontal distance · ${state.measurePoints.length} points. Click Measure to clear.`);});
   document.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>setSite(b.dataset.site));
   window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==state.site)setSite(id);});
   $('#mobile-layers').onclick=()=>{$('#mobile-layers').setAttribute('aria-expanded',String(document.body.classList.toggle('layers-open')));map.invalidateSize();};
@@ -248,14 +253,14 @@ async function boot(){
     closeLayers();closeInspector();map.closePopup();
     const button=$('#view-3d');button.disabled=true;button.textContent='Opening 3D…';
     try{
-      if(!scene3d){const {createScene}=await import('./scene3d.js?v=20261014-south');scene3d=await createScene({showContext:(title,html)=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent=title;$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;},manifest,data:dataset(),filteredTrees,treeRadius,colors,inspect,currentSite:()=>state.site});}
+      if(!scene3d){const {createScene}=await import('./scene3d.js?v=20261016-units');scene3d=await createScene({showContext:(title,html)=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent=title;$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;},manifest,data:dataset(),filteredTrees,treeRadius,colors,inspect,currentSite:()=>state.site});}
       scene3d.open();
     }catch(e){console.error(e);notice('3D could not load. The 2D map remains available; try 3D again.');}
     finally{button.disabled=false;button.textContent='3D view';}
   };
   import('./geology.js?v=20261014-context3d').then(({setupGeology})=>setupGeology({map,notice,closeInspector,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#geology-status').hidden=false;$('#geology-status').textContent='Geology controls could not load. Reload to retry.';});
-  import('./soils.js?v=20261014-context3d').then(({setupSoils})=>setupSoils({map,notice,closeInspector,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#soils-status').hidden=false;$('#soils-status').textContent='Soil controls could not load. Reload to retry.';});
-  try{const [m,p,view]=await Promise.all([getJSON('data/soils/metadata.json'),getJSON('data/soils/properties.json?v=20261014-context3d'),import('./soil-details.js?v=20261014-context3d')]);soilContext={metadata:m,properties:p};renderSoilDetails=view.soilDetails;}catch(e){console.error('Soil property details unavailable',e);}
+  import('./soils.js?v=20261016-units').then(({setupSoils})=>setupSoils({map,notice,closeInspector,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#soils-status').hidden=false;$('#soils-status').textContent='Soil controls could not load. Reload to retry.';});
+  try{const [m,p,view]=await Promise.all([getJSON('data/soils/metadata.json'),getJSON('data/soils/properties.json?v=20261014-context3d'),import('./soil-details.js?v=20261016-units')]);soilContext={metadata:m,properties:p};renderSoilDetails=view.soilDetails;}catch(e){console.error('Soil property details unavailable',e);}
   $('#loading').hidden=true;
 }
 boot().catch(e=>{console.error(e);$('#loading').innerHTML='The field atlas could not load. Reload to retry.<p>Inventory downloads: <a href="data/sheep-camp/trees.csv">Sheep Camp CSV</a> · <a href="data/maguire-ridge/trees.csv">Maguire Ridge CSV</a>.</p>';});

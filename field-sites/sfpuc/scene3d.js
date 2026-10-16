@@ -1,4 +1,4 @@
-import {soilDetails,geologyDetails} from './soil-details.js?v=20261014-context3d';
+import {soilDetails,geologyDetails} from './soil-details.js?v=20261016-units';
 import * as THREE from '../rivendell/atlas/vendor/three/three.module.js';
 import {OrbitControls} from '../rivendell/atlas/vendor/three/OrbitControls.js';
 
@@ -137,7 +137,7 @@ export async function createScene(api){
   new ResizeObserver(resize).observe(host);
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();$('scene-status').textContent='3D graphics interrupted. Return to 2D and reload to restore.';});
   $('scene-count').textContent=packages.reduce((n,p)=>n+p.meta.canopy.count,0).toLocaleString()+' measured returns · both sites';
-  $('scene-status').textContent='USGS 3DEP · 2 m mesh · geology & soils draped on terrain · click ground for details';
+  $('scene-status').innerHTML='USGS 3DEP · '+window.SFPUCUnits.html(2,'length')+' mesh · geology & soils draped on terrain · click ground for details';
   refresh();
   return {focus,focusFeature,refresh,open(){panel.hidden=false;$('map').setAttribute('aria-hidden','true');document.body.classList.add('scene-active');active=true;resize();focus(api.currentSite());refresh();refreshContext();cancelAnimationFrame(frame);draw();}};
 }
