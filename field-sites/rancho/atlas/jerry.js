@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three/three.module.js';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
-import {createMule,createBottle} from './jerry-model.js?v=3b74120aaf54';
+import {createMule,createBottle} from './jerry-model.js?v=63f1b3239458';
 import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=93a43efda54c';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 

@@ -3,7 +3,7 @@ import * as THREE from './vendor/three/three.module.js';
 export function createMule(){
   const root=new THREE.Group(),body=new THREE.Group();root.add(body);
   const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.85});
-  const burgundy=mat('#783b43'),edge=mat('#a45b60'),black=mat('#182129'),tire=mat('#222528'),metal=mat('#84928f'),skin=mat('#d4a88b'),hair=mat('#bbc1bb'),shirt=mat('#152b3d'),white=mat('#ede9d8'),tan=mat('#c68e48'),pink=mat('#dc8a98');
+  const burgundy=mat('#783b43'),edge=mat('#a45b60'),black=mat('#182129'),tire=mat('#222528'),metal=mat('#84928f'),skin=mat('#d4a88b'),hair=mat('#bbc1bb'),shirt=mat('#477f9d'),fleeceTrim=mat('#315d75'),zipper=mat('#bda579'),white=mat('#ede9d8'),tan=mat('#c68e48'),pink=mat('#dc8a98');
   function mesh(g,geo,m,x=0,y=0,z=0){const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o;}
   const box=(g,m,x,y,z,w,h,d)=>mesh(g,new THREE.BoxGeometry(w,h,d),m,x,y,z);
   const ball=(g,m,x,y,z,r,sx=1,sy=1,sz=1)=>{const o=mesh(g,new THREE.SphereGeometry(r,12,10),m,x,y,z);o.scale.set(sx,sy,sz);return o;};
@@ -28,7 +28,13 @@ export function createMule(){
     wheels.push(pivot);
   }
   const driver=new THREE.Group();driver.position.set(-.48,1.13,-.05);body.add(driver);
-  box(driver,shirt,0,.32,0,.46,.61,.31);box(driver,white,0,.49,.165,.09,.26,.018);
+  // Blue quarter-zip fleece: soft shoulders, stand collar and a small chest pocket.
+  box(driver,shirt,0,.32,0,.46,.61,.31);
+  for(const x of [-.19,.19])ball(driver,shirt,x,.52,0,.09,1,1,.95);
+  for(const x of [-.075,.075])box(driver,fleeceTrim,x,.625,.08,.12,.085,.18);
+  box(driver,fleeceTrim,0,.52,.164,.026,.19,.018);box(driver,zipper,0,.52,.177,.009,.17,.008);
+  box(driver,zipper,0,.59,.187,.022,.035,.012);
+  box(driver,fleeceTrim,.13,.36,.163,.105,.12,.018);box(driver,shirt,.13,.412,.178,.09,.018,.008);
   ball(driver,skin,0,.85,.025,.205,.91,1.12,.96);
   // A bald crown, gray side hair, prominent ears and a quiet half-smile.
   for(const x of [-.185,.185]){ball(driver,hair,x,.85,-.03,.055,.55,1.4,1.6);ball(driver,skin,x,.81,.055,.055,.5,1,1);}
