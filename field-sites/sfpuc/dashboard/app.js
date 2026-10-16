@@ -2,7 +2,7 @@
 const $=s=>document.querySelector(s), U=window.SFPUCUnits;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let weather, selected=[], chart, variable='cumulative', site='sheep-camp';
-let waterYears=[], comparisonExtent='to-date';
+let waterYears=[], comparisonExtent='full';
 const W=window.SFPUCWaterYears;
 const metric=(title,value,note)=>`<div class="metric"><span>${title}</span><strong>${value}</strong><small>${note}</small></div>`;
 function comparisonRows(){
