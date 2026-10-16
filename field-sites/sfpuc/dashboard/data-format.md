@@ -32,3 +32,11 @@ python3 scripts/sfpuc/prepare_weather.py --end YYYY-MM-DD
 ```
 
 There is no scheduled refresh. Review date coverage, missing values, and source provenance before publishing a new snapshot.
+
+## Cumulative water-year comparison
+
+The default chart selects the latest water year in the snapshot (named by its ending year), starting October 1. It compares cumulative precipitation through the same calendar month/day in earlier available years. “Full water year” shows the complete earlier curves while retaining the selected year's actual ending date. Changing chart extent does not change the through-date used for summary statistics.
+
+A missing daily precipitation value makes that year's cumulative total unknown from that day onward. The curve stops there; sums are not resumed or treated as lower complete totals. Medians and ranges use only earlier years with no missing days from October 1 through the comparison date. This short record is not a climate normal. Percentages are omitted when the earlier-year median is zero. Trace amounts retain the source convention described above.
+
+Curves align by month/day on a 366-position calendar. In non-leap years, February 29 carries the February 28 cumulative value solely for alignment; the comparison CSV flags that position and leaves its date blank. Leap-year precipitation is included on its actual day. No values are plotted beyond a year's available end date. The comparison CSV includes missing and trace counts and uses the selected display units.
