@@ -16,8 +16,8 @@ export const ROUTE = [HOME,[556781,4332730],[556678,4332870],[556616,4333060],
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 export function createMotion({height,valid,ridgeAt=()=>null}) {
-  const s={e:HOME[0],n:HOME[1],heading:0,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null,lastJump:null};
-  function reset(){Object.assign(s,{e:HOME[0],n:HOME[1],heading:0,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null,lastJump:null});}
+  const s={e:HOME[0],n:HOME[1],heading:Math.PI/2,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null,lastJump:null};
+  function reset(){Object.assign(s,{e:HOME[0],n:HOME[1],heading:Math.PI/2,speed:0,hop:0,vy:0,pitch:0,roll:0,phase:'home',elapsed:0,wait:3,waypoint:1,wine:null,jumps:0,cooldown:7,destination:'MH3 wells',visits:0,lastVisited:null,lastJump:null});}
   function drop(e,n){if(!valid(e,n))return false;s.wine=[e,n];s.phase='fetch';s.wait=0;return true;}
   function resume(){s.phase='drive';s.wine=null;let nearest=1;for(let i=2;i<ROUTE.length;i++)if(Math.hypot(ROUTE[i][0]-s.e,ROUTE[i][1]-s.n)<Math.hypot(ROUTE[nearest][0]-s.e,ROUTE[nearest][1]-s.n))nearest=i;s.waypoint=nearest;updateDestination();}
   function advance(){s.waypoint=(s.waypoint+1)%ROUTE.length;updateDestination();}

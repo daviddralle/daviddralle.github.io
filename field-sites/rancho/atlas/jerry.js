@@ -1,8 +1,9 @@
 import * as THREE from './vendor/three/three.module.js';
+import {createRanchHome} from './jerry-home.js?v=5aae35db2d4d';
 import {createRidgeDetector} from './jerry-ridges.js?v=9f01013b7f16';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
 import {createMule,createBottle} from './jerry-model.js?v=63f1b3239458';
-import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=22ad2cec931b';
+import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=a19a0b335342';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 
 export function createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical,catchments,project}){
@@ -19,11 +20,11 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   const motion=createMotion({height:ground,valid,ridgeAt}),s=motion.state,deck=createDeck();
   const toolbar=document.createElement('section');toolbar.className='jerry-toolbar';toolbar.setAttribute('aria-label','Jerry Mode controls');
   toolbar.innerHTML=`<button id="jerry-toggle" aria-pressed="false"><span aria-hidden="true">↟</span> Jerry Mode</button>
-  <div class="jerry-quick" id="jerry-quick" hidden><button id="jerry-quick-wine" aria-label="Drop a bottle of red wine" title="Choose a wine stop">🍷</button><button id="jerry-quick-library">Haikus</button><button id="jerry-options" aria-expanded="false" aria-controls="jerry-panel">Controls</button></div>
+  <div class="jerry-quick" id="jerry-quick" hidden><button id="jerry-quick-wine" aria-label="Drop a lovely Cabernet" title="Choose a wine stop">🍷</button><button id="jerry-quick-library">Haikus</button><button id="jerry-options" aria-expanded="false" aria-controls="jerry-panel">Controls</button></div>
   <div id="jerry-panel" hidden><div class="jerry-heading"><span class="eyebrow">An afternoon at Rancho</span><strong>Jerry & the dogs</strong><span class="jerry-subtitle">Cali, Colusa & a Kawasaki Mule</span></div>
   <div class="jerry-actions"><button id="jerry-pause" aria-pressed="false">Pause</button><button id="jerry-follow" aria-pressed="true">Follow Jerry</button><button id="jerry-home">Start at home</button></div>
   <div class="jerry-destinations"><span>Head to</span>${DESTINATIONS.map(d=>`<button data-jerry-go="${d.id}">${d.label}</button>`).join('')}</div>
-  <button id="jerry-wine" class="jerry-wine" title="Drag onto the terrain, or click then select a spot"><span aria-hidden="true">🍷</span> Drop a fine red</button>
+  <button id="jerry-wine" class="jerry-wine" title="Drag onto the terrain, or click then select a spot"><span aria-hidden="true">🍷</span> Drop a lovely Cabernet</button>
   <p id="jerry-drop-help">Drag a bottle onto the hills, or click then choose a spot.</p>
   <div id="jerry-drop-actions" hidden><button id="jerry-serve">Serve beside Jerry</button><button id="jerry-cancel">Cancel drop</button></div>
   <div class="jerry-actions"><button id="jerry-library">100 ranch haikus ↗</button><button id="jerry-terrain" aria-expanded="false">Terrain controls</button></div>
@@ -31,7 +32,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   <p id="jerry-status" role="status"></p><small class="jerry-fiction">Playful fiction · original poems, not Brown quotations. Vehicle enlarged 2.4×.</small></div>`;
   host.append(toolbar);
   const label=document.createElement('div');label.className='jerry-name';label.textContent='Jerry · Cali & Colusa';label.hidden=true;host.append(label);
-  const homeLabel=document.createElement('div');homeLabel.className='jerry-name jerry-home-label';homeLabel.textContent='Circle drive · home';homeLabel.title=HOME_NOTE;homeLabel.hidden=true;host.append(homeLabel);
+  const homeLabel=document.createElement('div');homeLabel.className='jerry-name jerry-home-label';homeLabel.textContent='Circle drive · Mule parking';homeLabel.title=HOME_NOTE;homeLabel.hidden=true;host.append(homeLabel);
   const card=document.createElement('section');card.className='jerry-poem';card.hidden=true;card.setAttribute('aria-label','A wine-stop haiku');
   card.innerHTML='<div id="jerry-thought" role="status" aria-live="polite"><span class="jerry-thinking">Jerry is thinking<span class="jerry-dots">…</span></span><div class="jerry-verse"><p id="jerry-poem-lines"></p><small id="jerry-poem-topic"></small></div></div><div class="jerry-poem-footer"><p class="jerry-fiction">Original fictional haiku · not a Brown quote</p><a id="jerry-poem-source" target="_blank" rel="noopener"></a><div class="jerry-actions"><button id="jerry-continue">Back to roaming</button><button id="jerry-another">Another haiku</button></div></div>';
   host.append(card);
@@ -48,7 +49,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   const shadowIndices=[];for(let i=1;i<=32;i++)shadowIndices.push(0,i,i===32?1:i+1);shadowGeometry.setIndex(shadowIndices);
   const shadow=new THREE.Mesh(shadowGeometry,new THREE.MeshBasicMaterial({color:'#102326',transparent:true,opacity:.2,side:THREE.DoubleSide,depthWrite:false}));shadow.renderOrder=-2;overlay.add(shadow);
   const marker=new THREE.Mesh(new THREE.RingGeometry(2,2.6,32),new THREE.MeshBasicMaterial({color:'#efbf73',side:THREE.DoubleSide,transparent:true,opacity:.9,depthTest:false}));marker.rotation.x=-Math.PI/2;marker.visible=false;overlay.add(marker);
-  const homeRing=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:65},(_,i)=>{const a=i/65*Math.PI*2,e=HOME[0]+Math.cos(a)*12,n=HOME[1]+Math.sin(a)*12;return position(e,n,ground(e,n)+.25);})),new THREE.LineBasicMaterial({color:'#e6d6b0',transparent:true,opacity:.45}));homeRing.visible=false;root.add(homeRing);
+  root.add(createRanchHome({ground,position,home:HOME}));
   function worldPosition(e,n,lift=0){const p=position(e,n,ground(e,n));p.y=p.y*getVertical()+lift;return p;}
   function pick(event){const rect=canvas.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)return null;const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),camera);surface.updateWorldMatrix(true,false);const hit=ray.intersectObject(surface)[0];if(!hit)return null;const e=hit.point.x+(x0+x1)/2,n=(y0+y1)/2-hit.point.z;return valid(e,n)?[e,n]:null;}
   function setFollow(value){follow=value;controls.enableDamping=enabled&&value?false:savedDamping;$('jerry-follow').setAttribute('aria-pressed',String(value));followSnap=value;}
@@ -60,7 +61,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   function showPoem(){card.classList.remove('composing');const poem=deck.next(),source=sources.find(a=>a.id===poem.source);$('jerry-poem-topic').textContent=poem.topic+' · '+String(poem.id).padStart(3,'0');$('jerry-poem-lines').textContent=poem.lines.join('\n');$('jerry-poem-source').textContent='Inspiration: '+source.title+' ↗';$('jerry-poem-source').href=source.url;card.hidden=false;shell.classList.add('jerry-reading-poem');}
   function reset(){followZoom=1;followOffset.set(14,6,21);cancelDrop();motion.reset();bottle.visible=false;card.hidden=true;shell.classList.remove('jerry-reading-poem');lastPhase='';setFollow(true);}
   function toggle(){
-    enabled=!enabled;$('jerry-toggle').setAttribute('aria-pressed',String(enabled));$('jerry-panel').hidden=!enabled;$('jerry-quick').hidden=!enabled;shell.classList.toggle('jerry-on',enabled);mule.root.visible=homeRing.visible=enabled;label.hidden=homeLabel.hidden=!enabled;
+    enabled=!enabled;$('jerry-toggle').setAttribute('aria-pressed',String(enabled));$('jerry-panel').hidden=!enabled;$('jerry-quick').hidden=!enabled;shell.classList.toggle('jerry-on',enabled);mule.root.visible=enabled;label.hidden=homeLabel.hidden=!enabled;
     if(enabled){savedCamera=camera.position.clone();savedTarget=controls.target.clone();savedMin=controls.minDistance;savedDamping=controls.enableDamping;controls.minDistance=8;reset();setPaused(matchMedia('(prefers-reduced-motion: reduce)').matches);}
     else{controls.enableDamping=savedDamping;cancelDrop();bottle.visible=false;card.hidden=true;marker.visible=false;shell.classList.remove('jerry-show-tools','jerry-controls-open','jerry-reading-poem');$('jerry-options').setAttribute('aria-expanded','false');$('jerry-terrain').setAttribute('aria-expanded','false');if(savedCamera){camera.position.copy(savedCamera);controls.target.copy(savedTarget);controls.minDistance=savedMin;controls.update();}}
   }

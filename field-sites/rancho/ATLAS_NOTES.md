@@ -294,3 +294,7 @@ destination and verify the larger jumps remain below 5 m.
 Jump regressions check every takeoff against the mapped divide and DEM crest,
 exercise six divides on the monitoring circuit, and reject isolated crests,
 outer edges, along-divide travel and monotonic slopes.
+
+### Ranch house and Mule parking (16 October 2026)
+
+The simple 3D house is an interpretive model from the supplied ground and oblique aerial photographs, positioned using the marked north-up satellite image. Its bent two-wing footprint has the convex side toward the road and circle drive to the east; pale metal gables, a garden-side porch, and a stone chimney recall the photographs. Dimensions and placement are approximate, not surveyed research features. Foundations and the gravel drive use the existing DEM elevations without changing the terrain. Jerry starts at the marked parking spot facing east toward the road. The model remains visible outside Jerry Mode.
