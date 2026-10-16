@@ -227,3 +227,42 @@ are inputs to subsequent atlas builds. After rebuilding the composite terrain
 or MH10, rerun this delineation before the atlas builder so coverage and
 subcatchment inclusion checks use the current watershed. Routing modifications
 are confined to flow calculations; all displayed elevations use the original DEM.
+
+## Jerry Mode
+
+The 3D viewer has an optional, fictional ranch companion layer: a procedurally
+modeled burgundy Kawasaki Mule, Jerry, and the two dogs Cali and Colusa. The
+supplied photo informs the illustration but is not redistributed. The model is
+2.4× enlarged for legibility, and the crew renders above vegetation. Its motion,
+dust, home ring, wine bottle, and poems never enter scientific GeoJSON exports.
+
+Every activation and **Start at home** resets to the approximate circle-drive
+location interpreted from the user's marked satellite screenshot: UTM 10N
+E556769, N4332702. This is not a surveyed waypoint. The initial loop and roaming
+route are fictional. All route points and motion steps use valid DEM terrain;
+terrain slope changes produce bounded arcade hops. There are no boosts. The
+follow camera releases when the user orbits, pans, zooms, or chooses a map view.
+Pause is available; reduced-motion preferences start the mode paused. Leaving
+3D ends Jerry Mode and restores the atlas controls. Hidden tabs do not fast-forward.
+
+Drag **Drop a fine red** to terrain, or click it and then choose a point. Keyboard
+and touch users can use **Serve beside Jerry**. Escape cancels placement. Jerry
+drives to the bottle, stops, takes a sip, then reveals a poem. He remains parked
+until **Back to roaming**. **100 ranch haikus** opens the full searchable library,
+with ten theme filters and primary-source reading links. The shuffled deck shows
+each poem once before recycling; it avoids an immediate repeat across decks.
+
+`jerry-haikus.js` contains 100 original fictional 5–7–5 poems, not quotations by
+or endorsements from Jerry Brown. Ten historical essays, published or coauthored
+by Brown and reproduced on his own website, informed the themes: nuclear memory,
+the arms race, restraint, dialogue, a shared atmosphere, heat and water, local
+climate action, truth and humility, time and choice, and ranch community. Each
+poem links to its theme's essay; the library retains titles, authors, and dates.
+The verse is newly composed; it does not present historical policy descriptions
+or clock settings as present-day facts. Meter was reviewed against CMUdict and
+manually checked for the missing compounds “unmake,” “unhooks,” and “lungful.”
+
+Validation: `node --test scripts/test_rancho_jerry.mjs` checks the complete deck,
+reference links, start/reset coordinates, route coverage on valid terrain,
+bounded jumps, wine pickup/stop/poem progression, and resumption. The existing
+`test_rancho_atlas.py` checks scientific products independently.

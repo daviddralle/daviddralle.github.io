@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three/three.module.js';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
+import {createJerry} from './jerry.js?v=e343c57dc75e';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));
@@ -95,6 +96,8 @@ export async function createScene(atlas) {
   for(const f of contourData.features){const paths=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];for(const path of paths)pathLine(path,'contour','#536052');}
   for(const f of atlas.coverage.features){const polygons=f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates];for(const polygon of polygons)for(const ring of polygon)pathLine(ring,'coverage','#f2dfb1',true);}
   let active=false,frame=0,vertical=1,selectedId=null,visible=new Set(atlas.enabled),lastFocus='network';
+  const jerry=createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical:()=>vertical});
+  let lastFrame=0;
   function resize(){const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
   new ResizeObserver(()=>{if(active)resize();}).observe(container);
   function setVisible(value){visible=new Set(value);for(const [kind,g] of Object.entries(groups))g.visible=visible.has(kind);}
@@ -104,6 +107,7 @@ export async function createScene(atlas) {
     const d=Math.max(span*1.25,100);camera.position.copy(target).add(new THREE.Vector3(-d*.6,d*.7,d*.85));controls.update();
   }
   function focus(name){
+    jerry.releaseFollow();
     lastFocus=name;
     let points;
     if(name==='watershed')points=[[x0,y0],[x1,y1]];
@@ -112,11 +116,12 @@ export async function createScene(atlas) {
     const minE=Math.min(...points.map(p=>p[0])),maxE=Math.max(...points.map(p=>p[0])),minN=Math.min(...points.map(p=>p[1])),maxN=Math.max(...points.map(p=>p[1]));
     const e=(minE+maxE)/2,n=(minN+maxN)/2;fly(position(e,n,ground(e,n)),Math.max(maxE-minE,maxN-minN));
   }
-  function focusHole(f){const [e,n]=project(f.geometry.coordinates);fly(position(e,n,f.properties.ground_m??ground(e,n)),85);}
+  function focusHole(f){jerry.releaseFollow();const [e,n]=project(f.geometry.coordinates);fly(position(e,n,f.properties.ground_m??ground(e,n)),85);}
   function highlight(id){selectedId=id;for(const [key,mesh] of collars)mesh.material.size=mesh.userData.markerSize*(key===id?1.5:1);}
   function render(){
     if(!active)return;
-    controls.update();renderer.render(world,camera);
+    const now=performance.now(),dt=lastFrame?Math.min((now-lastFrame)/1000,.1):0;lastFrame=now;
+    jerry.update(dt);controls.update();renderer.render(world,camera);jerry.draw();
     const width=container.clientWidth,height=container.clientHeight,occupied=[];
     const sorted=[...labels].sort((a,b)=>(b.feature.properties.id===selectedId)-(a.feature.properties.id===selectedId)||Number(b.feature.properties.kind==='well')-Number(a.feature.properties.kind==='well'));
     for(const item of sorted){
@@ -133,13 +138,13 @@ export async function createScene(atlas) {
   let pointerStart;
   renderer.domElement.addEventListener('pointerdown',event=>{pointerStart=[event.clientX,event.clientY];});
   renderer.domElement.addEventListener('pointerup',event=>{
-    if(!pointerStart||Math.hypot(event.clientX-pointerStart[0],event.clientY-pointerStart[1])>5)return;
+    if(jerry.interacting||!pointerStart||Math.hypot(event.clientX-pointerStart[0],event.clientY-pointerStart[1])>5)return;
     const rect=renderer.domElement.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
     const hits=pickables.filter(m=>m.parent.visible).map(m=>{const p=m.getWorldPosition(new THREE.Vector3()).project(camera);return {m,z:p.z,d:Math.hypot((p.x*.5+.5)*rect.width-x,(-p.y*.5+.5)*rect.height-y)};}).filter(p=>p.z>-1&&p.z<1&&p.d<=12).sort((a,b)=>a.d-b.d);
     if(hits.length)atlas.inspect(hits[0].m.userData.feature);
   });
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();document.getElementById('scene-loading').hidden=false;document.getElementById('scene-loading').textContent='3D graphics context lost. Return to the map or reload to reopen 3D.';});
-  return {get active(){return active;},open(){active=true;resize();render();},close(){active=false;cancelAnimationFrame(frame);},focus,focusHole,highlight,setVisible,
+  return {get active(){return active;},open(){active=true;lastFrame=0;resize();render();},close(){active=false;jerry.suspend();cancelAnimationFrame(frame);},focus,focusHole,highlight,setVisible,
     canopyOpacity(value){cloudMaterial.opacity=value;},opacity(value){material.opacity=value;material.depthWrite=value>=.99;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
-    top(){const d=camera.position.distanceTo(controls.target);camera.position.copy(controls.target).add(new THREE.Vector3(0,d,.01));controls.update();}};
+    top(){jerry.releaseFollow();const d=camera.position.distanceTo(controls.target);camera.position.copy(controls.target).add(new THREE.Vector3(0,d,.01));controls.update();}};
 }
