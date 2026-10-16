@@ -20,7 +20,11 @@ export async function createScene(atlas) {
   function ground(e,n){
     const col=Math.max(0,Math.min(nx-1,(e-x0)/(x1-x0)*(nx-1))),row=Math.max(0,Math.min(ny-1,(y1-n)/(y1-y0)*(ny-1)));
     const c=Math.min(nx-2,Math.floor(col)),r=Math.min(ny-2,Math.floor(row)),dx=col-c,dy=row-r;
-    return grid[r][c]*(1-dx)*(1-dy)+grid[r][c+1]*dx*(1-dy)+grid[r+1][c]*(1-dx)*dy+grid[r+1][c+1]*dx*dy;
+    // Match the actual a,d,b / b,d,e terrain facets, rather than a bilinear
+    // surface that can put collars above or below the displayed triangles.
+    return dx+dy<=1
+      ? grid[r][c]+dx*(grid[r][c+1]-grid[r][c])+dy*(grid[r+1][c]-grid[r][c])
+      : grid[r+1][c+1]+(1-dx)*(grid[r+1][c]-grid[r+1][c+1])+(1-dy)*(grid[r][c+1]-grid[r+1][c+1]);
   }
   function position(e,n,z){return new THREE.Vector3(e-xc,z-zbase,yc-n);}
   const vertices=[],indices=[],vertexColors=[],uv=[];
@@ -34,12 +38,12 @@ export async function createScene(atlas) {
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();
   const texture=await new THREE.TextureLoader().loadAsync(atlas.dataURL('data/terrain-texture.jpg'));texture.colorSpace=THREE.SRGBColorSpace;
-  const material=new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:.45,side:THREE.DoubleSide,depthWrite:false});
+  const material=new THREE.MeshStandardMaterial({map:texture,color:'#ffffff',roughness:1,metalness:0,transparent:true,opacity:1,side:THREE.DoubleSide,depthWrite:false});
   const surface=new THREE.Mesh(geometry,material);surface.renderOrder=1;root.add(surface);
-  world.add(new THREE.HemisphereLight('#e0efe6','#28433e',2));
-  const sunlight=new THREE.DirectionalLight('#ffefd1',2);sunlight.position.set(-500,1200,600);world.add(sunlight);
+  world.add(new THREE.HemisphereLight('#ffffff','#656565',2.1));
+  const sunlight=new THREE.DirectionalLight('#ffffff',2);sunlight.position.set(-300,600,250);world.add(sunlight);
   const groups={},labels=[],pickables=[],collars=new Map();
-  const colors={well:'#63dbea',piezometer:'#efbf73',weather:'#ffffff',outlet:'#ff947a',sapflow:'#c0ec94',soil:'#b69ce9'};
+  const colors={well:'#83edff',piezometer:'#efbf73',weather:'#ffffff',outlet:'#ff947a',sapflow:'#c0ec94',soil:'#b69ce9'};
   function group(kind){if(!groups[kind]){groups[kind]=new THREE.Group();root.add(groups[kind]);}return groups[kind];}
   const cloudMeta=atlas.canopyMeta.cloud;
   const cloudResponse=await fetch(atlas.dataURL('data/'+cloudMeta.url));
@@ -55,21 +59,27 @@ export async function createScene(atlas) {
     ramp[j-1][1].clone().lerp(ramp[j][1],THREE.MathUtils.clamp((h-ramp[j-1][0])/(ramp[j][0]-ramp[j-1][0]),0,1)).toArray(cloudColors,i*3);
   }
   const cloudGeometry=new THREE.BufferGeometry();cloudGeometry.setAttribute('position',new THREE.BufferAttribute(cloudPositions,3));cloudGeometry.setAttribute('color',new THREE.BufferAttribute(cloudColors,3));
-  const cloudMaterial=new THREE.PointsMaterial({size:1.7,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:.9,depthWrite:false});
+  const cloudMaterial=new THREE.PointsMaterial({size:1.2,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:.7,depthWrite:false});
   const cloud=new THREE.Points(cloudGeometry,cloudMaterial);cloud.renderOrder=2;group('canopy').add(cloud);
   function segment(points,color,dashed=false){const g=new THREE.BufferGeometry().setFromPoints(points),m=dashed?new THREE.LineDashedMaterial({color,dashSize:1,gapSize:.6,depthTest:false}):new THREE.LineBasicMaterial({color,transparent:true,opacity:.8});const l=new THREE.Line(g,m);if(dashed)l.computeLineDistances();return l;}
-  function shaft(a,b,color,radius){const g=new THREE.CylinderGeometry(radius,radius,a.distanceTo(b),7),m=new THREE.MeshBasicMaterial({color,depthTest:false});const mesh=new THREE.Mesh(g,m);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.renderOrder=4;return mesh;}
+  // Transparent draw queue + explicit ordering keeps field symbols above
+  // transparent terrain/cloud. renderOrder alone cannot cross draw queues.
+  function shaft(a,b,color,radius,order=11){const g=new THREE.CylinderGeometry(radius,radius,a.distanceTo(b),7),m=new THREE.MeshBasicMaterial({color,transparent:true,opacity:1,depthTest:false,depthWrite:false});const mesh=new THREE.Mesh(g,m);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.renderOrder=order;return mesh;}
+  const dotCanvas=document.createElement('canvas');dotCanvas.width=64;dotCanvas.height=64;
+  const dc=dotCanvas.getContext('2d');dc.beginPath();dc.arc(32,32,27,0,Math.PI*2);dc.fillStyle='white';dc.fill();dc.strokeStyle='#12414a';dc.lineWidth=8;dc.stroke();
+  const dotTexture=new THREE.CanvasTexture(dotCanvas);dotTexture.colorSpace=THREE.SRGBColorSpace;
   for(const f of [...atlas.holes,...atlas.instruments]){
     if(!f.geometry)continue;
-    const p=f.properties,[e,n]=p.easting_m!=null?[p.easting_m,p.northing_m]:project(f.geometry.coordinates),z=p.ground_m??ground(e,n),start=position(e,n,z),g=group(p.kind),color=colors[p.kind];
-    const collar=new THREE.Mesh(new THREE.SphereGeometry(p.kind==='well'?1.8:1.15,10,8),new THREE.MeshBasicMaterial({color,depthTest:false}));
-    collar.position.copy(start);collar.renderOrder=5;collar.userData.feature=f;g.add(collar);pickables.push(collar);collars.set(p.id,collar);
+    const p=f.properties,[e,n]=p.easting_m!=null?[p.easting_m,p.northing_m]:project(f.geometry.coordinates),z=ground(e,n),start=position(e,n,z),g=group(p.kind),color=colors[p.kind];
+    const markerSize=p.kind==='well'?13:10;
+    const collar=new THREE.Points(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3()]),new THREE.PointsMaterial({color,size:markerSize,sizeAttenuation:false,map:dotTexture,alphaTest:.2,transparent:true,depthTest:false,depthWrite:false}));
+    collar.position.copy(start);collar.position.y+=.08;collar.renderOrder=20;collar.userData={feature:f,markerSize};g.add(collar);pickables.push(collar);collars.set(p.id,collar);
     if(p.depth_m!=null){
       const bottom=position(e,n,z-p.depth_m);
-      if(p.depth_basis==='drilled'){const line=segment([start,bottom],color,true);line.renderOrder=4;g.add(line);}
-      else g.add(shaft(start,bottom,color,.5));
-      if(p.screen_m)g.add(shaft(position(e,n,z-p.screen_m[0]),position(e,n,z-p.screen_m[1]),'#f2f7eb',.72));
-      for(let d=5;d<p.depth_m;d+=5){const tick=segment([position(e-1.2,n,z-d),position(e+1.2,n,z-d)],color);tick.material.depthTest=false;tick.renderOrder=4;g.add(tick);}
+      if(p.depth_basis==='drilled'){const line=segment([start,bottom],color,true);Object.assign(line.material,{transparent:true,depthWrite:false});line.renderOrder=11;g.add(line);}
+      else {g.add(shaft(start,bottom,'#143f4d',.65,10));g.add(shaft(start,bottom,color,.35));}
+      if(p.screen_m)g.add(shaft(position(e,n,z-p.screen_m[0]),position(e,n,z-p.screen_m[1]),'#f2f7eb',.5,12));
+      for(let d=5;d<p.depth_m;d+=5){const tick=segment([position(e-1.2,n,z-d),position(e+1.2,n,z-d)],color);tick.material.depthTest=false;tick.material.depthWrite=false;tick.renderOrder=13;g.add(tick);}
     }
     const button=document.createElement('button');button.textContent=p.id;button.className=p.kind;button.setAttribute('aria-label',`Inspect ${p.id}`);button.onclick=()=>atlas.inspect(f);labelLayer.append(button);labels.push({button,position:start,feature:f});
   }
@@ -77,7 +87,7 @@ export async function createScene(atlas) {
     const points=coords.map(ll=>{const [e,n]=project(ll);return position(e,n,ground(e,n)+.7);});
     const l=segment(points,color,dashed);l.material.opacity=kind==='channel'?.5:.8;group(kind).add(l);
   }
-  for(const f of atlas.catchments){const p=f.properties;for(const ring of f.geometry.coordinates)pathLine(ring,p.kind,p.kind==='watershed'?'#e0c68c':'#c0ec94');}
+  for(const f of atlas.catchments){const p=f.properties;for(const ring of f.geometry.coordinates)pathLine(ring,p.kind,p.kind==='watershed'?'#e0c68c':'#c0ec94',!!p.provisional);}
   for(const f of atlas.channels){const paths=f.geometry.type==='MultiLineString'?f.geometry.coordinates:[f.geometry.coordinates];for(const path of paths)pathLine(path,'channel','#8dceda');}
   const contourResponse=await fetch(atlas.dataURL('data/contours-3d.geojson'));
   if(!contourResponse.ok)throw Error('Contour data unavailable');
@@ -103,7 +113,7 @@ export async function createScene(atlas) {
     const e=(minE+maxE)/2,n=(minN+maxN)/2;fly(position(e,n,ground(e,n)),Math.max(maxE-minE,maxN-minN));
   }
   function focusHole(f){const [e,n]=project(f.geometry.coordinates);fly(position(e,n,f.properties.ground_m??ground(e,n)),85);}
-  function highlight(id){selectedId=id;for(const [key,mesh] of collars)mesh.scale.setScalar(key===id?2:1);}
+  function highlight(id){selectedId=id;for(const [key,mesh] of collars)mesh.material.size=mesh.userData.markerSize*(key===id?1.5:1);}
   function render(){
     if(!active)return;
     controls.update();renderer.render(world,camera);
@@ -120,12 +130,13 @@ export async function createScene(atlas) {
     }
     frame=requestAnimationFrame(render);
   }
-  const raycaster=new THREE.Raycaster();let pointerStart;
+  let pointerStart;
   renderer.domElement.addEventListener('pointerdown',event=>{pointerStart=[event.clientX,event.clientY];});
   renderer.domElement.addEventListener('pointerup',event=>{
     if(!pointerStart||Math.hypot(event.clientX-pointerStart[0],event.clientY-pointerStart[1])>5)return;
-    const rect=renderer.domElement.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),camera);
-    const hits=raycaster.intersectObjects(pickables.filter(m=>m.parent.visible));if(hits.length)atlas.inspect(hits[0].object.userData.feature);
+    const rect=renderer.domElement.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
+    const hits=pickables.filter(m=>m.parent.visible).map(m=>{const p=m.getWorldPosition(new THREE.Vector3()).project(camera);return {m,z:p.z,d:Math.hypot((p.x*.5+.5)*rect.width-x,(-p.y*.5+.5)*rect.height-y)};}).filter(p=>p.z>-1&&p.z<1&&p.d<=12).sort((a,b)=>a.d-b.d);
+    if(hits.length)atlas.inspect(hits[0].m.userData.feature);
   });
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();document.getElementById('scene-loading').hidden=false;document.getElementById('scene-loading').textContent='3D graphics context lost. Return to the map or reload to reopen 3D.';});
   return {get active(){return active;},open(){active=true;resize();render();},close(){active=false;cancelAnimationFrame(frame);},focus,focusHole,highlight,setVisible,

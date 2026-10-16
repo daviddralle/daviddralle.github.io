@@ -14,6 +14,16 @@ colors, navigation, focus states and chart typography connect the two views.
   completed or original drilled depth. MH3P6 was abandoned and is unlocated.
 - Archived Mountain House boundary and MH1–MH9 subcatchments. MH1–MH8 form the
   primary study sequence; MH9 is retained and drawn with a dashed boundary.
+- Provisional **MH10**, immediately north of MH9, is independently delineated
+  from the 1 m LiDAR DEM using pysheds D8 flow routing. Its contributing area is
+  **9.3003 ha** (93,003 cells), ending at the last tributary cell before the
+  mainstem confluence. Pit/depression filling changes at most 0.024 m inside
+  MH10 and is used only for routing; displayed elevations remain unchanged.
+  The map polygon is simplified within 1 m and omits three diagonal-only 1 m²
+  cells. It is not snapped to archived divides: 0.16% lies beyond the archived
+  watershed and 609 m² overlaps archived MH9. These small boundary differences
+  remain explicit in feature provenance. The dashed MH10 boundary and working
+  name are provisional, not field verified.
 - The study watershed outlet is now **39.143027, -122.342734**: the lowest
   DEM-elevation intersection of its archived boundary and drainage network.
   This replaces the approximate Google Maps pin; the boundary is retained.
@@ -161,3 +171,32 @@ the compact canopy products. Re-run the atlas and thumbnail builders with
 `--dem /external/rancho-canopy/rancho-composite-dem.tif`, the composite source
 label in `canopy.json`, and its vertical datum. Terrain, contours and the outlet
 then share that DEM. Refresh the HTML asset versions when publishing.
+
+## MH10 delineation
+
+Run with pysheds 0.5, numpy <2.4, rasterio, shapely and pyproj:
+
+```sh
+python scripts/delineate_rancho_mh10.py \
+  --dem /external/rancho-composite-dem.tif \
+  --streams /external/mh_2m_streams5000.geojson \
+  --work /external/mh10-routing
+```
+
+The derived feature is retained separately in `data/derived-catchments.geojson`;
+`build_rancho_atlas.py` includes it on subsequent rebuilds. Archived MH1–MH9
+polygons are unchanged. Routing seeds use archived stream FIDs 164 (tributary)
+and 169 (upstream mainstem), snap within 10 m to high-accumulation cells, and
+follow D8 paths to their first shared cell. MH10 excludes that mainstem cell.
+
+## LiDAR and well visibility
+
+The canopy height color ramp already matches Rivendell. Display defaults now
+use 70% canopy opacity, 1.2 px 3D returns, and opaque neutral gray terrain with Rivendell’s lighting.
+Both canopy and ground opacity remain adjustable. Field points have dark
+outlines; 3D wellheads use fixed 13 px symbols. Collars follow the actual
+rendered terrain triangles, with documented depths measured below them.
+Their source 1 m DEM elevations remain in the inspector/data unchanged.
+Well symbols, outlined shafts and depth ticks render after terrain and canopy
+without depth occlusion, so vegetation cannot hide them. This drawing order
+does not represent a surveyed mounting height or a raised wellhead elevation.

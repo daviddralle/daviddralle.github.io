@@ -73,10 +73,24 @@ class AtlasDataTests(unittest.TestCase):
             self.assertEqual(len(row),terrain['nx'])
             self.assertTrue(all(math.isfinite(z) and 0<z<1000 for z in row))
         catchments=json.loads((DATA/'catchments.geojson').read_text())['features']
-        self.assertEqual({f['properties']['id'] for f in catchments},{'Mountain House',*[f'MH{i}' for i in range(1,10)]})
+        self.assertEqual({f['properties']['id'] for f in catchments},{'Mountain House',*[f'MH{i}' for i in range(1,11)]})
         for f in catchments:
             self.assertGreater(f['properties']['area_ha'],0)
             self.assertEqual(f['geometry']['coordinates'][0][0],f['geometry']['coordinates'][0][-1])
+
+    def test_mh10_provenance_and_routing(self):
+        features=json.loads((DATA/'catchments.geojson').read_text())['features']
+        mh10=next(f for f in features if f['properties']['id']=='MH10')['properties']
+        mh9=next(f for f in features if f['properties']['id']=='MH9')['properties']
+        self.assertTrue(mh10['provisional'])
+        self.assertGreater(mh10['label_position'][1],mh9['label_position'][1])
+        self.assertTrue(9<mh10['area_ha']<10)
+        qa=mh10['delineation']['qa']
+        self.assertAlmostEqual(qa['upstream_cells']/10000,mh10['area_ha'])
+        self.assertGreater(qa['within_archived_watershed_fraction'],.995)
+        self.assertLess(qa['overlap_archived_mh9_m2']/(mh10['area_ha']*10000),.01)
+        self.assertEqual(qa['nodata_cells'],0)
+        self.assertFalse(qa['touches_dem_edge'])
 
     def test_contours_keep_native_dem_intervals_and_valid_geometry(self):
         contours=json.loads((DATA/'contours.geojson').read_text())['features']

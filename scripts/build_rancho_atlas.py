@@ -87,6 +87,9 @@ def main():
                 area_ha=round(metric.area / 10000, 2), label_position=list(polygon.representative_point().coords)[0],
                 source='Data/GIS/Watershed Boundaries/' + filename,
                 note='Study watershed; outlet follows the lowest mapped drainage crossing of this boundary.' if label == 'Mountain House' else ('Additional MH9 polygon in source archive.' if label == 'MH9' else 'Archived catchment delineation.')))
+    derived_path = out / 'derived-catchments.geojson'
+    derived = json.loads(derived_path.read_text())['features'] if derived_path.exists() else []
+    watershed.extend(derived)
     save(out / 'catchments.geojson', collection(watershed))
     domain = shape(watershed[0]['geometry'])
     metric_bounds = transform(TO_UTM.transform, domain).buffer(160).bounds
@@ -226,6 +229,7 @@ def main():
             dict(title='Whiting et al. · Emergence from drought',note='User-supplied manuscript; figure 1 used to cross-check site orientation. Manuscript not redistributed.')],notes=[
                 'Map covers the archived Mountain House watershed within Rancho Venada, not a ranch property boundary.',
                 'MH1–MH8 are the primary study sequence; the GIS archive also contains MH9.',
+                *[f"{f['properties']['id']}: {f['properties']['note']}" for f in derived],
                 'Metadata well names identify monitoring groups and do not always match the polygon containing a point.',
                 'Two provisional positions: MH7W4 and MH8W1 use archived KML. MH3P6 is unlocated.',
                 'Depth values bearing a foot mark in the nominal metre column were converted using 0.3048 m/ft.',
