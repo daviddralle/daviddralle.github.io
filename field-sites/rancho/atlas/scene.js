@@ -38,7 +38,7 @@ export async function createScene(atlas) {
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();
   const texture=await new THREE.TextureLoader().loadAsync(atlas.dataURL('data/terrain-texture.jpg'));texture.colorSpace=THREE.SRGBColorSpace;
-  const material=new THREE.MeshStandardMaterial({map:texture,color:'#ffffff',roughness:1,metalness:0,transparent:true,opacity:1,side:THREE.DoubleSide,depthWrite:false});
+  const material=new THREE.MeshStandardMaterial({map:texture,color:'#ffffff',roughness:1,metalness:0,transparent:true,opacity:1,side:THREE.DoubleSide,depthWrite:true});
   const surface=new THREE.Mesh(geometry,material);surface.renderOrder=1;root.add(surface);
   world.add(new THREE.HemisphereLight('#ffffff','#656565',2.1));
   const sunlight=new THREE.DirectionalLight('#ffffff',2);sunlight.position.set(-300,600,250);world.add(sunlight);
@@ -140,6 +140,6 @@ export async function createScene(atlas) {
   });
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();document.getElementById('scene-loading').hidden=false;document.getElementById('scene-loading').textContent='3D graphics context lost. Return to the map or reload to reopen 3D.';});
   return {get active(){return active;},open(){active=true;resize();render();},close(){active=false;cancelAnimationFrame(frame);},focus,focusHole,highlight,setVisible,
-    canopyOpacity(value){cloudMaterial.opacity=value;},opacity(value){material.opacity=value;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
+    canopyOpacity(value){cloudMaterial.opacity=value;},opacity(value){material.opacity=value;material.depthWrite=value>=.99;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
     top(){const d=camera.position.distanceTo(controls.target);camera.position.copy(controls.target).add(new THREE.Vector3(0,d,.01));controls.update();}};
 }
