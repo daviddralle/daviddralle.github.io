@@ -1,4 +1,4 @@
-import {bufferDetails,containsBuffer} from './eagle-buffers.js?v=20261020';
+import {bufferDetails,containsBuffer} from './eagle-buffers.js?v=20261020b';
 import {soilDetails,geologyDetails} from './soil-details.js?v=20261016-units';
 import * as THREE from '../rivendell/atlas/vendor/three/three.module.js';
 import {OrbitControls} from '../rivendell/atlas/vendor/three/OrbitControls.js';
