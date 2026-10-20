@@ -1,0 +1,14 @@
+{
+  "source_file": "SFPUC 2026 Eagle Nests and Buffers.kmz",
+  "source_sha256": "c857039b309703444984be1c5da58c02f045c699e98d96739d5df6bdd526813a",
+  "source_year": 2026,
+  "territory": "Maguire Peaks",
+  "feature_count": 2,
+  "namespace_repair": true,
+  "notes": [
+    "Only the Maguire Peaks minimum and maximum buffer polygons are included. Nest points, other territories, roads, and ownership layers are omitted.",
+    "Original KML WGS84 polygon vertices retained without simplification or replacement by circles. Buffer distances interpreted as meters and checked against projected polygon area within 1%.",
+    "Minimum and maximum are source layer labels, not newly inferred activity restrictions.",
+    "3D fill is rasterized onto the existing 2 m Maguire Ridge terrain mesh; extent outside that terrain cutout is shown only in 2D. Terrain cutout edges are not buffer boundaries."
+  ]
+}

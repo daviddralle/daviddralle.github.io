@@ -1,3 +1,4 @@
+import {bufferDetails,containsBuffer} from './eagle-buffers.js?v=20261020';
 import {soilDetails,geologyDetails} from './soil-details.js?v=20261016-units';
 import * as THREE from '../rivendell/atlas/vendor/three/three.module.js';
 import {OrbitControls} from '../rivendell/atlas/vendor/three/OrbitControls.js';
@@ -19,6 +20,10 @@ export async function createScene(api){
   }));
   const [geologyMeta,soilMeta,soilProperties]=await Promise.all([json('data/geology/metadata.json'),json('data/soils/metadata.json'),json('data/soils/properties.json?v=20261014-context3d')]);
   const textureLoader=new THREE.TextureLoader();
+  const eagleData=await json('data/eagle-buffers/scene.json');
+  const eagleTextures=await Promise.all(eagleData.features.map(f=>textureLoader.loadAsync('data/eagle-buffers/'+f.texture)));
+  eagleTextures.forEach(t=>{t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearFilter;t.magFilter=THREE.NearestFilter;});
+  const eagleMeshes=[];
   await Promise.all(packages.map(async p=>{
     const base=`data/${p.site.id}/3d/context/`,meta=await json(base+'manifest.json');
     p.context={meta,ids:{},textures:{}};
@@ -55,6 +60,16 @@ export async function createScene(api){
     for(const [kind,order]of [['geology',.1],['faults',.2],['soils',.3]]){
       const material=new THREE.MeshBasicMaterial({map:p.context.textures[kind],transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
       const overlay=new THREE.Mesh(geometry,material);overlay.renderOrder=order;overlay.userData.kind=kind;scene.add(overlay);contextMeshes.push(overlay);
+    }
+    if(p.site.id===eagleData.site){
+      eagleData.features.forEach((f,i)=>{
+        const kind=f.properties.id.endsWith('-min')?'min':'max';
+        const overlay=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({map:eagleTextures[i],transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));overlay.renderOrder=.5+i*.01;overlay.userData={eagleKind:kind,fill:true};scene.add(overlay);eagleMeshes.push(overlay);
+        const lines=[];
+        const height=(x,y)=>{const col=Math.round((x-tm.x0)/tm.step),row=Math.round((tm.y0-y)/tm.step);return col>=0&&col<w&&row>=0&&row<h?heights[row*w+col]+1:null;};
+        for(const ring of f.geometry.coordinates){let previous=null;for(let j=1;j<ring.length;j++){const a=ring[j-1],b=ring[j],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/2);for(let k=0;k<=n;k++){const x=a[0]+(b[0]-a[0])*k/n,y=a[1]+(b[1]-a[1])*k/n,z=height(x,y),point=z===null?null:[x,y,z];if(point&&previous)lines.push([previous,point]);previous=point;}}}
+        const outline=new THREE.LineSegments(lineGeometry(lines),new THREE.LineBasicMaterial({color:f.properties.color,depthTest:false,transparent:true,depthWrite:false}));outline.renderOrder=2;outline.userData={eagleKind:kind,fill:false};scene.add(outline);eagleMeshes.push(outline);
+      });
     }
     const pos=new Float32Array(meta.canopy.count*3),col=new Float32Array(meta.canopy.count*3),scale=meta.canopy.scale,offset=meta.canopy.offset;
     for(let i=0;i<meta.canopy.count;i++){world([points[i*4]*scale+offset[0],points[i*4+1]*scale+offset[1],points[i*4+2]*scale+offset[2]]).toArray(pos,i*3);heightColor(points[i*4+3]*scale).toArray(col,i*3);}
@@ -112,13 +127,16 @@ export async function createScene(api){
     for(const plots of plotMeshes){const i=pick(plots,()=>9);if(i!==null){api.inspect(plots.userData.features[i]);return;}}
     const treeHit=pick(treePoints,i=>api.treeRadius(pointFeatures[i].properties)+2);
     if(treeHit!==null){api.inspect(pointFeatures[treeHit]);return;}
-    const kind=checked('layer-soils')?'soils':checked('layer-geology')?'geology':null;if(!kind)return;
     const hit=ray.intersectObjects(terrainMeshes)[0];if(!hit)return;
+    if(checked('layer-eagles')&&eagleData.features.some(f=>checked('eagle-'+(f.properties.id.endsWith('-min')?'min':'max'))&&containsBuffer([hit.point.x+origin[0],origin[1]-hit.point.z],f.geometry.coordinates))){api.showContext('Eagle buffers · 2026 source',bufferDetails());return;}
+    const kind=checked('layer-soils')?'soils':checked('layer-geology')?'geology':null;if(!kind)return;
     const p=hit.object.userData.package,tm=p.context.meta,col=Math.round((hit.point.x+origin[0]-tm.x0)/tm.step),row=Math.round((tm.y0-(origin[1]-hit.point.z))/tm.step);
     if(col<0||row<0||col>=tm.width||row>=tm.height)return;
     const code=tm.layers[kind].lookup[p.context.ids[kind][row*tm.width+col]];if(!code)return;
     api.showContext(kind==='soils'?'Mapped soil properties':'Mapped geology',kind==='soils'?soilDetails(soilMeta.units[code],code,soilProperties):geologyDetails(geologyMeta.units[code],code));
   });
+  function refreshEagles(){for(const mesh of eagleMeshes){mesh.visible=checked('layer-eagles')&&checked('eagle-'+mesh.userData.eagleKind);mesh.material.opacity=mesh.userData.fill?Number($('eagle-opacity').value)/100:1;}}
+  document.addEventListener('eagle-buffers-change',refreshEagles);refreshEagles();
   function refreshContext(){
     for(const mesh of contextMeshes){const kind=mesh.userData.kind;mesh.visible=kind==='faults'?checked('layer-geology')&&checked('geology-faults'):checked('layer-'+kind);mesh.material.opacity=Number($(kind==='soils'?'soils-opacity':'geology-opacity').value)/100;}
   }
@@ -139,5 +157,5 @@ export async function createScene(api){
   $('scene-count').textContent=packages.reduce((n,p)=>n+p.meta.canopy.count,0).toLocaleString()+' measured returns · both sites';
   $('scene-status').innerHTML='USGS 3DEP · '+window.SFPUCUnits.html(2,'length')+' mesh · geology & soils draped on terrain · click ground for details';
   refresh();
-  return {focus,focusFeature,refresh,open(){panel.hidden=false;$('map').setAttribute('aria-hidden','true');document.body.classList.add('scene-active');active=true;resize();focus(api.currentSite());refresh();refreshContext();cancelAnimationFrame(frame);draw();}};
+  return {focus,focusFeature,refresh,open(){panel.hidden=false;$('map').setAttribute('aria-hidden','true');document.body.classList.add('scene-active');active=true;resize();focus(api.currentSite());refresh();refreshContext();refreshEagles();cancelAnimationFrame(frame);draw();}};
 }

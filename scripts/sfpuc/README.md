@@ -164,3 +164,20 @@ The shared map legend is open on desktop and starts collapsed on phones.
 It uses the inventory species palette and DBH sizing helper, and distinguishes
 field markers, plot circles, planned trees, contour intervals, and additional
 line styles. Check Hide/Show, Escape, 2D/3D contour labels, and mobile scrolling.
+
+### Eagle buffers
+
+Run `python scripts/sfpuc/prepare_eagle_buffers.py /path/to/source.kmz` after
+preparing the Maguire Ridge terrain. It extracts only the Maguire Peaks polygons
+from the supplied 2026 minimum and maximum buffer folders. The original vertices
+are retained, geometry validity and all ten plot-center intersections are checked,
+and projected polygon areas verify the 800 m and 1,600 m distance interpretation.
+The metadata records the source hash and missing XML namespace repair. Keep the
+complete KMZ outside the public repository; nest points and unrelated layers are
+not published.
+
+GeoJSON supports the complete polygons in 2D. The 3D fill textures use the existing
+2 m terrain grid; vector boundaries are drawn only where terrain elevations are
+available. A terrain cutout edge is not a buffer boundary. Check separate minimum
+and maximum switches, opacity, source details and Close, All off and re-enabling,
+metric/imperial labels, and Full buffer extent returning from 3D to 2D.
