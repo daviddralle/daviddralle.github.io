@@ -55,3 +55,16 @@ export function toKML(features, name) {
   }).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${xml(name)}</name><description>User-drawn SFPUC field annotations. WGS84 coordinates; clamped to ground.</description><Style id="drawing"><IconStyle><scale>0.7</scale><Icon><href>files/point.png</href></Icon><hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/></IconStyle><LabelStyle><color>ffffffff</color><scale>0.85</scale></LabelStyle><LineStyle><color>ffeadb63</color><width>3</width></LineStyle><PolyStyle><color>40eadb63</color><fill>1</fill><outline>1</outline></PolyStyle></Style>\n${placemarks}\n</Document></kml>`;
 }
+
+// Upgrade earlier grouped point sets without losing their shared metadata.
+export function expandMultipoints(features, makeUid=()=>crypto.randomUUID()) {
+  const ids=new Set(features.map(f=>f.properties.id.toLocaleLowerCase()));
+  return features.flatMap(f=>{
+    if(f.geometry.type!=='MultiPoint')return [f];
+    return f.geometry.coordinates.map((coordinates,i)=>{
+      let id=f.properties.id;
+      if(i){let suffix=i+1;do{id=`${f.properties.id}-${suffix++}`;}while(ids.has(id.toLocaleLowerCase()));ids.add(id.toLocaleLowerCase());}
+      return {...f,properties:{...f.properties,id,uid:i?makeUid():f.properties.uid,draw_type:'marker'},geometry:{type:'Point',coordinates:[...coordinates]}};
+    });
+  });
+}

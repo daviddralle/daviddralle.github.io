@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {geometryError,sessionError,toKML} from '../../field-sites/sfpuc/draw-export.mjs';
+import {geometryError,sessionError,toKML,expandMultipoints} from '../../field-sites/sfpuc/draw-export.mjs';
 const polygon=ring=>({type:'Polygon',coordinates:[ring]});
 const valid=polygon([[0,0],[1,0],[1,1],[0,1],[0,0]]);
 assert.equal(geometryError(valid),'');
@@ -32,3 +32,24 @@ for(const [lng,lat] of multipoint.coordinates)assert.ok(pointsKML.includes(`<coo
 assert.equal(JSON.stringify(points),original);
 assert.equal(sessionError(JSON.parse(JSON.stringify([points]))),'');
 console.log('Multipoint validation, session and KML export checks passed.');
+
+const legacy={...points,properties:{...points.properties,uid:'old-uid',created:'2026-10-21',site:'sheep-camp'}};
+const existing={type:'Feature',properties:{id:'Boreholes-2',uid:'existing',draw_type:'marker'},geometry:{type:'Point',coordinates:[-121,37]}};
+let uid=0;
+const legacySource=JSON.stringify([legacy,existing]);
+const expanded=expandMultipoints([legacy,existing],()=>`new-${++uid}`);
+assert.equal(expanded.length,4);
+assert.equal(sessionError(expanded),'');
+assert.equal(new Set(expanded.map(f=>f.properties.uid)).size,4);
+assert.equal(expanded[0].properties.uid,'old-uid');
+assert.deepEqual(expanded.slice(0,3).map(f=>f.geometry.coordinates),multipoint.coordinates);
+assert.ok(expanded.slice(0,3).every(f=>f.properties.description==='Potential locations'&&f.properties.site==='sheep-camp'));
+assert.equal(JSON.stringify([legacy,existing]),legacySource);
+expanded[0].properties.description='BH-1 notes';
+assert.equal(expanded[1].properties.description,'Potential locations');
+const individualKML=toKML(expanded,'Boreholes');
+assert.equal((individualKML.match(/<Placemark /g)||[]).length,4);
+assert.ok(!individualKML.includes('<MultiGeometry>'));
+assert.match(individualKML,/<description>BH-1 notes<\/description>/);
+assert.deepEqual(expandMultipoints(expanded),expanded);
+console.log('Per-point metadata, legacy migration, ID collisions and separate placemark export checks passed.');

@@ -262,7 +262,7 @@ async function boot(){
     }catch(e){console.error(e);notice('3D could not load. The 2D map remains available; try 3D again.');}
     finally{button.disabled=false;button.textContent='3D view';}
   };
-  try {const {setupDrawing}=await import('./drawing.js?v=20261021-multipoint');drawing=setupDrawing({map,isMeasuring:()=>state.measuring,currentSite:()=>state.site,begin:()=>{$('#map-key').open=false;if(state.measuring)$('#measure').click();closeLayers();closeInspector();map.closePopup();}});}
+  try {const {setupDrawing}=await import('./drawing.js?v=20261021-point-metadata');drawing=setupDrawing({map,isMeasuring:()=>state.measuring,currentSite:()=>state.site,begin:()=>{$('#map-key').open=false;if(state.measuring)$('#measure').click();closeLayers();closeInspector();map.closePopup();}});}
   catch(e){console.error(e);$('#draw-menu-toggle').textContent='Draw unavailable';notice('Drawing tools could not load. Reload to retry.');}
   import('./eagle-buffers.js?v=20261020b').then(({setupEagleBuffers})=>setupEagleBuffers({map,notice,closeInspector,isMeasuring:()=>state.measuring||drawing?.busy(),showDetails:html=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent='Eagle buffers · 2026 source';$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;}})).catch(e=>{console.error(e);notice('Eagle buffers could not load. Reload to retry.');});
   import('./geology.js?v=20261014-context3d').then(({setupGeology})=>setupGeology({map,notice,closeInspector,isMeasuring:()=>state.measuring||drawing?.busy()})).catch(e=>{console.error(e);$('#geology-status').hidden=false;$('#geology-status').textContent='Geology controls could not load. Reload to retry.';});

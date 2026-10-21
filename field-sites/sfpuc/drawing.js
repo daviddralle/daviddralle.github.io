@@ -1,4 +1,4 @@
-import {geometryError,sessionError,toKML} from './draw-export.mjs?v=20261021-multipoint';
+import {geometryError,sessionError,toKML,expandMultipoints} from './draw-export.mjs?v=20261021-point-metadata';
 
 export function setupDrawing({map,begin,currentSite,isMeasuring}) {
   const $=id=>document.getElementById(id), key='sfpuc-drawing-session-v1';
@@ -95,26 +95,31 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
     status(type==='marker'?'Click the map to place a point.':type==='rectangle'?'Drag between opposite corners to draw a rectangle.':`Click to add ${type==='polygon'?'corners':'vertices'}. Choose Finish when ready; Back removes the last vertex.`);
   }
   let doubleClickZoom=false;
-  function pointStatus(){const n=draft.getLayers().length;status(`${n} ${n===1?'point':'points'} placed. Click each location, then Finish. Back removes the last point.`);}
+  function pointStatus(){const n=draft.getLayers().length;status(`${n} ${n===1?'point':'points'} placed. Click each location, then Finish to edit each point’s ID and description. Back removes the last point.`);}
   function addPoint(e){L.marker(e.latlng,{icon,interactive:false,keyboard:false}).addTo(draft);pointStatus();}
   function editLayers(layer,enabled){
     const children=layer instanceof L.FeatureGroup?layer.getLayers():[layer];
     for(const child of children){child.options.editing={...style};child.options.original={...child.options};child.options.poly={allowIntersection:false};child.editing[enabled?'enable':'disable']();}
   }
   function geometryOf(layer){return layer instanceof L.FeatureGroup?{type:'MultiPoint',coordinates:layer.getLayers().map(child=>child.toGeoJSON().geometry.coordinates)}:layer.toGeoJSON().geometry;}
-  function addFeature(geometry,type){
-    const error=geometryError(geometry);
+  function addFeatures(geometries,type){
+    const error=geometries.map(geometryError).find(Boolean);
     if(error){status(error+' Start the shape again.',true);return;}
-    remember();let n=1;while(features.some(f=>f.properties.id.toUpperCase()===`DRAW-${String(n).padStart(3,'0')}`))n++;
-    const now=new Date().toISOString(),uid=crypto.randomUUID();
-    features.push({type:'Feature',properties:{uid,id:`DRAW-${String(n).padStart(3,'0')}`,description:'',draw_type:type,site:currentSite(),created:now,updated:now},geometry});
-    selected=uid;mode='';panel.scrollTop=0;persist();rebuild();fillForm();status('Feature added. Set its ID and description below.');
+    remember();
+    const added=geometries.map(geometry=>{
+      let n=1;while(features.some(f=>f.properties.id.toUpperCase()===`DRAW-${String(n).padStart(3,'0')}`))n++;
+      const now=new Date().toISOString(),uid=crypto.randomUUID();
+      const feature={type:'Feature',properties:{uid,id:`DRAW-${String(n).padStart(3,'0')}`,description:'',draw_type:type,site:currentSite(),created:now,updated:now},geometry};
+      features.push(feature);return feature;
+    });
+    selected=added[0].properties.uid;mode='';panel.scrollTop=0;persist();rebuild();fillForm();
+    status(type==='marker'?`${added.length} ${added.length===1?'point':'points'} added. Select each point on the map or in the list to set its ID and description.`:'Feature added. Set its ID and description below.');
     // The plugin finishes disabling its handler after firing CREATED.
     queueMicrotask(()=>{handler=null;syncMode();$('draw-id').focus();$('draw-id').select();});
   }
-  map.on(L.Draw.Event.CREATED,e=>addFeature(e.layer.toGeoJSON().geometry,e.layerType));
+  map.on(L.Draw.Event.CREATED,e=>addFeatures([e.layer.toGeoJSON().geometry],e.layerType));
   map.on(L.Draw.Event.DRAWSTOP,()=>{if(mode&&mode!=='edit'){mode='';syncMode();}});
-  $('draw-finish').onclick=()=>{if(mode==='multipoint'){const geometry=geometryOf(draft),error=geometryError(geometry);if(error){status(error,true);return;}cancel();addFeature(geometry,'multipoint');return;}handler?.completeShape();if(busy())status(mode==='polygon'?'Add at least three corners, then Finish.':'Add at least two vertices, then Finish.',true);};
+  $('draw-finish').onclick=()=>{if(mode==='multipoint'){const geometry=geometryOf(draft),error=geometryError(geometry);if(error){status(error,true);return;}cancel();addFeatures(geometry.coordinates.map(coordinates=>({type:'Point',coordinates})),'marker');return;}handler?.completeShape();if(busy())status(mode==='polygon'?'Add at least three corners, then Finish.':'Add at least two vertices, then Finish.',true);};
   $('draw-back').onclick=()=>{if(mode==='multipoint'){const last=draft.getLayers().at(-1);if(last)draft.removeLayer(last);pointStatus();}else handler?.deleteLastVertex();};
   $('draw-cancel').onclick=cancel;
   $('draw-edit-geometry').onclick=()=>{
@@ -158,7 +163,8 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
   try{
     const saved=JSON.parse(localStorage.getItem(key)||'null');
     if(saved){if(saved.version!==1||!Array.isArray(saved.features)||sessionError(saved.features)||saved.features.some(f=>!names[f.properties.draw_type]||!f.properties.uid)||new Set(saved.features.map(f=>f.properties.uid)).size!==saved.features.length)throw Error('Invalid saved session');
-      features=saved.features;name=String(saved.name||name);$('draw-session-name').value=name;
+      features=expandMultipoints(saved.features);name=String(saved.name||name);$('draw-session-name').value=name;
+      if(saved.features.some(f=>f.geometry.type==='MultiPoint')){persist();status('Saved point sets now have individual points. Each retains the set’s description; select a point to edit its metadata.');}
     }
   }catch(e){status('The saved session could not be restored. It has not been overwritten.',true);}
   rebuild();fillForm();
