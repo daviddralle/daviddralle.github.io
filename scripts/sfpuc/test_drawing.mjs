@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {geometryError,sessionError,toKML} from '../../field-sites/sfpuc/draw-export.mjs';
+const polygon=ring=>({type:'Polygon',coordinates:[ring]});
+const valid=polygon([[0,0],[1,0],[1,1],[0,1],[0,0]]);
+assert.equal(geometryError(valid),'');
+assert.equal(geometryError({type:'Point',coordinates:[-121.85,37.55]}),'');
+assert.equal(geometryError({type:'LineString',coordinates:[[0,0],[1,1]]}),'');
+for(const bad of [polygon([[0,0],[1,1],[1,0],[0,1],[0,0]]),polygon([[0,0],[1,0],[2,0],[0,0]]),polygon([[0,0],[1,0],[1,1]]),{type:'Point',coordinates:[Infinity,37]},{type:'LineString',coordinates:[[0,0],[0,0]]}]) assert.ok(geometryError(bad));
+// Closing-edge crossings and nonadjacent touching vertices must also be rejected.
+assert.ok(geometryError(polygon([[0,0],[2,0],[2,2],[0,2],[1,-1],[0,0]])));
+assert.ok(geometryError(polygon([[0,0],[2,0],[2,2],[1,0],[0,2],[0,0]])));
+const f={type:'Feature',properties:{id:'A & <1>',description:'α “oak”\n<notes> & soil',draw_type:'polygon'},geometry:valid};
+assert.equal(sessionError([f]),'');assert.ok(sessionError([f,f]));
+assert.ok(sessionError([{...f,properties:{id:' '}}]));
+const source=JSON.stringify(f),kml=toKML([f],'Session & 1');
+assert.match(kml,/<name>A &amp; &lt;1&gt;<\/name>/);
+assert.match(kml,/<Data name="description"><value>α “oak”\n&lt;notes&gt; &amp; soil<\/value>/);
+assert.match(kml,/<altitudeMode>clampToGround<\/altitudeMode>/);
+assert.match(kml,/<href>files\/point.png<\/href>/);
+assert.equal(JSON.stringify(f),source,'Export must not mutate source coordinates');
+console.log('Drawing validation and KML export checks passed.');

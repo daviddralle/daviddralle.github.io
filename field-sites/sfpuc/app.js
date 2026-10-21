@@ -9,7 +9,7 @@ let manifest, map, base, hillshade, contours, field, coverage, labels, measureme
 const getJSON = async url => {const r = await fetch(url); if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`); return r.json();};
 const current = () => manifest.sites.find(s => s.id === state.site);
 const dataset = () => state.combined;
-let scene3d,soilContext,renderSoilDetails;
+let scene3d,soilContext,renderSoilDetails,drawing;
 const notice = text => {$('#notice').textContent=text; $('#notice').hidden=!text;};
 const ll = f => [f.geometry.coordinates[1], f.geometry.coordinates[0]];
 const checked = id => $(id).checked;
@@ -25,7 +25,7 @@ function filteredTrees(){
 }
 function fitSite(){ scene3d?.focus(state.site); map.fitBounds(current().bounds,{paddingTopLeft:[35,110],paddingBottomRight:[45,60],maxZoom:18}); }
 function goFeature(f){
-  if (state.measuring) return;
+  if (state.measuring || drawing?.busy()) return;
   closeLayers();
   const center=f.geometry.type==='Point' ? ll(f) : [Number(f.properties.latitude),Number(f.properties.longitude)];
   map.setView(center,Math.max(map.getZoom(),20));
@@ -34,6 +34,7 @@ function goFeature(f){
 }
 function treeTooltip(p){return `${esc(p.id)} · ${esc(p.plot)} tag ${esc(p.tree_tag_number)}<br>${esc(p.species)} · ${U.html(p.dbh_cm,'depth')} DBH${p.status==='dead'?' · recorded dead':''}`;}
 function inspect(f){
+  if(drawing?.busy() || drawing?.hide()===false)return;
   const p=f.properties;
   $('#inspector .inspector-header span').textContent='Field record · 2022';
   const site=manifest.sites.find(s=>s.id===p.site||s.code===p.site);
@@ -236,6 +237,7 @@ async function boot(){
   $('#hide-overlays').onclick=()=>{
     document.querySelectorAll('.primary-layers input[type=checkbox],.disclosure input[id^=layer-],#tree-labels').forEach(el=>{if(el.checked){el.checked=false;el.dispatchEvent(new Event('change'));}});
     if(state.measuring)$('#measure').click();
+    drawing?.hideLayer();
     if(scene3d&&document.body.classList.contains('scene-active')){for(const id of ['cloud-3d','contours-3d']){const el=$('#'+id);if(el.checked){el.checked=false;el.dispatchEvent(new Event('change'));}}}
     map.closePopup();closeInspector();
   };
@@ -245,11 +247,13 @@ async function boot(){
   $('#basemap').onchange=()=>{notice('');setBasemap();};$('#contours').onchange=renderContours;
   $('#search').oninput=doSearch;$('#clear-search').onclick=()=>{$('#search').value='';doSearch();$('#search').focus();};
   $('#close-inspector').onclick=closeInspector;$('#export').onclick=()=>exportTrees();
-  $('#measure').onclick=()=>{state.measuring=!state.measuring;state.measurePoints=[];measurement.clearLayers();closeInspector();$('#measure').classList.toggle('selected',state.measuring);$('#measure').setAttribute('aria-pressed',String(state.measuring));map.doubleClickZoom[state.measuring?'disable':'enable']();notice(state.measuring?'Click points on the map to measure horizontal distance. Click Measure again to clear.':'');};
+  $('#measure').onclick=()=>{if(drawing?.hide()===false)return;state.measuring=!state.measuring;state.measurePoints=[];measurement.clearLayers();closeInspector();$('#measure').classList.toggle('selected',state.measuring);$('#measure').setAttribute('aria-pressed',String(state.measuring));map.doubleClickZoom[state.measuring?'disable':'enable']();notice(state.measuring?'Click points on the map to measure horizontal distance. Click Measure again to clear.':'');};
   $('#methods-content').innerHTML=sourcesHTML();$('#sources').onclick=()=>$('#methods').showModal();$('#close-sources').onclick=()=>$('#methods').close();
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#map-key').open=false;closeLayers();closeInspector();map.closePopup();if(state.measuring)$('#measure').click();}});
   window.addEventListener('resize',()=>map.invalidateSize());
   $('#view-3d').onclick=async()=>{
+    if(drawing?.hide()===false)return;
+    if(state.measuring)$('#measure').click();
     closeLayers();closeInspector();map.closePopup();
     const button=$('#view-3d');button.disabled=true;button.textContent='Opening 3D…';
     try{
@@ -258,9 +262,11 @@ async function boot(){
     }catch(e){console.error(e);notice('3D could not load. The 2D map remains available; try 3D again.');}
     finally{button.disabled=false;button.textContent='3D view';}
   };
-  import('./eagle-buffers.js?v=20261020b').then(({setupEagleBuffers})=>setupEagleBuffers({map,notice,closeInspector,isMeasuring:()=>state.measuring,showDetails:html=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent='Eagle buffers · 2026 source';$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;}})).catch(e=>{console.error(e);notice('Eagle buffers could not load. Reload to retry.');});
-  import('./geology.js?v=20261014-context3d').then(({setupGeology})=>setupGeology({map,notice,closeInspector,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#geology-status').hidden=false;$('#geology-status').textContent='Geology controls could not load. Reload to retry.';});
-  import('./soils.js?v=20261016-units').then(({setupSoils})=>setupSoils({map,notice,closeInspector,isMeasuring:()=>state.measuring})).catch(e=>{console.error(e);$('#soils-status').hidden=false;$('#soils-status').textContent='Soil controls could not load. Reload to retry.';});
+  try {const {setupDrawing}=await import('./drawing.js?v=20261021');drawing=setupDrawing({map,isMeasuring:()=>state.measuring,currentSite:()=>state.site,begin:()=>{$('#map-key').open=false;if(state.measuring)$('#measure').click();closeLayers();closeInspector();map.closePopup();}});}
+  catch(e){console.error(e);$('#draw-menu-toggle').textContent='Draw unavailable';notice('Drawing tools could not load. Reload to retry.');}
+  import('./eagle-buffers.js?v=20261020b').then(({setupEagleBuffers})=>setupEagleBuffers({map,notice,closeInspector,isMeasuring:()=>state.measuring||drawing?.busy(),showDetails:html=>{closeLayers();map.closePopup();selected.clearLayers();$('#inspector .inspector-header span').textContent='Eagle buffers · 2026 source';$('#feature-details').innerHTML=html;$('#inspector').hidden=false;$('#inspector').scrollTop=0;}})).catch(e=>{console.error(e);notice('Eagle buffers could not load. Reload to retry.');});
+  import('./geology.js?v=20261014-context3d').then(({setupGeology})=>setupGeology({map,notice,closeInspector,isMeasuring:()=>state.measuring||drawing?.busy()})).catch(e=>{console.error(e);$('#geology-status').hidden=false;$('#geology-status').textContent='Geology controls could not load. Reload to retry.';});
+  import('./soils.js?v=20261016-units').then(({setupSoils})=>setupSoils({map,notice,closeInspector,isMeasuring:()=>state.measuring||drawing?.busy()})).catch(e=>{console.error(e);$('#soils-status').hidden=false;$('#soils-status').textContent='Soil controls could not load. Reload to retry.';});
   try{const [m,p,view]=await Promise.all([getJSON('data/soils/metadata.json'),getJSON('data/soils/properties.json?v=20261014-context3d'),import('./soil-details.js?v=20261016-units')]);soilContext={metadata:m,properties:p};renderSoilDetails=view.soilDetails;}catch(e){console.error('Soil property details unavailable',e);}
   $('#loading').hidden=true;
 }

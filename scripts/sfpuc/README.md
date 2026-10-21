@@ -181,3 +181,26 @@ GeoJSON supports the complete polygons in 2D. The 3D fill textures use the exist
 available. A terrain cutout edge is not a buffer boundary. Check separate minimum
 and maximum switches, opacity, source details and Close, All off and re-enabling,
 metric/imperial labels, and Full buffer extent returning from 3D to 2D.
+
+### Drawing sessions
+
+The Draw menu beside Measure creates points, polylines, simple polygons and
+rectangles in 2D. `drawing.js` keeps an independent feature group, editing and
+undo history; `draw-export.mjs` validates geometry and serializes KML. Completed
+features and saved attributes persist under `sfpuc-drawing-session-v1` in browser
+localStorage. This is one local session across both sites, not a shared dataset.
+No drawing coordinates are uploaded. Undo history is limited to 30 changes and
+does not survive reload. Unsaved geometry is discarded by Cancel or switching
+tools. The 3D view does not display user drawings.
+
+`node scripts/sfpuc/test_drawing.mjs` checks invalid polygons, coordinate limits,
+unique IDs, escaping and non-mutating KML export. KMZ contains `doc.kml` with
+WGS84 longitude/latitude and clamp-to-ground geometry, plus an embedded PNG point
+symbol. ID and description appear as both display fields and ExtendedData;
+source site, drawing type, session and timestamps are also included.
+
+Browser QA: create all four types, edit and cancel geometry, reject duplicate
+IDs, save text with XML characters/newlines/Unicode, delete/undo, clear/undo,
+hide drawings and export all, reload, select on the map and in the session list,
+switch sites, switch Measure/Draw/3D, and check phone/laptop layouts. Unzip the
+actual browser download and independently validate XML and geometry.
