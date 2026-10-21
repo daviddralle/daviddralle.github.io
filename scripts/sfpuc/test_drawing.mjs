@@ -19,3 +19,16 @@ assert.match(kml,/<altitudeMode>clampToGround<\/altitudeMode>/);
 assert.match(kml,/<href>files\/point.png<\/href>/);
 assert.equal(JSON.stringify(f),source,'Export must not mutate source coordinates');
 console.log('Drawing validation and KML export checks passed.');
+
+const multipoint={type:'MultiPoint',coordinates:[[-121.85,37.55],[-121.851,37.552],[-121.852,37.553]]};
+assert.equal(geometryError(multipoint),'');
+assert.equal(geometryError({type:'MultiPoint',coordinates:[[-121.85,37.55]]}),'');
+for(const coordinates of [[],[[181,37]],[[0,NaN]],[[1]],null])assert.ok(geometryError({type:'MultiPoint',coordinates}));
+const points={type:'Feature',properties:{id:'Boreholes',description:'Potential locations',draw_type:'multipoint'},geometry:multipoint};
+const original=JSON.stringify(points),pointsKML=toKML([points],'Borehole candidates');
+assert.match(pointsKML,/<MultiGeometry>/);
+assert.equal((pointsKML.match(/<Point>/g)||[]).length,3);
+for(const [lng,lat] of multipoint.coordinates)assert.ok(pointsKML.includes(`<coordinates>${lng},${lat},0</coordinates>`));
+assert.equal(JSON.stringify(points),original);
+assert.equal(sessionError(JSON.parse(JSON.stringify([points]))),'');
+console.log('Multipoint validation, session and KML export checks passed.');

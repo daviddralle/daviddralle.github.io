@@ -184,11 +184,15 @@ metric/imperial labels, and Full buffer extent returning from 3D to 2D.
 
 ### Drawing sessions
 
-The Draw menu beside Measure creates points, polylines, simple polygons and
+The Draw menu beside Measure creates multipoint sets, polylines, simple polygons and
 rectangles in 2D. `drawing.js` keeps an independent feature group, editing and
 undo history; `draw-export.mjs` validates geometry and serializes KML. Completed
 features and saved attributes persist under `sfpuc-drawing-session-v1` in browser
 localStorage. This is one local session across both sites, not a shared dataset.
+Multipoint places one location per click; Finish saves the set, Back removes the
+last location, and Cancel discards the unfinished set. One-point sets are allowed.
+Each point can be dragged in Edit geometry. KMZ stores each set as a MultiGeometry
+with a shared ID and description. Previously saved single points still load.
 No drawing coordinates are uploaded. Undo history is limited to 30 changes and
 does not survive reload. Unsaved geometry is discarded by Cancel or switching
 tools. The 3D view does not display user drawings.

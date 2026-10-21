@@ -1,10 +1,10 @@
-import {geometryError,sessionError,toKML} from './draw-export.mjs?v=20261021';
+import {geometryError,sessionError,toKML} from './draw-export.mjs?v=20261021-multipoint';
 
 export function setupDrawing({map,begin,currentSite,isMeasuring}) {
   const $=id=>document.getElementById(id), key='sfpuc-drawing-session-v1';
   const clone=x=>JSON.parse(JSON.stringify(x));
-  const names={polyline:'Polyline',polygon:'Shape',marker:'Point',rectangle:'Rectangle'};
-  const group=L.featureGroup().addTo(map), layers=new Map(), history=[];
+  const names={polyline:'Polyline',polygon:'Shape',marker:'Point',multipoint:'Multipoint',rectangle:'Rectangle'};
+  const group=L.featureGroup().addTo(map), draft=L.featureGroup().addTo(map), layers=new Map(), history=[];
   const pane=map.createPane('drawings');pane.style.zIndex=660;
   const renderer=L.svg({pane:'drawings'}), style={color:'#63dbea',weight:3,fillOpacity:.18,renderer,pane:'drawings'};
   const icon=L.divIcon({className:'draw-point',html:'<span></span>',iconSize:[22,22],iconAnchor:[11,11]});
@@ -21,7 +21,7 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
   }
   function syncMode(){
     document.body.classList.toggle('drawing-busy',busy());panel.dataset.mode=mode;
-    $('draw-finish').hidden=mode!=='polyline'&&mode!=='polygon';
+    $('draw-finish').hidden=!['polyline','polygon','multipoint'].includes(mode);
     $('draw-back').hidden=$('draw-finish').hidden;
     $('draw-save-geometry').hidden=mode!=='edit';
     $('draw-cancel').hidden=!busy();
@@ -31,6 +31,7 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
   }
   function show(){panel.scrollTop=0;panel.hidden=false;menu.open=false;$('draw-menu-toggle').setAttribute('aria-expanded','false');}
   function decorate(f,layer){
+    if(f.geometry.type==='MultiPoint'){layer.eachLayer(child=>decorate({...f,geometry:{type:'Point'}},child));return;}
     const text=document.createElement('span');text.textContent=f.properties.id;
     layer.bindTooltip(text,{direction:'top',className:'drawing-label'});
     layer.off('click');layer.on('click',e=>{if(busy())return;if(isMeasuring()){map.fire('click',{latlng:e.latlng});return;}L.DomEvent.stopPropagation(e);choose(f.properties.uid);});
@@ -41,7 +42,7 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
     group.clearLayers();layers.clear();
     for(const f of features){
       const g=f.geometry,latlngs=g.type==='Point'?[g.coordinates[1],g.coordinates[0]]:(g.type==='Polygon'?g.coordinates[0]:g.coordinates).map(p=>[p[1],p[0]]);
-      const layer=g.type==='Point'?L.marker(latlngs,{icon,keyboard:true,title:f.properties.id}):f.properties.draw_type==='rectangle'?L.rectangle(L.latLngBounds(latlngs),style):g.type==='Polygon'?L.polygon(latlngs,style):L.polyline(latlngs,style);
+      const layer=g.type==='MultiPoint'?L.featureGroup(latlngs.map(ll=>L.marker(ll,{icon,keyboard:true,title:f.properties.id}))):g.type==='Point'?L.marker(latlngs,{icon,keyboard:true,title:f.properties.id}):f.properties.draw_type==='rectangle'?L.rectangle(L.latLngBounds(latlngs),style):g.type==='Polygon'?L.polygon(latlngs,style):L.polyline(latlngs,style);
       decorate(f,layer);group.addLayer(layer);layers.set(f.properties.uid,layer);
     }
     if(visible&&!map.hasLayer(group))group.addTo(map);if(!visible)map.removeLayer(group);
@@ -58,7 +59,7 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
     for(const f of features){
       const button=document.createElement('button');button.type='button';button.className='draw-feature';button.setAttribute('aria-pressed',String(f.properties.uid===selected));
       const title=document.createElement('strong');title.textContent=f.properties.id;
-      const detail=document.createElement('small');detail.textContent=`${names[f.properties.draw_type]} · ${f.properties.site==='maguire-ridge'?'Maguire Ridge':'Sheep Camp'}`;
+      const detail=document.createElement('small');detail.textContent=`${names[f.properties.draw_type]}${f.geometry.type==='MultiPoint'?` · ${f.geometry.coordinates.length} points`:''} · ${f.properties.site==='maguire-ridge'?'Maguire Ridge':'Sheep Camp'}`;
       button.append(title,detail);button.onclick=()=>choose(f.properties.uid,true);list.append(button);
     }
     form.hidden=!current();syncMode();
@@ -80,19 +81,29 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
   }
   function cancel(){
     const oldMode=mode;mode='';
+    if(oldMode==='multipoint'){map.off('click',addPoint);draft.clearLayers();if(doubleClickZoom)map.doubleClickZoom.enable();}
     if(handler){handler.disable();handler=null;}
-    if(oldMode==='edit'){layers.get(selected)?.editing?.disable();features=beforeEdit;beforeEdit=null;rebuild();fillForm();}
+    if(oldMode==='edit'){editLayers(layers.get(selected),false);features=beforeEdit;beforeEdit=null;rebuild();fillForm();}
     syncMode();if(oldMode)status('Cancelled. Saved drawings are unchanged.');
   }
   function start(type){
     if(!commitAttributes())return;cancel();begin();visible=true;$('draw-visible').checked=true;group.addTo(map);show();selected=null;fillForm();mode=type;syncMode();
+    if(type==='multipoint'){doubleClickZoom=map.doubleClickZoom.enabled();map.doubleClickZoom.disable();map.on('click',addPoint);pointStatus();return;}
     const options={shapeOptions:style,metric:true,feet:false,showLength:false,showArea:false,repeatMode:false,allowIntersection:false,icon};
     const Class={polyline:L.Draw.Polyline,polygon:L.Draw.Polygon,marker:L.Draw.Marker,rectangle:L.Draw.Rectangle}[type];
     handler=new Class(map,options);handler.enable();
     status(type==='marker'?'Click the map to place a point.':type==='rectangle'?'Drag between opposite corners to draw a rectangle.':`Click to add ${type==='polygon'?'corners':'vertices'}. Choose Finish when ready; Back removes the last vertex.`);
   }
-  map.on(L.Draw.Event.CREATED,e=>{
-    const geometry=e.layer.toGeoJSON().geometry,error=geometryError(geometry),type=e.layerType;
+  let doubleClickZoom=false;
+  function pointStatus(){const n=draft.getLayers().length;status(`${n} ${n===1?'point':'points'} placed. Click each location, then Finish. Back removes the last point.`);}
+  function addPoint(e){L.marker(e.latlng,{icon,interactive:false,keyboard:false}).addTo(draft);pointStatus();}
+  function editLayers(layer,enabled){
+    const children=layer instanceof L.FeatureGroup?layer.getLayers():[layer];
+    for(const child of children){child.options.editing={...style};child.options.original={...child.options};child.options.poly={allowIntersection:false};child.editing[enabled?'enable':'disable']();}
+  }
+  function geometryOf(layer){return layer instanceof L.FeatureGroup?{type:'MultiPoint',coordinates:layer.getLayers().map(child=>child.toGeoJSON().geometry.coordinates)}:layer.toGeoJSON().geometry;}
+  function addFeature(geometry,type){
+    const error=geometryError(geometry);
     if(error){status(error+' Start the shape again.',true);return;}
     remember();let n=1;while(features.some(f=>f.properties.id.toUpperCase()===`DRAW-${String(n).padStart(3,'0')}`))n++;
     const now=new Date().toISOString(),uid=crypto.randomUUID();
@@ -100,20 +111,21 @@ export function setupDrawing({map,begin,currentSite,isMeasuring}) {
     selected=uid;mode='';panel.scrollTop=0;persist();rebuild();fillForm();status('Feature added. Set its ID and description below.');
     // The plugin finishes disabling its handler after firing CREATED.
     queueMicrotask(()=>{handler=null;syncMode();$('draw-id').focus();$('draw-id').select();});
-  });
+  }
+  map.on(L.Draw.Event.CREATED,e=>addFeature(e.layer.toGeoJSON().geometry,e.layerType));
   map.on(L.Draw.Event.DRAWSTOP,()=>{if(mode&&mode!=='edit'){mode='';syncMode();}});
-  $('draw-finish').onclick=()=>{handler?.completeShape();if(busy())status(mode==='polygon'?'Add at least three corners, then Finish.':'Add at least two vertices, then Finish.',true);};
-  $('draw-back').onclick=()=>handler?.deleteLastVertex();
+  $('draw-finish').onclick=()=>{if(mode==='multipoint'){const geometry=geometryOf(draft),error=geometryError(geometry);if(error){status(error,true);return;}cancel();addFeature(geometry,'multipoint');return;}handler?.completeShape();if(busy())status(mode==='polygon'?'Add at least three corners, then Finish.':'Add at least two vertices, then Finish.',true);};
+  $('draw-back').onclick=()=>{if(mode==='multipoint'){const last=draft.getLayers().at(-1);if(last)draft.removeLayer(last);pointStatus();}else handler?.deleteLastVertex();};
   $('draw-cancel').onclick=cancel;
   $('draw-edit-geometry').onclick=()=>{
     if(!commitAttributes())return;begin();beforeEdit=clone(features);visible=true;$('draw-visible').checked=true;group.addTo(map);mode='edit';
-    const layer=layers.get(selected);layer.options.editing={...style};layer.options.original={...layer.options};layer.options.poly={allowIntersection:false};layer.editing.enable();syncMode();
-    status(current().geometry.type==='Point'?'Drag the point, then Save geometry.':current().properties.draw_type==='rectangle'?'Drag a corner to resize, or the center handle to move the rectangle. Then Save geometry.':'Drag vertices or the midpoint handles to reshape. Click a vertex to remove it. Save geometry when finished.');
+    const layer=layers.get(selected);editLayers(layer,true);syncMode();
+    status(current().geometry.type==='MultiPoint'?'Drag any point, then Save geometry.':current().geometry.type==='Point'?'Drag the point, then Save geometry.':current().properties.draw_type==='rectangle'?'Drag a corner to resize, or the center handle to move the rectangle. Then Save geometry.':'Drag vertices or the midpoint handles to reshape. Click a vertex to remove it. Save geometry when finished.');
   };
   $('draw-save-geometry').onclick=()=>{
-    const layer=layers.get(selected),geometry=layer.toGeoJSON().geometry,error=geometryError(geometry);if(error){status(error,true);return;}
+    const layer=layers.get(selected),geometry=geometryOf(layer),error=geometryError(geometry);if(error){status(error,true);return;}
     history.push(beforeEdit);if(history.length>30)history.shift();beforeEdit=null;
-    layer.editing.disable();Object.assign(current(),{geometry});current().properties.updated=new Date().toISOString();mode='';persist();rebuild();fillForm();status('Geometry saved.');
+    editLayers(layer,false);Object.assign(current(),{geometry});current().properties.updated=new Date().toISOString();mode='';persist();rebuild();fillForm();status('Geometry saved.');
   };
   form.onsubmit=e=>{e.preventDefault();if(commitAttributes())status('Attributes saved.');};
   $('draw-delete').onclick=()=>{if(!commitAttributes())return;remember();features=features.filter(f=>f.properties.uid!==selected);selected=null;persist();rebuild();fillForm();status('Feature deleted. Undo restores it.');};

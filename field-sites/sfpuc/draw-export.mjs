@@ -7,10 +7,11 @@ function intersects(a,b,c,d) {
   return (cross(a,b,c)*cross(a,b,d)<0 && cross(c,d,a)*cross(c,d,b)<0) || onSegment(a,b,c) || onSegment(a,b,d) || onSegment(c,d,a) || onSegment(c,d,b);
 }
 export function geometryError(g) {
-  if (!g || !['Point','LineString','Polygon'].includes(g.type)) return 'Unsupported geometry.';
+  if (!g || !['Point','MultiPoint','LineString','Polygon'].includes(g.type)) return 'Unsupported geometry.';
   const pts = g.type==='Point' ? [g.coordinates] : g.type==='Polygon' ? g.coordinates[0] : g.coordinates;
   if (!Array.isArray(pts) || pts.some(p=>!Array.isArray(p)||p.length<2||!Number.isFinite(p[0])||!Number.isFinite(p[1])||Math.abs(p[0])>180||Math.abs(p[1])>90)) return 'Coordinates must be valid longitude and latitude.';
   if(g.type==='Point') return '';
+  if(g.type==='MultiPoint') return pts.length?'':'Add at least one point.';
   if(pts.length < (g.type==='Polygon'?4:2)) return g.type==='Polygon'?'Add at least three corners.':'Add at least two points.';
   if(pts.some((p,i)=>i && same(p,pts[i-1]))) return 'Remove consecutive duplicate vertices.';
   if(g.type==='Polygon') {
@@ -42,6 +43,7 @@ export function toKML(features, name) {
     const p=f.properties,g=f.geometry;
     let geometry;
     if(g.type==='Point') geometry=`<Point><altitudeMode>clampToGround</altitudeMode><coordinates>${coordinates([g.coordinates])}</coordinates></Point>`;
+    else if(g.type==='MultiPoint') geometry=`<MultiGeometry>${g.coordinates.map(p=>`<Point><altitudeMode>clampToGround</altitudeMode><coordinates>${coordinates([p])}</coordinates></Point>`).join('')}</MultiGeometry>`;
     else if(g.type==='LineString') geometry=`<LineString><tessellate>1</tessellate><altitudeMode>clampToGround</altitudeMode><coordinates>${coordinates(g.coordinates)}</coordinates></LineString>`;
     else {
       let ring=g.coordinates[0];
