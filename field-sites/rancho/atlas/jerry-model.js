@@ -29,7 +29,9 @@ export function createMule(){
     for(let a=0;a<Math.PI*2;a+=Math.PI/6){const tread=box(pivot,black,0,Math.cos(a)*.42,Math.sin(a)*.42,.32,.06,.13);tread.rotation.x=a;}
     wheels.push(pivot);
   }
-  const driver=new THREE.Group();driver.position.set(-.48,1.13,-.05);body.add(driver);
+  // The Mule faces +Z, so its left-hand driver's seat is on +X.
+  const driverX=.48;
+  const driver=new THREE.Group();driver.position.set(driverX,1.13,-.05);body.add(driver);
   // Blue quarter-zip fleece: soft shoulders, stand collar and a small chest pocket.
   box(driver,shirt,0,.32,0,.46,.61,.31);
   for(const x of [-.19,.19])ball(driver,shirt,x,.52,0,.09,1,1,.95);
@@ -45,8 +47,8 @@ export function createMule(){
   box(driver,mat('#8d6654'),0,.75,.2,.075,.012,.012);
   const arms=[];for(const side of [-1,1]){const arm=new THREE.Group();arm.position.set(side*.24,.54,0);driver.add(arm);rod(arm,shirt,[0,0,0],[side*.035,-.25,.22],.07);ball(arm,skin,side*.035,-.25,.26,.068);arms.push(arm);}
   for(const x of [-.13,.13]){rod(driver,black,[x,.05,0],[x,-.15,.38],.09);box(driver,black,x,-.33,.41,.18,.2,.29);}
-  const steering=mesh(body,new THREE.TorusGeometry(.23,.025,6,20),black,-.48,1.44,.48);steering.rotation.x=-.6;
-  rod(body,black,[-.48,1.1,.7],[-.48,1.44,.48],.04);
+  const steering=mesh(body,new THREE.TorusGeometry(.23,.025,6,20),black,driverX,1.44,.48);steering.rotation.x=-.6;
+  rod(body,black,[driverX,1.1,.7],[driverX,1.44,.48],.04);
   const sandwich=createIceCream();arms[0].add(sandwich);sandwich.position.set(-.03,-.18,.32);sandwich.visible=false;
   const glass=new THREE.Group();arms[0].add(glass);glass.position.set(-.03,-.18,.32);glass.visible=false;
   mesh(glass,new THREE.CylinderGeometry(.065,.025,.11,12),mat('#e1d4c2'),0,.1,0);
@@ -69,7 +71,7 @@ export function createMule(){
     const tail=new THREE.Group();tail.position.set(0,.25,-.2);d.add(tail);rod(tail,fur,[0,0,0],[.07,.15,-.35],.05);
     return {group:d,tail};
   }
-  const dogs=[dog(.1,.96,true),dog(.62,.78,false)];
+  const dogs=[dog(-.1,.96,true),dog(-.62,.78,false)];
   // Small illustrated badging, not an external texture or photograph.
   const canvas=document.createElement('canvas');canvas.width=256;canvas.height=64;const ctx=canvas.getContext('2d');ctx.fillStyle='#19272b';ctx.fillRect(0,0,256,64);ctx.fillStyle='#e7e5d9';ctx.font='bold 36px sans-serif';ctx.textAlign='center';ctx.fillText('KAWASAKI',128,43);
   const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;

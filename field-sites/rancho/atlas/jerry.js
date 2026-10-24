@@ -3,7 +3,7 @@ import {POOL_PHASES} from './jerry-pool-trip.js?v=4fa0ee8db8ec';
 import * as THREE from './vendor/three/three.module.js';
 import {createRidgeDetector} from './jerry-ridges.js?v=9f01013b7f16';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
-import {createMule,createBottle} from './jerry-model.js?v=f4d9bc9588a8';
+import {createMule,createBottle} from './jerry-model.js?v=cd08f7353d08';
 import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=f32f73c78e62';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 

@@ -3,7 +3,7 @@ import {createStreamLines} from './stream-lines.js?v=8ffea0bf3f7c';
 import {createRanchLandmarks} from './ranch-landmarks.js?v=9aa807ac9261';
 import {HOME} from './jerry-motion.js?v=f32f73c78e62';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {createJerry} from './jerry.js?v=399eb5cba62d';
+import {createJerry} from './jerry.js?v=89d4bef8cb48';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));
