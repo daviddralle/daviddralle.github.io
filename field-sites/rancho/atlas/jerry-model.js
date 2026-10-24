@@ -1,4 +1,4 @@
-import {createIceCream} from './jerry-swim.js?v=015f1c174b68';
+import {createIceCream} from './jerry-swim.js?v=8359c5d876e1';
 import {POOL_PHASES} from './jerry-pool-trip.js?v=c700868d6d1d';
 import * as THREE from './vendor/three/three.module.js';
 // Hand-built, stylized illustration based on the supplied Mule / two-dog photo.

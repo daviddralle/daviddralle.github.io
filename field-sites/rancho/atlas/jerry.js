@@ -1,9 +1,9 @@
-import {createIceCream,createPoolVisit} from './jerry-swim.js?v=015f1c174b68';
+import {createIceCream,createPoolVisit} from './jerry-swim.js?v=8359c5d876e1';
 import {POOL_PHASES} from './jerry-pool-trip.js?v=c700868d6d1d';
 import * as THREE from './vendor/three/three.module.js';
 import {createRidgeDetector} from './jerry-ridges.js?v=9f01013b7f16';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
-import {createMule,createBottle} from './jerry-model.js?v=83a75829909f';
+import {createMule,createBottle} from './jerry-model.js?v=3bb60084268e';
 import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=ce405077e010';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 
@@ -108,7 +108,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
       if(valid(e,n))desired.y=Math.max(desired.y,worldPosition(e,n).y+5);
       const mix=followSnap?1:1-Math.exp(-dt*3);camera.position.lerp(desired,mix);controls.target.lerp(target,mix);followSnap=false;
     }
-    const text=arming?'Choose a treat stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='poem'?'A thought from the hills · parked':s.phase==='eat'?'Engine off · an ice cream sandwich':s.phase==='pool-drive'?'Next stop: the pool':s.phase==='change-swim'?'Parked · changing into pixel shorts & fins':s.phase==='walk-pool'?'To the water · Cali & Colusa mind the Mule':s.phase==='swim'?`Pool time · lap ${Math.min(2,s.laps+1)} of 2`:s.phase==='walk-back'?'Two laps done · back to the Mule':s.phase==='change-drive'?'Fleece & driving gear back on':s.phase==='fetch'?(s.item==='icecream'?'An ice cream sandwich? On my way':'A fine red? Taking the scenic shortcut'):s.hop>0?`Air over ${s.lastJump?.id||'the ridge'}!`:`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
+    const text=arming?'Choose a treat stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='poem'?'A thought from the hills · parked':s.phase==='eat'?'Engine off · an ice cream sandwich':s.phase==='pool-drive'?'Next stop: the pool':s.phase==='change-swim'?'Parked · changing into trunks & fins':s.phase==='walk-pool'?'To the water · Cali & Colusa mind the Mule':s.phase==='swim'?`Pool time · lap ${Math.min(2,s.laps+1)} of 2`:s.phase==='walk-back'?'Two laps done · back to the Mule':s.phase==='change-drive'?'Fleece & driving gear back on':s.phase==='fetch'?(s.item==='icecream'?'An ice cream sandwich? On my way':'A fine red? Taking the scenic shortcut'):s.hop>0?`Air over ${s.lastJump?.id||'the ridge'}!`:`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
     if(text!==lastStatus){$('jerry-status').textContent=text;lastStatus=text;}
     dust.visible=running&&s.speed>5;dustTime+=elapsed;
     if(dust.visible&&dustTime>.05){dustTime=0;dustAge[dustIndex]=0;const p=mule.root.position.clone().add(new THREE.Vector3(Math.sin(s.elapsed*17)*2,.8,0));p.toArray(dustData,dustIndex*3);dustIndex=(dustIndex+1)%dustCount;}

@@ -10,14 +10,10 @@ export function createIceCream(){
 export function createPoolVisit({ground,position,getVertical}){
   const root=new THREE.Group(),person=new THREE.Group(),torso=new THREE.Group();root.add(person);person.add(torso);person.scale.setScalar(2.4); // Match the seated Jerry / Mule scale.
   const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.8});
-  const skin=mat('#d4a88b'),hair=mat('#bbc1bb'),trunks=mat('#ffffff'),fin=mat('#3e8e9e'),dark=mat('#263b42');
-  // Opaque pixel-pattern swim shorts, with coverage on every side.
-  const pixels=new Uint8Array(8*8*4),palette=[[40,67,84],[67,95,111],[97,124,137],[131,154,163]];
-  for(let i=0;i<64;i++){pixels.set([...palette[(i*13+Math.floor(i/8)*7+(i%3))%palette.length],255],i*4);}
-  const pattern=new THREE.DataTexture(pixels,8,8);pattern.magFilter=THREE.NearestFilter;pattern.minFilter=THREE.NearestFilter;pattern.colorSpace=THREE.SRGBColorSpace;pattern.needsUpdate=true;trunks.map=pattern;
+  const skin=mat('#d4a88b'),hair=mat('#bbc1bb'),trunks=mat('#dd864c'),fin=mat('#3e8e9e'),dark=mat('#263b42');
   function box(g,m,x,y,z,w,h,d){const a=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);a.position.set(x,y,z);g.add(a);return a;}
   function ball(g,m,x,y,z,r,sx=1,sy=1,sz=1){const a=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),m);a.position.set(x,y,z);a.scale.set(sx,sy,sz);g.add(a);return a;}
-  box(torso,skin,0,.18,0,.47,.63,.28);box(torso,trunks,0,-.23,0,.5,.24,.32);box(torso,trunks,0,-.13,0,.51,.055,.33);
+  box(torso,skin,0,.18,0,.47,.63,.28);box(torso,trunks,0,-.23,0,.5,.24,.32);box(torso,mat('#f0d295'),0,-.13,0,.51,.055,.33);
   ball(torso,skin,0,.77,.025,.205,.91,1.12,.96);
   for(const side of [-1,1]){ball(torso,hair,side*.185,.77,-.03,.055,.55,1.4,1.6);ball(torso,skin,side*.2,.73,.055,.05,.5,1,1);ball(torso,dark,side*.075,.82,.206,.017);}
   ball(torso,skin,0,.75,.225,.04,.8,1,1.3);box(torso,mat('#8d6654'),0,.67,.21,.075,.012,.012);
