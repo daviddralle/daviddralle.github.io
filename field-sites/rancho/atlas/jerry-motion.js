@@ -1,4 +1,4 @@
-import {POOL,POOL_PHASES} from './jerry-pool-trip.js?v=4fa0ee8db8ec';
+import {POOL,POOL_PHASES} from './jerry-pool-trip.js?v=c700868d6d1d';
 // Fictional game motion. UTM coordinates stay separate from research features.
 export const HOME = Object.freeze([556776, 4332695]);
 export const HOME_NOTE = 'Approximate road-facing parking position refined from the user’s labeled aerial image, 16 October 2026; not surveyed.';

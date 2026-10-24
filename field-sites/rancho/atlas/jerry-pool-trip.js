@@ -1,5 +1,5 @@
 // Fictional pool visit, separate from the research layers. UTM meters.
-export const POOL=Object.freeze({center:[556736,4332554],angle:-.1,parking:[556725,4332565],lapSeconds:13,laps:2});
+export const POOL=Object.freeze({center:[556736,4332554],angle:-.1,width:7.2,length:18,deckWidth:9.7,deckLength:20.8,parking:[556725,4332565],lapSeconds:13,laps:2});
 export const POOL_PHASES=new Set(['change-swim','walk-pool','swim','walk-back','change-drive']);
 export function poolPoint(x,n){const c=Math.cos(POOL.angle),s=Math.sin(POOL.angle);return [POOL.center[0]+c*x-s*n,POOL.center[1]+s*x+c*n];}
 export function poolPose(state){

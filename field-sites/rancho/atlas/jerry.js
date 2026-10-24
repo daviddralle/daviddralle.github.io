@@ -1,10 +1,10 @@
-import {createIceCream,createPoolVisit} from './jerry-swim.js?v=6b8eb366038a';
-import {POOL_PHASES} from './jerry-pool-trip.js?v=4fa0ee8db8ec';
+import {createIceCream,createPoolVisit} from './jerry-swim.js?v=015f1c174b68';
+import {POOL_PHASES} from './jerry-pool-trip.js?v=c700868d6d1d';
 import * as THREE from './vendor/three/three.module.js';
 import {createRidgeDetector} from './jerry-ridges.js?v=9f01013b7f16';
 import {bindJerryCameraGestures} from './jerry-camera.js?v=621cbeee0a7a';
-import {createMule,createBottle} from './jerry-model.js?v=cd08f7353d08';
-import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=f32f73c78e62';
+import {createMule,createBottle} from './jerry-model.js?v=83a75829909f';
+import {createMotion,HOME,HOME_NOTE,DESTINATIONS} from './jerry-motion.js?v=ce405077e010';
 import {poems,sources,createDeck} from './jerry-haikus.js?v=ba218621cf2f';
 
 export function createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical,catchments,project}){
@@ -102,13 +102,13 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
     for(let i=0;i<32;i++){const a=i/32*Math.PI*2,ex=Math.cos(a)*2.4,nz=Math.sin(a)*4.2,e=s.e+ex*Math.cos(s.heading)+nz*Math.sin(s.heading),n=s.n-ex*Math.sin(s.heading)+nz*Math.cos(s.heading);worldPosition(e,n,.05).toArray(shade.array,(i+1)*3);}shade.needsUpdate=true;shadowGeometry.computeBoundingSphere();shadow.material.opacity=.22/(1+s.hop*.7);
     if(s.phase!==lastPhase){if(s.phase==='sip')bottle.visible=false;if(s.phase==='eat')icecream.visible=false;if(s.phase==='think')showThinking();if(s.phase==='poem')showPoem();lastPhase=s.phase;}
     if(follow){
-      const target=(swimmer?swimmer.position:mule.root.position).clone().add(new THREE.Vector3(0,swimmer?1:s.phase==='think'||s.phase==='poem'?6:2.9,0));
+      const target=(swimmer?swimmer.position:mule.root.position).clone().add(new THREE.Vector3(0,swimmer?1.5:s.phase==='think'||s.phase==='poem'?6:2.9,0));
       const offset=followOffset.clone().multiplyScalar(followZoom*Math.max(1,Math.min(2,.95/camera.aspect))).applyAxisAngle(new THREE.Vector3(0,1,0),mule.root.rotation.y);
       const desired=target.clone().add(offset),e=desired.x+(x0+x1)/2,n=(y0+y1)/2-desired.z;
       if(valid(e,n))desired.y=Math.max(desired.y,worldPosition(e,n).y+5);
       const mix=followSnap?1:1-Math.exp(-dt*3);camera.position.lerp(desired,mix);controls.target.lerp(target,mix);followSnap=false;
     }
-    const text=arming?'Choose a treat stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='poem'?'A thought from the hills · parked':s.phase==='eat'?'Engine off · an ice cream sandwich':s.phase==='pool-drive'?'Next stop: the pool':s.phase==='change-swim'?'Parked · changing into trunks & fins':s.phase==='walk-pool'?'To the water · Cali & Colusa mind the Mule':s.phase==='swim'?`Pool time · lap ${Math.min(2,s.laps+1)} of 2`:s.phase==='walk-back'?'Two laps done · back to the Mule':s.phase==='change-drive'?'Fleece & driving gear back on':s.phase==='fetch'?(s.item==='icecream'?'An ice cream sandwich? On my way':'A fine red? Taking the scenic shortcut'):s.hop>0?`Air over ${s.lastJump?.id||'the ridge'}!`:`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
+    const text=arming?'Choose a treat stop on the terrain':paused?'Paused · the hills can wait':s.phase==='home'?'At the circle drive · ready to roam':s.phase==='sip'?'Engine off · a sip of red, a moment to think':s.phase==='think'?'Thinking · a haiku takes shape':s.phase==='poem'?'A thought from the hills · parked':s.phase==='eat'?'Engine off · an ice cream sandwich':s.phase==='pool-drive'?'Next stop: the pool':s.phase==='change-swim'?'Parked · changing into pixel shorts & fins':s.phase==='walk-pool'?'To the water · Cali & Colusa mind the Mule':s.phase==='swim'?`Pool time · lap ${Math.min(2,s.laps+1)} of 2`:s.phase==='walk-back'?'Two laps done · back to the Mule':s.phase==='change-drive'?'Fleece & driving gear back on':s.phase==='fetch'?(s.item==='icecream'?'An ice cream sandwich? On my way':'A fine red? Taking the scenic shortcut'):s.hop>0?`Air over ${s.lastJump?.id||'the ridge'}!`:`To ${s.destination} · ${Math.round(s.speed*3.6)} km/h · ${s.jumps} ridge hops`;
     if(text!==lastStatus){$('jerry-status').textContent=text;lastStatus=text;}
     dust.visible=running&&s.speed>5;dustTime+=elapsed;
     if(dust.visible&&dustTime>.05){dustTime=0;dustAge[dustIndex]=0;const p=mule.root.position.clone().add(new THREE.Vector3(Math.sin(s.elapsed*17)*2,.8,0));p.toArray(dustData,dustIndex*3);dustIndex=(dustIndex+1)%dustCount;}
@@ -127,6 +127,6 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
     card.style.left=x+'px';card.style.top=y+'px';
     card.style.setProperty('--thought-tail',Math.max(20,Math.min(card.offsetWidth-20,(p.x*.5+.5)*width-x+half))+'px');
   }
-  function draw(){if(!enabled)return;layoutThought();renderer.autoClear=false;renderer.clearDepth();renderer.render(overlay,camera);renderer.autoClear=true;const hp=worldPosition(...HOME,.4).project(camera);homeLabel.hidden=hp.z<0||hp.z>1||Math.abs(hp.x)>1||Math.abs(hp.y)>1||Math.hypot(s.e-HOME[0],s.n-HOME[1])>100;if(!homeLabel.hidden){homeLabel.style.left=(hp.x*.5+.5)*host.clientWidth+'px';homeLabel.style.top=(-hp.y*.5+.5)*host.clientHeight+35+'px';}label.textContent=swimmer?'Jerry · pool break':'Jerry · Cali & Colusa';const p=(swimmer?swimmer.position:mule.root.position).clone().add(new THREE.Vector3(0,swimmer?2.5:6.2,0)).project(camera);label.hidden=!card.hidden||p.z<0||p.z>1||Math.abs(p.x)>1||Math.abs(p.y)>1;if(!label.hidden){label.style.left=(p.x*.5+.5)*host.clientWidth+'px';label.style.top=(-p.y*.5+.5)*host.clientHeight+'px';}}
+  function draw(){if(!enabled)return;layoutThought();renderer.autoClear=false;renderer.clearDepth();renderer.render(overlay,camera);renderer.autoClear=true;const hp=worldPosition(...HOME,.4).project(camera);homeLabel.hidden=hp.z<0||hp.z>1||Math.abs(hp.x)>1||Math.abs(hp.y)>1||Math.hypot(s.e-HOME[0],s.n-HOME[1])>100;if(!homeLabel.hidden){homeLabel.style.left=(hp.x*.5+.5)*host.clientWidth+'px';homeLabel.style.top=(-hp.y*.5+.5)*host.clientHeight+35+'px';}label.textContent=swimmer?'Jerry · pool break':'Jerry · Cali & Colusa';const p=(swimmer?swimmer.position:mule.root.position).clone().add(new THREE.Vector3(0,swimmer?3.5:6.2,0)).project(camera);label.hidden=!card.hidden||p.z<0||p.z>1||Math.abs(p.x)>1||Math.abs(p.y)>1;if(!label.hidden){label.style.left=(p.x*.5+.5)*host.clientWidth+'px';label.style.top=(-p.y*.5+.5)*host.clientHeight+'px';}}
   return {update,draw,get enabled(){return enabled;},get interacting(){return arming;},releaseFollow(){if(enabled)setFollow(false);},suspend(){if(enabled)toggle();else cancelDrop();},homeNote:HOME_NOTE};
 }

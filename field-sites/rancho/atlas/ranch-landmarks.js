@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three/three.module.js';
+import {POOL} from './jerry-pool-trip.js?v=c700868d6d1d';
 import {createRanchHome} from './jerry-home.js?v=e6a4a638ccf9';
 
 // Approximate scene landmarks interpreted from the user's labeled aerial,
@@ -69,8 +70,8 @@ export function createRanchLandmarks({ground,position,home}){
   for(const side of [-1,1]){const {P,w,l}=south;quad(P(side*w,3.6,-l),P(side*(w+3.4),2.5,-l),P(side*(w+3.4),2.5,l),P(side*w,3.6,l),roof);for(const z of [-l,0,l])slab(P(side*(w+3.15),0,z),.23,.23,2.5,wood);}
   const {P:sp,w:sw,l:sl}=south;quad(sp(-2,0,-sl-.03),sp(2,0,-sl-.03),sp(2,3.5,-sl-.03),sp(-2,3.5,-sl-.03),mat('#473d34'));
   // Pool is shown with a muted cover, matching the aerial reference.
-  const pool=LANDMARKS[4].center,pa=-.1,pbase=ground(...pool)+.22;
-  slab([...pool,pbase],8,17,.15,mat('#d0c4ad'),pa);slab([...pool,pbase+.15],5.5,14.2,.04,mat('#738b94'),pa);
+  const pool=POOL.center,pa=POOL.angle,pbase=ground(...pool)+.22;
+  slab([...pool,pbase],POOL.deckWidth,POOL.deckLength,.15,mat('#d0c4ad'),pa);slab([...pool,pbase+.15],POOL.width,POOL.length,.04,mat('#738b94'),pa);
   for(const [i,p] of [[0,[556753.2,4332537.2]],[1,[556750,4332529]]]){
     const z=ground(...p);for(const x of [-4.5,4.5])for(const n of [-1.3,1.3])slab([p[0]+x,p[1]+n,ground(p[0]+x,p[1]+n)],.13,.13,Math.max(.1,z+.75+(n+1.65)*.235-ground(p[0]+x,p[1]+n)),stone);
     for(let c=0;c<8;c++)for(let r=0;r<2;r++){const x=p[0]-5.4+c*1.36,n=p[1]-1.65+r*1.7;quad([x,n,z+.75+r*.4],[x+1.28,n,z+.75+r*.4],[x+1.28,n+1.58,z+1.12+r*.4],[x,n+1.58,z+1.12+r*.4],solar);}

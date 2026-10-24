@@ -1,9 +1,9 @@
 import * as THREE from './vendor/three/three.module.js';
 import {createStreamLines} from './stream-lines.js?v=8ffea0bf3f7c';
-import {createRanchLandmarks} from './ranch-landmarks.js?v=9aa807ac9261';
-import {HOME} from './jerry-motion.js?v=f32f73c78e62';
+import {createRanchLandmarks} from './ranch-landmarks.js?v=a1d4c208ddd0';
+import {HOME} from './jerry-motion.js?v=ce405077e010';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {createJerry} from './jerry.js?v=89d4bef8cb48';
+import {createJerry} from './jerry.js?v=7c16db617474';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));
