@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three/three.module.js';
+import {createGeologySurface} from './geology-scene.js?v=5aed6ff0c3b8';
 import {createStreamLines} from './stream-lines.js?v=8ffea0bf3f7c';
 import {createRanchLandmarks} from './ranch-landmarks.js?v=a1d4c208ddd0';
 import {HOME} from './jerry-motion.js?v=ce405077e010';
@@ -44,6 +45,7 @@ export async function createScene(atlas) {
   const texture=await new THREE.TextureLoader().loadAsync('./data/terrain-texture.jpg?v=lidar-1m-20261016');texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
   const material=new THREE.MeshStandardMaterial({map:texture,color:'#ffffff',roughness:1,metalness:0,transparent:true,opacity:1,side:THREE.DoubleSide,depthWrite:true});
   const surface=new THREE.Mesh(geometry,material);surface.renderOrder=1;root.add(surface);
+  const geologySurface=createGeologySurface({geometry,terrain,project});
   world.add(new THREE.HemisphereLight('#ffffff','#656565',2.1));
   const sunlight=new THREE.DirectionalLight('#ffffff',2);sunlight.position.set(-300,600,250);world.add(sunlight);
   const groups={},labels=[],pickables=[],collars=new Map();
@@ -162,9 +164,15 @@ export async function createScene(atlas) {
     const rect=renderer.domElement.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
     const hits=pickables.filter(m=>m.parent.visible).map(m=>{const p=m.getWorldPosition(new THREE.Vector3()).project(camera);return {m,z:p.z,d:Math.hypot((p.x*.5+.5)*rect.width-x,(-p.y*.5+.5)*rect.height-y)};}).filter(p=>p.z>-1&&p.z<1&&p.d<=12).sort((a,b)=>a.d-b.d);
     if(hits.length)atlas.inspect(hits[0].m.userData.feature);
+    else if(visible.has('geology')){
+      const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(x/rect.width*2-1,1-y/rect.height*2),camera);
+      const hit=ray.intersectObject(surface)[0];
+      if(hit){const p=root.worldToLocal(hit.point);atlas.identifyGeology(window.proj4('+proj=utm +zone=10 +datum=NAD83 +units=m +no_defs','EPSG:4326',[p.x+xc,yc-p.z]));}
+    }
   });
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();document.getElementById('scene-loading').hidden=false;document.getElementById('scene-loading').textContent='3D graphics context lost. Return to the map or reload to reopen 3D.';});
   return {get active(){return active;},open(){active=true;lastFrame=0;resize();render();},close(){active=false;jerry.suspend();cancelAnimationFrame(frame);},focus,focusHole,highlight,setVisible,
+    geology(state){state.active?visible.add('geology'):visible.delete('geology');const mesh=geologySurface.update(state);if(mesh&&!mesh.parent)root.add(mesh);},
     landmarksVisible(value){landmarks.group.visible=value;},canopyOpacity(value){cloudMaterial.opacity=value;},opacity(value){material.opacity=value;material.depthWrite=value>=.99;},verticalScale(value){vertical=value;root.scale.y=value;focus(lastFocus);},
     top(){jerry.releaseFollow();const d=camera.position.distanceTo(controls.target);camera.position.copy(controls.target).add(new THREE.Vector3(0,d,.01));controls.update();}};
 }

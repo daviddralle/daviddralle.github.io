@@ -377,3 +377,36 @@ at oblique angles. Both rebuild scripts call the independent texture builder.
 
 Rebuild only the detailed texture with:
 `python scripts/build_rancho_terrain_texture.py --dem /external/rancho-composite-dem.tif`
+
+## Regional geology and compact layers · 24 October 2026
+
+The optional **Geology · rock units** checkbox adds CGS / CDMG's 1960 Ukiah
+sheet (Jennings and Strand, GAM 24) in 2D and 3D. This is regional mapping at
+1:250,000, not the finer source used by SFPUC, and does not resolve individual
+beds, well-scale contacts, weathered-bedrock thickness or groundwater. Sage,
+sand and lavender display colors are translucent over the LiDAR terrain.
+Source contacts are retained with their classifications and positional
+confidence; no faults occur in the clipped source linework.
+
+The public bundle contains four clipped polygons (Qal, Ku, Kl), three source
+contacts and provenance, about 31 KB total. Its source projection is explicitly
+NAD83 / California Albers (EPSG:3310); polygons are transformed to WGS84 and
+clipped to a 2 km margin around the current terrain. No vertices are snapped to
+LiDAR features and no contacts are inferred. The original source ZIP stays
+outside this repository. The metadata records its SHA-256 and verifies full
+terrain coverage. The 3D layer paints these vectors onto the existing terrain
+facets; it does not add subsurface geometry or improve geological resolution.
+
+Source: [CGS regional maps](https://www.conservation.ca.gov/cgs/publications/maps-data/rgm),
+[Ukiah GIS download](https://www.conservation.ca.gov/cgs/Documents/Publications/Geologic-Atlas-Maps/GAM_24-Ukiah-1960-GIS.zip).
+The newer USGS SIM 3395 framework map was checked but does not cover Rancho.
+
+Rebuild with `python scripts/build_rancho_geology.py --source-zip /external/GAM_24-Ukiah-1960-GIS.zip`
+using pyshp, pyproj and shapely. Validate with
+`python scripts/test_rancho_geology.py`. Browser checks cover checkbox/opacity,
+2D and 3D switching, unit identification, mobile layout and failed-load retry.
+
+The sidebar uses smaller section spacing and paired overview buttons, with
+terrain and canopy settings in disclosures. At 1280 × 800, eleven layer
+checkboxes fit before scrolling, compared with six previously. Geology remains
+off initially; its legend/opacity disclosure only appears when enabled.

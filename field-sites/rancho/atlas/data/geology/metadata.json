@@ -1,0 +1,57 @@
+{
+  "title": "Geologic map of California, Ukiah sheet",
+  "authors": "C. W. Jennings and R. G. Strand",
+  "report": "CGS / CDMG GAM 24",
+  "year": 1960,
+  "source_url": "https://www.conservation.ca.gov/cgs/publications/maps-data/rgm",
+  "download_url": "https://www.conservation.ca.gov/cgs/Documents/Publications/Geologic-Atlas-Maps/GAM_24-Ukiah-1960-GIS.zip",
+  "description_url": "https://www.conservation.ca.gov/cgs/Documents/Publications/Geologic-Atlas-Maps/GAM_24-Ukiah-1960-Explanation.pdf",
+  "retrieved": "2026-10-24",
+  "source_sha256": "972d429146766ffb9faca40937608099b661fdeee21a215c49ee97474c1f3f82",
+  "source_crs": "EPSG:3310",
+  "output_crs": "EPSG:4326",
+  "source_detail_scale": 250000,
+  "bounds": [
+    -122.37855220206436,
+    39.12156487539699,
+    -122.31475572868474,
+    39.1876959692198
+  ],
+  "clip_bounds_utm10": [
+    553720,
+    4330490,
+    559180,
+    4337790
+  ],
+  "units": {
+    "Kl": {
+      "name": "Lower Cretaceous marine rocks",
+      "age": "Early Cretaceous",
+      "color": "#b5afc3",
+      "description": "Sandstone, shale and conglomerate of the source\u2019s Shasta series, including Horsetown and Paskenta formations. The regional unit also includes detrital serpentine in the Wilbur Springs area."
+    },
+    "Ku": {
+      "name": "Upper Cretaceous marine rocks",
+      "age": "Late Cretaceous",
+      "color": "#a9b89a",
+      "description": "Marine sedimentary rocks, broadly grouped by age: sandstone, siltstone, shale and conglomerate. Individual beds and formations are not resolved by this regional layer."
+    },
+    "Qal": {
+      "name": "Recent alluvium",
+      "age": "Recent (source terminology)",
+      "color": "#dfc89c",
+      "description": "Unconsolidated valley fill, including sand, conglomerate and breccia. The source groups these deposits as Recent Alluvium."
+    }
+  },
+  "terrain_units": [
+    "Ku",
+    "Qal"
+  ],
+  "processing": "Source vectors clipped to a 2 km context margin around the terrain; transformed from supplied NAD83 / California Albers to WGS84. No simplification, snapping, inferred contacts or field-scale subdivision. Colors are atlas display colors. Source age terminology retained alongside readable age labels.",
+  "limitations": "Regional context at 1:250,000. Contacts are generalized, not surveyed well or hillslope boundaries. This layer does not show weathering depth, groundwater, rock thickness or current fault activity.",
+  "qa": {
+    "terrain_coverage_fraction": 1.0,
+    "unit_features": 4,
+    "line_features": 3
+  }
+}

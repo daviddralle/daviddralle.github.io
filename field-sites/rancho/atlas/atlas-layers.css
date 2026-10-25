@@ -1,0 +1,32 @@
+/* A quieter, more compact atlas sidebar; weather-page spacing is independent. */
+#sidebar .side-section{padding:13px 17px}
+#sidebar h2{margin-bottom:9px;font-size:14px}
+#sidebar .search-wrap{margin-top:6px}
+#sidebar .search-wrap input{padding:9px 10px;font-size:12px}
+#sidebar .presets{grid-template-columns:repeat(6,1fr);gap:5px}
+#sidebar .presets button{grid-column:span 2;padding:7px 3px;font-size:11px}
+#sidebar .presets .wide{grid-column:span 3}
+#sidebar .small{font-size:11px;line-height:1.5;margin:8px 0 0}
+#sidebar .layer-row{min-height:28px;padding:5px 0;gap:8px}
+#sidebar .layer-group{margin:11px 0 3px;font-size:9px}
+#sidebar .layer-row .count{font-size:10px}
+#sidebar .stats{margin:10px 0;gap:22px}
+#sidebar .stats strong{font-size:24px}
+#sidebar .layer-options{margin:7px 0 3px;color:var(--muted);font-size:11px}
+#sidebar .layer-options>summary{cursor:pointer;padding:5px 0;line-height:1.5;color:var(--muted)}
+#sidebar .layer-options>summary::marker{color:#b6bc9a}
+#sidebar .layer-options .lidar-controls{margin:9px 0 2px}
+#sidebar .layer-options .canopy-key{margin-top:9px}
+#sidebar .layer-options p{font-size:10px;line-height:1.5;margin:8px 0}
+#sidebar .layer-options label{display:flex;justify-content:space-between;gap:8px;margin:10px 0 4px}
+#sidebar .layer-options input[type=range]{width:100%;accent-color:#c6c69f}
+.geology-swatch{width:9px;height:10px;flex:none;border-radius:2px;background:linear-gradient(135deg,#dfc89c 0 33%,#a9b89a 33% 67%,#b5afc3 67%);border:1px solid #d6d2b788}
+#geology-options{padding-left:21px;border-bottom:1px solid var(--line);padding-bottom:8px}
+#geology-legend{display:grid;gap:6px;margin-top:10px;line-height:1.45}
+#geology-legend>div{display:flex;gap:7px;align-items:baseline}
+#geology-legend i{display:inline-block;width:9px;height:9px;flex:none;border-radius:2px;border:1px solid #ffffff44}
+#geology-legend b{color:var(--ink);font:10px monospace;margin-right:3px}
+.geology-note{border-left:2px solid #b7bb9c;padding-left:10px}
+.geology-unit-chip{display:inline-block;width:13px;height:13px;border:1px solid #ffffff55;border-radius:2px;margin-right:7px}
+body.scene-active #geology-extent{display:none}
+@media(max-width:720px){#sidebar .layer-row{min-height:32px}#sidebar .side-section{padding:12px 16px}#sidebar .presets button{min-height:32px}#sidebar .layer-options>summary{min-height:30px}}
