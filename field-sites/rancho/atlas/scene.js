@@ -1,10 +1,11 @@
 import * as THREE from './vendor/three/three.module.js';
+import {createNavigation} from './navigation.js?v=95d4f124bb07';
 import {createGeologySurface} from './geology-scene.js?v=5aed6ff0c3b8';
 import {createStreamLines} from './stream-lines.js?v=8ffea0bf3f7c';
 import {createRanchLandmarks} from './ranch-landmarks.js?v=a1d4c208ddd0';
 import {HOME} from './jerry-motion.js?v=ce405077e010';
 import {OrbitControls} from './vendor/three/OrbitControls.js';
-import {createJerry} from './jerry.js?v=53924bb446db';
+import {createJerry} from './jerry.js?v=f56c8b2c05fb';
 
 export async function createScene(atlas) {
   const response=await fetch(atlas.dataURL('data/terrain.json'));
@@ -16,7 +17,7 @@ export async function createScene(atlas) {
   renderer.setClearColor('#11262d');container.prepend(renderer.domElement);
   renderer.domElement.setAttribute('aria-label','3D LiDAR canopy, terrain and boreholes; use Explore buttons and the borehole inventory for keyboard navigation');
   const world=new THREE.Scene(),root=new THREE.Group();world.add(root);
-  const camera=new THREE.PerspectiveCamera(42,1,.5,15000);
+  const camera=new THREE.PerspectiveCamera(42,1,.1,100000);
   const controls=new OrbitControls(camera,renderer.domElement);
   controls.enableDamping=true;controls.minDistance=15;controls.maxDistance=7500;controls.maxPolarAngle=Math.PI*.87;
   const [x0,y0,x1,y1]=terrain.bounds,xc=(x0+x1)/2,yc=(y0+y1)/2,zbase=150;
@@ -103,6 +104,7 @@ export async function createScene(atlas) {
   for(const f of atlas.coverage.features){const polygons=f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates];for(const polygon of polygons)for(const ring of polygon)pathLine(ring,'coverage','#f2dfb1',true);}
   let active=false,frame=0,vertical=1,selectedId=null,visible=new Set(atlas.enabled),lastFocus='network';
   const jerry=createJerry({world,root,camera,controls,surface,ground,position,terrain,renderer,getVertical:()=>vertical,catchments:atlas.catchments,project});
+  createNavigation({camera,controls,canvas:renderer.domElement,surface,isFollowing:()=>jerry.following,releaseFollow:()=>jerry.releaseFollow(),reset:()=>focus('network')});
   const landmarks=createRanchLandmarks({ground,position,home:HOME});root.add(landmarks.group);
   const landmarkLabels=landmarks.features.map(f=>{
     const button=document.createElement('button');button.textContent=f.label;button.className='ranch-landmark';

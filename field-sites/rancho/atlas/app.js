@@ -153,7 +153,7 @@ async function toggle3D() {
   if(scene?.active){scene.close();document.body.classList.remove('scene-active');geology?.legend();$('scene').hidden=true;$('scene-tools').hidden=true;$('basemaps').hidden=false;$('lidar-controls').hidden=!map.hasLayer(hillshade);$('terrain-options').hidden=!map.hasLayer(hillshade);$('map').hidden=false;$('toggle-3d').setAttribute('aria-pressed','false');map.invalidateSize();view(currentView);return;}
   $('toggle-3d').disabled=true;$('scene-loading').hidden=false;$('scene-loading').textContent='Opening LiDAR canopy & terrain…';
   try{
-    sceneModule??=await import('./scene.js?v=058370a9c827');
+    sceneModule??=await import('./scene.js?v=b93e1980cfc8');
     if(!scene)scene=await sceneModule.createScene({holes,catchments,channels,instruments,enabled,inspect,canopyMeta,coverage,dataURL,identifyGeology:point=>geology?.identify(point)});
     $('scene').hidden=false;$('map').hidden=true;$('scene-tools').hidden=false;$('basemaps').hidden=true;$('lidar-controls').hidden=true;$('terrain-options').hidden=true;
     scene.canopyOpacity(Number($('canopy-opacity').value));scene.open();document.body.classList.add('scene-active');if(geology)scene.geology(geology.getState());geology?.legend();scene.focus(currentView==='watershed'?'network':currentView);

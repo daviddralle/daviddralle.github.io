@@ -29,7 +29,7 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
   <p id="jerry-drop-help">Drag a treat onto the hills, or click then choose a spot.</p>
   <div id="jerry-drop-actions" hidden><button id="jerry-serve">Serve beside Jerry</button><button id="jerry-cancel">Cancel drop</button></div>
   <div class="jerry-actions"><button id="jerry-library">100 ranch haikus ↗</button><button id="jerry-terrain" aria-expanded="false">Terrain controls</button></div>
-  <p class="jerry-fiction">Drag to rotate · Ctrl/⌘-drag to pan<br>Scroll to zoom · rotation & zoom keep tracking</p>
+  <p class="jerry-fiction">Drag to rotate · Shift-drag to pan<br>Swish to zoom freely · Follow Jerry to resume tracking</p>
   <p id="jerry-status" role="status"></p><small class="jerry-fiction">Playful fiction · original poems, not Brown quotations. Vehicle enlarged 2.4×.</small></div>`;
   host.append(toolbar);
   const label=document.createElement('div');label.className='jerry-name';label.textContent='Jerry · Cali & Colusa';label.hidden=true;host.append(label);
@@ -128,5 +128,5 @@ export function createJerry({world,root,camera,controls,surface,ground,position,
     card.style.setProperty('--thought-tail',Math.max(20,Math.min(card.offsetWidth-20,(p.x*.5+.5)*width-x+half))+'px');
   }
   function draw(){if(!enabled)return;layoutThought();renderer.autoClear=false;renderer.clearDepth();renderer.render(overlay,camera);renderer.autoClear=true;const hp=worldPosition(...HOME,.4).project(camera);homeLabel.hidden=hp.z<0||hp.z>1||Math.abs(hp.x)>1||Math.abs(hp.y)>1||Math.hypot(s.e-HOME[0],s.n-HOME[1])>100;if(!homeLabel.hidden){homeLabel.style.left=(hp.x*.5+.5)*host.clientWidth+'px';homeLabel.style.top=(-hp.y*.5+.5)*host.clientHeight+35+'px';}label.textContent=swimmer?'Jerry · pool break':'Jerry · Cali & Colusa';const p=(swimmer?swimmer.position:mule.root.position).clone().add(new THREE.Vector3(0,swimmer?3.5:6.2,0)).project(camera);label.hidden=!card.hidden||p.z<0||p.z>1||Math.abs(p.x)>1||Math.abs(p.y)>1;if(!label.hidden){label.style.left=(p.x*.5+.5)*host.clientWidth+'px';label.style.top=(-p.y*.5+.5)*host.clientHeight+'px';}}
-  return {update,draw,get enabled(){return enabled;},get interacting(){return arming;},releaseFollow(){if(enabled)setFollow(false);},suspend(){if(enabled)toggle();else cancelDrop();},homeNote:HOME_NOTE};
+  return {update,draw,get enabled(){return enabled;},get following(){return enabled&&follow;},get interacting(){return arming;},releaseFollow(){if(enabled)setFollow(false);},suspend(){if(enabled)toggle();else cancelDrop();},homeNote:HOME_NOTE};
 }

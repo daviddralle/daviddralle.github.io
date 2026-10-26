@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#11262d"><title>Rancho Venada Field Atlas</title>
   <meta name="description" content="Explore Mountain House catchments, boreholes, piezometers and subsurface monitoring at Rancho Venada.">
   <link rel="stylesheet" href="vendor/leaflet.css"><link rel="stylesheet" href="../rancho.css?v=2141db7f2eeb">
-  <link rel="stylesheet" href="atlas-layers.css?v=95540938b6f2">
+  <link rel="stylesheet" href="atlas-layers.css?v=f52ec1014ed7">
   <link rel="stylesheet" href="landmarks.css?v=8169f15b76b5">
   <link rel="stylesheet" href="jerry.css?v=c4cb185a788e">
-  <script defer src="vendor/leaflet.js"></script><script defer src="vendor/proj4.js"></script><script defer src="app.js?v=d616c069f457"></script>
+  <script defer src="vendor/leaflet.js"></script><script defer src="vendor/proj4.js"></script><script defer src="app.js?v=dc82a8c14f62"></script>
   <link rel="canonical" href="https://daviddralle.github.io/field-sites/rancho/atlas/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Rancho Venada Field Atlas">
@@ -39,7 +39,7 @@
 <section class="map-shell" aria-label="Interactive Rancho Venada field map">
   <div id="map"></div><div id="scene" hidden><div id="scene-labels"></div></div>
   <div class="map-top"><div class="map-title"><span class="eyebrow">Rancho Venada research site</span><strong id="view-title">Mountain House watershed</strong><small id="view-subtitle">Terrain, catchments & field observations</small></div><div class="map-tools" id="basemaps" role="group" aria-label="Map background"><button data-basemap="terrain" class="selected" aria-pressed="true">LiDAR</button><button data-basemap="satellite" aria-pressed="false">Satellite</button><button data-basemap="topo" aria-pressed="false">Topo</button></div></div>
-  <section id="scene-tools" class="scene-tools" aria-label="3D controls" hidden><strong>See below the surface</strong><p>True metric geometry at 1×. Shaft widths enlarged for visibility.</p><div><button id="scene-home">Reset view</button> <button id="scene-top">Top down</button></div><div class="ranch-views"><button id="scene-ranch">Ranch buildings</button> <button id="scene-shack">MH7 ridge shack</button></div><label class="ranch-model-toggle"><input id="landmark-models" type="checkbox" checked> Photo-based building models</label><label for="ground-opacity">Ground opacity</label><input id="ground-opacity" type="range" min="0" max="1" step="0.05" value="1"><label for="vertical-scale">Vertical scale</label><select id="vertical-scale"><option value="1">1× · true scale</option><option value="3">3× · exaggerated</option></select><p>Solid: completed depth<br>Dashed: drilled depth only<br>Collar only: depth unknown</p><p>Drag to orbit · scroll to zoom<br>Right-drag to pan</p></section>
+  <section id="scene-tools" class="scene-tools" aria-label="3D controls" hidden><strong>See below the surface</strong><p>True metric geometry at 1×. Shaft widths enlarged for visibility.</p><div><button id="scene-home">Reset view</button> <button id="scene-top">Top down</button></div><div class="ranch-views"><button id="scene-ranch">Ranch buildings</button> <button id="scene-shack">MH7 ridge shack</button></div><label class="ranch-model-toggle"><input id="landmark-models" type="checkbox" checked> Photo-based building models</label><label for="ground-opacity">Ground opacity</label><input id="ground-opacity" type="range" min="0" max="1" step="0.05" value="1"><label for="vertical-scale">Vertical scale</label><select id="vertical-scale"><option value="1">1× · true scale</option><option value="3">3× · exaggerated</option></select><p>Solid: completed depth<br>Dashed: drilled depth only<br>Collar only: depth unknown</p><p>Two-finger swish / pinch to zoom<br>Drag to rotate · Shift-drag to pan<br>Or use the navigation buttons below</p></section>
   <div id="scene-loading" role="status" hidden></div>
   <aside id="inspector" aria-label="Selected field feature" hidden><button id="close-inspector" aria-label="Close feature details">×</button><div id="feature-details"></div></aside>
   <div class="map-bottom"><div class="legend"><i class="dot" style="--c:#83edff"></i> Wells <i class="dot" style="--c:#efbf73"></i> Piezometers <i class="dot" style="--c:#c0ec94"></i> Catchments</div><span id="status" role="status">Opening the field atlas…</span></div>

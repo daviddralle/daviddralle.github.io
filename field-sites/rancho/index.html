@@ -521,7 +521,7 @@
     }
   </style>
   <link rel="stylesheet" href="rancho.css?v=2141db7f2eeb">
-  <link rel="stylesheet" href="weather-atlas.css?v=e4593e5d2a0a">
+  <link rel="stylesheet" href="weather-atlas.css?v=fa077f3e01cf">
   <link rel="canonical" href="https://daviddralle.github.io/field-sites/rancho/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Rancho Venada Weather & Climate">
@@ -597,25 +597,32 @@
         <div class="summary-item"><span>Peak wind gust · 24h</span><strong id="peak-gust">—</strong></div>
       </section>
 
-      <section class="panel" aria-labelledby="recent-heading">
+      <section class="panel recent-panel" aria-labelledby="recent-heading">
         <div class="panel-heading">
           <div>
             <p class="eyebrow" style="color:var(--pine-700)">Ambient Weather · five-minute observations</p>
             <h2 id="recent-heading">Recent observations</h2>
-            <p>Air temperature, precipitation, relative humidity, and wind speed.</p>
+            <p>Air temperature, rainfall totals, relative humidity, and wind speed.</p>
           </div>
           <div class="controls" aria-label="Recent chart controls">
             <div class="segmented" id="recent-metric">
               <button class="active" type="button" data-value="temp_f" aria-pressed="true">Temperature</button>
-              <button type="button" data-value="rain_in" aria-pressed="false">Rain</button>
+              <button type="button" data-value="rain_in" aria-pressed="false">Rainfall</button>
+              <button type="button" data-value="rain_cumulative_in" aria-pressed="false">Cumulative rain</button>
               <button type="button" data-value="humidity_pct" aria-pressed="false">Humidity</button>
               <button type="button" data-value="wind_mph" aria-pressed="false">Wind</button>
             </div>
-            <div class="segmented" id="recent-range">
+            <div class="segmented" id="recent-range" role="group" aria-label="Recent time window">
+              <button type="button" data-value="24h" aria-pressed="false">24 hours</button>
               <button class="active" type="button" data-value="48h" aria-pressed="true">48 hours</button>
+              <button type="button" data-value="72h" aria-pressed="false">72 hours</button>
               <button type="button" data-value="7d" aria-pressed="false">7 days</button>
             </div>
           </div>
+        </div>
+        <div class="recent-rain-summary" aria-live="polite">
+          <div><span id="recent-rain-label">Observed rainfall · 48 hours</span><strong id="recent-rain-total">—</strong></div>
+          <p id="recent-rain-note">Rainfall accumulated within the selected window.</p>
         </div>
         <div class="chart-wrap">
           <canvas id="recent-chart" role="img" aria-label="Recent weather observations"></canvas>
@@ -709,7 +716,8 @@
     };
     const recentMetrics = {
       temp_f: { label: 'Temperature', dimension: 'temperature', color: '#efbf73', type: 'line', digits: { us: 1, metric: 1 } },
-      rain_in: { label: 'Rain', dimension: 'precipitation', color: '#63dbea', type: 'bar', digits: { us: 3, metric: 2 } },
+      rain_cumulative_in: { label: 'Cumulative rain', dimension: 'precipitation', color: '#63dbea', type: 'line', digits: { us: 3, metric: 2 }, beginAtZero: true, cumulative: true },
+      rain_in: { label: 'Rainfall per interval', dimension: 'precipitation', color: '#63dbea', type: 'bar', digits: { us: 3, metric: 2 } },
       humidity_pct: { label: 'Humidity', dimension: 'humidity', color: '#b69ce9', type: 'line', digits: { us: 0, metric: 0 } },
       wind_mph: { label: 'Wind', dimension: 'speed', color: '#c0ec94', type: 'line', digits: { us: 1, metric: 1 } }
     };
@@ -729,6 +737,34 @@
       console.info('Unit preference storage is unavailable.', error);
     }
     const recentState = { metric: 'temp_f', range: '48h' };
+    const recentWindows = { '24h': { hours: 24, label: '24 hours' }, '48h': { hours: 48, label: '48 hours' }, '72h': { hours: 72, label: '72 hours' }, '7d': { hours: 168, label: '7 days' } };
+
+    // rain_in contains interval amounts, not a rain rate or a daily counter.
+    function recentRainWindow(data, range) {
+      const latest = new Date(data.current.timestamp).getTime();
+      const cutoff = latest - recentWindows[range].hours * 3600000;
+      const points = data.live_7d
+        .filter((point) => { const time = new Date(point.t).getTime(); return time >= cutoff && time <= latest; })
+        .sort((a, b) => new Date(a.t) - new Date(b.t));
+      let total = 0, count = 0, previousTime = cutoff, incomplete = false;
+      // Published recent observations are aggregated to 15-minute intervals.
+      const gapTolerance = 20 * 60000;
+      const cumulative = points.map((point) => {
+        const time = new Date(point.t).getTime();
+        if (time - previousTime > gapTolerance) incomplete = true;
+        previousTime = time;
+        const rain = point.rain_in;
+        if (rain == null || !Number.isFinite(Number(rain)) || Number(rain) < 0) {
+          incomplete = true;
+          return { ...point, rain_cumulative_in: null };
+        }
+        total += Number(rain);
+        count++;
+        return { ...point, rain_cumulative_in: Number(total.toFixed(6)) };
+      });
+      if (latest - previousTime > gapTolerance) incomplete = true;
+      return { points: cumulative, total: count ? Number(total.toFixed(6)) : null, incomplete, cutoff, latest };
+    }
     const historyState = { metric: 'wy_cumulative_in', range: 'wy' };
 
     function convertMeasurement(number, dimension) {
@@ -847,7 +883,7 @@
       const latestTime = new Date(current.timestamp).getTime();
       const dayAgo = latestTime - 24 * 60 * 60 * 1000;
       const recent24 = data.live_7d.filter((point) => new Date(point.t).getTime() >= dayAgo);
-      const rain24 = recent24.reduce((sum, point) => sum + (Number(point.rain_in) || 0), 0);
+      const rain24 = recentRainWindow(data, '24h').total;
       const peakGust = recent24.length ? Math.max(...recent24.map((point) => Number(point.gust_mph) || 0)) : null;
       const today = current.timestamp.slice(0, 10);
       const todayDaily = data.daily_history.find((point) => point.date === today);
@@ -872,25 +908,34 @@
     }
 
     function renderRecentChart() {
-      if (!weatherData || typeof Chart === 'undefined') return;
+      if (!weatherData) return;
+      const window = recentRainWindow(weatherData, recentState.range);
+      $('recent-rain-label').textContent = `Observed rainfall · ${recentWindows[recentState.range].label}`;
+      $('recent-rain-total').textContent = formatMeasurement(window.total, 'precipitation', { us: 3, metric: 2 });
+      $('recent-rain-note').textContent = window.total == null
+        ? 'No rainfall observations are available for this window.'
+        : `${window.incomplete ? 'Partial coverage · sums available rainfall observations. ' : 'Accumulated within the selected window. '}Window ends ${new Date(window.latest).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.`;
+      if (typeof Chart === 'undefined') return;
       const metric = displayMetric(recentMetrics[recentState.metric]);
-      const latest = new Date(weatherData.current.timestamp).getTime();
-      const cutoff = latest - (recentState.range === '48h' ? 48 : 168) * 60 * 60 * 1000;
-      const points = weatherData.live_7d.filter((point) => new Date(point.t).getTime() >= cutoff && point[recentState.metric] != null);
-      $('recent-empty').classList.toggle('visible', points.length === 0);
+      const points = window.points;
+      const hasData = points.some((point) => point[recentState.metric] != null);
+      $('recent-empty').classList.toggle('visible', !hasData);
       if (recentChart) recentChart.destroy();
-      if (!points.length) return;
+      recentChart = null;
+      if (!hasData) return;
+      $('recent-chart').setAttribute('aria-label', `${metric.label} over ${recentWindows[recentState.range].label}`);
       recentChart = new Chart($('recent-chart'), {
         type: metric.type,
         data: {
-          labels: points.map((point) => new Date(point.t).toLocaleString([], { weekday: 'short', hour: 'numeric' })),
+          labels: points.map((point) => new Date(point.t).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })),
           datasets: [{
             data: points.map((point) => convertMeasurement(point[recentState.metric], metric.dimension)),
             borderColor: metric.color,
             backgroundColor: metric.type === 'bar' ? `${metric.color}aa` : `${metric.color}22`,
             borderWidth: 2,
             pointRadius: 0,
-            tension: .22,
+            tension: metric.cumulative ? 0 : .22,
+            stepped: metric.cumulative ? 'after' : false,
             fill: metric.type === 'line'
           }]
         },
@@ -1020,6 +1065,7 @@
         renderCurrent(data);
         renderSources(data);
         if (typeof Chart === 'undefined') {
+          renderRecentChart();
           console.error('Chart library did not load');
           $('recent-empty').textContent = 'Charts are temporarily unavailable. Live readings are still current.';
           $('history-empty').textContent = 'Charts are temporarily unavailable. Data downloads remain available below.';

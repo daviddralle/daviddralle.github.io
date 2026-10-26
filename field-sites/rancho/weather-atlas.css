@@ -15,3 +15,13 @@
 @media(max-width:720px){.weather-page .topbar{height:96px;padding:0 14px;gap:8px}.weather-page .brand{gap:9px}.weather-page .brand-title{font-size:24px}.weather-page .brand small{display:block;margin:4px 0 0;font-size:13px}.weather-page .unit-toggle button{min-width:44px;padding:7px 8px;font-size:11px}}
 
 .weather-page .status-dot.stale{background:var(--gold);box-shadow:0 0 0 6px #efbf7324}.weather-page .status-dot.offline{background:#ff947a;box-shadow:0 0 0 6px #ff947a24}
+
+/* Window totals stay visible while browsing any recent weather variable. */
+.weather-page .recent-panel .panel-heading{align-items:flex-start;flex-wrap:wrap;gap:16px}
+.weather-page .recent-panel .controls{max-width:100%;gap:8px}
+.weather-page .recent-panel .segmented{flex-wrap:wrap;max-width:100%}
+.weather-page .recent-rain-summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 17px;margin-bottom:16px;border:1px solid var(--line);border-left:3px solid var(--rain);border-radius:5px;background:#10282f}
+.weather-page .recent-rain-summary span{display:block;font-size:11px;color:var(--muted)}
+.weather-page .recent-rain-summary strong{display:block;margin-top:3px;font:28px Georgia,serif;color:var(--rain);white-space:nowrap}
+.weather-page .recent-rain-summary p{margin:0;max-width:440px;font-size:12px;color:var(--muted)}
+@media(max-width:680px){.weather-page .recent-rain-summary{align-items:flex-start;flex-direction:column;gap:8px}.weather-page .recent-panel .controls{width:100%}}
