@@ -22,9 +22,9 @@ test('each window accumulates only its own observations, even across midnight', 
   assert.equal(input.live_7d[0].rain_cumulative_in, undefined, 'source data remains unchanged');
 });
 
-test('exact window boundaries are included and out-of-window observations excluded', () => {
+test('rain ending at the opening boundary is excluded; rain ending now is included', () => {
   for (const [range, hours] of [['24h', 24], ['48h', 48], ['72h', 72], ['7d', 168]]) {
-    assert.equal(calculate(data([point(hours + .001, 9), point(hours, .1), point(0, .2)]), range).total, .3);
+    assert.equal(calculate(data([point(hours + .001, 9), point(hours, .1), point(0, .2)]), range).total, .2);
   }
 });
 
@@ -39,11 +39,11 @@ test('missing and invalid rainfall remain unknown rather than appearing dry', ()
 });
 
 test('complete dry records display zero; gaps and truncated coverage are flagged', () => {
-  const points = Array.from({ length: 97 }, (_, i) => point(24 - i / 4, 0));
+  const points = Array.from({ length: 289 }, (_, i) => point(24 - i / 12, 0));
   const complete = calculate(data(points), '24h');
   assert.equal(complete.total, 0);
   assert.equal(complete.incomplete, false);
-  assert.equal(calculate(data(points.slice(1, -1)), '24h').incomplete, false, 'normal quarter-hour edge alignment');
+  assert.equal(calculate(data(points.slice(1, -1)), '24h').incomplete, false, 'normal five-minute edge alignment');
   assert.equal(calculate(data(points.slice(2)), '24h').incomplete, true);
   assert.equal(calculate(data(points.filter((_, i) => i !== 50)), '24h').incomplete, true);
 });

@@ -744,11 +744,11 @@
       const latest = new Date(data.current.timestamp).getTime();
       const cutoff = latest - recentWindows[range].hours * 3600000;
       const points = data.live_7d
-        .filter((point) => { const time = new Date(point.t).getTime(); return time >= cutoff && time <= latest; })
+        .filter((point) => { const time = new Date(point.t).getTime(); return time > cutoff && time <= latest; })
         .sort((a, b) => new Date(a.t) - new Date(b.t));
       let total = 0, count = 0, previousTime = cutoff, incomplete = false;
-      // Published recent observations are aggregated to 15-minute intervals.
-      const gapTolerance = 20 * 60000;
+      // Rain amounts end at each five-minute observation; exclude the opening boundary.
+      const gapTolerance = 7.5 * 60000;
       const cumulative = points.map((point) => {
         const time = new Date(point.t).getTime();
         if (time - previousTime > gapTolerance) incomplete = true;
