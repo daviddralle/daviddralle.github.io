@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 const html = readFileSync(new URL('../field-sites/rancho/index.html', import.meta.url), 'utf8');
 const script = html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
 const context = { localStorage: { getItem: () => null }, console };
-vm.runInNewContext(script.slice(0, script.indexOf('    const historyState')) + '\nthis.windowRain = recentRainWindow;', context);
+vm.runInNewContext(script.slice(0, script.indexOf('    const historyState')) + '\nthis.windowRain = recentRainWindow; this.displayValues = recentDisplayValues;', context);
 const calculate = context.windowRain;
 const latest = Date.parse('2026-10-26T10:00:00-07:00');
 const point = (hoursAgo, rain) => ({ t: new Date(latest - hoursAgo * 3600000).toISOString(), rain_in: rain });
@@ -51,4 +51,29 @@ test('complete dry records display zero; gaps and truncated coverage are flagged
 test('unsorted samples yield chronological, nondecreasing accumulation', () => {
   const result = calculate(data([point(0, .1), point(2, .1), point(1, .1)]), '24h');
   assert.equal(JSON.stringify(result.points.map(p => p.rain_cumulative_in)), '[0.1,0.2,0.3]');
+});
+
+const timedValues = (minutes, values, key) => minutes.map((minute, i) => ({
+  t: new Date(latest + minute * 60000).toISOString(), [key]: values[i]
+}));
+
+test('short non-rain gaps interpolate by elapsed time, preserving observations and zero values', () => {
+  for (const key of ['temp_f', 'humidity_pct', 'wind_mph']) {
+    const points = timedValues([0, 5, 12, 15], [0, null, null, 30], key);
+    const before = JSON.stringify(points);
+    assert.deepEqual(Array.from(context.displayValues(points, key)), [0, 10, 24, 30]);
+    assert.equal(JSON.stringify(points), before);
+  }
+});
+
+test('long gaps and unbounded gaps remain missing', () => {
+  const points = timedValues([-5, 0, 5, 15, 20, 25], [null, 10, null, null, 30, null], 'temp_f');
+  assert.deepEqual(Array.from(context.displayValues(points, 'temp_f')), [null, 10, null, null, 30, null]);
+});
+
+test('rainfall and cumulative rain are never interpolated', () => {
+  for (const key of ['rain_in', 'rain_cumulative_in']) {
+    const points = timedValues([0, 5, 10], [0, null, .1], key);
+    assert.deepEqual(Array.from(context.displayValues(points, key)), [0, null, .1]);
+  }
 });

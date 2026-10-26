@@ -765,6 +765,30 @@
       if (latest - previousTime > gapTolerance) incomplete = true;
       return { points: cumulative, total: count ? Number(total.toFixed(6)) : null, incomplete, cutoff, latest };
     }
+    // Display-only interpolation, bounded by observed readings within 15 minutes.
+    // Never fill rainfall or change the stored observations.
+    function recentDisplayValues(points, key) {
+      const values = points.map((point) => point[key]);
+      if (!['temp_f', 'humidity_pct', 'wind_mph'].includes(key)) return values;
+      let previous = -1;
+      for (let i = 0; i < values.length; i++) {
+        if (!Number.isFinite(values[i])) continue;
+        if (previous >= 0 && i > previous + 1) {
+          const start = new Date(points[previous].t).getTime();
+          const duration = new Date(points[i].t).getTime() - start;
+          if (duration > 0 && duration <= 15 * 60000) {
+            for (let j = previous + 1; j < i; j++) {
+              const fraction = (new Date(points[j].t).getTime() - start) / duration;
+              if (fraction > 0 && fraction < 1) {
+                values[j] = values[previous] + fraction * (values[i] - values[previous]);
+              }
+            }
+          }
+        }
+        previous = i;
+      }
+      return values;
+    }
     const historyState = { metric: 'wy_cumulative_in', range: 'wy' };
 
     function convertMeasurement(number, dimension) {
@@ -929,7 +953,7 @@
         data: {
           labels: points.map((point) => new Date(point.t).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })),
           datasets: [{
-            data: points.map((point) => convertMeasurement(point[recentState.metric], metric.dimension)),
+            data: recentDisplayValues(points, recentState.metric).map((value) => convertMeasurement(value, metric.dimension)),
             borderColor: metric.color,
             backgroundColor: metric.type === 'bar' ? `${metric.color}aa` : `${metric.color}22`,
             borderWidth: 2,
