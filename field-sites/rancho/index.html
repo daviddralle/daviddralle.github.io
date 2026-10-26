@@ -521,7 +521,7 @@
     }
   </style>
   <link rel="stylesheet" href="rancho.css?v=2141db7f2eeb">
-  <link rel="stylesheet" href="weather-atlas.css?v=6fd25bbd5142">
+  <link rel="stylesheet" href="weather-atlas.css?v=fa077f3e01cf">
   <link rel="canonical" href="https://daviddralle.github.io/field-sites/rancho/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Rancho Venada Weather & Climate">
@@ -621,10 +621,9 @@
           </div>
         </div>
         <div class="recent-rain-summary" aria-live="polite">
-          <div><span id="recent-rain-label">Recorded rainfall · 48 hours</span><strong id="recent-rain-total">—</strong></div>
+          <div><span id="recent-rain-label">Observed rainfall · 48 hours</span><strong id="recent-rain-total">—</strong></div>
           <p id="recent-rain-note">Rainfall accumulated within the selected window.</p>
         </div>
-        <p id="recent-coverage" class="recent-coverage" role="status"></p>
         <div class="chart-wrap">
           <canvas id="recent-chart" role="img" aria-label="Recent weather observations"></canvas>
           <div class="chart-empty" id="recent-empty">No recent observations are available for this metric.</div>
@@ -764,8 +763,7 @@
         return { ...point, rain_cumulative_in: Number(total.toFixed(6)) };
       });
       if (latest - previousTime > gapTolerance) incomplete = true;
-      const outdoorGaps = points.filter(point => point.temp_f == null && point.humidity_pct == null && point.wind_mph == null).length;
-      return { points: cumulative, total: count ? Number(total.toFixed(6)) : null, incomplete, outdoorGaps, cutoff, latest };
+      return { points: cumulative, total: count ? Number(total.toFixed(6)) : null, incomplete, cutoff, latest };
     }
     const historyState = { metric: 'wy_cumulative_in', range: 'wy' };
 
@@ -912,22 +910,13 @@
     function renderRecentChart() {
       if (!weatherData) return;
       const window = recentRainWindow(weatherData, recentState.range);
-      $('recent-rain-label').textContent = `Recorded rainfall · ${recentWindows[recentState.range].label}`;
+      $('recent-rain-label').textContent = `Observed rainfall · ${recentWindows[recentState.range].label}`;
       $('recent-rain-total').textContent = formatMeasurement(window.total, 'precipitation', { us: 3, metric: 2 });
       $('recent-rain-note').textContent = window.total == null
         ? 'No rainfall observations are available for this window.'
-        : `${window.incomplete ? 'Partial coverage · sums available rainfall records. ' : window.outdoorGaps ? 'Rain-counter total · outdoor-sensor gaps mean rainfall completeness is unverified. ' : 'Accumulated within the selected window. '}Window ends ${new Date(window.latest).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.`;
-      const metric = displayMetric(recentMetrics[recentState.metric]);
-      const sourceKey = metric.cumulative ? 'rain_in' : recentState.metric;
-      const available = window.points.filter(point => point[sourceKey] != null && Number.isFinite(Number(point[sourceKey]))).length;
-      const missing = window.points.length - available;
-      $('recent-coverage').textContent = missing
-        ? `${metric.label}: ${available} of ${window.points.length} intervals available (${Math.round(available / window.points.length * 100)}%). Gaps are missing source readings, not zero values.`
-        : window.outdoorGaps && metric.dimension === 'precipitation'
-          ? `Outdoor temperature, humidity and wind are absent in ${window.outdoorGaps} intervals. Rain counters can persist during those outages; this total is not confirmation of complete gauge coverage.`
-          : '';
-      $('recent-coverage').hidden = !$('recent-coverage').textContent;
+        : `${window.incomplete ? 'Partial coverage · sums available rainfall observations. ' : 'Accumulated within the selected window. '}Window ends ${new Date(window.latest).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.`;
       if (typeof Chart === 'undefined') return;
+      const metric = displayMetric(recentMetrics[recentState.metric]);
       const points = window.points;
       const hasData = points.some((point) => point[recentState.metric] != null);
       $('recent-empty').classList.toggle('visible', !hasData);
