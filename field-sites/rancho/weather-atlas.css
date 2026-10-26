@@ -25,3 +25,5 @@
 .weather-page .recent-rain-summary strong{display:block;margin-top:3px;font:28px Georgia,serif;color:var(--rain);white-space:nowrap}
 .weather-page .recent-rain-summary p{margin:0;max-width:440px;font-size:12px;color:var(--muted)}
 @media(max-width:680px){.weather-page .recent-rain-summary{align-items:flex-start;flex-direction:column;gap:8px}.weather-page .recent-panel .controls{width:100%}}
+
+.weather-page .recent-coverage{margin:0 0 14px;padding:10px 13px;border-left:2px solid var(--gold);background:#efbf730a;color:#e3cc9e;font-size:12px;line-height:1.6}

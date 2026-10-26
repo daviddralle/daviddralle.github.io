@@ -52,3 +52,13 @@ test('unsorted samples yield chronological, nondecreasing accumulation', () => {
   const result = calculate(data([point(0, .1), point(2, .1), point(1, .1)]), '24h');
   assert.equal(JSON.stringify(result.points.map(p => p.rain_cumulative_in)), '[0.1,0.2,0.3]');
 });
+
+test('a persistent rain counter does not certify outdoor-sensor coverage', () => {
+  const input = data([
+    { ...point(.25, .03), temp_f: null, humidity_pct: null, wind_mph: null },
+    { ...point(0, 0), temp_f: 60, humidity_pct: 50, wind_mph: 2 }
+  ]);
+  const result = calculate(input, '24h');
+  assert.equal(result.total, .03, 'retain reported rainfall rather than deleting it with temperature gaps');
+  assert.equal(result.outdoorGaps, 1, 'flag uncertainty despite a numeric rainfall record');
+});
