@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SFPUC · Field notebook</title><link rel="stylesheet" href="dashboard.css"><link rel="stylesheet" href="telemetry.css?v=20261030"><script defer src="field-notes.js?v=20261030"></script></head>
+<body><header><div><div class="eyebrow">SFPUC · FIELD RECORDS</div><h1>Field notebook</h1></div><a href="./">← Data dashboard</a></header><main class="notebook-page">
+<p>Transcribe what the original notes say. Leave unknown details blank and record uncertain readings explicitly. Keep the original sheet or photograph.</p>
+<p class="review-note">Drafts stay in this browser. Export JSON to preserve them and transfer them for reviewed import on the Pi. Nothing entered here is uploaded automatically.</p>
+<section class="panel"><h2>New record</h2><form id="note-form" class="notebook-form">
+<label>Date recorded in field<input type="date" name="date" required></label><label>Time, if recorded<input type="time" name="time"></label>
+<label>Site<select name="site"><option value="sheep-camp">Sheep Camp</option><option value="maguire-ridge">Maguire Ridge</option></select></label><label>Station<select name="station"><option value="">Not specified</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="site">Site-wide</option></select></label>
+<label>Sensor / tree / access-tube ID<input name="sensor_id" placeholder="e.g. profile T, sap A, tree tag"></label><label>Record type<select name="kind"><option value="installation">Installation</option><option value="sensor_settings">Sensor settings</option><option value="maintenance">Maintenance / troubleshooting</option><option value="measurement">Manual measurement</option><option value="observation">Field observation</option></select></label>
+<label>Observer<input name="observer"></label><label>Original sheet / photo filename and page<input name="source_reference" placeholder="Source reference; not an upload"></label>
+<label>Latitude, if recorded<input type="number" step="any" min="-90" max="90" name="latitude"></label><label>Longitude, if recorded<input type="number" step="any" min="-180" max="180" name="longitude"></label>
+<label class="wide">Transcription / observation<textarea name="text" required placeholder="Preserve values, units, sensor settings and original wording."></textarea></label>
+<label class="wide">Uncertainty / interpretation<textarea name="uncertainty" placeholder="Illegible words, uncertain units, date ambiguity, or details needing confirmation."></textarea></label>
+<div class="wide"><button type="submit">Save draft record</button> <span id="note-status" role="status" class="small muted"></span></div>
+</form></section>
+<section class="panel"><h2>Draft records in this browser</h2><div class="notebook-actions"><button id="export-notes">Export draft JSON ↓</button><label class="notebook-link">Import draft JSON <input type="file" id="import-notes" accept="application/json,.json"></label></div><div id="draft-notes"></div></section>
+<section class="panel"><h2>Reviewed field records</h2><p class="small muted">Only records explicitly approved during the Pi import appear here.</p><div id="published-notes"></div></section>
+<footer class="page-footer">Dates without a recorded time remain date-only. Exported drafts are not a shared database.</footer></main></body></html>

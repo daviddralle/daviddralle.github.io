@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "site": "sheep-camp",
+  "metadata_status": "Installation details awaiting field-note review",
+  "logger_time_zone": null,
+  "stations": [
+    {"id":"top","label":"Top","logger_serial":"16309","pakbus_address":1,"latitude":null,"longitude":null,"setting_description":null,"weather_sensor":"ClimaVUE","sap_sensors":["A","B","C"],"soil_profiles":["T","U"],"soil_interval_minutes":30,"sap_interval_minutes":120},
+    {"id":"bottom","label":"Bottom","logger_serial":"16308","pakbus_address":2,"latitude":null,"longitude":null,"setting_description":null,"weather_sensor":null,"sap_sensors":["a","b"],"soil_profiles":["B"],"soil_interval_minutes":30,"sap_interval_minutes":120}
+  ],
+  "pending_fields": ["Station coordinates and exposure", "Sensor serial numbers and installation dates", "Tree IDs and species", "Probe depths and reference heights", "Sapwood, bark and probe settings", "Calibration records", "Logger clock time zone and synchronization"],
+  "source": "Station program definitions and field conversation, 2026-10-30; exact installation metadata not yet supplied."
+}

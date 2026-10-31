@@ -1,10 +1,38 @@
 # SFPUC monitoring data
 
-The dashboard currently contains a historical Livermore Airport weather snapshot and empty site-monitoring panels. No Campbell connection, public upload form, or sensor ingestion is configured. Adding CSVs alone does not populate the panels: the import, validation, and charting for site observations must be implemented when the instruments and data products are defined.
+The dashboard displays received Sheep Camp logger observations and a separate historical regional-weather snapshot. Sensor outputs are provisional. Station coordinates, sensor installations, tree assignments and logger clock convention remain pending in `data/stations.json`.
+
+## Pi processing and publication
+
+All scheduled work runs on `pi5`. The receiver is `/home/daviddralle/sfpuc/server/data/cr350`. `scripts/sfpuc/run_telemetry.sh` runs every ten minutes, takes the same lock as the other website publishers, pulls the website repository, runs ingestion, and commits/pushes changed telemetry products. The dashboard does not require the Mac to be awake.
+
+`ingest_telemetry.py` snapshots completed recognized TOA5 files into `/home/daviddralle/sfpuc/dashboard-archive/raw/`, keyed by SHA-256 and original filename. Receiver filename reuse does not discard earlier versions. The private archive is retained; generated monthly JSON products retain all parsed records, while `telemetry.json` serves the latest 31 days of logger time. Repeated identical records are removed. Changed schemas, empty files and malformed rows are excluded with reasons. This local archive is not an off-device backup.
+
+The public products contain sensor values and provenance, never logger source programs or receiver credentials. Upload arrival is UTC; logger timestamps remain exactly as received. Chart coordinates do not assert a time zone. Bottom relay timestamps and soil values require verification, so all Bottom series are withheld from plots. Reported battery values remain visible for diagnosis. Missing/nonfinite values and the -8190 sentinel become null; original strings and flags remain in downloads. Zeros and negative sap values are retained. Broad physical review bounds are not instrument calibration or a complete quality-control procedure.
+
+On the Pi, run the job manually with:
+
+```sh
+bash /home/daviddralle/daviddralle.github.io/scripts/sfpuc/run_telemetry.sh
+```
+
+Logs: `/home/daviddralle/logs/sfpuc/telemetry.log`. Cron is in the `daviddralle` user's crontab. The shared lock is `/home/daviddralle/.local/state/hydroeco-automation.lock`.
+
+## Field notebook
+
+`field-notes.html` holds browser-local draft transcriptions and exports version-1 JSON. Drafts are not uploaded automatically; export them before clearing browser storage. Preserve original photographs/scans under the Drive project's existing `Field data/Field measurements and notes/` folder, with filenames matching each note's source reference. Date-only notes remain date-only. Do not infer coordinates, depths, species, calibration or illegible text.
+
+Copy exported JSON to the Pi for validation:
+
+```sh
+python3 scripts/sfpuc/import_field_notes.py /path/to/field-notes.json
+```
+
+Review the transcription and suitability for public display against the originals. Only then run the same command with `--approve`; it merges records into `data/field-notes.json`. Publish reviewed notes from the Pi repository using the shared publisher lock and an explicit commit/push. Conflicting IDs are rejected; retain the original and assign a new ID for corrections. No handwritten records have been transcribed yet.
 
 ## Common fields
 
-Use `sheep-camp` or `maguire-ridge` for `site`. Use ISO 8601 timestamps with an explicit UTC offset (`-08:00` / `-07:00` as appropriate) or `Z`. Do not silently assign a timestamp to date-only field notes. Dates without times can be retained separately in the original field record until resolved. Preserve raw logger and field files separately. Empty cells mean missing, never zero. Quality codes and installation metadata must be documented before ingestion.
+Use `sheep-camp` or `maguire-ridge` for `site`. For new records with a known time convention, use ISO 8601 timestamps with an explicit UTC offset or `Z`. Existing logger timestamps retain their unconfirmed clock convention; do not attach an offset by assumption. Do not silently assign a timestamp to date-only field notes. Dates without times can be retained separately in the original field record until resolved. Preserve raw logger and field files separately. Empty cells mean missing, never zero. Quality codes and installation metadata must be documented before ingestion.
 
 Tree IDs must match the atlas inventory `id` field; field tags alone are not unique across plots. Sensor IDs and access-tube IDs are to be assigned when installation metadata are available. Record the measurement value and its method, not a substituted or interpolated value.
 
@@ -17,7 +45,7 @@ Tree IDs must match the atlas inventory `id` field; field tags alone are not uni
 
 ## Display units
 
-Metric/imperial is a display preference shared with the atlas. Weather switches °C/°F, mm/inches, m/s/mph. Lengths and depths switch m/ft and cm/inches. Soil water content remains m³/m³ and water potential remains MPa in both modes. Sap-flow units will depend on the documented instrument output. Original source files and SI downloads are not rewritten by the toggle.
+Metric/imperial is a display preference shared with the atlas. Weather switches °C/°F, mm/inches, m/s/mph. Lengths and depths switch m/ft and cm/inches. Soil water content remains m³/m³ and water potential remains MPa in both modes. Sap-flow units will depend on the documented instrument output. Original source files are not rewritten by the toggle. Telemetry CSV downloads include both native values/units and selected display values/units.
 
 ## Weather snapshot
 
@@ -31,7 +59,7 @@ Rebuild explicitly from the repository root with:
 python3 scripts/sfpuc/prepare_weather.py --end YYYY-MM-DD
 ```
 
-There is no scheduled refresh. Review date coverage, missing values, and source provenance before publishing a new snapshot.
+This historical airport snapshot has no scheduled refresh; telemetry refresh is separate. Review date coverage, missing values, and source provenance before publishing a new snapshot.
 
 ## Cumulative water-year comparison
 
