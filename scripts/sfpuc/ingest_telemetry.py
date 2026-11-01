@@ -105,7 +105,7 @@ def parse_file(raw, filename, received):
                     'program_signature': rows[0][6]}
 
 
-def build(source, output, archive, minimum_age=60):
+def build(source, output, archive, minimum_age=60, pakbus=None):
     tables = {key: {'station': station, 'table': table, 'interval_minutes': minutes,
                     'fields': [], 'records': []} for key, (station, table, minutes) in TABLES.items()}
     issues, files, seen = [], [], set()
@@ -153,13 +153,56 @@ def build(source, output, archive, minimum_age=60):
             item['status'] = 'excluded'
             issues.append({'file': filename, 'reason': str(error)})
         files.append(item)
+    # Direct PakBus records are committed on the Pi before this export exists.
+    # Keep immutable FTPS archives; choose one plotted row per logical record.
+    if pakbus is not None and Path(pakbus).exists():
+        direct = json.loads(Path(pakbus).read_text())
+        if direct.get('schema_version') != 1 or direct.get('logger') != 1:
+            raise ValueError('unsupported PakBus export')
+        for item in direct['sources']:
+            key, parsed = parse_file(item['toa5'].encode(), item['filename'], item['received_utc'])
+            if not key.startswith('top_'):
+                raise ValueError('Lower collection is disabled')
+            if tables[key]['fields'] and tables[key]['fields'] != parsed['fields']:
+                raise ValueError('PakBus/FTPS field schema mismatch')
+            rows = tables[key]['records']
+            indexed = {(r['program_signature'], r['timestamp'], r['record']): r for r in rows}
+            for record in parsed['records']:
+                identity = (record['program_signature'], record['timestamp'], record['record'])
+                old = indexed.get(identity)
+                provenance = item['provenance'][str(record['record'])]
+                record['received_utc'] = provenance['received_utc']
+                record['source_transport'] = 'PakBus via Konect'
+                record['source_generation'] = provenance['generation']
+                record['source_fingerprint'] = provenance['fingerprint']
+                record['source_logger_serial'] = item['identity']['serial']
+                record['source_compile_time'] = item['identity']['compiled']
+                if old:
+                    differences = []
+                    for field, value in record['values'].items():
+                        prior = old['values'].get(field)
+                        same = value == prior
+                        if isinstance(value, (int, float)) and isinstance(prior, (int, float)):
+                            same = math.isclose(value, prior, rel_tol=2e-6, abs_tol=1e-6)
+                        if not same: differences.append(field)
+                    if differences:
+                        issues.append({'file': item['filename'], 'reason': 'direct/previous value conflict',
+                                       'record': record['record'], 'fields': differences})
+                        record['flags']['source_comparison'] = 'conflict_requires_review'
+                    record['previous_source_file'] = old['source_file']
+                indexed[identity] = record
+            tables[key].update({k: v for k, v in parsed.items() if k != 'records'})
+            tables[key]['records'] = list(indexed.values())
+            files.append({'file': item['filename'], 'sha256': hashlib.sha256(item['toa5'].encode()).hexdigest(),
+                          'bytes': len(item['toa5'].encode()), 'received_utc': item['received_utc'],
+                          'status': 'parsed', 'transport': 'PakBus via Konect'})
     if not any(t['records'] for t in tables.values()):
         raise RuntimeError('No usable TOA5 records; refusing to replace published data')
     for table in tables.values():
         table['records'].sort(key=lambda r: (r['timestamp'], r['record'], r['source_file']))
     snapshot = {'schema_version': 1, 'site': 'sheep-camp',
                 'received_through_utc': max(f['received_utc'] for f in files if f['status'] == 'parsed'),
-                'time_basis': 'Logger clock; time zone and clock alignment are not yet confirmed.',
+                'time_basis': 'Original logger timestamps retained. Top was measured on 2026-11-01 at approximately UTC-07:00 plus 34 seconds; no clock adjustment was made. Lower clock remains unverified.',
                 'quality_notes': [
                     'Preliminary sensor outputs; installation and calibration metadata are pending.',
                     'Bottom relay timestamps and soil records need verification. All Bottom series are excluded from plots; latest reported battery values remain visible for diagnosis.',
@@ -192,5 +235,6 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path, default=ROOT / 'field-sites/sfpuc/dashboard/data')
     parser.add_argument('--archive', type=Path, default=Path('/home/daviddralle/sfpuc/dashboard-archive'))
     parser.add_argument('--minimum-age', type=int, default=60)
+    parser.add_argument('--pakbus', type=Path, default=Path('/home/daviddralle/sfpuc/pakbus-collector/top-export.json'))
     args = parser.parse_args()
-    build(args.source, args.output, args.archive, args.minimum_age)
+    build(args.source, args.output, args.archive, args.minimum_age, args.pakbus)
