@@ -23,6 +23,7 @@ TABLES = {
     'top_sap': ('top', 'Sap_Flow_Data', 120),
     'top_weather': ('top', 'Hourly', 60),
     'top_daily': ('top', 'Daily', 1440),
+    'top_power': ('top', 'Power15', 15),
     'bottom_sap': ('bottom', 'BtmSap', 120),
     'bottom_temp': ('bottom', 'BtmTemp', 120),
     'bottom_water': ('bottom', 'BtmWater', 120),

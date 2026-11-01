@@ -7,7 +7,8 @@ exec 9>/home/daviddralle/.local/state/hydroeco-automation.lock
 cd "$site_repo"
 git pull --ff-only origin master
 /usr/bin/python3 scripts/sfpuc/ingest_telemetry.py
-paths=(field-sites/sfpuc/dashboard/data/telemetry*.json)
+/usr/bin/python3 scripts/sfpuc/build_quick.py
+paths=(field-sites/sfpuc/dashboard/data/telemetry*.json field-sites/sfpuc/dashboard/data/quick.json)
 git add -- "${paths[@]}"
 if ! git diff --cached --quiet -- "${paths[@]}"; then
   git commit --only -m "Update Sheep Camp telemetry $(date --iso-8601=minutes)" -- "${paths[@]}"
