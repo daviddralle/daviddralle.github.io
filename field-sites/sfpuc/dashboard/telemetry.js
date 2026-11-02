@@ -10,7 +10,7 @@
   const groups={
     raw:[],
     weather:[['Air temperature','AirT_C_Avg','temperature'],['Relative humidity','RH_Avg','%'],['Vapor pressure','VP_hPa_Avg','hPa'],['Air pressure','BP_hPa','hPa'],['Wind speed','WS_ms_S_WVT','wind'],['Maximum wind speed','MaxWS_ms_Max','wind'],['Wind direction','WindDir_D1_WVT','°'],['Solar radiation','SlrFD_kW_Avg','W/m²',1000],['Solar energy','SlrTF_MJ_Tot','MJ/m²'],['Hourly precipitation','Rain_mm_Tot','rain'],['Lightning strikes','Strikes_Tot','count']],
-    soil:[['Water content · all segments','vwc_all','vwc'],['Temperature · all channels','temp_all','temperature'],...Array.from({length:5},(_,i)=>[`Water content · segment ${i+1}`,'vwc'+(i+1),'vwc']),...[35,100,200,300,450,600,750].map(n=>[`Temperature · T${n}`,'temp'+n,'temperature'])],
+    soil:[['Water content · all segments','vwc_all','vwc'],['Temperature · all channels','temp_all','temperature'],...Array.from({length:5},(_,i)=>[`Water content · ${i*15}–${(i+1)*15} cm (Top)`,'vwc'+(i+1),'vwc']),...[35,100,200,300,450,600,750].map(n=>[`Temperature · ${n/10} cm (Top)`,'temp'+n,'temperature'])],
     sap:[['Total sap flow','TotalSapFlow','L/h'],['Sap flux density · outer','SFD_Outer','cm/h'],['Sap flux density · inner','SFD_Inner','cm/h'],['Stem temperature · outer','TpreDownOuter','temperature'],['Stem temperature · inner','TpreDownInner','temperature'],['Stem water content · outer','StemWaterOuter','%'],['Stem water content · inner','StemWaterInner','%']],
     power:[['Battery voltage','BattV','V'],['Logger temperature','PTemp_C','temperature']]
   };
@@ -27,7 +27,7 @@
         const water=key==='vwc_all', depths=water?[1,2,3,4,5]:[35,100,200,300,450,600,750];
         for(const profile of ['T','U'])depths.forEach((n,i)=>{
           const field=water?(profile==='T'?'VMC_Seg':'VMC_U_Seg')+n:(profile==='T'?'GP_T':'GP_U_T')+n;
-          const shortName=water?'Segment '+n:'T'+n;
+          const shortName=water?`${(n-1)*15}–${n*15} cm`:`${n/10} cm`;
           add('top_soil',field,'Top · '+profile+' · '+shortName,water?.01:1,{profile,shortName,colorIndex:i});
         });
         depths.forEach((n,i)=>add('bottom_soil',water?'VMC_Seg'+n+'_Avg':'GP_T'+n+'_Avg','Bottom · B · '+(water?'Segment '+n:'T'+n),water?.01:1,{profile:'B',colorIndex:i}));
