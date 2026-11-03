@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build reproducible Soap–Newt atlas products from the external research archive.
 
-Raw files remain external. No elevations, borehole depths or current conditions
-are inferred. Requirements: numpy, rasterio, pyproj, shapely, contourpy, Pillow.
+Raw files remain external. Unknown borehole depths and current conditions remain
+unknown; inferred outlet locations are explicitly labeled approximate. Requirements: numpy, rasterio, pyproj, shapely, contourpy, Pillow.
 """
 import argparse, csv, hashlib, json, math
 from datetime import datetime, timezone
@@ -196,5 +196,7 @@ def main():
         if args.canopy:
             record['canopy_coverage_fraction']=round(float((inside&valid).sum()/inside.sum()),6)
     save(out/'manifest.json',manifest)
+    from build_soap_newt_gages import update_gages
+    infrastructure=update_gages(out)
     print(json.dumps({'bounds':bounds,'terrain':[w,h],'infrastructure':len(infrastructure),'contours':len(contours),'coverage':float(np.isfinite(dem).mean())}))
 if __name__=='__main__':main()

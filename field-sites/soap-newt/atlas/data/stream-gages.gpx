@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Soap &amp; Newt Creek field atlas">
+  <wpt lat="37.0312420" lon="-119.2573560">
+    <name>Soap Creek stream gage</name>
+    <desc>GPS archive; accuracy not documented. Archived GPS position; current operating status unverified.</desc>
+    <sym>Water Source</sym>
+    <type>Stream gage</type>
+  </wpt>
+  <wpt lat="37.0386978" lon="-119.2676571">
+    <name>Newt Creek stream gage (approximate)</name>
+    <desc>Approximate outlet; not GPS-surveyed. Approximate position for the outlet gage reported by the user. Derived from archived boundary and 5 m DEM drainage; no surveyed coordinate or positional accuracy is available.</desc>
+    <sym>Water Source</sym>
+    <type>Stream gage</type>
+  </wpt>
+</gpx>
