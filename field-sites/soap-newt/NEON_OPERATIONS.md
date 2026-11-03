@@ -8,13 +8,13 @@ New instrument-file downloads require a NEON API token. No token was found in th
 
 The daily runner is `scripts/run_soap_newt_neon.sh`, intended only for `/home/daviddralle/daviddralle.github.io` on `pi5`. It shares the existing automation lock at `/home/daviddralle/.local/state/hydroeco-automation.lock`, pulls master with `--ff-only`, updates the single availability JSON, and commits/pushes only that file. Existing Rancho and Sheep Camp jobs must be retained. The runner publishes explicit failure status while preserving last-good metadata.
 
-Suggested daily cron entry (Pi local time):
+Installed daily cron entry (06:23 America/Los_Angeles; follows PST/PDT):
 
 ```cron
 23 6 * * * /bin/bash /home/daviddralle/daviddralle.github.io/scripts/run_soap_newt_neon.sh >> /home/daviddralle/logs/soap-newt/neon.log 2>&1
 ```
 
-Cron installation status is recorded during deployment; this example alone does not mean a job is installed.
+Installed and verified on 3 November 2026, preserving all existing Pi cron entries. The runner completed successfully at 18:47:31 UTC (10:47 PST), refreshed all 12 products, and pushed commit `34efc5c58ba7c233316ba3aa5d372dce3637856c`. Logs: `/home/daviddralle/logs/soap-newt/neon.log`. Scheduled execution remains on the Pi; no Mac schedule was created.
 
 ## Airborne terrain and canopy
 
