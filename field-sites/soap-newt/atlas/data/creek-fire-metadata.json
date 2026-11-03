@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "name": "Creek Fire",
+  "year": 2020,
+  "incident_id": "2020-CASNF-001391",
+  "retrieved_at": "2026-11-03T22:30:18.938897+00:00",
+  "source_title": "2020 Final Fire Perimeter",
+  "source_url": "https://apps.fs.usda.gov/ArcX/rest/services/EDW/EDW_FireOccurrenceAndPerimeter_01/MapServer/20",
+  "incident_url": "https://www.fire.ca.gov/incidents/2020/9/4/creek-fire",
+  "query_url": "https://apps.fs.usda.gov/ArcX/rest/services/EDW/EDW_FireOccurrenceAndPerimeter_01/MapServer/20/query?f=geojson&where=uniqfireid+%3D+%272020-CASNF-001391%27+AND+fireyear+%3D+2020&outFields=%2A&outSR=4326&returnGeometry=true",
+  "source_response_sha256": "58d2e94117f8fd0578265bddde78e5ce4b956715eb8b39271ef47073b90103c6",
+  "source_crs": "EPSG:4269 (NAD83)",
+  "output_crs": "EPSG:4326 (WGS 84)",
+  "reprojection": "ArcGIS query outSR=4326; full geometry retained exactly as returned.",
+  "perimeter_timestamp_utc": "2020-10-30T02:30:00+00:00",
+  "revision_timestamp_utc": "2021-04-20T00:00:00+00:00",
+  "reported_acres": 379882.5,
+  "source_gis_acres": 379882.5,
+  "computed_area_ha": 153764.4922,
+  "bbox": [
+    -119.48452169308399,
+    36.98986377567978,
+    -118.9432282967574,
+    37.64612855756634
+  ],
+  "geometry_valid": true,
+  "clipping": "None for 2D; complete source footprint.",
+  "scene_outline": "creek-fire-scene.geojson",
+  "scene_processing": "Original perimeter boundary intersected with terrain extent in EPSG:32611; no boundary simplification or artificial clipping edges. Missing elevation cells omitted when draping.",
+  "geometric_overlap_with_archived_watersheds": [
+    {
+      "watershed": "Soap Creek",
+      "overlap_ha": 71.7887,
+      "watershed_area_ha": 87.209,
+      "fraction_of_watershed": 0.82318
+    },
+    {
+      "watershed": "Newt Creek",
+      "overlap_ha": 0.0,
+      "watershed_area_ha": 79.2109,
+      "fraction_of_watershed": 0.0
+    }
+  ],
+  "notes": [
+    "Incident perimeter does not describe burn severity or canopy mortality.",
+    "USFS recorded acreage is preserved; CAL FIRE reports 379,895 acres.",
+    "Watershed overlaps are geometric intersections, not measured burned-vegetation fractions."
+  ]
+}
