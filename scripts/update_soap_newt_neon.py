@@ -42,7 +42,7 @@ def fetch_site():
         time.sleep(2 ** (attempt + 1))
 
 
-def summarize(site, checked_at):
+def summarize(site, checked_at, observations_enabled=False):
     source_products = {p['dataProductCode']: p for p in site['dataProducts']}
     products = []
     for code in PRODUCTS:
@@ -66,7 +66,7 @@ def summarize(site, checked_at):
         'checked_at': checked_at,
         'last_success_at': checked_at,
         'status': 'metadata_only',
-        'download_status': 'authentication_required',
+        'download_status': 'observations_enabled' if observations_enabled else 'authentication_required',
         'site': {'code': 'SOAP', 'name': site['siteName'],
                  'latitude': site['siteLatitude'], 'longitude': site['siteLongitude'],
                  'coordinate_note': 'NEON site representative coordinate; not a surveyed tower base'},
@@ -81,7 +81,7 @@ def summarize(site, checked_at):
             'Instrument products are generally published monthly, typically in the second week of the following month; this is not a real-time feed.',
             'Latest month means files are listed for that month. It does not establish complete coverage or the time of the latest valid observation.',
             'Provisional data may change. Archived observations in the dashboard retain their own source coverage dates.',
-            'NEON portal data-file downloads require an API token; automatic observation downloads are not configured. Atlas lidar was acquired separately from the official NEON Earth Engine collections.',
+            ('Selected meteorological observations are downloaded separately to neon_observations.json on the Pi; check that file for sample dates and refresh status. Atlas lidar was acquired separately from official NEON Earth Engine collections.' if observations_enabled else 'NEON portal data-file downloads require an API token; automatic observation downloads are not configured. Atlas lidar was acquired separately from the official NEON Earth Engine collections.'),
         ],
     }
 
@@ -102,10 +102,11 @@ def atomic_write(path, payload):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'field-sites/soap-newt/dashboard/data/neon.json')
+    parser.add_argument('--observations-enabled', action='store_true', help='Selected meteorology download is configured separately')
     args = parser.parse_args()
     now = datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
     try:
-        payload = summarize(fetch_site(), now)
+        payload = summarize(fetch_site(), now, args.observations_enabled)
     except (HTTPError, URLError, TimeoutError, ValueError, KeyError) as exc:
         # Retain good availability information but clearly mark the failed check.
         if args.output.exists():
