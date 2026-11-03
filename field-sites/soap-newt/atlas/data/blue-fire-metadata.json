@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "Blue Fire",
+  "year": 2021,
+  "incident_id": "2021-CASNF-000717",
+  "retrieved_at": "2026-11-03T18:54:00.623904+00:00",
+  "source_title": "2021 Final Fire Perimeter",
+  "source_agency": "USDA Forest Service National Forest System Lands GIS and Fire personnel",
+  "source_url": "https://apps.fs.usda.gov/ArcX/rest/services/EDW/EDW_FireOccurrenceAndPerimeter_01/MapServer/23",
+  "query_url": "https://apps.fs.usda.gov/ArcX/rest/services/EDW/EDW_FireOccurrenceAndPerimeter_01/MapServer/23/query?f=geojson&where=uniqfireid+%3D+%272021-CASNF-000717%27+AND+fireyear+%3D+2021&outFields=%2A&outSR=4326&returnGeometry=true",
+  "incident_url": "https://www.fire.ca.gov/incidents/2021/6/30/blue-fire",
+  "source_response_sha256": "ee1eb709416f359eab5afe66960e9baee54a7d6698fd32b79cabc50d76b54668",
+  "source_crs": "EPSG:4269 (NAD83)",
+  "output_crs": "EPSG:4326 (WGS 84)",
+  "reprojection": "ArcGIS query outSR=4326; geometry retained exactly as returned.",
+  "perimeter_timestamp_utc": "2021-06-30T04:22:59+00:00",
+  "revision_timestamp_utc": "2022-03-31T11:14:09+00:00",
+  "database_source_timestamp_utc": "2026-11-02T03:09:14+00:00",
+  "discovery_timestamp_utc": "2021-06-29T23:22:00+00:00",
+  "reported_acres": 277,
+  "source_gis_acres": 291.13,
+  "computed_area_ha": 117.8377,
+  "bbox": [
+    -119.26213182039618,
+    37.01833961472696,
+    -119.25050768817229,
+    37.03645378524429
+  ],
+  "clipping": "None; complete incident footprint retained.",
+  "geometry_valid": true,
+  "notes": [
+    "Correct incident identified by year, Sierra National Forest unit CASNF, unique incident ID, and location near Soaproot Saddle.",
+    "The source designates this a final wildfire perimeter. Its perimeter timestamp is an attribute of that record, not a containment date.",
+    "Reported incident acreage (277) and mapped GIS acreage (291.13) differ; both original attributes are retained.",
+    "CAL FIRE lists a June 30 start; the USFS discovery timestamp converts to June 29 in Pacific time. Do not treat those differing administrative dates as reconciled.",
+    "The footprint does not resolve burn severity, unburned islands omitted from source mapping, or canopy mortality.",
+    "The archived burn_outline.shp was not used because its projection and event identity were unverified."
+  ],
+  "geometric_overlap_with_archived_watersheds": [
+    {
+      "watershed": "Soap Creek",
+      "overlap_ha": 13.622,
+      "watershed_area_ha": 87.2095,
+      "fraction_of_watershed": 0.156199
+    },
+    {
+      "watershed": "Newt Creek",
+      "overlap_ha": 0.0,
+      "watershed_area_ha": 79.2114,
+      "fraction_of_watershed": 0.0
+    }
+  ],
+  "overlap_note": "Geometric intersection of archived watershed polygons and incident perimeter; not a measured burned-vegetation fraction."
+}
