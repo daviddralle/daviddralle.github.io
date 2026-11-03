@@ -9,8 +9,8 @@ function color(f){return /newt|NC/i.test(f.properties.site||f.properties.name||'
 function layerVisible(record,is3d=state.is3d){return is3d?(record.checked3d??record.checked):record.checked;}
 function syncLayerControls(){for(const [id,record]of Object.entries(state.layers)){record.input.checked=layerVisible(record);state.three?.visibility(id,layerVisible(record,true));}}
 function addLayer(id,label,layer,checked=true,c='#bfdb9e'){
- // 2D opens with hillshade only. Each view retains its own layer choices.
- const record={layer,checked:id==='hillshade',checked3d:['contours','channels'].includes(id)?false:checked};
+ // Start 2D with site context and instruments; each view retains its own layer choices.
+ const record={layer,checked:['hillshade','watersheds','infrastructure','canopy'].includes(id),checked3d:['contours','channels'].includes(id)?false:checked};
  state.layers[id]=record;if(record.checked)layer.addTo(map);
  const row=document.createElement('label');row.innerHTML=`<input type="checkbox" ${layerVisible(record)?'checked':''} data-layer="${id}"><i style="background:${c}"></i>${esc(label)}`;
  $('layers').append(row);record.input=row.querySelector('input');
