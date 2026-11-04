@@ -12,6 +12,8 @@ import json
 from pathlib import Path
 import time
 import laspy
+import pandas as pd
+from soap_newt_voxels import VoxelSample
 import numpy as np
 import rasterio
 from rasterio.features import rasterize, shapes
@@ -41,7 +43,7 @@ def main():
   if src.crs.to_epsg()!=32611:raise ValueError('DTM must use EPSG:32611')
   grid=src.read(1,masked=True).astype(np.float32).filled(np.nan)
   aff=src.transform
- rng=np.random.default_rng(20260406);points=np.empty((0,4));keys=np.empty(0);cut=1.
+ sampler=VoxelSample(bounds,2.,args.limit);flight_samples=[]
  class_counts=Counter();eligible_counts=Counter();excluded_heights=Counter()
  raw_total=0;crop_total=0;eligible=0;residuals=[];sources=[];withheld_count=0
  cell=10;ny=int(np.ceil((top-bottom)/cell));nx=int(np.ceil((right-left)/cell))
@@ -63,6 +65,7 @@ def main():
     withheld_count+=int(np.sum(inside&withheld))
     use=inside&~withheld&np.isfinite(z)&~np.isin(c,[7,18])
     if not use.any():continue
+    source_id=np.asarray(las.point_source_id)[use]
     x,y,z,c=[a[use] for a in [x,y,z,c]]
     crop_total+=len(x)
     class_counts.update({str(k):int(n) for k,n in zip(*np.unique(c,return_counts=True))})
@@ -71,7 +74,10 @@ def main():
     ground=map_coordinates(grid,[row-.5,col-.5],order=1,mode='constant',cval=np.nan)
     h=z-ground;valid=np.isfinite(ground)&np.isfinite(h)
     ground_mask=(c==2)&valid
-    if ground_mask.any():residuals.append(h[ground_mask][::1000])
+    if ground_mask.any():
+     residuals.append(h[ground_mask][::1000])
+     idx=np.flatnonzero(ground_mask)[::50]
+     flight_samples.append(np.column_stack((rr[idx]*nx+cc[idx],source_id[idx],h[idx])))
     isveg=np.isin(c,[3,4,5])&valid
     excluded_heights['below_1m']+=int(np.sum(isveg&(h<1)))
     excluded_heights['above_70m']+=int(np.sum(isveg&(h>70)))
@@ -80,20 +86,24 @@ def main():
     if not keep.any():continue
     vegetated[rr[keep],cc[keep]]=True
     eligible_counts.update({str(k):int(n) for k,n in zip(*np.unique(c[keep],return_counts=True))})
-    # Independent random priorities give a bounded-memory uniform sample of
-    # eligible measured returns, without fabricating or moving coordinates.
-    priority=rng.random(int(keep.sum()));candidate=priority<cut
-    if not candidate.any():continue
-    cloud=np.column_stack((x[keep][candidate],y[keep][candidate],z[keep][candidate],h[keep][candidate]))
-    points=np.concatenate((points,cloud));keys=np.concatenate((keys,priority[candidate]))
-    if len(points)>args.limit:
-     idx=np.argpartition(keys,args.limit-1)[:args.limit];points=points[idx];keys=keys[idx];cut=float(keys.max())
-  print(file.name,'eligible',eligible,'sample',len(points),'elapsed_s',round(time.monotonic()-t0,1),flush=True)
+    sampler.add(np.column_stack((x[keep],y[keep],z[keep],h[keep])))
+  print(file.name,'eligible',eligible,'sample',len(sampler.points),'elapsed_s',round(time.monotonic()-t0,1),flush=True)
+ points=sampler.result()
  if not len(points):raise ValueError('No eligible vegetation returns')
  ground_residual=np.concatenate(residuals)
  qa={'n':len(ground_residual),'median':float(np.median(ground_residual)),'p05':float(np.quantile(ground_residual,.05)),'p95':float(np.quantile(ground_residual,.95))}
  if abs(qa['median'])>.5:raise ValueError('Ground-return/DTM mismatch exceeds 0.5 m; do not apply an unexplained elevation shift')
- # Sort by coordinates for deterministic delivery after reservoir selection.
+ # Compare ground residuals between flight IDs in shared 10 m cells.
+ frame=pd.DataFrame(np.concatenate(flight_samples),columns=['cell','flight','residual'])
+ grouped=frame.groupby(['cell','flight']).residual.agg(['median','count'])
+ wide=grouped[grouped['count']>=5]['median'].unstack('flight');pairs=[]
+ for i,a in enumerate(wide.columns):
+  for b in wide.columns[i+1:]:
+   diff=(wide[a]-wide[b]).dropna()
+   if len(diff)<20:continue
+   pairs.append({'flight_ids':[int(a),int(b)],'shared_cells':len(diff),'median_difference_m':float(diff.median()),'p05_m':float(diff.quantile(.05)),'p95_m':float(diff.quantile(.95))})
+ save(out/'flight-line-qa.json',{'method':'Every 50th valid classified ground return per source chunk, minus bilinear matching 1 m DTM. Compare per-flight median residuals within shared 10 m cells, at least 5 samples per flight per cell and 20 shared cells per pair.','sampled_ground_returns':len(frame),'pairs':pairs,'limitations':'Ground residual diagnostic only; not a complete strip-adjustment or horizontal registration assessment. Vegetation movement and differences in canopy visibility remain possible. No coordinate correction applied.'})
+ # Sort by coordinates for deterministic delivery after voxel selection.
  points=points[np.lexsort((points[:,2],points[:,1],points[:,0]))]
  scale=.1;encoded=np.rint((points-origin)/scale)
  if encoded.min()<0 or encoded.max()>65535:raise ValueError('Quantized coordinates exceed uint16')
@@ -120,18 +130,17 @@ def main():
   'bounds_utm':bounds,
   'cloud':{'url':'canopy-points.u16','count':len(points),'scale':scale,'offset':origin.tolist(),
    'encoding':'uint16 little endian, interleaved easting, northing, absolute elevation, height above matching DTM',
-   'classes':[3,4,5],'height_range_m':[1,70],'sample_limit':args.limit,'seed':20260406,
+   'classes':[3,4,5],'height_range_m':[1,70],**sampler.metadata(),
    'eligible_returns':eligible,'retained_fraction':len(points)/eligible,
-   'sampling':'Uniform random-priority sample of eligible measured returns; no voxel centers or synthetic crowns',
    'color_stops':[[1,'#c5bb76'],[7,'#91b34e'],[20,'#4d973b'],[45,'#206038'],[70,'#133d29']]},
   'coverage':{'url':'canopy-points-coverage.geojson','cell_size_m':cell,'observed_cells':int(seen.sum()),'vegetation_return_cells':int(vegetated.sum()),'total_cells':nx*ny,'watersheds':watershed_coverage},
-  'qa':{'source_returns_read':raw_total,'crop_returns_after_noise_withheld_filter':crop_total,'crop_class_counts':dict(class_counts),'eligible_class_counts':dict(eligible_counts),'excluded_height_counts':dict(excluded_heights),'withheld_crop_returns':withheld_count,'ground_minus_dtm_m':qa},
+  'qa':{'source_returns_read':raw_total,'crop_returns_after_noise_withheld_filter':crop_total,'crop_class_counts':dict(class_counts),'eligible_class_counts':dict(eligible_counts),'excluded_height_counts':dict(excluded_heights),'withheld_crop_returns':withheld_count,'ground_minus_dtm_m':qa,'flight_line_comparison':'flight-line-qa.json'},
   'source_tiles':sources,'dtm':{'survey_id':'2026_SOAP_9','product':'DP3.30024.001','resolution_m':1,'height_sampling':'Bilinear at measured point XY; cells adjacent to nodata excluded','sha256':hashlib.file_digest(args.dem.open('rb'),'sha256').hexdigest()},
   'sha256':hashlib.file_digest(cloud_path.open('rb'),'sha256').hexdigest(),
   'notes':[
    'Every displayed point is a sampled measured airborne return classified as vegetation (LAS classes 3–5). Unclassified class 1, ground, noise, and withheld points are excluded.',
    'The source is a real point cloud, not a surface sampled from a canopy-height raster. Canopy-height shading remains a separate layer.',
-   'Locations and elevations are quantized to 0.1 m for delivery; this does not imply 0.1 m survey accuracy. Sampling preserves source density differences and is not a tree census.',
+   'Locations and elevations are quantized to 0.1 m for delivery; this does not imply 0.1 m survey accuracy. Spatial balancing reduces overlap-density striping; display density is not a vegetation-density estimate or tree census.',
    'Heights are source point elevation minus the matching 1 m bare-earth DTM. Ground residual statistics check alignment; no arbitrary vertical adjustment is applied.',
    'Coverage is limited to the April survey and valid matching terrain. The western scene margin is unobserved; missing areas are not filled.',
    'Raw source tiles and private access material remain outside the website repository. Exact source filenames and checksums are included for reproducibility.',

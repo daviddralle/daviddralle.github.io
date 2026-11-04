@@ -12,6 +12,7 @@ from pyproj import Transformer
 from scipy.ndimage import map_coordinates
 import laspy
 import contourpy
+from soap_newt_voxels import VoxelSample
 
 
 def save(path,obj): path.write_text(json.dumps(obj,separators=(',',':'),allow_nan=False)+'\n')
@@ -67,7 +68,7 @@ def main():
    meta={'crs':'EPSG:32611','width':W,'height':H,'xmin':x0,'ymax':y0,'xmax':right,'ymin':bottom,'cell_size':1,'elevations':[round(v,2) if np.isfinite(v) else None for v in z.ravel()], 'min_elevation_m':float(np.nanmin(z)),'max_elevation_m':float(np.nanmax(z)),'texture':f'{site.lower()}-drill-texture.webp','source':'NEON 2026_SOAP_9 DTM; native 1 m crop; no elevation shift','acquisition_date':'2026-04-06'}
    save(out/f'{site.lower()}-drill-terrain.json',meta)
    save(out/f'{site.lower()}-drill-contours.geojson',crop_contours(meta))
-   scenes[site.lower()]={'name':site+' boreholes','contours':f'{site.lower()}-drill-contours.geojson','bounds_utm':[x0,bottom,right,y0],'terrain':f'{site.lower()}-drill-terrain.json','canopy':f'{site.lower()}-drill-canopy.json','borehole_count':len(fs),'known_depth_count':sum(f['properties'].get('depth_m') is not None for f in fs),'terrain_resolution_m':1,'grid':z,'aff':aff,'points':np.empty((0,4)),'keys':np.empty(0),'eligible':0,'rng':np.random.default_rng(20261104),'sources':[]}
+   scenes[site.lower()]={'name':site+' boreholes','contours':f'{site.lower()}-drill-contours.geojson','bounds_utm':[x0,bottom,right,y0],'terrain':f'{site.lower()}-drill-terrain.json','canopy':f'{site.lower()}-drill-canopy.json','borehole_count':len(fs),'known_depth_count':sum(f['properties'].get('depth_m') is not None for f in fs),'terrain_resolution_m':1,'grid':z,'aff':aff,'sampler':VoxelSample([x0,bottom,right,y0],.5,150000),'eligible':0,'sources':[]}
  for file in sorted(args.tiles.glob('*classified_point_cloud_colorized.laz')):
   with laspy.open(file) as reader:
    b=reader.header;targets=[s for s in scenes.values() if not(b.maxs[0]<s['bounds_utm'][0] or b.mins[0]>s['bounds_utm'][2] or b.maxs[1]<s['bounds_utm'][1] or b.mins[1]>s['bounds_utm'][3])]
@@ -83,18 +84,18 @@ def main():
      xx,yy,zz=x[use],y[use],z[use];col,row=(~s['aff'])*(xx,yy)
      ground=map_coordinates(s['grid'],[row-.5,col-.5],order=1,mode='constant',cval=np.nan);h=zz-ground;good=np.isfinite(h)&(h>=1)&(h<=70)
      cloud=np.column_stack((xx[good],yy[good],zz[good],h[good]));s['eligible']+=len(cloud)
-     s['points']=np.concatenate([s['points'],cloud]);s['keys']=np.concatenate([s['keys'],s['rng'].random(len(cloud))])
-     if len(s['points'])>150000:
-      idx=np.argpartition(s['keys'],149999)[:150000];s['points']=s['points'][idx];s['keys']=s['keys'][idx]
+     s['sampler'].add(cloud)
    print(file.name,'cropped',flush=True)
  for name,s in scenes.items():
-  cloud=s.pop('points');s.pop('keys');s.pop('grid');s.pop('aff');s.pop('rng');origin=np.array([s['bounds_utm'][0],s['bounds_utm'][1],0,0]);encoded=np.rint((cloud-origin)/.1)
+  sampler=s.pop('sampler');cloud=sampler.result();s.pop('grid');s.pop('aff');origin=np.array([s['bounds_utm'][0],s['bounds_utm'][1],0,0]);encoded=np.rint((cloud-origin)/.1)
   assert len(cloud)>0 and encoded.min()>=0 and encoded.max()<=65535
   url=f'{name}-drill-canopy.u16';encoded.astype('<u2').tofile(out/url)
   meta={k:source[k] for k in ['survey','survey_id','acquisition_date','status','source_product','source_url','horizontal_crs','vertical_reference']}
-  meta.update(bounds_utm=s['bounds_utm'],source_tiles=s.pop('sources'),cloud=dict(source['cloud'],url=url,count=len(cloud),offset=list(origin),eligible_returns=s.pop('eligible'),sample_limit=150000,seed=20261104))
+  meta.update(bounds_utm=s['bounds_utm'],source_tiles=s.pop('sources'),cloud=dict(source['cloud'],url=url,count=len(cloud),offset=list(origin),eligible_returns=s.pop('eligible'),**sampler.metadata()))
+  meta['cloud'].pop('seed',None)
+  meta['sha256']=hashlib.file_digest((out/url).open('rb'),'sha256').hexdigest()
   meta['cloud']['retained_fraction']=len(cloud)/meta['cloud']['eligible_returns'];save(out/s['canopy'],meta)
   s['canopy_count']=len(cloud);print(name,s,flush=True)
- save(out/'drill-scenes.json',{'schema_version':1,'acquisition_date':'2026-04-06','crop_rule':'Borehole coordinate extent plus 25 m margin; native 1 m DTM. Independent uniform sample of measured canopy returns within each crop.','scenes':scenes})
+ save(out/'drill-scenes.json',{'schema_version':1,'acquisition_date':'2026-04-06','crop_rule':'Borehole coordinate extent plus 25 m margin; native 1 m DTM. Spatially balanced measured canopy returns, using 0.5 m voxels within each crop.','scenes':scenes})
 
 if __name__=='__main__':main()
