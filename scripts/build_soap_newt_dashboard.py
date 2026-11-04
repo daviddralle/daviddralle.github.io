@@ -66,11 +66,16 @@ def main():
                    'Discharge/Dilution/SRS_process_dilution_calc_Q.ipynb explicitly converts L/s to m³/s; source column Q (cms). Source flag is retained; nonzero-flag observations are excluded from default values.')
     q = pd.read_csv(qpath)
     q['datetime'] = pd.to_datetime(q['datetime'])
+    q['processing_flag'] = q['flag']
+    bad_time = (q.station == 'NC') & (q.datetime.dt.date == pd.Timestamp('2026-05-19').date())
+    q.loc[bad_time, 'processing_flag'] = 2
+    q['exclusion_reason'] = ''
+    q.loc[bad_time, 'exclusion_reason'] = 'EC timestamps advance one day per row; actual sampling interval unresolved.'
     for code, site in [('SRS','Soap'),('NC','Newt')]:
         part = q[q.station == code].sort_values('datetime').set_index('datetime')
-        add(f'{code.lower()}_discharge', f'{site} dilution measurements', site, 'Discharge', 'm³/s', 'dilution_discharge', part['Q (cms)'].where(part.flag == 0),
-            'discrete measurement', ['Individual salt-dilution measurements; do not join as continuous streamflow.', 'Source flag=0 retained; nonzero flags are null in the default chart and retained in discharge_observations.csv.', 'No rating curve applied; unusually low nonflagged source measurements are retained.'], flags=part.flag)
-    q[['station','datetime','Q (cms)','flag']].to_csv(output / 'discharge_observations.csv', index=False)
+        add(f'{code.lower()}_discharge', f'{site} dilution measurements', site, 'Discharge', 'm³/s', 'dilution_discharge', part['Q (cms)'].where(part.processing_flag == 0),
+            'discrete measurement', ['Individual salt-dilution measurements; do not join as continuous streamflow.', 'Only processing flag=0 is plotted; original source flags and all discharge values are retained in discharge_observations.csv.', 'No rating curve applied in this discrete series. Processing flag 2 excludes Newt 2026-05-19 because the EC timestamps increment by days; source flags and raw discharge are preserved in the CSV.'], flags=part.processing_flag)
+    q[['station','datetime','Q (cms)','flag','processing_flag','exclusion_reason']].to_csv(output / 'discharge_observations.csv', index=False)
 
     metpath = source('neon_hourly_archive', 'Meteorology/SOAP_ppt_baro_hourly.csv',
                      'Meteorology/BHR neon_soap.ipynb: NEON DP1.00045.001 tipping bucket, DP1.00046.001 throughfall, DP1.00004.001 pressure. Hourly sums; timestamps shifted from UTC by 8 h. Upstream sum() can replace missing data with zero, and pressure is interpolated.',
@@ -94,7 +99,7 @@ def main():
 
     result = dict(schema_version=1, built_at=datetime.now(timezone.utc).isoformat(), status='archived snapshot',
                   source_root_label='Soaproot_Providence shared research archive',
-                  notes=['These are archived research data, not live telemetry.', 'Per-series dates describe observations, not the build date.', 'Gaps are retained; no dashboard interpolation or rating curve is applied.', 'Processed source data have not been independently recalibrated.'],
+                  notes=['These are archived research data, not live telemetry.', 'Per-series dates describe observations, not the build date.', 'Gaps are retained in this archive bundle. Separate provisional gage runoff applies documented rating curves.', 'Processed source data have not been independently recalibrated.'],
                   sources=sources, series=series,
                   excluded=[
                       dict(path='Meteorology/ET/NEON_SOAP_ET_fromNorth.csv and NEON_SOAP_ET_fromSouth.csv', reason='Wind-sector subsets contain a flux column without units or aligned quality flags in the CSV; not treated as watershed evapotranspiration.'),
