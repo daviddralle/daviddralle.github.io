@@ -11,9 +11,39 @@ from PIL import Image
 from pyproj import Transformer
 from scipy.ndimage import map_coordinates
 import laspy
+import contourpy
 
 
 def save(path,obj): path.write_text(json.dumps(obj,separators=(',',':'),allow_nan=False)+'\n')
+
+def hillshade_texture(z):
+ """Contrast-stretched multidirectional shading of the unmodified 1 m DTM."""
+ gy,gx=np.gradient(z)
+ normal_length=np.sqrt(1+gx*gx+gy*gy)
+ altitude=np.deg2rad(35)
+ shade=np.zeros_like(z)
+ for azimuth,weight in [(315,.6),(45,.25),(270,.15)]:
+  az=np.deg2rad(azimuth)
+  illumination=(-gx*np.sin(az)*np.cos(altitude)+gy*np.cos(az)*np.cos(altitude)+np.sin(altitude))/normal_length
+  shade+=weight*np.clip(illumination,0,1)
+ lo,hi=np.nanpercentile(shade,[2,98])
+ relief=np.clip((shade-lo)/max(hi-lo,1e-6),0,1)
+ gray=np.uint8((.14+.82*relief)*255)
+ return np.dstack([gray,gray,gray,np.uint8(np.isfinite(z)*255)])
+
+
+def crop_contours(terrain):
+ z=np.array(terrain['elevations'],float).reshape(terrain['height'],terrain['width'])
+ x=terrain['xmin']+np.arange(terrain['width']);y=terrain['ymax']-np.arange(terrain['height'])
+ cg=contourpy.contour_generator(x=x,y=y,z=z);to_ll=Transformer.from_crs(32611,4326,always_xy=True)
+ features=[]
+ for elevation in np.arange(np.ceil(np.nanmin(z)/2)*2,np.nanmax(z),2):
+  for line in cg.lines(elevation):
+   if len(line)<3 or np.linalg.norm(np.diff(line,axis=0),axis=1).sum()<5:continue
+   lon,lat=to_ll.transform(line[:,0],line[:,1])
+   features.append({'type':'Feature','properties':{'elevation_m':int(elevation),'index':bool(elevation%10==0),'source':'Native 1 m NEON 2026_SOAP_9 DTM'},'geometry':{'type':'LineString','coordinates':np.column_stack([lon,lat]).round(8).tolist()}})
+ return {'type':'FeatureCollection','features':features}
+
 
 def main():
  p=argparse.ArgumentParser(description=__doc__)
@@ -32,13 +62,12 @@ def main():
    win=from_bounds(left,bottom,right,top,dem.transform).round_offsets().round_lengths()
    z=dem.read(1,window=win,masked=True).astype(float).filled(np.nan);aff=dem.window_transform(win)
    H,W=z.shape;x0,y0=aff*(.5,.5);right=x0+W-1;bottom=y0-H+1
-   gy,gx=np.gradient(z);shade=np.clip((-.6*gx+.6*gy+1)/np.sqrt(1+gx*gx+gy*gy),0,1)
-   rgb=np.stack([shade*.48+.38,shade*.48+.40,shade*.45+.35],axis=-1)
-   img=np.dstack([np.uint8(np.clip(rgb,0,1)*255),np.uint8(np.isfinite(z)*255)])
+   img=hillshade_texture(z)
    Image.fromarray(img).save(out/f'{site.lower()}-drill-texture.webp',lossless=True)
    meta={'crs':'EPSG:32611','width':W,'height':H,'xmin':x0,'ymax':y0,'xmax':right,'ymin':bottom,'cell_size':1,'elevations':[round(v,2) if np.isfinite(v) else None for v in z.ravel()], 'min_elevation_m':float(np.nanmin(z)),'max_elevation_m':float(np.nanmax(z)),'texture':f'{site.lower()}-drill-texture.webp','source':'NEON 2026_SOAP_9 DTM; native 1 m crop; no elevation shift','acquisition_date':'2026-04-06'}
    save(out/f'{site.lower()}-drill-terrain.json',meta)
-   scenes[site.lower()]={'name':site+' boreholes','bounds_utm':[x0,bottom,right,y0],'terrain':f'{site.lower()}-drill-terrain.json','canopy':f'{site.lower()}-drill-canopy.json','borehole_count':len(fs),'known_depth_count':sum(f['properties'].get('depth_m') is not None for f in fs),'terrain_resolution_m':1,'grid':z,'aff':aff,'points':np.empty((0,4)),'keys':np.empty(0),'eligible':0,'rng':np.random.default_rng(20261104),'sources':[]}
+   save(out/f'{site.lower()}-drill-contours.geojson',crop_contours(meta))
+   scenes[site.lower()]={'name':site+' boreholes','contours':f'{site.lower()}-drill-contours.geojson','bounds_utm':[x0,bottom,right,y0],'terrain':f'{site.lower()}-drill-terrain.json','canopy':f'{site.lower()}-drill-canopy.json','borehole_count':len(fs),'known_depth_count':sum(f['properties'].get('depth_m') is not None for f in fs),'terrain_resolution_m':1,'grid':z,'aff':aff,'points':np.empty((0,4)),'keys':np.empty(0),'eligible':0,'rng':np.random.default_rng(20261104),'sources':[]}
  for file in sorted(args.tiles.glob('*classified_point_cloud_colorized.laz')):
   with laspy.open(file) as reader:
    b=reader.header;targets=[s for s in scenes.values() if not(b.maxs[0]<s['bounds_utm'][0] or b.mins[0]>s['bounds_utm'][2] or b.maxs[1]<s['bounds_utm'][1] or b.mins[1]>s['bounds_utm'][3])]

@@ -7,12 +7,12 @@ const map=L.map('map',{zoomControl:false,preferCanvas:true}); L.control.zoom({po
 const bases={terrain:L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:20}),satellite:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Imagery © Esri and contributors',maxZoom:20}),topo:L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap · SRTM · OpenTopoMap',maxZoom:17})};bases.terrain.addTo(map);
 function color(f){return /newt|NC/i.test(f.properties.site||f.properties.name||'')?'#e5bc79':'#79d2e1';}
 function layerVisible(record,is3d=state.is3d){return is3d?(record.views?.[state.view]??record.checked3d??record.checked):record.checked;}
-function syncLayerControls(){for(const [id,record]of Object.entries(state.layers)){record.input.checked=layerVisible(record);state.three?.visibility(id,layerVisible(record,true));}}
+function syncLayerControls(){for(const [id,record]of Object.entries(state.layers)){record.input.checked=layerVisible(record);if(id==='contours')record.input.parentElement.querySelector('span').textContent=state.view==='landscape'?'Contours · 10 m / 50 m index':'Contours · 2 m / 10 m labelled';state.three?.visibility(id,layerVisible(record,true));}}
 function addLayer(id,label,layer,checked=true,c='#bfdb9e'){
  // Start 2D with site context and instruments; each view retains its own layer choices.
  const record={layer,checked:['hillshade','watersheds','infrastructure','canopy'].includes(id),checked3d:['contours','channels'].includes(id)?false:checked};
- record.views={landscape:record.checked3d,soap:['hillshade','infrastructure','canopy'].includes(id),newt:['hillshade','infrastructure','canopy'].includes(id)};state.layers[id]=record;if(record.checked)layer.addTo(map);
- const row=document.createElement('label');row.innerHTML=`<input type="checkbox" ${layerVisible(record)?'checked':''} data-layer="${id}"><i style="background:${c}"></i>${esc(label)}`;
+ record.views={landscape:record.checked3d,soap:['hillshade','infrastructure','canopy','contours'].includes(id),newt:['hillshade','infrastructure','canopy','contours'].includes(id)};state.layers[id]=record;if(record.checked)layer.addTo(map);
+ const row=document.createElement('label');row.innerHTML=`<input type="checkbox" ${layerVisible(record)?'checked':''} data-layer="${id}"><i style="background:${c}"></i><span>${esc(label)}</span>`;
  $('layers').append(row);record.input=row.querySelector('input');
  record.input.addEventListener('change',e=>{
   if(state.is3d&&record.checked3d!==undefined)record.views[state.view]=e.target.checked;
@@ -49,7 +49,7 @@ async function setView(view,is3d=view!=='landscape'){
  const previous=state.view;state.sceneSettings[previous]={scale:+$('exaggeration').value,opacity:+$('ground-opacity').value};
  try{
   if(is3d&&!state.scenes[view]){status('Loading '+(view==='landscape'?'landscape':view+' borehole crop')+'…');
-   const mod=await import('./scene.js?v=bf09f679eda3');
+   const mod=await import('./scene.js?v=731361a69480');
    state.scenes[view]=await mod.createScene(state,inspect,{id:view,detail:view!=='landscape',...(state.drill[view]||{})});
   }
   state.view=view;state.is3d=is3d;state.three=state.scenes[view]||null;
@@ -57,7 +57,7 @@ async function setView(view,is3d=view!=='landscape'){
   $('scene').hidden=!is3d;$('map').hidden=is3d;$('scene-options').hidden=!is3d;document.querySelector('.map-tools').hidden=is3d;
   $('toggle-3d').hidden=view!=='landscape';$('toggle-3d').textContent=is3d?'2D map':'3D terrain';$('toggle-3d').setAttribute('aria-pressed',is3d);
   $('subsurface-controls').hidden=view==='landscape';$('inspector').hidden=true;
-  const settings=state.sceneSettings[view]||{scale:1,opacity:view==='landscape'?1:.35};$('exaggeration').value=settings.scale;$('scale-value').textContent=settings.scale+'×';$('ground-opacity').value=settings.opacity;state.three?.scale(settings.scale);state.three?.opacity(settings.opacity);
+  const settings=state.sceneSettings[view]||{scale:1,opacity:1};$('exaggeration').value=settings.scale;$('scale-value').textContent=settings.scale+'×';$('ground-opacity').value=settings.opacity;state.three?.scale(settings.scale);state.three?.opacity(settings.opacity);
   document.body.dataset.extent=view;$('atlas-panel').setAttribute('aria-labelledby','tab-'+view);
   document.querySelectorAll('[data-scene]').forEach(b=>{const active=b.dataset.scene===view;b.setAttribute('aria-selected',active);b.tabIndex=active?0:-1;});
   syncLayerControls();if(is3d)state.three.resize();else map.invalidateSize();
