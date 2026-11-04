@@ -29,7 +29,7 @@
   "scene_processing": "Original perimeter boundary intersected with terrain extent in EPSG:32611; no boundary simplification or artificial clipping edges. Missing elevation cells omitted when draping.",
   "geometric_overlap_with_archived_watersheds": [
     {
-      "watershed": "Soap Creek",
+      "watershed": "Soaproot Creek",
       "overlap_ha": 71.7887,
       "watershed_area_ha": 87.209,
       "fraction_of_watershed": 0.82318

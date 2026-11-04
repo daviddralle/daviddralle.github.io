@@ -108,7 +108,7 @@ def main():
  'source_notes':['Input snapshots are dated 2026-11-04. Staff-stage and discharge source cells are identified by source_row. Logger clocks and field visits use fixed PST, confirmed by the site operator.',
  'Raw source files remain outside the website. Exact source checksums are retained. Pressure corrections do not use the previously interpolated meteorological archive.',
  'Missing and flagged measurements remain in the downloadable measurement table; only rows with an empty flags list enter the rating.',
- 'Previous Soap sensor deployments before 2023-10-18 are not rated. No automatic corrections are applied to the shared source notebooks or spreadsheets.'],
+ 'Previous Soaproot sensor deployments before 2023-10-18 are not rated. No automatic corrections are applied to the shared source notebooks or spreadsheets.'],
  'provenance':{'raw':json.loads((w/'gage-raw-provenance.json').read_text()),'pressure':json.loads((w/'neon-pressure-provenance.json').read_text()),'reference_pressure':json.loads((w/'neon-pressure-bigc-provenance.json').read_text()),'inputs':[{'name':name,'sha256':hashlib.sha256((w/name).read_bytes()).hexdigest()} for name in ['stageq-snapshot.json','gage-absolute-head.csv','neon-pressure.csv','neon-pressure-bigc.csv']]}}
  (out/'local_gage_runoff.json').write_text(json.dumps(clean(bundle),separators=(',',':'),allow_nan=False)+'\n')
  pd.DataFrame(clean(public_visits)).to_csv(out/'gage_rating_measurements.csv',index=False)

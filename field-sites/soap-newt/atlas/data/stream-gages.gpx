@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Soap &amp; Newt Creek field atlas">
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Soaproot &amp; Newt Creek field atlas">
   <wpt lat="37.0312420" lon="-119.2573560">
-    <name>Soap Creek stream gage</name>
+    <name>Soaproot Creek stream gage</name>
     <desc>GPS archive; accuracy not documented. Archived GPS position; current operating status unverified.</desc>
     <sym>Water Source</sym>
     <type>Stream gage</type>

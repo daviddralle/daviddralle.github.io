@@ -1,4 +1,4 @@
-# Soap and Newt Creek
+# Soaproot and Newt Creek
 
 The public entry is `/field-sites/soap-newt/`; the atlas is `/field-sites/soap-newt/atlas/`.
 
@@ -33,7 +33,7 @@ The existing daily Pi job runs both availability and observation updates at 06:2
 
 Geology uses the official CGS Mariposa sheet (1967), 1:250,000, transformed from EPSG:3310. Both watersheds fall entirely within the generalized Mesozoic granitic-rock unit. A basic-intrusive body and contact are retained in the 2 km context margin. The finer USGS Shaver Lake quadrangle (1976, 1:62,500) is linked as a reference, not the source of invented vector contacts. Source metadata and reproducible builder are in `data/geology/` and `scripts/build_soap_newt_geology.py`.
 
-The Blue Fire perimeter retains its complete original geometry, 291.13 GIS acres versus 277 reported incident acres. The mapped polygon overlaps 13.622 ha of the archived Soap watershed and none of Newt; this is geometric overlap, not measured burned vegetation. The 3D outline stops at terrain coverage, while the Blue Fire preset shows the complete perimeter in 2D. Source and date qualifications are in `blue-fire-metadata.json`.
+The Blue Fire perimeter retains its complete original geometry, 291.13 GIS acres versus 277 reported incident acres. The mapped polygon overlaps 13.622 ha of the archived Soaproot watershed and none of Newt; this is geometric overlap, not measured burned vegetation. The 3D outline stops at terrain coverage, while the Blue Fire preset shows the complete perimeter in 2D. Source and date qualifications are in `blue-fire-metadata.json`.
 
 Contours are dark charcoal with heavier 50 m index lines. 2D displays 10 m contours; 3D displays 50 m index contours. Drainage uses thicker cyan lines with dark outlines, including screen-space ribbons in 3D. These widths are cartographic, not channel widths. Well collars use constant screen size and completed-depth shafts have enlarged widths; depths and coordinates remain unchanged. The secondary map title and introductory dashboard copy were removed. NEON weather observations and the temperature chart now precede archived groundwater and stream coverage.
 

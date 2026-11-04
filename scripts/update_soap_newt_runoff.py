@@ -190,7 +190,7 @@ def make_payload(months, product, now, old=None, errors=None):
         'aggregation': 'daily mean discharge converted to mm/day; at least 90% valid temporal coverage',
         'time_basis': 'UTC days; 15-minute intervals assigned by start; legacy instantaneous 1-minute values assigned by timestamp',
         'source_months': month_meta, 'source_intervals_minutes': [1, 15],
-        'notes': 'Discharge is a rating-curve estimate. Use finite nonnegative values with automated quality flag 0 and science-review flag 0 or blank. Blank science-review flags mean unreviewed; these counts are retained. Daily values with 90–100% coverage estimate a full-day rate from the valid observations; gaps are not zero-filled. Legacy 1-minute instantaneous data are averaged with equal 60-second weights. Source correction indicators are summarized; unreviewed provisional estimates may change. Area normalization uses NEON’s approximate 10.9 km² catchment area. BIGC is a regional comparison, not discharge from Soap or Newt Creek.',
+        'notes': 'Discharge is a rating-curve estimate. Use finite nonnegative values with automated quality flag 0 and science-review flag 0 or blank. Blank science-review flags mean unreviewed; these counts are retained. Daily values with 90–100% coverage estimate a full-day rate from the valid observations; gaps are not zero-filled. Legacy 1-minute instantaneous data are averaged with equal 60-second weights. Source correction indicators are summarized; unreviewed provisional estimates may change. Area normalization uses NEON’s approximate 10.9 km² catchment area. BIGC is a regional comparison, not discharge from Soaproot or Newt Creek.',
         'last_success_at': (old or {}).get('last_success_at') if errors else now, 'status': status,
     }
     result = {
@@ -202,7 +202,7 @@ def make_payload(months, product, now, old=None, errors=None):
         'products': [{'id': PRODUCT, 'name': product['dataProductTitle'], 'url': PRODUCT_URL,
                       'latest_available_month': max(product['availableMonths']), 'months': month_meta, 'status': status}],
         'source_notes': [
-            'Upper Big Creek (BIGC) is a separate NEON catchment near Soaproot Saddle, not the measured runoff of Soap or Newt Creek.',
+            'Upper Big Creek (BIGC) is a separate NEON catchment near Soaproot Saddle, not the measured runoff of Soaproot or Newt Creek.',
             'Catchment area ≈10.9 km² from the NEON BIGC site description: ' + AREA_URL,
             'Continuous discharge source: ' + PRODUCT_URL,
             'Table and correction history: ' + TUTORIAL_URL,

@@ -106,7 +106,7 @@ def main():
                       dict(path='Meteorology/ET/OpenET_*_2026.csv and PML_*_2026.csv', reason='Export metadata and units require verification before comparison with tower fluxes.'),
                       dict(path='Meteorology/pet_airtemp_soapnewt.csv', reason='CSV does not establish units and processing provenance; not presented as NEON tower observations.'),
                       dict(path='Soil moisture/soap_sm.csv', reason='Raw sensor channels include negative water-content values and lack verified channel-to-depth metadata in this build.'),
-                      dict(path='Groundwater/Processed data/*', reason='Providence records and gage DEPTH_TO_WATER pseudo-well columns excluded from Soap/Newt groundwater charts.')])
+                      dict(path='Groundwater/Processed data/*', reason='Providence records and gage DEPTH_TO_WATER pseudo-well columns excluded from Soaproot/Newt groundwater charts.')])
     (output/'series.json').write_text(json.dumps(result, separators=(',',':'), allow_nan=False))
     print(json.dumps({"series":len(series),"observations":sum(s['count'] for s in series),"categories":sorted(set(s['category'] for s in series)),"latest":max(s['end'] for s in series)},indent=2))
 

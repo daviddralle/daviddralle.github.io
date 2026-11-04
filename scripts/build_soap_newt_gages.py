@@ -20,7 +20,7 @@ def update_gages(out):
     save = lambda name, data: (out/name).write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False)+'\n')
     infrastructure = read('infrastructure.geojson')
     features = [f for f in infrastructure['features'] if f['properties'].get('name') != 'Newt Creek stream gage']
-    soap = [f for f in features if f['properties'].get('name') == 'Soap Creek stream gage']
+    soap = [f for f in features if f['properties'].get('name') in ('Soap Creek stream gage', 'Soaproot Creek stream gage')]
     assert len(soap) == 1
     soap[0]['properties'].update(location_method='Archived GPS coordinate', position_status='GPS archive; accuracy not documented')
     fwd = Transformer.from_crs(4326, 32611, always_xy=True).transform
@@ -54,7 +54,7 @@ def update_gages(out):
     save('stream-gages.geojson',dict(type='FeatureCollection',features=gages))
     namespace='http://www.topografix.com/GPX/1/1'
     ET.register_namespace('',namespace)
-    root=ET.Element(f'{{{namespace}}}gpx',version='1.1',creator='Soap & Newt Creek field atlas')
+    root=ET.Element(f'{{{namespace}}}gpx',version='1.1',creator='Soaproot & Newt Creek field atlas')
     for feature in gages:
         lon,lat=feature['geometry']['coordinates'];p=feature['properties']
         waypoint=ET.SubElement(root,f'{{{namespace}}}wpt',lat=f'{lat:.7f}',lon=f'{lon:.7f}')

@@ -19,3 +19,5 @@
 .rating-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:15px}.rating-grid figure{margin:0}.rating-grid svg{width:100%;height:auto;min-height:200px}.rating-grid text{font:11px system-ui;fill:#afc2c2}.rating-grid figcaption{font-size:13px;margin-bottom:6px}@media(max-width:700px){.rating-grid{grid-template-columns:1fr}}
 
 #main-chart{touch-action:pan-y;user-select:none;cursor:crosshair}.time-selection{fill:#79d2e133;stroke:#79d2e1;stroke-width:1;pointer-events:none}
+
+.form-row [hidden]{display:none}
