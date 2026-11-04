@@ -31,7 +31,7 @@ def main():
         sources.append(entry)
         return path
 
-    def add(id, label, site, category, unit, source_id, data, aggregation, notes, *, time_basis='Source date; timezone not specified in archived CSV', flags=None):
+    def add(id, label, site, category, unit, source_id, data, aggregation, notes, *, time_basis='Fixed PST (UTC−08:00), year-round; confirmed by site operator', flags=None):
         data = pd.to_numeric(data, errors='coerce').sort_index()
         if data.index.has_duplicates:
             raise ValueError(f'Duplicate dates in {id}; do not silently merge')
