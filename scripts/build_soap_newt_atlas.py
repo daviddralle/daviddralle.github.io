@@ -198,5 +198,7 @@ def main():
     save(out/'manifest.json',manifest)
     from build_soap_newt_gages import update_gages
     infrastructure=update_gages(out)
+    from apply_soap_newt_completions import apply_completions
+    apply_completions(out)
     print(json.dumps({'bounds':bounds,'terrain':[w,h],'infrastructure':len(infrastructure),'contours':len(contours),'coverage':float(np.isfinite(dem).mean())}))
 if __name__=='__main__':main()
