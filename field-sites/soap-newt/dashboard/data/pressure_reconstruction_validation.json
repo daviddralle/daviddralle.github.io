@@ -1,0 +1,57 @@
+{
+  "seed": 48,
+  "inputs": [
+    {
+      "name": "neon-pressure.csv",
+      "sha256": "0dfd7e02079fcdf9030afaf4d01d219800108fbc03fbc408029f85597c2dc4b8"
+    },
+    {
+      "name": "neon-pressure-bigc.csv",
+      "sha256": "76dcd5347ea00ae60dd4e8084bfb8e5208b3c555fd56ca1b954d714600217f10"
+    }
+  ],
+  "period": "May\u2013September 2026",
+  "method": "Contiguous good SOAP blocks hidden; donor and bias reconstruction without withheld SOAP values. Blocks can overlap, so diagnostics are not independent uncertainty bounds.",
+  "results": [
+    {
+      "missing_hours": 1.5,
+      "blocks": 80,
+      "predictions": 240,
+      "mae_mm_head": 0.2742341493666462,
+      "p95_absolute_mm_head": 0.7384174915009669,
+      "linear_mae_mm_head": 0.7097314932500023
+    },
+    {
+      "missing_hours": 2.5,
+      "blocks": 80,
+      "predictions": 400,
+      "mae_mm_head": 0.3293993655657947,
+      "p95_absolute_mm_head": 0.9838258559989815,
+      "linear_mae_mm_head": 1.2048522904166266
+    },
+    {
+      "missing_hours": 5.5,
+      "blocks": 80,
+      "predictions": 880,
+      "mae_mm_head": 0.5659108990264405,
+      "p95_absolute_mm_head": 1.5482366271662094,
+      "linear_mae_mm_head": 2.739370786651556
+    },
+    {
+      "missing_hours": 11.5,
+      "blocks": 80,
+      "predictions": 1840,
+      "mae_mm_head": 1.0750666267380382,
+      "p95_absolute_mm_head": 2.6278715504174723,
+      "linear_mae_mm_head": 4.5803216294946
+    },
+    {
+      "missing_hours": 23.5,
+      "blocks": 80,
+      "predictions": 3760,
+      "mae_mm_head": 1.8674868615015658,
+      "p95_absolute_mm_head": 4.276661067249926,
+      "linear_mae_mm_head": 6.163636214418884
+    }
+  ]
+}

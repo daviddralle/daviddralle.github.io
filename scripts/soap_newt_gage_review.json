@@ -1,0 +1,13 @@
+{
+  "review_date": "2026-11-04",
+  "excluded_intervals": [
+    {
+      "site": "Newt",
+      "serial": "2144104",
+      "start": "2026-06-25T03:12:32-08:00",
+      "end": "2026-07-16T10:12:32-08:00",
+      "reason": "sensor_out_of_stream",
+      "evidence": "Operator confirmed on 2026-11-04 that the logger was out of the stream and reset in July. Interval boundaries inferred from the 0.1128 m abrupt head drop on June 25 and resets during the July 16 field visit. Exposed readings do not measure stream stage; no datum adjustment or zero flow assumed."
+    }
+  ]
+}

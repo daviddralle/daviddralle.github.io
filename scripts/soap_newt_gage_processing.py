@@ -72,3 +72,48 @@ def validate_ec_times(times):
  if len(dt)<2 or np.any(dt<=0) or np.max(dt)>60 or (t[-1]-t[0])>pd.Timedelta('6h'):
   raise ValueError('EC timestamps invalid for integration; do not invent a sampling interval')
  return dt
+
+
+def pressure_series(frame):
+ """Quality-passing station pressure at half-hour interval midpoints, in kPa."""
+ start=pd.to_datetime(frame.startDateTime,utc=True);end=pd.to_datetime(frame.endDateTime,utc=True)
+ if not ((end-start)==pd.Timedelta('30min')).all():raise ValueError('Unexpected pressure interval')
+ values=pd.to_numeric(frame.staPresMean,errors='coerce');good=pd.to_numeric(frame.staPresFinalQF,errors='coerce').eq(0)
+ if 'staPresFinalQFSciRvw' in frame:
+  good &= ~pd.to_numeric(frame.staPresFinalQFSciRvw,errors='coerce').isin([1,2])
+ s=pd.Series(values.where(good).to_numpy(),index=pd.DatetimeIndex(start+(end-start)/2)).sort_index()
+ if s.index.has_duplicates:raise ValueError('Duplicate pressure interval')
+ return s.asfreq('30min')
+
+
+def bounded_fill(s,max_gap_hours):
+ """Linear interpolation only inside bracketing observations within a time limit."""
+ valid=np.flatnonzero(s.notna().to_numpy());out=s.copy()
+ if len(valid)<2:return out
+ for left,right in zip(valid[:-1],valid[1:]):
+  if right>left+1 and (s.index[right]-s.index[left]).total_seconds()/3600<=max_gap_hours:
+   out.iloc[left+1:right]=np.linspace(s.iloc[left],s.iloc[right],right-left+1)[1:-1]
+ return out
+
+
+def reconstruct_pressure(soap,bigc):
+ """Retain SOAP observations; fill using local interpolation or bias-adjusted BIGC.
+
+ Codes: 0 observed SOAP, 1 local interpolation, 2 BIGC with interpolated bias,
+ 3 BIGC with short interpolated reference gaps, 9 unavailable. No edge extension.
+ """
+ idx=soap.index.union(bigc.index).sort_values();s=soap.reindex(idx);b=bigc.reindex(idx)
+ bf=bounded_fill(b,3);bias=bounded_fill(s-bf,168);regional=bf+bias
+ out=s.copy();code=pd.Series(9,index=idx,dtype=int)
+ code.loc[s.notna()]=0
+ use=out.isna()&regional.notna();out.loc[use]=regional.loc[use];code.loc[use]=np.where(b.loc[use].notna(),2,3)
+ fallback=bounded_fill(s,24);use=out.isna()&fallback.notna();out.loc[use]=fallback.loc[use];code.loc[use]=1
+ return out,code
+
+
+def reconstructed_pressure_at(series,codes,times):
+ """Pressure and source code at logger times; interpolation across adjacent nodes only."""
+ frame=pd.DataFrame({'startDateTime':series.index-pd.Timedelta('15min'),'endDateTime':series.index+pd.Timedelta('15min'),'staPresMean':series.to_numpy(),'staPresFinalQF':np.where(series.notna(),0,1)})
+ result=pressure_at(frame,times);x=series.index.asi8;t=pd.DatetimeIndex(times).asi8;j=np.searchsorted(x,t);right=np.minimum(j,len(x)-1);left=np.maximum(j-1,0)
+ source=np.maximum(codes.to_numpy()[left],codes.to_numpy()[right]);exact=(j<len(x))&(x[right]==t);source[exact]=codes.to_numpy()[right[exact]];source[~np.isfinite(result)]=9
+ return result,source
