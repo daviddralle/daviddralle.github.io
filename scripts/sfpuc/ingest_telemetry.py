@@ -106,6 +106,77 @@ def parse_file(raw, filename, received):
                     'program_signature': rows[0][6]}
 
 
+# Last records recovered over USB before the 2026-11-12 clock correction.
+TOP_CLOCK_BOUNDARY = {'Sap_Flow_Data': 133, 'Hourly': 266, 'Daily': 10,
+                      'Power15': 1066, 'SoilHalfHourly': 531}
+TIME_BASIS = ('Top plots use fixed PST (UTC-08:00). Original logger timestamps are retained in the detailed records. '
+              'Before the USB clock correction on 2026-11-12 at approximately 13:34 PST, Top used approximately UTC-07:00 '
+              'and was about 36 seconds fast; the derived PST times remove the one-hour offset but do not correct that small drift. '
+              'Subsequent Top records use PST. The clock change can affect the duration of summary intervals spanning the correction. '
+              'Lower clock remains unverified.')
+
+
+def same_observation(a, b):
+    if a['raw'].keys() != b['raw'].keys():
+        return False
+    for name, value in a['raw'].items():
+        prior = b['raw'][name]
+        if value == prior:
+            continue
+        try:
+            x, y = float(value), float(prior)
+            if (math.isnan(x) and math.isnan(y)) or math.isclose(x, y, rel_tol=2e-6, abs_tol=1e-6):
+                continue
+        except (ValueError, TypeError):
+            pass
+        return False
+    return True
+
+
+def merge_usb_overlap(table, issues):
+    # PC400 labels retained records with the current program signature, even
+    # when an earlier program wrote them. Match time, number and all raw values.
+    grouped = {}
+    for r in table['records']:
+        grouped.setdefault((r['timestamp'], r['record']), []).append(r)
+    merged = []
+    for identity, rows in grouped.items():
+        usb = next((r for r in rows if '_usb_' in r['source_file']), None)
+        if usb is None:
+            merged.extend(rows)
+            continue
+        usb['source_transport'] = 'USB via PC400'
+        matches = [r for r in rows if r is not usb and same_observation(usb, r)]
+        usb['duplicate_sources'] = [{'file': r['source_file'], 'program_signature': r['program_signature'],
+                                     'received_utc': r['received_utc']} for r in matches]
+        different = [r for r in rows if r is not usb and r not in matches]
+        if different:
+            for r in [usb, *different]:
+                r['flags']['source_comparison'] = 'conflict_requires_review'
+            issues.append({'file': usb['source_file'], 'reason': 'USB/previous value conflict', 'record': identity[1]})
+        merged.extend([usb, *different])
+    table['records'] = merged
+
+
+def add_top_clock_basis(table):
+    if table['station'] != 'top':
+        return
+    for r in table['records']:
+        stamp = datetime.fromisoformat(r['timestamp'])
+        day = stamp.date().isoformat()
+        offset = -7 if day < '2026-11-12' else -8
+        if day == '2026-11-12':
+            if r['program_signature'] == '64468':
+                offset = -7 if r['record'] <= TOP_CLOCK_BOUNDARY[table['table']] else -8
+            elif stamp.hour < 14:
+                offset = -7
+        r['logger_utc_offset_hours'] = offset
+        r['timestamp_pst'] = (stamp + timedelta(hours=-8-offset)).isoformat(sep=' ')
+        r['timestamp_utc'] = stamp.replace(tzinfo=timezone(timedelta(hours=offset))).astimezone(timezone.utc).isoformat()
+        if r['program_signature'] == '64468' and r['record'] == TOP_CLOCK_BOUNDARY[table['table']] + 1:
+            r['flags']['clock_adjustment'] = 'first_record_after_clock_correction_interval_may_differ'
+
+
 def build(source, output, archive, minimum_age=60, pakbus=None):
     tables = {key: {'station': station, 'table': table, 'interval_minutes': minutes,
                     'fields': [], 'records': []} for key, (station, table, minutes) in TABLES.items()}
@@ -200,10 +271,12 @@ def build(source, output, archive, minimum_age=60, pakbus=None):
     if not any(t['records'] for t in tables.values()):
         raise RuntimeError('No usable TOA5 records; refusing to replace published data')
     for table in tables.values():
-        table['records'].sort(key=lambda r: (r['timestamp'], r['record'], r['source_file']))
+        merge_usb_overlap(table, issues)
+        add_top_clock_basis(table)
+        table['records'].sort(key=lambda r: (r.get('timestamp_pst', r['timestamp']), r['record'], r['source_file']))
     snapshot = {'schema_version': 1, 'site': 'sheep-camp',
                 'received_through_utc': max(f['received_utc'] for f in files if f['status'] == 'parsed'),
-                'time_basis': 'Original logger timestamps retained. Top was measured on 2026-11-01 at approximately UTC-07:00 plus 34 seconds; no clock adjustment was made. Lower clock remains unverified.',
+                'time_basis': TIME_BASIS,
                 'quality_notes': [
                     'Preliminary sensor outputs; installation and calibration metadata are pending.',
                     'Bottom relay timestamps and soil records need verification. All Bottom series are excluded from plots; latest reported battery values remain visible for diagnosis.',

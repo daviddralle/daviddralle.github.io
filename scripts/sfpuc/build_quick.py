@@ -14,7 +14,7 @@ def finite(v):return v if isinstance(v,(int,float)) and math.isfinite(v) else No
 
 def build(directory):
  directory=Path(directory);summary=json.loads((directory/'telemetry.json').read_text())
- stamps=[datetime.fromisoformat(r['timestamp']) for k,t in summary['tables'].items() if k in FIELDS for r in t['records']]
+ stamps=[datetime.fromisoformat(r.get('timestamp_pst', r['timestamp'])) for k,t in summary['tables'].items() if k in FIELDS for r in t['records']]
  if not stamps:raise ValueError('No Top observations')
  end=max(stamps);start=wy_start(end);earliest=min(start,end-timedelta(days=31))
  tables={k:{} for k in FIELDS}
@@ -23,7 +23,7 @@ def build(directory):
   part=json.loads((directory/f'telemetry-{month}.json').read_text())
   for key in FIELDS:
    for r in part['tables'].get(key,{}).get('records',[]):
-    t=datetime.fromisoformat(r['timestamp'])
+    t=datetime.fromisoformat(r.get('timestamp_pst', r['timestamp']))
     if not earliest<=t<=end or r.get('flags',{}).get('source_comparison')=='conflict_requires_review':continue
     old=tables[key].get(t)
     if old is None or r['received_utc']>old['received_utc']:tables[key][t]=r
@@ -50,7 +50,7 @@ def build(directory):
   if value is None or value<0:complete=False;missing+=1;rainfall.append([t.isoformat(sep=' '),None])
   else:total+=value;rainfall.append([t.isoformat(sep=' '),round(total,5)])
   previous=t
- result={'schema_version':1,'site':'Sheep Camp','station':'Top','received_through_utc':summary['received_through_utc'],'latest_logger_time':end.isoformat(sep=' '),'water_year':start.year+1,'water_year_start':start.isoformat(sep=' '),'time_basis':summary['time_basis'],
+ result={'schema_version':1,'site':'Sheep Camp','station':'Top','received_through_utc':summary['received_through_utc'],'latest_logger_time':max(r['timestamp'] for k,t in summary['tables'].items() if k in FIELDS for r in t['records']),'latest_display_time':end.isoformat(sep=' '),'display_timezone':'PST','water_year':start.year+1,'water_year_start':start.isoformat(sep=' '),'time_basis':summary['time_basis'],
  'soil':{'fields':SOIL,'rows':compact['top_soil']['rows'],'segment_positions':[1,2,3,4,5],'temperature_positions':[35,100,200,300,450,600,750],'moisture_midpoints_cm':[7.5,22.5,37.5,52.5,67.5],'moisture_layer_bounds_cm':[[0,15],[15,30],[30,45],[45,60],[60,75]],'temperature_depths_cm':[3.5,10,20,30,45,60,75],'depth_units':'cm below ground surface','installation':'Top T and U installed at the surface, confirmed by user 2026-11-02','depth_source':'https://gropoint.squarespace.com/gplp-resources'},
  'sap':{'sensors':['A','B','C'],'normalized_rows':normalized,'reference':refs,'reference_start':start.isoformat(sep=' '),'reference_end':end.isoformat(sep=' '),'method':'Per-sensor minimum–maximum scaling over available water-year observations. Constant or missing series remain undefined.'},
  'weather':compact['top_weather'],'power':compact['top_power'],'daily_power':compact['top_daily'],

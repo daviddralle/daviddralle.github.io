@@ -3,6 +3,7 @@
   'use strict';
   const $=s=>document.querySelector(s), U=window.SFPUCUnits;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const shown=r=>r?.timestamp_pst||r?.timestamp;
   const stamp=s=>Date.parse(s.replace(' ','T')+'Z'); // Plot coordinates only; not a UTC claim.
   const tick=x=>new Date(x).toISOString().slice(5,16).replace('T',' ');
   const colors=['#63dbea','#efbf73','#c0ec94','#d3a6d8','#9bb8fc','#f49c8f','#e6e5af'];
@@ -54,11 +55,11 @@
     const station=$('#observation-station').value;
     return result.filter(s=>station==='both'||data.tables[s.table].station===station);
   }
-  function records(s){const start=$('#observation-start').value, end=$('#observation-end').value;return data.tables[s.table].records.filter(r=>r.timestamp.slice(0,10)>=start&&r.timestamp.slice(0,10)<=end);}
+  function records(s){const start=$('#observation-start').value, end=$('#observation-end').value;return data.tables[s.table].records.filter(r=>shown(r).slice(0,10)>=start&&shown(r).slice(0,10)<=end);}
   function latest(table){return data.tables[table]?.records.at(-1);}
   function cards(){
     const weather=latest('top_weather'), sap=latest('top_sap'), power=latest('top_power'), battery=power||latest('top_daily');
-    const items=[['Air temperature',weather?.values.AirT_C_Avg,'temperature',weather?.timestamp],['Relative humidity',weather?.values.RH_Avg,'%',weather?.timestamp],...['A','B','C'].map(s=>['Sap '+s,sap?.values['TotalSapFlow_'+s],'L/h',sap?.timestamp]),[power?'Top battery · 15-min mean':'Top battery · daily minimum',power?.values.BattV_Avg??battery?.values.BattV_Min,'V',battery?.timestamp]];
+    const items=[['Air temperature',weather?.values.AirT_C_Avg,'temperature',shown(weather)],['Relative humidity',weather?.values.RH_Avg,'%',shown(weather)],...['A','B','C'].map(s=>['Sap '+s,sap?.values['TotalSapFlow_'+s],'L/h',shown(sap)]),[power?'Top battery · 15-min mean':'Top battery · daily minimum',power?.values.BattV_Avg??battery?.values.BattV_Min,'V',shown(power||battery)]];
     $('#telemetry-metrics').innerHTML=items.map(([name,v,type,time])=>`<div class="metric"><span>${name}</span><strong>${number(convert(v,type),type==='L/h'?3:2)}${v==null?'':' '+label(type)}</strong><small>${esc(time||'No record')}</small></div>`).join('');
   }
   function render(){
@@ -69,7 +70,7 @@
     $('#observation-soil-note').hidden=group!=='soil';
     const datasets=definitions.filter(s=>data.tables[s.table].station!=='bottom').map((s,i)=>{
       const rows=records(s), points=[];
-      rows.forEach((r,index)=>{const x=stamp(r.timestamp), previous=rows[index-1];if(previous&&x-stamp(previous.timestamp)>data.tables[s.table].interval_minutes*90000)points.push({x:stamp(previous.timestamp)+1,y:null});points.push({x,y:convert(r.values[s.field],s.type,s.scale)});});
+      rows.forEach((r,index)=>{const x=stamp(shown(r)), previous=rows[index-1];if(previous&&x-stamp(shown(previous))>data.tables[s.table].interval_minutes*90000)points.push({x:stamp(shown(previous))+1,y:null});points.push({x,y:convert(r.values[s.field],s.type,s.scale)});});
       const color=colors[(s.colorIndex??i)%colors.length];
       return {label:s.shortName||s.name,profile:s.profile,data:points,borderColor:color,backgroundColor:color,borderWidth:2,borderDash:s.dash||[],pointRadius:rows.length<40?3:0,pointHitRadius:8,spanGaps:false,tension:0};
     });
@@ -92,7 +93,7 @@
       canvas.hidden=!available;
       if(!available)return;
       const xBounds=split&&xs.length&&Math.max(...xs)>Math.min(...xs)?{min:Math.min(...xs),max:Math.max(...xs)}:{};
-      charts.push(new Chart(canvas,{type:group==='weather'&&key==='Rain_mm_Tot'?'bar':'line',data:{datasets:sets},options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,normalized:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{position:'top',align:'start',labels:{color:'#c5d6d5',usePointStyle:true,boxWidth:12}},tooltip:{callbacks:{title:items=>tick(items[0].parsed.x)+' · logger clock',label:item=>`${item.dataset.label}: ${number(item.parsed.y,4)} ${label(type)}`}}},scales:{x:{type:'linear',...xBounds,ticks:{color:'#a6bbc0',maxTicksLimit:5,maxRotation:0,stepSize:tickHours*3600000,callback:tick},grid:{color:'#2c464d55'},title:{display:true,text:'Top logger clock · approximately UTC−07:00',color:'#a6bbc0'}},y:{...bounds,ticks:{color:'#a6bbc0'},title:{display:true,text:label(type),color:'#a6bbc0'},grid:{color:'#2c464d80'}}}}}));
+      charts.push(new Chart(canvas,{type:group==='weather'&&key==='Rain_mm_Tot'?'bar':'line',data:{datasets:sets},options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,normalized:false,interaction:{mode:'nearest',intersect:false},plugins:{legend:{position:'top',align:'start',labels:{color:'#c5d6d5',usePointStyle:true,boxWidth:12}},tooltip:{callbacks:{title:items=>tick(items[0].parsed.x)+' · PST',label:item=>`${item.dataset.label}: ${number(item.parsed.y,4)} ${label(type)}`}}},scales:{x:{type:'linear',...xBounds,ticks:{color:'#a6bbc0',maxTicksLimit:5,maxRotation:0,stepSize:tickHours*3600000,callback:tick},grid:{color:'#2c464d55'},title:{display:true,text:'Top · fixed PST (UTC−08:00)',color:'#a6bbc0'}},y:{...bounds,ticks:{color:'#a6bbc0'},title:{display:true,text:label(type),color:'#a6bbc0'},grid:{color:'#2c464d80'}}}}}));
       canvas.setAttribute('aria-label',`${heading}: ${title} in ${label(type)}. Data values and quality notes are below.`);
     };
     if(split){
@@ -102,7 +103,7 @@
         draw($('#soil-profile-'+profile),sets,'Top · GroPoint '+profile);
       }
     }else draw($('#observation-chart'),datasets,title);
-    $('#observation-values').innerHTML=`<table><thead><tr><th>Series</th><th>Latest in selection</th><th>Value (${label(type)})</th><th>Status</th></tr></thead><tbody>${definitions.map(s=>{const r=records(s).at(-1);return `<tr><td>${esc(s.name)}</td><td>${esc(r?.timestamp||'No record')}</td><td>${group==='raw'&&r?.values[s.field]===null&&r?.raw[s.field]&&!r?.flags[s.field]?esc(r.raw[s.field]):number(convert(r?.values[s.field],s.type,s.scale),4)}</td><td>${r?.quality==='relay_review'?'Relay review · not plotted':esc(r?.flags[s.field]?.replaceAll('_',' ')||'Provisional')}</td></tr>`;}).join('')||'<tr><td colspan="4">No records.</td></tr>'}</tbody></table>`;
+    $('#observation-values').innerHTML=`<table><thead><tr><th>Series</th><th>Latest in selection</th><th>Value (${label(type)})</th><th>Status</th></tr></thead><tbody>${definitions.map(s=>{const r=records(s).at(-1);return `<tr><td>${esc(s.name)}</td><td>${esc(shown(r)||'No record')}</td><td>${group==='raw'&&r?.values[s.field]===null&&r?.raw[s.field]&&!r?.flags[s.field]?esc(r.raw[s.field]):number(convert(r?.values[s.field],s.type,s.scale),4)}</td><td>${r?.quality==='relay_review'?'Relay review · not plotted':esc(r?.flags[s.field]?.replaceAll('_',' ')||'Provisional')}</td></tr>`;}).join('')||'<tr><td colspan="4">No records.</td></tr>'}</tbody></table>`;
   }
   function setGroup(){
     if(group==='raw'){
@@ -120,20 +121,20 @@
   function siteChanged(){const sheep=location.hash!=='#maguire-ridge';$('#site-telemetry').hidden=!sheep;$('#site-no-telemetry').hidden=sheep;if(sheep)charts.forEach(c=>c.resize());}
   function download(){
     const quote=v=>'"'+String(v??'').replaceAll('"','""')+'"';
-    const rows=[['station','series','timestamp_logger','record','variable','raw_value','native_unit','display_value','display_unit','quality','source_file','received_utc']];
-    for(const s of definitions)for(const r of records(s))rows.push([data.tables[s.table].station,s.name,r.timestamp,r.record,s.field,r.raw[s.field],data.tables[s.table].fields.find(f=>f.name===s.field)?.unit,convert(r.values[s.field],s.type,s.scale),label(s.type),[r.quality,r.flags[s.field]].filter(Boolean).join(';'),r.source_file,r.received_utc]);
+    const rows=[['station','series','timestamp_logger','timestamp_pst','record','variable','raw_value','native_unit','display_value','display_unit','quality','source_file','received_utc']];
+    for(const s of definitions)for(const r of records(s))rows.push([data.tables[s.table].station,s.name,r.timestamp,r.timestamp_pst||'',r.record,s.field,r.raw[s.field],data.tables[s.table].fields.find(f=>f.name===s.field)?.unit,convert(r.values[s.field],s.type,s.scale),label(s.type),[r.quality,r.flags[s.field]].filter(Boolean).join(';'),r.source_file,r.received_utc]);
     const url=URL.createObjectURL(new Blob([rows.map(r=>r.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`sheep-camp-${group}-${$('#observation-start').value}-${$('#observation-end').value}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
   function renderQuality(){
     $('#telemetry-quality').innerHTML=`<ul>${data.quality_notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul><p>${data.issues.length} excluded source file(s): ${data.issues.map(i=>`${esc(i.file)} — ${esc(i.reason)}`).join('; ')||'none'}.</p><p>Downloads retain native values, file provenance and quality flags, including records withheld from plots.</p>`;
-    $('#telemetry-files').innerHTML=`<table><thead><tr><th>Table</th><th>Rows in loaded period</th><th>Latest logger time</th><th>Status</th></tr></thead><tbody>${Object.entries(data.tables).map(([key,t])=>`<tr><td>${esc(key)}</td><td>${t.records.length}</td><td>${esc(t.records.at(-1)?.timestamp||'No record')}</td><td>${t.station==='bottom'?'Relay review':'Provisional'}</td></tr>`).join('')}</tbody></table>`;
+    $('#telemetry-files').innerHTML=`<table><thead><tr><th>Table</th><th>Rows in loaded period</th><th>Latest display time (Top: PST)</th><th>Status</th></tr></thead><tbody>${Object.entries(data.tables).map(([key,t])=>`<tr><td>${esc(key)}</td><td>${t.records.length}</td><td>${esc(shown(t.records.at(-1))||'No record')}</td><td>${t.station==='bottom'?'Relay review':'Provisional'}</td></tr>`).join('')}</tbody></table>`;
   }
   async function load(url, setup=false){
     const version=++request;$('#telemetry-error').hidden=true;
     try{
       const response=await fetch(url,{cache:'no-cache'});if(!response.ok)throw Error(response.status);const value=await response.json();if(version!==request)return;data=value;
       if(setup){$('#telemetry-period').innerHTML='<option value="recent">Latest 31 days</option>'+data.months.slice().reverse().map(m=>`<option value="${m}">${m}</option>`).join('');}
-      const dates=Object.values(data.tables).flatMap(t=>t.records.map(r=>r.timestamp.slice(0,10))).sort();
+      const dates=Object.values(data.tables).flatMap(t=>t.records.map(r=>shown(r).slice(0,10))).sort();
       $('#observation-start').value=dates[0]||'';$('#observation-end').value=dates.at(-1)||'';
       const received=new Date(data.received_through_utc), hours=(Date.now()-received)/3600000;
       $('#telemetry-received').textContent='Pi received through '+received.toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'})+(hours>8?' · no collection in the past 8 hours':'');
