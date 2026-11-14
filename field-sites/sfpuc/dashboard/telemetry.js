@@ -70,9 +70,9 @@
     $('#observation-soil-note').hidden=group!=='soil';
     const datasets=definitions.filter(s=>data.tables[s.table].station!=='bottom').map((s,i)=>{
       const rows=records(s), points=[];
-      rows.forEach((r,index)=>{const x=stamp(shown(r)), previous=rows[index-1];if(previous&&x-stamp(shown(previous))>data.tables[s.table].interval_minutes*90000)points.push({x:stamp(shown(previous))+1,y:null});points.push({x,y:convert(r.values[s.field],s.type,s.scale)});});
+      rows.forEach((r,index)=>{const x=stamp(shown(r)), previous=rows[index-1];if(group!=='soil'&&previous&&x-stamp(shown(previous))>data.tables[s.table].interval_minutes*90000)points.push({x:stamp(shown(previous))+1,y:null});points.push({x,y:convert(r.values[s.field],s.type,s.scale)});});
       const color=colors[(s.colorIndex??i)%colors.length];
-      return {label:s.shortName||s.name,profile:s.profile,data:points,borderColor:color,backgroundColor:color,borderWidth:2,borderDash:s.dash||[],pointRadius:rows.length<40?3:0,pointHitRadius:8,spanGaps:false,tension:0};
+      return {label:s.shortName||s.name,profile:s.profile,data:points,borderColor:color,backgroundColor:color,borderWidth:2,borderDash:s.dash||[],pointRadius:rows.length<40?3:0,pointHitRadius:8,spanGaps:group==='soil',tension:0};
     });
     charts.forEach(c=>c.destroy());charts=[];
     const hasPoints=datasets.some(s=>s.data.some(p=>Number.isFinite(p.y)));
