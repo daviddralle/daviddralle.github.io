@@ -40,7 +40,7 @@ function line(id,datasets,unit,limits={}){
   options:{responsive:true,maintainAspectRatio:false,animation:false,parsing:false,
    layout:{autoPadding:!shared,padding:shared?{right:16,top:2}:0},
    interaction:{mode:'nearest',axis:'x',intersect:false},
-   plugins:{legend:{display:datasets.length>1,position:'top',align:'start',labels:{color:'#b6c7ca',boxWidth:11,usePointStyle:true,font:{size:11}}},tooltip:{callbacks:{title:items=>fmt(items[0].parsed.x)+' · PST',label:item=>item.dataset.label+': '+display(item.parsed.y,3)+' '+unit}}},
+   plugins:{legend:{display:datasets.length>1,position:'top',align:'start',labels:{color:'#b6c7ca',boxWidth:7,boxHeight:7,usePointStyle:true,pointStyle:'circle',padding:7,font:{size:10}}},tooltip:{callbacks:{title:items=>fmt(items[0].parsed.x)+' · PST',label:item=>item.dataset.label+': '+display(item.parsed.y,3)+' '+unit}}},
    scales:{
     x:{type:'linear',min:start,max:end,afterBuildTicks:axis=>{axis.ticks=axisTicks(start,end).map(value=>({value}));},
      grid:{display:shared,color:'#b0c5cf12',drawTicks:!shared||bottom},border:{display:!shared||bottom},

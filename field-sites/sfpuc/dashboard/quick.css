@@ -14,3 +14,46 @@
 .response-panel .caption{margin:3px 0 5px}
 .response-notes{border-top:1px solid var(--line);padding-top:12px}
 @media(max-width:680px){.response-stack{padding:13px 10px}.response-plot{height:140px}.response-bottom{height:155px}.cursor-time{text-align:left;min-width:0}.response-panel .unit{font-size:11px}}
+
+/* Compact controls and headings leave more height for the observations. */
+body{font-size:13px;line-height:1.4}
+.top-nav{padding:7px max(12px,calc((100vw - 1260px)/2));gap:10px}
+.top-nav a{font-size:12px}.top-nav>div{gap:15px}.top-nav a[aria-current]{padding-bottom:2px}
+main{padding:10px 14px 24px}
+header{gap:12px;margin-bottom:6px;align-items:center}
+header>div:first-child{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h1{font-size:23px;letter-spacing:-.6px}.subtitle{font-size:11px;margin:0}
+.freshness{font-size:10px}.freshness p{margin:1px 0}
+.window-bar{gap:8px;margin:6px 0 9px}.window-bar>span{font-size:11px;width:auto}
+.window-bar>div{gap:3px}.window-bar button{padding:3px 9px;font-size:11px;min-height:26px;border-radius:4px}
+.tile{padding:9px 11px;border-radius:4px}.tile-heading{gap:8px}
+h2,.weather-grid h2,h3{font-size:13px}h3{margin-bottom:4px}.unit{font-size:10px}
+.caption{font-size:10px;line-height:1.4;margin-top:5px}
+.section-heading{gap:6px;margin-bottom:5px}.profile-section{margin-top:11px}
+.profile-grid,.weather-grid{gap:8px}.weather-grid{margin-top:11px}
+.profile-plot{height:185px}.plot{height:145px;margin-top:5px}
+.weather-grid .caption{min-height:0}.color-key{font-size:10px;gap:5px}.ramp{width:95px;height:9px}
+.response-stack{padding:8px 10px;margin-bottom:12px}
+.response-stack>.section-heading{margin-bottom:5px;align-items:center;flex-wrap:nowrap}
+.response-stack .section-heading h2{font-size:13px}
+.cursor-time{font-size:10px;line-height:1.4;min-width:0;white-space:nowrap}
+.response-panel{padding:5px 0 3px}.response-panel h3{font-size:11px;line-height:1.3}
+.response-panel .unit{font-size:10px}
+.response-plot{height:100px;margin-top:0}.response-bottom{height:112px}
+.response-panel:first-of-type .response-plot,.response-panel:nth-of-type(5) .response-plot{height:82px}
+.response-notes{padding-top:5px;margin-top:3px;color:var(--muted);font-size:10px}
+.response-notes summary{cursor:pointer;width:fit-content;padding:3px 0}
+.response-notes summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{margin-top:16px;padding-top:8px;font-size:11px}footer p{margin:5px 0}
+@media(max-width:680px){
+ main{padding:8px 9px 20px}.top-nav{padding:7px 9px}.top-nav>div{gap:12px}
+ header{display:block}.freshness{display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;text-align:left}
+ h1{font-size:22px}.window-bar{gap:5px}.window-bar>span{display:none}
+ .window-bar button{padding:3px 8px;min-height:28px}
+ .response-stack{padding:7px}.response-stack .section-heading h2{font-size:12px}
+ .cursor-time{font-size:9px;text-align:right}
+ .response-plot{height:105px}.response-bottom{height:115px}
+ .response-panel:first-of-type .response-plot,.response-panel:nth-of-type(5) .response-plot{height:80px}
+ .profile-section{margin-top:10px}.profile-plot{height:180px}.tile{padding:8px}
+ .response-stack{padding:7px}.color-key{font-size:9px;gap:4px}.ramp{width:80px}
+}
