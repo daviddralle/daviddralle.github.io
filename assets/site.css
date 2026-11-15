@@ -157,3 +157,6 @@ nav a[aria-current="page"] { color: var(--river); }
 .site-card p {font-size:0.95rem;line-height:1.5;}
 .site-card .card-links {margin:0;padding:0 20px 20px;font-size:0.9rem;}
 .site-card .card-links a {color:var(--river);}
+.aerial-thumbnail{position:relative;margin:0}
+.aerial-thumbnail img{height:auto}
+.aerial-thumbnail figcaption{position:absolute;bottom:1px;right:0;padding:2px 5px;background:#10282ec9;color:#fff;font-size:7px;line-height:1.4}

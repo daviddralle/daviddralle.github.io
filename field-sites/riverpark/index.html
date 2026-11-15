@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#11262d">
+  <meta name="description" content="River Park weather in Sacramento: station temperature, humidity, wind and rainfall, with two years of observations.">
+  <meta property="og:title" content="River Park · Weather">
+  <meta property="og:image" content="https://daviddralle.github.io/field-sites/riverpark/preview.jpg">
+  <title>River Park · Weather</title>
+  <link rel="icon" href="riverpark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="../sfpuc/dashboard/vendor/chart.umd.min.js"></script>
+  <script defer src="dashboard.js"></script>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Site navigation"><a href="/field-sites/">← Field sites</a><a href="/">David Dralle</a></nav>
+  <header class="header">
+    <div class="brand"><img src="riverpark.svg" alt="" width="48" height="48"><h1>River Park <span>Weather</span></h1></div>
+    <div class="header-actions"><a href="#about">About the data</a><div class="segmented" id="units" role="group" aria-label="Measurement units"><button data-unit="us" aria-pressed="true">US</button><button data-unit="metric" aria-pressed="false">Metric</button></div></div>
+  </header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">SACRAMENTO · CALIFORNIA</p><h2>Weather at the river bend</h2></div><div class="station-status" role="status"><span id="status-dot"></span><div><strong id="status">Loading station…</strong><span id="updated">Ambient Weather observations</span></div></div></div>
+    <div id="error" role="alert" hidden></div>
+    <div class="dashboard">
+      <section class="plots-panel" aria-labelledby="observations-title">
+        <div class="plot-toolbar"><h2 id="observations-title">Observations</h2><button id="download" title="Download the plotted observations as CSV">↓ CSV</button></div>
+        <div class="segmented windows" id="windows" role="group" aria-label="Time window">
+          <button data-days="1" aria-pressed="false">24h</button><button data-days="2" aria-pressed="true">48h</button><button data-days="3" aria-pressed="false">72h</button><button data-days="7" aria-pressed="false">7d</button><button data-days="30" aria-pressed="false">30d</button><button data-days="90" aria-pressed="false">90d</button><button data-days="365" aria-pressed="false">1y</button><button data-days="730" aria-pressed="false">2y</button>
+        </div>
+        <div class="range-info"><span id="range-label">Loading observations…</span><span id="resolution"></span></div>
+        <div class="plot-stack" id="plot-stack" aria-busy="true">
+          <section class="plot-row"><div class="plot-label"><h3>Temperature <span id="temp-unit">°F</span></h3><output id="hover-temp"></output></div><div class="canvas-wrap"><canvas id="plot-temp" role="img" aria-label="Air temperature over the selected time window"></canvas></div></section>
+          <section class="plot-row"><div class="plot-label"><h3>Relative humidity <span>%</span></h3><output id="hover-humidity"></output></div><div class="canvas-wrap"><canvas id="plot-humidity" role="img" aria-label="Relative humidity over the selected time window"></canvas></div></section>
+          <section class="plot-row"><div class="plot-label"><h3>Wind <span id="wind-unit">mph</span></h3><output id="hover-wind"></output><span class="legend"><i></i> Speed <i class="gust"></i> Gust</span></div><div class="canvas-wrap"><canvas id="plot-wind" role="img" aria-label="Wind speed and gusts over the selected time window"></canvas></div></section>
+          <section class="plot-row"><div class="plot-label"><h3>Cumulative rain <span id="cum-unit">in</span></h3><output id="hover-cumulative"></output></div><div class="canvas-wrap"><canvas id="plot-cumulative" role="img" aria-label="Observed rainfall accumulated from the beginning of the selected time window"></canvas></div></section>
+          <section class="plot-row last"><div class="plot-label"><h3>Rain <span id="rain-unit">in / 5 min</span></h3><output id="hover-rain"></output></div><div class="canvas-wrap"><canvas id="plot-rain" role="img" aria-label="Rainfall in each observation interval"></canvas></div></section>
+        </div>
+        <div class="plot-footer"><span id="cursor-date">Hover to compare · drag across a plot to zoom</span><button id="reset" hidden>Reset window</button><span>Pacific time</span></div>
+        <p class="coverage-note" id="coverage" role="status"></p>
+      </section>
+      <aside aria-label="Current conditions" class="conditions">
+        <div class="aside-title"><h2>Latest readings</h2><span id="reading-time">—</span></div>
+        <article class="reading primary"><h3>Air temperature</h3><p class="value" id="current-temp">—</p><p class="note" id="current-feels">—</p></article>
+        <article class="reading"><h3>Relative humidity</h3><p class="value" id="current-humidity">—</p><p class="note">Outdoor sensor</p></article>
+        <article class="reading"><h3>Wind</h3><p class="value" id="current-wind">—</p><p class="note" id="current-gust">—</p></article>
+        <article class="reading rain"><h3>Rain · selected window</h3><p class="value" id="window-rain">—</p><p class="note" id="window-rain-note">Observed accumulation</p></article>
+        <article class="reading rain"><h3>Rain · today</h3><p class="value" id="current-rain">—</p><p class="note" id="current-rate">—</p></article>
+      </aside>
+    </div>
+    <details id="about"><summary>Data, coverage &amp; downloads</summary><div class="about-grid"><div><h3>Station record</h3><p>Outdoor observations from the <a href="https://ambientweather.net/dashboard/ba19c4bd1ae9bc2272fd1f36df654b83" target="_blank" rel="noopener">River Park station on Ambient Weather</a>. The archive updates approximately every 15 minutes; readings may be delayed. This is an uncorrected personal weather-station record.</p><p id="archive-coverage">Loading archive coverage…</p><a href="data/daily.json" download>Daily data (JSON) ↗</a> · <a href="data/manifest.json" download>Archive index ↗</a></div><div><h3>How to read the plots</h3><p>Windows up to 30 days show five-minute observations. Longer windows show daily mean temperature, humidity and wind, daily peak gust, and daily rainfall. All plots share the same time axis; drag to inspect a shorter interval.</p><p>Rainfall is the change in the station’s running rain counter between adjacent observations. Missing intervals and unresolved counter resets remain unknown. Cumulative rain starts at zero for each selected window and sums only observed increments; incomplete totals are marked. Daily means use available samples. Days and timestamps use America/Los_Angeles, including daylight saving time.</p><p>The CSV button downloads the displayed series in the selected units.</p></div></div></details>
+  </main>
+  <footer><span>River Park meteorological observations</span><a href="https://ambientweather.net/dashboard/ba19c4bd1ae9bc2272fd1f36df654b83">Ambient Weather ↗</a></footer>
+</body>
+</html>
