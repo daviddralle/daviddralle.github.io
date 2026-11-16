@@ -11,8 +11,16 @@ increments remain null, and incomplete daily totals are marked in the UI.
 
 Update: `python3 scripts/riverpark/update.py`. Explicit backfill:
 `python3 scripts/riverpark/update.py --start YYYY-MM-DD`.
-The GitHub Actions workflow runs every 15 minutes and explicitly requests a
-legacy Pages build after committing new data. GitHub schedules can be delayed.
+Scheduled updates run on pi5 every hour at :20 Pacific, matching Rancho's hourly
+frequency and offsetting its :10 run. The Pi's normal Git push triggers Pages.
+The GitHub Actions workflow is manual-only recovery, with no scheduled trigger.
+
+Pi entry point: `/home/daviddralle/daviddralle.github.io/scripts/riverpark/run_update.sh`.
+Crontab: `20 * * * * /bin/bash /home/daviddralle/daviddralle.github.io/scripts/riverpark/run_update.sh >> /home/daviddralle/logs/riverpark/update.log 2>&1`.
+The runner shares `/home/daviddralle/.local/state/hydroeco-automation.lock` with
+the other website jobs. It stages and validates new data before publishing,
+retains the full archive, and retries publication after concurrent remote pushes.
+Logs rotate weekly via `/etc/logrotate.d/riverpark-weather` (eight copies).
 
 Validation:
 `python3 -m unittest discover -s scripts/riverpark -p 'test_*.py'`

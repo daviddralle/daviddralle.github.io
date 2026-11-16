@@ -64,8 +64,8 @@ if (typeof document !== 'undefined') {
     $('current-rate').textContent=`Rate ${fmt(convert(r[8],'rain',units),units==='us'?3:1)} ${unit('rain')}/h`;
     $('reading-time').textContent=dateText(r[0],{month:undefined,day:undefined,hour:'numeric',minute:'2-digit'});
     const age=Math.max(0,Math.round((Date.now()-r[0])/60000));
-    $('status').textContent=age<=45?'Station reporting':age<=180?'Observations delayed':'Station data stale';
-    $('status-dot').className=age<=45?'live':age<=180?'stale':'offline';
+    $('status').textContent=age<=90?'Station reporting':age<=180?'Observations delayed':'Station data stale';
+    $('status-dot').className=age<=90?'live':age<=180?'stale':'offline';
     $('updated').textContent=`${dateText(r[0],{year:'numeric',hour:'numeric',minute:'2-digit'})} · ${age<60?age+' min':Math.floor(age/60)+' h'} ago`;
     $('archive-coverage').textContent=`Archive: ${dateText(manifest.start,{year:'numeric'})} – ${dateText(manifest.end,{year:'numeric'})}. ${manifest.count.toLocaleString()} observations. Gaps are retained; no nearby stations or modeled values are substituted.`;
     document.querySelectorAll('[data-unit]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.unit===units)));
