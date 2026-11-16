@@ -20,7 +20,7 @@
     <div class="header-actions"><a href="#about">About the data</a><div class="segmented" id="units" role="group" aria-label="Measurement units"><button data-unit="us" aria-pressed="true">US</button><button data-unit="metric" aria-pressed="false">Metric</button></div></div>
   </header>
   <main>
-    <div class="intro"><div><p class="eyebrow">SACRAMENTO · CALIFORNIA</p><h2>Weather at the river bend</h2></div><div class="station-status" role="status"><span id="status-dot"></span><div><strong id="status">Loading station…</strong><span id="updated">Ambient Weather observations</span></div></div></div>
+    <div class="intro"><p class="eyebrow">SACRAMENTO · CALIFORNIA</p><div class="station-status" role="status"><span id="status-dot"></span><div><strong id="status">Loading station…</strong><span id="updated">Ambient Weather observations</span></div></div></div>
     <div id="error" role="alert" hidden></div>
     <div class="dashboard">
       <section class="plots-panel" aria-labelledby="observations-title">
@@ -30,10 +30,10 @@
         </div>
         <div class="range-info"><span id="range-label">Loading observations…</span><span id="resolution"></span></div>
         <div class="plot-stack" id="plot-stack" aria-busy="true">
+          <section class="plot-row"><div class="plot-label"><h3>Cumulative rain <span id="cum-unit">in</span></h3><output id="hover-cumulative"></output></div><div class="canvas-wrap"><canvas id="plot-cumulative" role="img" aria-label="Observed rainfall accumulated from the beginning of the selected time window"></canvas></div></section>
           <section class="plot-row"><div class="plot-label"><h3>Temperature <span id="temp-unit">°F</span></h3><output id="hover-temp"></output></div><div class="canvas-wrap"><canvas id="plot-temp" role="img" aria-label="Air temperature over the selected time window"></canvas></div></section>
           <section class="plot-row"><div class="plot-label"><h3>Relative humidity <span>%</span></h3><output id="hover-humidity"></output></div><div class="canvas-wrap"><canvas id="plot-humidity" role="img" aria-label="Relative humidity over the selected time window"></canvas></div></section>
           <section class="plot-row"><div class="plot-label"><h3>Wind <span id="wind-unit">mph</span></h3><output id="hover-wind"></output><span class="legend"><i></i> Speed <i class="gust"></i> Gust</span></div><div class="canvas-wrap"><canvas id="plot-wind" role="img" aria-label="Wind speed and gusts over the selected time window"></canvas></div></section>
-          <section class="plot-row"><div class="plot-label"><h3>Cumulative rain <span id="cum-unit">in</span></h3><output id="hover-cumulative"></output></div><div class="canvas-wrap"><canvas id="plot-cumulative" role="img" aria-label="Observed rainfall accumulated from the beginning of the selected time window"></canvas></div></section>
           <section class="plot-row last"><div class="plot-label"><h3>Rain <span id="rain-unit">in / 5 min</span></h3><output id="hover-rain"></output></div><div class="canvas-wrap"><canvas id="plot-rain" role="img" aria-label="Rainfall in each observation interval"></canvas></div></section>
         </div>
         <div class="plot-footer"><span id="cursor-date">Hover to compare · drag across a plot to zoom</span><button id="reset" hidden>Reset window</button><span>Pacific time</span></div>
