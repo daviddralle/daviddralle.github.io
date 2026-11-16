@@ -9,18 +9,18 @@
   <meta property="og:image" content="https://daviddralle.github.io/field-sites/riverpark/preview.jpg">
   <title>River Park · Weather</title>
   <link rel="icon" href="riverpark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=20261115-2">
+  <link rel="stylesheet" href="style.css?v=20261115-3">
   <script defer src="../sfpuc/dashboard/vendor/chart.umd.min.js"></script>
-  <script defer src="dashboard.js?v=20261115-2"></script>
+  <script defer src="dashboard.js?v=20261115-3"></script>
 </head>
 <body>
   <nav class="site-nav" aria-label="Site navigation"><a href="/field-sites/">← Field sites</a><a href="/">David Dralle</a></nav>
   <header class="header">
-    <div class="brand"><img src="riverpark.svg" alt="" width="48" height="48"><h1>River Park <span>Weather</span></h1></div>
+    <div class="brand"><img src="riverpark.svg" alt="" width="48" height="48"><div><h1>River Park <span>Weather</span></h1><p class="location">Sacramento, California</p></div></div>
     <div class="header-actions"><a href="#about">About the data</a><div class="segmented" id="units" role="group" aria-label="Measurement units"><button data-unit="us" aria-pressed="true">US</button><button data-unit="metric" aria-pressed="false">Metric</button></div></div>
   </header>
   <main>
-    <div class="intro"><p class="eyebrow">SACRAMENTO · CALIFORNIA</p><div class="station-status" role="status"><span id="status-dot"></span><div><strong id="status">Loading station…</strong><span id="updated">Ambient Weather observations</span></div></div></div>
+
     <div id="error" role="alert" hidden></div>
     <div class="dashboard">
       <section class="plots-panel" aria-labelledby="observations-title">
@@ -39,13 +39,23 @@
         <div class="plot-footer"><span id="cursor-date">Hover to compare · drag across a plot to zoom</span><button id="reset" hidden>Reset window</button><span>Pacific time</span></div>
         <p class="coverage-note" id="coverage" role="status"></p>
       </section>
-      <aside aria-label="Current conditions" class="conditions">
-        <div class="aside-title"><h2>Latest readings</h2><span id="reading-time">—</span></div>
-        <article class="reading primary"><h3>Air temperature</h3><p class="value" id="current-temp">—</p><p class="note" id="current-feels">—</p></article>
-        <article class="reading"><h3>Relative humidity</h3><p class="value" id="current-humidity">—</p><p class="note">Outdoor sensor</p></article>
-        <article class="reading"><h3>Wind</h3><p class="value" id="current-wind">—</p><p class="note" id="current-gust">—</p></article>
-        <article class="reading rain"><h3>Rain · selected window</h3><p class="value" id="window-rain">—</p><p class="note" id="window-rain-note">Observed accumulation</p></article>
-        <article class="reading rain"><h3>Rain · today</h3><p class="value" id="current-rain">—</p><p class="note" id="current-rate">—</p></article>
+      <aside class="side-panel" aria-label="Station overview">
+        <section class="current-panel" aria-labelledby="current-title">
+          <div class="aside-title"><h2 id="current-title">Current conditions</h2><span id="reading-time">—</span></div>
+          <div class="station-status" role="status"><span id="status-dot"></span><div><strong id="status">Loading station…</strong><span id="updated">Ambient Weather observations</span></div></div>
+          <div class="conditions">
+            <article class="reading"><h3>Air temperature</h3><p class="value" id="current-temp">—</p><p class="note" id="current-feels">—</p></article>
+            <article class="reading"><h3>Relative humidity</h3><p class="value" id="current-humidity">—</p></article>
+            <article class="reading"><h3>Wind</h3><p class="value" id="current-wind">—</p><p class="note" id="current-gust">—</p></article>
+            <article class="reading"><h3>Peak gust · today</h3><p class="value" id="current-peak">—</p></article>
+            <article class="reading rain"><h3>Rain · selected window</h3><p class="value" id="window-rain">—</p><p class="note" id="window-rain-note">Observed accumulation</p></article>
+            <article class="reading rain"><h3>Rain · today</h3><p class="value" id="current-rain">—</p><p class="note" id="current-rate">—</p></article>
+          </div>
+        </section>
+        <figure class="site-image">
+          <div class="image-wrap"><img src="preview.jpg" alt="River Park neighborhood and the American River, viewed from above" width="1200" height="750"><small>Esri, Vantor, Earthstar Geographics, GIS User Community</small></div>
+          <figcaption><span>River Park</span><span>American River · Sacramento</span></figcaption>
+        </figure>
       </aside>
     </div>
     <details id="about"><summary>Data, coverage &amp; downloads</summary><div class="about-grid"><div><h3>Station record</h3><p>Outdoor observations from the <a href="https://ambientweather.net/dashboard/ba19c4bd1ae9bc2272fd1f36df654b83" target="_blank" rel="noopener">River Park station on Ambient Weather</a>. The archive updates approximately every 15 minutes; readings may be delayed. This is an uncorrected personal weather-station record.</p><p id="archive-coverage">Loading archive coverage…</p><a href="data/daily.json" download>Daily data (JSON) ↗</a> · <a href="data/manifest.json" download>Archive index ↗</a></div><div><h3>How to read the plots</h3><p>Windows up to 30 days show five-minute observations. Longer windows show daily mean temperature, humidity and wind, daily peak gust, and daily rainfall. All plots share the same time axis; drag to inspect a shorter interval.</p><p>Rainfall is the change in the station’s running rain counter between adjacent observations. Missing intervals and unresolved counter resets remain unknown. Cumulative rain starts at zero for each selected window and sums only observed increments; incomplete totals are marked. Daily means use available samples. Days and timestamps use America/Los_Angeles, including daylight saving time.</p><p>The CSV button downloads the displayed series in the selected units.</p></div></div></details>
