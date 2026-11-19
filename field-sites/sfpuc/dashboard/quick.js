@@ -69,8 +69,39 @@ function heat(canvas,offset,positions,type,range){
  c.save();c.translate(5,top+ph/2);c.rotate(-Math.PI/2);c.textAlign='center';c.textBaseline='top';c.fillText('Depth (cm)',0,0);c.restore();
  if(!rows.some(r=>r.x>=start&&r.x<=end)){c.fillStyle='#a4b6ba';c.textAlign='center';c.textBaseline='middle';c.fillText('No observations in this window',left+pw/2,top+ph/2);}
 }
+function placeWindowMetrics(){
+ const box=$('#window-metrics'),main=$('main'),bar=$('.window-bar');
+ const base=main.getBoundingClientRect(),head=$('header').getBoundingClientRect();
+ const left=Math.max($('header>div:first-child').getBoundingClientRect().right,$('.window-bar>[role="group"]').getBoundingClientRect().right)+16;
+ // Reserve room for the full shared-cursor timestamp, not only "Fixed PST".
+ const right=Math.min($('.freshness').getBoundingClientRect().left,$('#battery-shortcut').getBoundingClientRect().left-195)-14;
+ const width=right-left;
+ box.hidden=width<300;
+ if(box.hidden)return;
+ box.style.left=(left-base.left)+'px';box.style.top=(head.top-base.top)+'px';box.style.width=width+'px';
+ box.style.height=(bar.getBoundingClientRect().bottom-head.top)+'px';box.classList.toggle('compact-metrics',width<500);
+}
+function renderWindowMetrics(start,end){
+ const stats=QuickStats.summarize(data,start,end),rain=stats.rain,temp=stats.temperature;
+ const rainMissing=rain.coverage<.999999,metrics=[],details=[];
+ const add=(label,value,sub,note)=>{metrics.push({label,value,sub,note});details.push(label+': '+value+'. '+note);};
+ const range=fmt(start)+' to '+fmt(end)+' PST.';
+ add('Rain · window',display(rain.value,1)+' mm'+(rainMissing?'*':''),rainMissing?'observed only':'recorded total',(rainMissing?'* Observed rainfall only. ':'')+range+' Available hourly rainfall covers '+display(rain.coveredMs/H,2)+' of '+display((end-start)/H,2)+' hours; missing hours are not treated as zero.'+(rain.apportioned?' Boundary hours are apportioned by overlap, assuming uniform rain within the hour.':''));
+ const wet=rain.lastRain;
+ add('Last wet hour',wet?display(wet.value,2)+' mm':'—',wet?fmt(wet.time):'none recorded',wet?'Most recent wet hourly interval intersecting the selected window, ending '+fmt(wet.time)+' PST. Amount is the full hourly total, not a storm total.':'No positive hourly rainfall recorded in the selected window. Missing coverage can hide rain.');
+ add('Air · hourly min/max',finite(temp.min)?display(temp.min,1)+'–'+display(temp.max,1)+' °C':'—',temp.latest?'latest '+display(temp.latest.value,1)+' °C':'no observations',range+' Minimum and maximum of '+temp.count+' hourly mean temperatures; these are not instantaneous temperature extremes.'+(temp.latest?' Latest hourly mean ends '+fmt(temp.latest.time)+' PST.':''));
+ for(const probe of ['T','U']){
+  const s=stats.storage[probe],value=finite(s.value)?(s.value>0?'+':'')+display(s.value,1)+' mm':'—';
+  const note=finite(s.value)?'Change in soil water stored over 0–'+s.depthCm+' cm: sum of layer VWC changes × layer thickness. All five layers required; zero is valid. From '+fmt(s.initial.time)+(s.initial.interpolated?' (linearly interpolated)':'')+' to '+fmt(s.final.time)+' PST. No extrapolation to the window end. Positive means storage gain.':s.reason;
+  add('Δ storage · '+probe,value,finite(s.value)?'0–75 cm':'missing endpoint',note);
+ }
+ const box=$('#window-metrics');box.replaceChildren();
+ for(const m of metrics){const el=document.createElement('div');el.className='window-metric';el.title=m.note;el.setAttribute('aria-label',m.label+': '+m.value+'. '+m.note);for(const [tag,cls,text] of [['span','metric-label',m.label],['strong','metric-value',m.value],['span','metric-sub',m.sub]]){const child=document.createElement(tag);child.className=cls;child.textContent=text;el.append(child);}box.append(el);}
+ const detail=$('#window-metrics-detail');detail.replaceChildren();for(const text of details){const p=document.createElement('p');p.textContent=text;detail.append(p);}
+ placeWindowMetrics();
+}
 function render(){if(!data)return;charts.forEach(c=>c.destroy());charts=[];heatJobs=[];cursorTime=null;$('#response-time').textContent='Fixed PST';document.querySelectorAll('[data-window]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.window===windowHours)));
- const [start,end]=extent();$('#through').textContent='Through '+fmt(end)+' · PST';const receipt=new Date(data.received_through_utc);$('#received').textContent='Received '+receipt.toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+ const [start,end]=extent();renderWindowMetrics(start,end);$('#through').textContent='Through '+fmt(end)+' · PST';const receipt=new Date(data.received_through_utc);$('#received').textContent='Received '+receipt.toLocaleString('en-US',{timeZone:'America/Los_Angeles',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
  const sap=data.sap.sensors.map((s,i)=>({label:'Sensor '+s,data:points(data.sap.normalized_rows,i+1,3)}));line('sap-chart',sap,'',{min:0,max:1});$('#sap-empty').hidden=sap.some(s=>s.data.some(p=>p.x>=start&&p.x<=end&&finite(p.y)));
  const moisture=scaleRange(0,10,'moisture'),temp=scaleRange(10,14,'temperature');for(const [type,range,offsets,positions] of [['moisture',moisture,[0,5],(data.soil.moisture_midpoints_cm||[7.5,22.5,37.5,52.5,67.5])],['temperature',temp,[10,17],(data.soil.temperature_depths_cm||[3.5,10,20,30,45,60,75])]]){document.querySelectorAll('[data-scale="'+type+'-low"]').forEach(el=>el.textContent=display(range[0],type==='moisture'?2:0));document.querySelectorAll('[data-scale="'+type+'-high"]').forEach(el=>el.textContent=display(range[1],type==='moisture'?2:0));['T','U'].forEach((s,i)=>{const job=()=>heat($('#'+type+'-'+s),offsets[i],positions,type,range);heatJobs.push(job);job();});}
  document.querySelectorAll('[data-rain-title]').forEach(el=>el.textContent='Cumulative rainfall · WY '+data.water_year);$('#rain-note').textContent=display(data.rainfall.total_recorded_mm,1)+' mm recorded'+(data.rainfall.first_interval_end?' since '+fmt(time(data.rainfall.first_interval_end),true):'')+(data.rainfall.complete_water_year_to_latest_weather?'':' · incomplete water year');for(const id of ['rain-chart','rain-T-chart','rain-U-chart'])line(id,[{label:'Recorded rainfall',data:points(data.rainfall.rows,1,1.5),borderColor:'#79b9e3'}],'mm');
@@ -82,10 +113,11 @@ function render(){if(!data)return;charts.forEach(c=>c.destroy());charts=[];heatJ
  const vpdRows=weather.rows.map(r=>[r[0],vpd(r[ti],r[ri])]);
  line('vpd-chart',[{label:'VPD',data:points(vpdRows,1,1.5),borderColor:'#d2a0ba'}],'kPa',{beginAtZero:true});for(const [id,field,title,unit,factor,color] of [['air','AirT_C_Avg','Air temperature','°C',1,'#e4ac85'],['humidity','RH_Avg','Relative humidity','%',1,'#89bfb5'],['solar','SlrFD_kW_Avg','Solar radiation','W/m²',1000,'#d6c184'],['wind','WS_ms_S_WVT','Wind speed','m/s',1,'#a2b8cd']])line(id+'-chart',[{label:title,data:points(weather.rows,weather.fields.indexOf(field)+1,1.5,factor),borderColor:color}],unit,id==='humidity'?{min:0,max:100}:{});
  const power=data.power.rows.length?[{label:'15-min mean',data:points(data.power.rows,1,.375)},{label:'15-min minimum',data:points(data.power.rows,2,.375),borderDash:[4,3]}]:[{label:'Daily minimum',data:points(data.daily_power.rows,1,36)}];$('#power-note').textContent=data.power.rows.length?'15-minute mean and minimum; the first interval after restart can be partial.':'Daily minimum only; awaiting 15-minute records.';line('power-chart',power,'V');
- const latest=data.power.rows.filter(r=>finite(r[1])).at(-1),daily=data.daily_power.rows.filter(r=>finite(r[1])).at(-1),battery=latest||daily;$('#battery-shortcut').textContent=battery?'Battery '+display(battery[1],2)+' V'+(latest?'':' · daily min'):'Battery · no readings';$('#battery-shortcut').title=battery?fmt(time(battery[0]))+' PST'+(latest&&finite(latest[2])?' · 15-min minimum '+display(latest[2],2)+' V':''):'Open battery plot';
+ const latest=data.power.rows.filter(r=>finite(r[1])).at(-1),daily=data.daily_power.rows.filter(r=>finite(r[1])).at(-1),battery=latest||daily;$('#battery-shortcut').textContent=battery?'Battery '+display(battery[1],2)+' V'+(latest?'':' · daily min'):'Battery · no readings';$('#battery-shortcut').title=battery?fmt(time(battery[0]))+' PST'+(latest&&finite(latest[2])?' · 15-min minimum '+display(latest[2],2)+' V':''):'Open battery plot';placeWindowMetrics();
 }
+new ResizeObserver(()=>placeWindowMetrics()).observe($('header'));
 async function load(){const version=++loadVersion;try{const r=await fetch('data/quick.json',{cache:'no-cache'});if(!r.ok)throw Error(r.status);const next=await r.json();if(version!==loadVersion)return;if(next.schema_version!==1)throw Error('Unsupported data');data=next;$('#load-error').hidden=true;render();}catch(e){$('#load-error').hidden=false;$('#load-error').textContent='The latest observations could not be loaded. Any plots still visible show the previous update.';console.error(e);}}
 $('#battery-shortcut').addEventListener('click',()=>{const extra=$('#extra-observations');extra.open=true;$('#battery-shortcut').setAttribute('aria-expanded','true');requestAnimationFrame(()=>{$('#power-chart').closest('article').scrollIntoView({behavior:'smooth',block:'center'});});});
 $('#extra-observations').addEventListener('toggle',()=>{$('#battery-shortcut').setAttribute('aria-expanded',String($('#extra-observations').open));charts.forEach(c=>c.resize());});
-document.querySelectorAll('[data-window]').forEach(b=>b.addEventListener('click',()=>{windowHours=b.dataset.window;render();}));let resize;window.addEventListener('resize',()=>{cancelAnimationFrame(resize);resize=requestAnimationFrame(()=>heatJobs.forEach(f=>f()));});load();setInterval(()=>{if(!document.hidden)load();},600000);
+document.querySelectorAll('[data-window]').forEach(b=>b.addEventListener('click',()=>{windowHours=b.dataset.window;render();}));let resize;window.addEventListener('resize',()=>{cancelAnimationFrame(resize);resize=requestAnimationFrame(()=>{heatJobs.forEach(f=>f());placeWindowMetrics();});});load();setInterval(()=>{if(!document.hidden)load();},600000);
 })();
