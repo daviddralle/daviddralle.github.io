@@ -1,0 +1,11 @@
+{
+  "corrections": [
+    {
+      "start": "2026-11-18T04:00:00-08:00",
+      "end": "2026-11-18T20:27:00-08:00",
+      "amount_in": 1.16,
+      "method": "Uniform additive rainfall over the storm window",
+      "basis": "Owner-approved clog correction: nearby gauge reported 2.0 inches by 20:27; station counter increased 0.838 inches by 20:25. Rounded deficit to 1.16 inches. First recorded rain at 04:05; use preceding interval boundary 04:00. Original station observations remain unchanged."
+    }
+  ]
+}

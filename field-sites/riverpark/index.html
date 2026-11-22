@@ -11,7 +11,7 @@
   <link rel="icon" href="riverpark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css?v=20261115-3">
   <script defer src="../sfpuc/dashboard/vendor/chart.umd.min.js"></script>
-  <script defer src="dashboard.js?v=20261115-4"></script>
+  <script defer src="dashboard.js?v=20261121-1"></script>
 </head>
 <body>
   <nav class="site-nav" aria-label="Site navigation"><a href="/field-sites/">← Field sites</a><a href="/">David Dralle</a></nav>
@@ -58,7 +58,7 @@
         </figure>
       </aside>
     </div>
-    <details id="about"><summary>Data, coverage &amp; downloads</summary><div class="about-grid"><div><h3>Station record</h3><p>Outdoor observations from the <a href="https://ambientweather.net/dashboard/ba19c4bd1ae9bc2272fd1f36df654b83" target="_blank" rel="noopener">River Park station on Ambient Weather</a>. The archive updates hourly from a Raspberry Pi; readings may be delayed. This is an uncorrected personal weather-station record.</p><p id="archive-coverage">Loading archive coverage…</p><a href="data/daily.json" download>Daily data (JSON) ↗</a> · <a href="data/manifest.json" download>Archive index ↗</a></div><div><h3>How to read the plots</h3><p>Windows up to 30 days show five-minute observations. Longer windows show daily mean temperature, humidity and wind, daily peak gust, and daily rainfall. All plots share the same time axis; drag to inspect a shorter interval.</p><p>Rainfall is the change in the station’s running rain counter between adjacent observations. Missing intervals and unresolved counter resets remain unknown. Cumulative rain starts at zero for each selected window and sums only observed increments; incomplete totals are marked. Daily means use available samples. Days and timestamps use America/Los_Angeles, including daylight saving time.</p><p>The CSV button downloads the displayed series in the selected units.</p></div></div></details>
+    <details id="about"><summary>Data, coverage &amp; downloads</summary><div class="about-grid"><div><h3>Station record</h3><p>Outdoor observations from the <a href="https://ambientweather.net/dashboard/ba19c4bd1ae9bc2272fd1f36df654b83" target="_blank" rel="noopener">River Park station on Ambient Weather</a>. The archive updates hourly from a Raspberry Pi; readings may be delayed. This is a personal weather-station record.</p><p id="archive-coverage">Loading archive coverage…</p><a href="data/daily.json" download>Station daily data (JSON) ↗</a> · <a href="data/manifest.json" download>Archive index ↗</a></div><div><h3>How to read the plots</h3><p>Windows up to 30 days show five-minute observations. Longer windows show daily mean temperature, humidity and wind, daily peak gust, and daily rainfall. All plots share the same time axis; drag to inspect a shorter interval.</p><p>Rainfall is the change in the station’s running rain counter between adjacent observations. Missing intervals and unresolved counter resets remain unknown. Cumulative rain starts at zero for each selected window and sums rainfall increments; incomplete totals are marked. Daily means use available samples. Days and timestamps use America/Los_Angeles, including daylight saving time.</p><p>The CSV button downloads the displayed series in the selected units.</p></div></div></details>
   </main>
   <footer><span>River Park meteorological observations</span><a href="https://ambientweather.net/dashboard/ba19c4bd1ae9bc2272fd1f36df654b83">Ambient Weather ↗</a></footer>
 </body>

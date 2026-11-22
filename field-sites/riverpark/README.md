@@ -26,6 +26,21 @@ Validation:
 `python3 -m unittest discover -s scripts/riverpark -p 'test_*.py'`
 and `node --test scripts/riverpark/test_dashboard.cjs`.
 
+## Rainfall correction, November 18, 2026
+
+`data/rain-corrections.json` adds the owner-approved 1.16 inches uniformly from
+04:00 to 20:27 Pacific. The station counter gained 0.838 inches by 20:25,
+compared with a nearby gauge's reported 2.0 inches at 20:27. The storm starts
+with the interval ending at 04:05. The exact onset of clogging is unknown.
+
+The dashboard applies this addition once to both five-minute and daily views,
+and the plotted CSV includes it. Original monthly observations, recent data,
+station daily summaries, and current readings remain source values. Corrections
+are stored separately so hourly API refreshes cannot overwrite or compound them.
+The existing 16:05–16:15 reporting gap remains incomplete; its 0.015-inch counter
+increase is still excluded from observed interval sums. No visible correction
+label is shown, as requested by the owner.
+
 ## Thumbnail
 
 Real aerial imagery, exported November 15, 2026 from Esri World Imagery:

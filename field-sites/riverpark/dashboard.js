@@ -13,9 +13,26 @@ function increment(previous, current) {
   }
   return null;
 }
-function prepareRaw(rows, start, end) {
+function rainAddition(start, end, corrections=[]) {
+  return corrections.reduce((sum,c) => {
+    const a=Date.parse(c.start), b=Date.parse(c.end);
+    return sum + c.amount_in * Math.max(0, Math.min(end,b)-Math.max(start,a))/(b-a);
+  },0);
+}
+function prepareDaily(days, corrections=[]) {
+  return days.map(d=>{
+    const added=rainAddition(d.t,d.t+d.expected*STEP,corrections);
+    return {...d,rain:valid(d.rain)?d.rain+added:added||null};
+  });
+}
+function prepareRaw(rows, start, end, corrections=[]) {
   const sorted = [...new Map(rows.map(r => [r[0], r])).values()].sort((a,b) => a[0]-b[0]);
-  return sorted.map((r,i) => ({t:r[0], temp:r[1], humidity:r[2], wind:r[3], gust:r[4], rain:increment(sorted[i-1], r)})).filter(r => r.t > start && r.t <= end);
+  return sorted.map((r,i) => {
+    const previous=sorted[i-1], observed=increment(previous,r);
+    const added=previous?rainAddition(previous[0],r[0],corrections):0;
+    return {t:r[0],temp:r[1],humidity:r[2],wind:r[3],gust:r[4],
+      rain:valid(observed)?observed+added:added||null,missing:!valid(observed)};
+  }).filter(r => r.t > start && r.t <= end);
 }
 function cumulative(points) {
   let sum = 0;
@@ -33,13 +50,13 @@ function convert(v, kind, units) {
   if (kind === 'rain' || kind === 'cumulative') return v*25.4;
   return v;
 }
-if (typeof module !== 'undefined') module.exports = {increment,prepareRaw,cumulative,convert};
+if (typeof module !== 'undefined') module.exports = {increment,prepareRaw,prepareDaily,rainAddition,cumulative,convert};
 if (typeof document !== 'undefined') {
   const $ = id => document.getElementById(id);
   const colors = {temp:'#efbf73',humidity:'#63dbea',wind:'#c0ec94',gust:'#8faaa4',cumulative:'#63dbea',rain:'#63dbea'};
   let units = 'us';
   try { units = localStorage.getItem('riverpark-units') === 'metric' ? 'metric' : 'us'; } catch {}
-  let days = 2, manifest, recent, daily, points = [], charts = [], bounds, dailyMode = false, zoom = null, cursor = null, revision = 0;
+  let days = 2, manifest, recent, daily, corrections=[], points = [], charts = [], bounds, dailyMode = false, zoom = null, cursor = null, revision = 0;
   const months = new Map();
   const dateText = (t, opts={}) => new Intl.DateTimeFormat('en-US',{timeZone:ZONE,month:'short',day:'numeric',...opts}).format(t);
   const fmt = (v, digits=1) => valid(v) ? v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}) : '—';
@@ -67,7 +84,7 @@ if (typeof document !== 'undefined') {
     $('status').textContent=age<=90?'Station reporting':age<=180?'Observations delayed':'Station data stale';
     $('status-dot').className=age<=90?'live':age<=180?'stale':'offline';
     $('updated').textContent=`${dateText(r[0],{year:'numeric',hour:'numeric',minute:'2-digit'})} · ${age<60?age+' min':Math.floor(age/60)+' h'} ago`;
-    $('archive-coverage').textContent=`Archive: ${dateText(manifest.start,{year:'numeric'})} – ${dateText(manifest.end,{year:'numeric'})}. ${manifest.count.toLocaleString()} observations. Gaps are retained; no nearby stations or modeled values are substituted.`;
+    $('archive-coverage').textContent=`Archive: ${dateText(manifest.start,{year:'numeric'})} – ${dateText(manifest.end,{year:'numeric'})}. ${manifest.count.toLocaleString()} observations. Gaps in station reporting are retained.`;
     document.querySelectorAll('[data-unit]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.unit===units)));
   }
   async function rawRows(start,end) {
@@ -153,16 +170,16 @@ if (typeof document !== 'undefined') {
       const chosen=zoom||{start:manifest.current[0]-days*DAY,end:manifest.current[0]};
       const useDaily=chosen.end-chosen.start>30*DAY;
       let data;
-      if(useDaily){data=daily.days.filter(r=>r.t>=chosen.start&&r.t<=chosen.end);}
-      else {data=prepareRaw(await rawRows(chosen.start,chosen.end),chosen.start,chosen.end);}
+      if(useDaily){data=prepareDaily(daily.days,corrections).filter(r=>r.t>=chosen.start&&r.t<=chosen.end);}
+      else {data=prepareRaw(await rawRows(chosen.start,chosen.end),chosen.start,chosen.end,corrections);}
       if(token!==revision)return;
       bounds=chosen;dailyMode=useDaily;points=cumulative(data);
       const known=points.filter(p=>valid(p.rain));
       const sum=known.reduce((s,p)=>s+p.rain,0);
-      const incomplete=!points.length||known.length<points.length||points.some((p,i)=>dailyMode?!p.complete:i>0&&p.t-points[i-1].t>STEP*1.5)||points[0].t-bounds.start>(dailyMode?DAY*1.1:STEP*1.5)||bounds.end-points.at(-1).t>(dailyMode?DAY*1.1:STEP*1.5);
+      const incomplete=!points.length||known.length<points.length||points.some((p,i)=>dailyMode?!p.complete:p.missing||(i>0&&p.t-points[i-1].t>STEP*1.5))||points[0].t-bounds.start>(dailyMode?DAY*1.1:STEP*1.5)||bounds.end-points.at(-1).t>(dailyMode?DAY*1.1:STEP*1.5);
       $('window-rain').innerHTML=`${fmt(known.length?convert(sum,'rain',units):null,units==='us'?3:1)}<small>${unit('rain')}</small>`;
-      $('window-rain-note').textContent=incomplete?'Observed subtotal · incomplete coverage':'Accumulated within this window';
-      $('coverage').textContent=!points.length?'No observations in this window. Choose a different window.':incomplete?'Gaps or partial days in this window. Rain totals include observed intervals only.':'Rain accumulates from the start of the selected window. Missing values are never treated as zero.';
+      $('window-rain-note').textContent=incomplete?'Subtotal · incomplete coverage':'Accumulated within this window';
+      $('coverage').textContent=!points.length?'No observations in this window. Choose a different window.':incomplete?'Gaps or partial days in this window. Rain totals exclude unknown amounts.':'Rain accumulates from the start of the selected window. Missing values are never treated as zero.';
       $('range-label').textContent=`${dateText(bounds.start,{year:'numeric'})} – ${dateText(bounds.end,{year:'numeric'})}`;
       $('resolution').textContent=dailyMode?'Daily summaries':'5-minute observations';
       $('reset').hidden=!zoom;
@@ -184,8 +201,8 @@ if (typeof document !== 'undefined') {
   });
   async function refresh() {
     try {
-      const [m,r,d]=await Promise.all(['manifest.json','recent.json','daily.json'].map(fetchJSON));
-      manifest=m;recent=r;daily=d;months.clear();renderCurrent();
+      const [m,r,d,c]=await Promise.all(['manifest.json','recent.json','daily.json','rain-corrections.json'].map(fetchJSON));
+      manifest=m;recent=r;daily=d;corrections=c.corrections;months.clear();renderCurrent();
       if(typeof Chart==='undefined')throw Error('Chart library unavailable');
       await render();
     }catch(error){$('status').textContent='Data unavailable';$('status-dot').className='offline';showError('Station data could not be loaded. Reload to retry, or use the Ambient Weather link below.');$('plot-stack').setAttribute('aria-busy','false');}
